@@ -71,7 +71,6 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=N
     print('\t\tSpecificity:', specificity)
     print('\t\tF1:', f1, '\n')
 
-
     return {
         'grid_search': {
             'accuracy': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']) if 'iloc' in performance else None,
