@@ -10,17 +10,13 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
-from estimators import estimators, estimatorNames
 from hyperparameters import hyperParameterRange
 
 # Define the cross validator
 cv = StratifiedKFold(n_splits=10)
 
 # Define the generic method to generate the best model for the provided estimator
-def generateModel(algorithm, X_train, Y_train, X, Y, X2, Y2, labels):
-    print('\tGenerating ' + estimatorNames[algorithm] + ' model:')
-
-    model = estimators[algorithm]
+def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels):
     model.fit(X_train, Y_train)
     model_cv = cross_val_score(model, X, Y, cv=cv, scoring='accuracy')
     best_params = {}
@@ -28,16 +24,14 @@ def generateModel(algorithm, X_train, Y_train, X, Y, X2, Y2, labels):
 
     print("\t\tDefault CV Accuracy: %.7g (sd=%.7g)" % (np.mean(model_cv), np.std(model_cv)))
 
-    pipelineEstimator = algorithm.split('-')[0]
-
     # Perform a grid search if the algorithm has tunable hyper-parameters
-    if pipelineEstimator in hyperParameterRange:
+    if estimatorName in hyperParameterRange:
 
         # The parameter `return_train_score` is False because 
         # it's not required and reduces CPU time without it
         model_gs = GridSearchCV(
             model,
-            hyperParameterRange[pipelineEstimator],
+            hyperParameterRange[estimatorName],
             return_train_score='False',
             cv=cv,
             n_jobs=-1,

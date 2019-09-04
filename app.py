@@ -17,6 +17,8 @@ from sklearn.model_selection import train_test_split
 
 from estimators import estimatorNames
 from model import generateModel
+from pipeline import generatePipeline
+from scalers import scalerNames
 
 #%%
 # Define the labels for our classes
@@ -41,9 +43,14 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, random_s
 #%%
 # Generate all models
 models = {}
-print('Features used:', ', '.join(sorted(X)))
 
-for algorithm in estimatorNames:
-    models[algorithm] = generateModel(algorithm, X_train, Y_train, X, Y, X2, Y2, labels)
+for estimator in estimatorNames:
+    models[estimator] = {}
+
+    for scaler in scalerNames:
+        print('\tGenerating ' + estimatorNames[estimator] + ' model with ' + scalerNames[scaler])
+
+        pipeline = generatePipeline(scaler, '', estimator)
+        models[estimator][scaler] = generateModel(estimator, pipeline, X_train, Y_train, X, Y, X2, Y2, labels)
 
 #%%
