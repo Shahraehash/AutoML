@@ -55,13 +55,22 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels):
     predictions = model_best.predict(X2)
     print('\t\t', classification_report(Y2, predictions, target_names=labels).replace('\n', '\n\t\t'))
 
-    tn, fp, fn, tp = confusion_matrix(Y2, predictions).ravel()
+    print('\t\tGeneralization:')
 
     accuracy = accuracy_score(Y2, predictions)
-    print('\t\tGeneralization accuracy:', accuracy)
+    print('\t\t\tAccuracy:', accuracy)
 
     auc = roc_auc_score(Y2, predictions)
-    print('\t\tGeneralization AUC:', auc, '\n')
+    print('\t\t\tAUC:', auc)
+
+    tn, fp, fn, tp = confusion_matrix(Y2, predictions).ravel()
+    f1 = f1_score(Y2, predictions)
+    sensitivity = tp / (tp+fn)
+    specificity = tn / (tn+fp)
+    print('\t\t\tSensitivity:', sensitivity)
+    print('\t\t\tSpecificity:', specificity)
+    print('\t\t\tF1:', f1, '\n')
+
 
     return {
         'grid_search': {
@@ -74,8 +83,8 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels):
         'generalization': {
             'accuracy': accuracy,
             'auc': auc,
-            'f1': f1_score(Y2, predictions),
-            'sensitivity': tp / (tp+fn),
-            'specificity': tn / (tn+fp)
+            'f1': f1,
+            'sensitivity': sensitivity,
+            'specificity': specificity
         }
     }
