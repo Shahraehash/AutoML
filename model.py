@@ -74,8 +74,8 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels):
 
     return {
         'grid_search': {
-            'accuracy': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']),
-            'roc_auc': (np.mean(model_gs_cv), np.std(model_gs_cv)),
+            'accuracy': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']) if 'iloc' in performance else None,
+            'roc_auc': (np.mean(model_gs_cv), np.std(model_gs_cv)) if 'model_gs_cv' in locals() else None,
             'best_params': best_params,
             'best_estimator': model_best,
             'performance': performance
