@@ -57,7 +57,7 @@ Y_train = {}
 Y_test = {}
 
 #%%
-# Generate the X and Y vairables by splitting the
+# Generate the X and Y variables by splitting the
 # features from the labels
 def generateXY(X, Y, data, type, labelColumn):
     X[type] = data[type].drop(labelColumn, axis=1)
@@ -84,15 +84,16 @@ def getValue(dictionary, type):
     fallback = 'selected' if type == 'selected-scaled' else 'raw'        
     return dictionary.get(type, dictionary[fallback])
 
-#%%
-# Import the training data
-data['raw'] = pd.read_csv('data/train.csv').dropna()
-generateXY(X, Y, data, 'raw', 'AKI')
+# Imports a CSV file, drops the null values, and generate the X/Y variables
+def importData(type, file, labelColumn):
+    sourceData = data if type == 'train' else data_test
+    sourceData['raw'] = pd.read_csv(file).dropna()
+    generateXY(X if type == 'train' else X2, Y if type == 'train' else Y2, sourceData, 'raw', labelColumn)
 
 #%%
-# Import the testing data
-data_test['raw'] = pd.read_csv('data/test.csv').dropna()
-generateXY(X2, Y2, data_test, 'raw', 'AKI')
+# Import data
+importData('train', 'data/train.csv', 'AKI')
+importData('test', 'data/test.csv', 'AKI')
 
 #%%
 # Generate test/train split from the train data
