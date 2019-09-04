@@ -54,5 +54,5 @@ for scaler, featureSelector, estimator in list(itertools.product(*[scalerNames, 
     if not featureSelector in models[scaler]:
         models[scaler][featureSelector] = {}
 
-    pipeline = generatePipeline(scaler, '', estimator)
+    pipeline = generatePipeline(scaler, featureSelector, estimator)
     models[scaler][featureSelector][estimator] = generateModel(estimator, pipeline, X_train, Y_train, X, Y, X2, Y2, labels)
