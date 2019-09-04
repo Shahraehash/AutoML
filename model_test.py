@@ -1,3 +1,5 @@
+import pandas as pd
+
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_breast_cancer
 
@@ -5,12 +7,15 @@ from model import generateModel
 from pipeline import generatePipeline
 
 # Load the test data
-breast_cancer = load_breast_cancer(return_X_y=True)
-X = breast_cancer[0]
-Y = breast_cancer[1]
+labelColumn = 'AKI'
 
-X2 = X
-Y2 = Y
+data = pd.read_csv('data/train.csv').dropna()
+X = data.drop(labelColumn, axis=1)
+Y = data[labelColumn]
+
+data_test = pd.read_csv('data/test.csv').dropna()
+X2 = data_test.drop(labelColumn, axis=1)
+Y2 = data_test[labelColumn]
 
 #%%
 # Generate test/train split from the train data
@@ -20,9 +25,8 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, random_s
 def test_lr():
     pipeline = generatePipeline('none', 'none', 'lr')
     model = generateModel('lr', pipeline, X_train, Y_train, X, Y, X2, Y2)
-    print('hello!!!')
-    assert model['generalization']['accuracy'] == ''
-    assert model['generalization']['auc'] == ''
-    assert model['generalization']['f1'] == ''
-    assert model['generalization']['sensitivity'] == ''
-    assert model['generalization']['specificity'] == ''
+    assert model['generalization']['accuracy'] == 0.37254901960784315
+    assert model['generalization']['auc'] == 0.6
+    assert model['generalization']['f1'] == 0.40740740740740744
+    assert model['generalization']['sensitivity'] == 1.0
+    assert model['generalization']['specificity'] == 0.2
