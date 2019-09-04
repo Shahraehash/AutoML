@@ -30,3 +30,12 @@ def test_lr():
     assert model['generalization']['f1'] == 0.40740740740740744
     assert model['generalization']['sensitivity'] == 1.0
     assert model['generalization']['specificity'] == 0.2
+
+def test_std_lr():
+    pipeline = generatePipeline('std', 'none', 'lr')
+    model = generateModel('lr', pipeline, X_train, Y_train, X, Y, X2, Y2)
+    assert model['generalization']['accuracy'] == 0.49019607843137253
+    assert model['generalization']['auc'] == 0.675
+    assert model['generalization']['f1'] == 0.4583333333333333
+    assert model['generalization']['sensitivity'] == 1.0
+    assert model['generalization']['specificity'] == 0.35
