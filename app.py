@@ -12,10 +12,12 @@ warnings.filterwarnings('ignore')
 #%%
 # Dependencies
 import pandas as pd
+import itertools
 
 from sklearn.model_selection import train_test_split
 
 from estimators import estimatorNames
+from feature_selection import featureSelectorNames
 from model import generateModel
 from pipeline import generatePipeline
 from scalers import scalerNames
@@ -43,14 +45,14 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, random_s
 #%%
 # Generate all models
 models = {}
+for scaler, featureSelector, estimator in list(itertools.product(*[scalerNames, featureSelectorNames, estimatorNames])):
+    print('\tGenerating ' + estimatorNames[estimator] + ' model with ' + scalerNames[scaler] + ' and with ' + featureSelectorNames[featureSelector])
 
-for estimator in estimatorNames:
-    models[estimator] = {}
+    if not scaler in models:
+        models[scaler] = {}
+    
+    if not featureSelector in models[scaler]:
+        models[scaler][featureSelector] = {}
 
-    for scaler in scalerNames:
-        print('\tGenerating ' + estimatorNames[estimator] + ' model with ' + scalerNames[scaler])
-
-        pipeline = generatePipeline(scaler, '', estimator)
-        models[estimator][scaler] = generateModel(estimator, pipeline, X_train, Y_train, X, Y, X2, Y2, labels)
-
-#%%
+    pipeline = generatePipeline(scaler, '', estimator)
+    models[scaler][featureSelector][estimator] = generateModel(estimator, pipeline, X_train, Y_train, X, Y, X2, Y2, labels)
