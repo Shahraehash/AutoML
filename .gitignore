@@ -108,3 +108,5 @@ venv.bak/
 
 # Cache
 cache/
+
+.DS_Store

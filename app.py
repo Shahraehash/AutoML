@@ -11,21 +11,12 @@ warnings.filterwarnings('ignore')
 
 #%%
 # Dependencies
-from functools import partial
 from os import path
 import numpy as np
 import pandas as pd
 import json
 
 from sklearn.preprocessing import StandardScaler
-
-from sklearn.svm import SVC
-from sklearn.naive_bayes import GaussianNB
-from sklearn.linear_model import LogisticRegression
-from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import GradientBoostingClassifier
 
 from sklearn.feature_selection import SelectPercentile
 
@@ -36,6 +27,9 @@ from sklearn.model_selection import StratifiedKFold
 
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+
+from estimators import estimators, estimatorNames
+from hyperparameters import hyperParameterRange
 
 #%%
 # Define the cross validator
@@ -65,9 +59,9 @@ Y_test = {}
 #%%
 # Generate the X and Y vairables by splitting the
 # features from the labels
-def generateXY(X, Y, data, type):
-    X[type] = data[type].drop('AKI', axis=1)
-    Y[type] = data[type]['AKI']
+def generateXY(X, Y, data, type, labelColumn):
+    X[type] = data[type].drop(labelColumn, axis=1)
+    Y[type] = data[type][labelColumn]
 
 # Generate a test/train split for the keyed data
 def generateTestSplit(type):
@@ -93,12 +87,12 @@ def getValue(dictionary, type):
 #%%
 # Import the training data
 data['raw'] = pd.read_csv('data/train.csv').dropna()
-generateXY(X, Y, data, 'raw')
+generateXY(X, Y, data, 'raw', 'AKI')
 
 #%%
 # Import the testing data
 data_test['raw'] = pd.read_csv('data/test.csv').dropna()
-generateXY(X2, Y2, data_test, 'raw')
+generateXY(X2, Y2, data_test, 'raw', 'AKI')
 
 #%%
 # Generate test/train split from the train data
@@ -124,87 +118,10 @@ for feature, selected in selectedFeatures.items():
         data['selected'] = data['selected'].drop(feature, axis=1)
         data_test['selected'] = data_test['selected'].drop(feature, axis=1)
 
-generateXY(X, Y, data, 'selected')
-generateXY(X2, Y2, data_test, 'selected')
+generateXY(X, Y, data, 'selected', 'AKI')
+generateXY(X2, Y2, data_test, 'selected', 'AKI')
 generateTestSplit('selected')
 generateScaledData('selected', 'selected-scaled')
-
-#%%
-# Define hyper-parameter ranges for grid search
-hyperParameterRange = {
-    'gb': {
-        'learning_rate': [0.1, 0.05, 0.02, 0.01],
-        'max_depth': [4, 6, 8],
-        'min_samples_leaf': [20, 50, 100, 150],
-        'max_features': [1.0, 0.3, 0.1] 
-    },
-    'knn': [
-        {
-            'n_neighbors': list(range(1, 31)),
-            'weights': ['uniform']
-        },
-        {
-            'n_neighbors': list(range(1, 31)),
-            'weights': ['distance']
-        }
-    ],
-    'lr': {
-        'C': [.01, .1, 1, 2, 3, 4, 5, 10, 100],
-        'solver': ['lbfgs'],
-        'max_iter': [100,200,500]
-    },
-    'mlp': [
-        {
-            'max_iter': [300, 400],
-            'activation': ['tanh'], 
-            'learning_rate': ['constant', 'adaptive'],
-            'alpha': [.0001, .0005], 
-            'tol': [.005, .0001],
-            'hidden_layer_sizes': [(10,), (20,), (50,), (100,), (200,), (10,10,10)]
-        },
-        {
-            'max_iter': [300, 400],
-            'activation': ['relu'], 
-            'learning_rate': ['constant', 'adaptive'],
-            'alpha': [.0001, .0005], 
-            'tol': [.005, .0001],
-            'hidden_layer_sizes': [(10,), (20,), (50,), (100,), (200,), (10,10,10)]
-        }
-    ],
-    'rf': {
-        'bootstrap': [True],
-        'max_depth': [50, 80, 110],
-        'max_features': ['auto'],
-        'min_samples_leaf': [3, 4, 5],
-        'min_samples_split': [2,3,4],
-        'n_estimators': [10, 100, 200, 300, 1000]
-    },
-    'svm': {
-        'C': [.1, 1, 10, 100, 1000],
-        'kernel': ['rbf'],
-        'gamma': [1, .1, .5, .01, .05, .001, .005, .0001]
-    }
-}
-
-estimators = {
-    'gb': GradientBoostingClassifier,
-    'knn': KNeighborsClassifier,
-    'lr': partial(LogisticRegression, solver='lbfgs', max_iter=1000),
-    'mlp': MLPClassifier,
-    'nb': GaussianNB,
-    'rf': partial(RandomForestClassifier, n_estimators=10),
-    'svm': partial(SVC, gamma='auto')
-}
-
-estimatorNames = {
-    'gb': 'gradient boosting machine',
-    'knn': 'K-nearest neighbor',
-    'lr': 'logistic regression',
-    'mlp': 'neural network',
-    'nb': 'naive Bayes',
-    'rf': 'random forest',
-    'svm': 'support vector machine'
-}
 
 #%%
 # Define the generic method to generate the best model for the provided estimator
