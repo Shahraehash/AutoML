@@ -20,7 +20,7 @@ cv = StratifiedKFold(n_splits=10)
 def generateModel(algorithm, X_train, Y_train, X, Y, X2, Y2, labels):
     print('\tGenerating ' + estimatorNames[algorithm] + ' model:')
 
-    model = estimators[algorithm]()
+    model = estimators[algorithm]
     model.fit(X_train, Y_train)
     model_cv = cross_val_score(model, X, Y, cv=cv, scoring='accuracy')
     best_params = {}
@@ -28,14 +28,16 @@ def generateModel(algorithm, X_train, Y_train, X, Y, X2, Y2, labels):
 
     print("\t\tDefault CV Accuracy: %.7g (sd=%.7g)" % (np.mean(model_cv), np.std(model_cv)))
 
+    pipelineEstimator = algorithm.split('-')[0]
+
     # Perform a grid search if the algorithm has tunable hyper-parameters
-    if algorithm in hyperParameterRange:
+    if pipelineEstimator in hyperParameterRange:
 
         # The parameter `return_train_score` is False because 
         # it's not required and reduces CPU time without it
         model_gs = GridSearchCV(
             model,
-            hyperParameterRange[algorithm],
+            hyperParameterRange[pipelineEstimator],
             return_train_score='False',
             cv=cv,
             n_jobs=-1,
