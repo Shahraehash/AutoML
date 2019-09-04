@@ -16,7 +16,7 @@ from hyperparameters import hyperParameterRange
 cv = StratifiedKFold(n_splits=10)
 
 # Define the generic method to generate the best model for the provided estimator
-def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels):
+def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=None):
     model.fit(X_train, Y_train)
     model_cv = cross_val_score(model, X, Y, cv=cv, scoring='accuracy')
     best_params = {}
