@@ -8,7 +8,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score
 
 from sklearn.metrics import roc_auc_score
-from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, f1_score
 
 from hyperparameters import hyperParameterRange
 
@@ -55,6 +55,8 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels):
     predictions = model_best.predict(X2)
     print('\t\t', classification_report(Y2, predictions, target_names=labels).replace('\n', '\n\t\t'))
 
+    tn, fp, fn, tp = confusion_matrix(Y2, predictions).ravel()
+
     accuracy = accuracy_score(Y2, predictions)
     print('\t\tGeneralization accuracy:', accuracy)
 
@@ -62,11 +64,18 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels):
     print('\t\tGeneralization AUC:', auc, '\n')
 
     return {
-        'estimator': model_best,
-        'best_params': best_params,
-        'performance': performance,
+        'grid_search': {
+            'accuracy': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']),
+            'roc_auc': (np.mean(model_gs_cv), np.std(model_gs_cv)),
+            'best_params': best_params,
+            'best_estimator': model_best,
+            'performance': performance
+        },
         'generalization': {
             'accuracy': accuracy,
-            'auc': auc
+            'auc': auc,
+            'f1': f1_score(Y2, predictions),
+            'sensitivity': tp / (tp+fn),
+            'specificity': tn / (tn+fp)
         }
     }
