@@ -31,6 +31,7 @@ def test_lr():
     assert model['generalization']['sensitivity'] == 1.0
     assert model['generalization']['specificity'] == 0.2
 
+# Verify an LR model with standard scaler and no feature selector
 def test_std_lr():
     pipeline = generatePipeline('std', 'none', 'lr')
     model = generateModel('lr', pipeline, X_train, Y_train, X, Y, X2, Y2)
