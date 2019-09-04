@@ -46,7 +46,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, random_s
 # Generate all models
 models = {}
 for scaler, featureSelector, estimator in list(itertools.product(*[scalerNames, featureSelectorNames, estimatorNames])):
-    print('\tGenerating ' + estimatorNames[estimator] + ' model with ' + scalerNames[scaler] + ' and with ' + featureSelectorNames[featureSelector])
+    print('Generating ' + estimatorNames[estimator] + ' model with ' + scalerNames[scaler] + ' and with ' + featureSelectorNames[featureSelector])
 
     if not scaler in models:
         models[scaler] = {}

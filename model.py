@@ -22,7 +22,7 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels):
     best_params = {}
     performance = {}
 
-    print("\t\tDefault CV Accuracy: %.7g (sd=%.7g)" % (np.mean(model_cv), np.std(model_cv)))
+    print("\tDefault CV Accuracy: %.7g (sd=%.7g)" % (np.mean(model_cv), np.std(model_cv)))
 
     # Perform a grid search if the algorithm has tunable hyper-parameters
     if estimatorName in hyperParameterRange:
@@ -44,32 +44,32 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels):
         model_best = model_gs.best_estimator_
         best_params = model_gs.best_params_
 
-        print("\t\tGridSearchCV AUC: %.7g (sd=%.7g)" % (np.mean(model_gs_cv), np.std(model_gs_cv)))
-        print('\t\tBest accuracy: %.7g (sd=%.7g)'
+        print("\tGridSearchCV AUC: %.7g (sd=%.7g)" % (np.mean(model_gs_cv), np.std(model_gs_cv)))
+        print('\tBest accuracy: %.7g (sd=%.7g)'
             % (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']))
-        print('\t\tBest parameters:', json.dumps(best_params, indent=4, sort_keys=True).replace('\n', '\n\t\t'))
+        print('\tBest parameters:', json.dumps(best_params, indent=4, sort_keys=True).replace('\n', '\n\t'))
     else:
-        print('\t\tNo hyper-parameters to tune for this estimator\n')
+        print('\tNo hyper-parameters to tune for this estimator\n')
         model_best = model
 
     predictions = model_best.predict(X2)
-    print('\t\t', classification_report(Y2, predictions, target_names=labels).replace('\n', '\n\t\t'))
+    print('\t', classification_report(Y2, predictions, target_names=labels).replace('\n', '\n\t'))
 
-    print('\t\tGeneralization:')
+    print('\tGeneralization:')
 
     accuracy = accuracy_score(Y2, predictions)
-    print('\t\t\tAccuracy:', accuracy)
+    print('\t\tAccuracy:', accuracy)
 
     auc = roc_auc_score(Y2, predictions)
-    print('\t\t\tAUC:', auc)
+    print('\t\tAUC:', auc)
 
     tn, fp, fn, tp = confusion_matrix(Y2, predictions).ravel()
     f1 = f1_score(Y2, predictions)
     sensitivity = tp / (tp+fn)
     specificity = tn / (tn+fp)
-    print('\t\t\tSensitivity:', sensitivity)
-    print('\t\t\tSpecificity:', specificity)
-    print('\t\t\tF1:', f1, '\n')
+    print('\t\tSensitivity:', sensitivity)
+    print('\t\tSpecificity:', specificity)
+    print('\t\tF1:', f1, '\n')
 
 
     return {
