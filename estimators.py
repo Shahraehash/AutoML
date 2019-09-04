@@ -1,6 +1,4 @@
 # Dependencies
-from sklearn.pipeline import Pipeline
-
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
