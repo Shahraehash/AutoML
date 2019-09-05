@@ -17,14 +17,14 @@ from hyperparameters import hyperParameterRange
 cv = StratifiedKFold(n_splits=10)
 
 # Define the generic method to generate the best model for the provided estimator
-def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=None):
+def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=None, scoring='accuracy'):
     start = timer()
     model.fit(X_train, Y_train)
-    model_cv = cross_val_score(model, X, Y, cv=cv, scoring='accuracy')
+    model_cv = cross_val_score(model, X, Y, cv=cv, scoring=scoring)
     best_params = {}
     performance = {}
 
-    print("\tDefault CV Accuracy: %.7g (sd=%.7g)" % (np.mean(model_cv), np.std(model_cv)))
+    print("\tDefault CV %s: %.7g (sd=%.7g)" % (scoring, np.mean(model_cv), np.std(model_cv)))
 
     # Perform a grid search if the algorithm has tunable hyper-parameters
     if estimatorName in hyperParameterRange:
@@ -37,18 +37,18 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=N
             return_train_score='False',
             cv=cv,
             n_jobs=-1,
-            scoring='accuracy'
+            scoring=scoring
         )
         model_gs.fit(X_train, Y_train)
-        model_gs_cv = cross_val_score(model_gs.best_estimator_, X, Y, cv=cv, scoring='roc_auc')
+        model_gs_cv = cross_val_score(model_gs.best_estimator_, X, Y, cv=cv, scoring=scoring)
 
         performance = pd.DataFrame(model_gs.cv_results_)[['mean_test_score', 'std_test_score']].sort_values(by='mean_test_score', ascending=False)
         model_best = model_gs.best_estimator_
         best_params = model_gs.best_params_
 
-        print("\tGridSearchCV AUC: %.7g (sd=%.7g)" % (np.mean(model_gs_cv), np.std(model_gs_cv)))
-        print('\tBest accuracy: %.7g (sd=%.7g)'
-            % (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']))
+        print("\tGridSearchCV %s: %.7g (sd=%.7g)" % (scoring, np.mean(model_gs_cv), np.std(model_gs_cv)))
+        print('\tBest %s: %.7g (sd=%.7g)'
+            % (scoring, performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']))
         print('\tBest parameters:', json.dumps(best_params, indent=4, sort_keys=True).replace('\n', '\n\t'))
     else:
         print('\tNo hyper-parameters to tune for this estimator\n')
@@ -78,10 +78,10 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=N
 
     return {
         'grid_search': {
-            'accuracy': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']) if 'iloc' in performance else None,
-            'roc_auc': (np.mean(model_gs_cv), np.std(model_gs_cv)) if 'model_gs_cv' in locals() else None,
-            'best_params': best_params,
+            'avg_score': (np.mean(model_gs_cv), np.std(model_gs_cv)) if 'model_gs_cv' in locals() else None,
             'best_estimator': model_best,
+            'best_params': best_params,
+            'best_score': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']) if 'iloc' in performance else None,
             'performance': performance
         },
         'generalization': {
