@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import json
+from timeit import default_timer as timer
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import GridSearchCV
@@ -17,6 +18,7 @@ cv = StratifiedKFold(n_splits=10)
 
 # Define the generic method to generate the best model for the provided estimator
 def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=None):
+    start = timer()
     model.fit(X_train, Y_train)
     model_cv = cross_val_score(model, X, Y, cv=cv, scoring='accuracy')
     best_params = {}
@@ -71,6 +73,9 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=N
     print('\t\tSpecificity:', specificity)
     print('\t\tF1:', f1, '\n')
 
+    train_time = timer() - start
+    print('\tTraining time is {:.4f} seconds'.format(train_time))
+
     return {
         'grid_search': {
             'accuracy': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']) if 'iloc' in performance else None,
@@ -85,5 +90,6 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=N
             'f1': f1,
             'sensitivity': sensitivity,
             'specificity': specificity
-        }
+        },
+        'train_time': train_time
     }
