@@ -12,6 +12,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, f1_score
 
 from hyperparameters import hyperParameterRange
+from scorers import scorerNames
 
 # Define the cross validator
 cv = StratifiedKFold(n_splits=10)
@@ -24,7 +25,7 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=N
     best_params = {}
     performance = {}
 
-    print("\tDefault CV %s: %.7g (sd=%.7g)" % (scoring, np.mean(model_cv), np.std(model_cv)))
+    print("\tDefault CV %s: %.7g (sd=%.7g)" % (scorerNames[scoring], np.mean(model_cv), np.std(model_cv)))
 
     # Perform a grid search if the algorithm has tunable hyper-parameters
     if estimatorName in hyperParameterRange:
@@ -46,9 +47,9 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=N
         model_best = model_gs.best_estimator_
         best_params = model_gs.best_params_
 
-        print("\tGridSearchCV %s: %.7g (sd=%.7g)" % (scoring, np.mean(model_gs_cv), np.std(model_gs_cv)))
+        print("\tGridSearchCV %s: %.7g (sd=%.7g)" % (scorerNames[scoring], np.mean(model_gs_cv), np.std(model_gs_cv)))
         print('\tBest %s: %.7g (sd=%.7g)'
-            % (scoring, performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']))
+            % (scorerNames[scoring], performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']))
         print('\tBest parameters:', json.dumps(best_params, indent=4, sort_keys=True).replace('\n', '\n\t'))
     else:
         print('\tNo hyper-parameters to tune for this estimator\n')
