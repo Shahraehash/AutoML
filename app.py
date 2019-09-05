@@ -25,6 +25,7 @@ load_dotenv()
 IGNORE_ESTIMATOR = os.getenv('IGNORE_ESTIMATOR').split(',')
 IGNORE_FEATURE_SELECTOR = os.getenv('IGNORE_FEATURE_SELECTOR').split(',')
 IGNORE_SCALER = os.getenv('IGNORE_SCALER').split(',')
+IGNORE_SCORER = os.getenv('IGNORE_SCORER').split(',')
 
 #%%
 # Hide warning from the output
@@ -44,7 +45,7 @@ data, data_test, X, Y, X2, Y2, X_train, X_test, Y_train, Y_test = importData('da
 # Generate all models
 models = {}
 for estimator, featureSelector, scaler, scorer in list(itertools.product(*[estimatorNames, featureSelectorNames, scalerNames, scorerNames])):
-    if estimator in IGNORE_ESTIMATOR or featureSelector in IGNORE_FEATURE_SELECTOR or scaler in IGNORE_SCALER:
+    if estimator in IGNORE_ESTIMATOR or featureSelector in IGNORE_FEATURE_SELECTOR or scaler in IGNORE_SCALER or scorer in IGNORE_SCORER:
         continue
 
     if not scaler in models:
