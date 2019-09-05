@@ -8,7 +8,7 @@ featureSelectors = {
 }
 
 featureSelectorNames = {
-    'none': 'no feature selection',
+    'none': 'all features (no feature selection)',
     'select-50': 'select percentile (50%)',
     'select-75': 'select percentile (75%)'
 }

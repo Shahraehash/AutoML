@@ -66,7 +66,7 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=N
     print('\t\tAUC:', auc)
 
     tn, fp, fn, tp = confusion_matrix(Y2, predictions).ravel()
-    f1 = f1_score(Y2, predictions)
+    f1 = f1_score(Y2, predictions, average='macro')
     sensitivity = tp / (tp+fn)
     specificity = tn / (tn+fp)
     print('\t\tSensitivity:', sensitivity)
