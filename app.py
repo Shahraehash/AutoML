@@ -11,14 +11,12 @@ warnings.filterwarnings('ignore')
 
 #%%
 # Dependencies
-import pandas as pd
 import itertools
-
-from sklearn.model_selection import train_test_split
 
 from estimators import estimatorNames
 from feature_selection import featureSelectorNames
 from model import generateModel
+from import_data import importData
 from pipeline import generatePipeline
 from scalers import scalerNames
 
@@ -30,17 +28,7 @@ labelColumn = 'AKI'
 
 #%%
 # Import data
-data = pd.read_csv('data/train.csv').dropna()
-X = data.drop(labelColumn, axis=1)
-Y = data[labelColumn]
-
-data_test = pd.read_csv('data/test.csv').dropna()
-X2 = data_test.drop(labelColumn, axis=1)
-Y2 = data_test[labelColumn]
-
-#%%
-# Generate test/train split from the train data
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=.2, random_state=5, stratify=Y)
+data, data_test, X, Y, X2, Y2, X_train, X_test, Y_train, Y_test = importData('data/train.csv', 'data/test.csv', labelColumn)
 
 #%%
 # Generate all models
