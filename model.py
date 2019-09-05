@@ -74,7 +74,7 @@ def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=N
     print('\t\tF1:', f1, '\n')
 
     train_time = timer() - start
-    print('\tTraining time is {:.4f} seconds'.format(train_time))
+    print('\tTraining time is {:.4f} seconds'.format(train_time), '\n')
 
     return {
         'grid_search': {
