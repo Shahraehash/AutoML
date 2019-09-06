@@ -3,7 +3,7 @@ from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix, cla
 
 from scalers import scalers
 
-def generalize(model, scaler, X_train, X2, Y2, labels):
+def generalize(model, scaler, X_train, X2, Y2, labels=None):
 
     # Identify the selected featured for the above pipeline
     for feature, selected in model['selected_features'].items():
@@ -11,9 +11,10 @@ def generalize(model, scaler, X_train, X2, Y2, labels):
             X_train = X_train.drop(feature, axis=1)
             X2 = X2.drop(feature, axis=1)
 
-    sc = scalers[scaler]
-    sc.fit(X_train)
-    X2 = sc.transform(X2)
+    if scalers[scaler]:
+        sc = scalers[scaler]
+        sc.fit(X_train)
+        X2 = sc.transform(X2)
 
     predictions = model['best_estimator'].predict(X2)
     print('\t', classification_report(Y2, predictions, target_names=labels).replace('\n', '\n\t'))

@@ -53,8 +53,5 @@ for estimator, featureSelector, scaler, scorer in list(itertools.product(*[estim
 
     print('Generating ' + estimatorNames[estimator] + ' model (scoring: ' + scorerNames[scorer] + ') with ' + scalerNames[scaler] + ' and with ' + featureSelectorNames[featureSelector])
     pipeline = generatePipeline(scaler, featureSelector, estimator, scorer)
-    models[scaler][featureSelector][estimator] = generateModel(estimator, pipeline, X_train, Y_train, X, Y, X2, Y2, labels, scorer)
+    models[scaler][featureSelector][estimator] = generateModel(estimator, pipeline, X_train, Y_train, labels, scorer)
     generalize(models[scaler][featureSelector][estimator], scaler, X_train, X2, Y2, labels)
-
-
-#%%
