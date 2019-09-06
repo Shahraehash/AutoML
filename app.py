@@ -22,10 +22,10 @@ from scorers import scorerNames
 
 # Load environment variables
 load_dotenv()
-IGNORE_ESTIMATOR = os.getenv('IGNORE_ESTIMATOR').split(',')
-IGNORE_FEATURE_SELECTOR = os.getenv('IGNORE_FEATURE_SELECTOR').split(',')
-IGNORE_SCALER = os.getenv('IGNORE_SCALER').split(',')
-IGNORE_SCORER = os.getenv('IGNORE_SCORER').split(',')
+IGNORE_ESTIMATOR = os.getenv('IGNORE_ESTIMATOR', '').split(',')
+IGNORE_FEATURE_SELECTOR = os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')
+IGNORE_SCALER = os.getenv('IGNORE_SCALER', '').split(',')
+IGNORE_SCORER = os.getenv('IGNORE_SCORER', '').split(',')
 
 # Hide warning from the output
 warnings.filterwarnings('ignore')
