@@ -1,96 +1,41 @@
 # Dependencies
-import numpy as np
 import pandas as pd
 import json
 from timeit import default_timer as timer
 
-from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import cross_val_score
-
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, f1_score
-
 from hyperparameters import hyperParameterRange
 from scorers import scorerNames
 
-# Define the cross validator
-cv = StratifiedKFold(n_splits=10)
-
 # Define the generic method to generate the best model for the provided estimator
-def generateModel(estimatorName, model, X_train, Y_train, X, Y, X2, Y2, labels=None, scoring='accuracy'):
+def generateModel(estimatorName, pipeline, X_train, Y_train, labels=None, scoring='accuracy'):
     start = timer()
-    model.fit(X_train, Y_train)
-    model_cv = cross_val_score(model, X, Y, cv=cv, scoring=scoring)
-    best_params = {}
-    performance = {}
+    pipeline.fit(X_train, Y_train)
 
-    print("\tDefault CV %s: %.7g (sd=%.7g)" % (scorerNames[scoring], np.mean(model_cv), np.std(model_cv)))
+    best_params = performance = selected_features = {}
 
-    # Perform a grid search if the algorithm has tunable hyper-parameters
+    if 'selector' in pipeline.named_steps:
+        selected_features = pd.Series(pipeline.named_steps['selector'].get_support(), index=list(X_train))
+
     if estimatorName in hyperParameterRange:
+        performance = pd.DataFrame(pipeline.named_steps['estimator'].cv_results_)[['mean_test_score', 'std_test_score']].sort_values(by='mean_test_score', ascending=False)
+        model_best = pipeline.named_steps['estimator'].best_estimator_
+        best_params = pipeline.named_steps['estimator'].best_params_
 
-        # The parameter `return_train_score` is False because 
-        # it's not required and reduces CPU time without it
-        model_gs = GridSearchCV(
-            model,
-            hyperParameterRange[estimatorName],
-            return_train_score='False',
-            cv=cv,
-            n_jobs=-1,
-            scoring=scoring
-        )
-        model_gs.fit(X_train, Y_train)
-        model_gs_cv = cross_val_score(model_gs.best_estimator_, X, Y, cv=cv, scoring=scoring)
-
-        performance = pd.DataFrame(model_gs.cv_results_)[['mean_test_score', 'std_test_score']].sort_values(by='mean_test_score', ascending=False)
-        model_best = model_gs.best_estimator_
-        best_params = model_gs.best_params_
-
-        print("\tGridSearchCV %s: %.7g (sd=%.7g)" % (scorerNames[scoring], np.mean(model_gs_cv), np.std(model_gs_cv)))
         print('\tBest %s: %.7g (sd=%.7g)'
             % (scorerNames[scoring], performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']))
         print('\tBest parameters:', json.dumps(best_params, indent=4, sort_keys=True).replace('\n', '\n\t'))
     else:
         print('\tNo hyper-parameters to tune for this estimator\n')
-        model_best = model
-
-    predictions = model_best.predict(X2)
-    print('\t', classification_report(Y2, predictions, target_names=labels).replace('\n', '\n\t'))
-
-    print('\tGeneralization:')
-
-    accuracy = accuracy_score(Y2, predictions)
-    print('\t\tAccuracy:', accuracy)
-
-    auc = roc_auc_score(Y2, predictions)
-    print('\t\tAUC:', auc)
-
-    tn, fp, fn, tp = confusion_matrix(Y2, predictions).ravel()
-    f1 = f1_score(Y2, predictions, average='macro')
-    sensitivity = tp / (tp+fn)
-    specificity = tn / (tn+fp)
-    print('\t\tSensitivity:', sensitivity)
-    print('\t\tSpecificity:', specificity)
-    print('\t\tF1:', f1, '\n')
+        model_best = pipeline.named_steps['estimator']
 
     train_time = timer() - start
     print('\tTraining time is {:.4f} seconds'.format(train_time), '\n')
 
     return {
-        'grid_search': {
-            'avg_score': (np.mean(model_gs_cv), np.std(model_gs_cv)) if 'model_gs_cv' in locals() else None,
-            'best_estimator': model_best,
-            'best_params': best_params,
-            'best_score': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']) if 'iloc' in performance else None,
-            'performance': performance
-        },
-        'generalization': {
-            'accuracy': accuracy,
-            'auc': auc,
-            'f1': f1,
-            'sensitivity': sensitivity,
-            'specificity': specificity
-        },
+        'best_estimator': model_best,
+        'best_params': best_params,
+        'best_score': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']) if 'iloc' in performance else None,
+        'performance': performance,
+        'selected_features': selected_features,
         'train_time': train_time
     }
