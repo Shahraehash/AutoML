@@ -6,7 +6,7 @@ from scalers import scalers
 def generalize(model, scaler, X_train, X2, Y2, labels=None):
 
     # Identify the selected featured for model provided
-    for feature, selected in model['selected_features'].items():
+    for feature, selected in model['features'].items():
 
         # Remove the selected fields from X_train (used to generate the scaler)
         # and also remove them from the X2 test data.

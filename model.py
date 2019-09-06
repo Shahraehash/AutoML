@@ -6,15 +6,19 @@ from timeit import default_timer as timer
 from hyperparameters import hyperParameterRange
 from scorers import scorerNames
 
+MAX_FEATURES_SHOWN = 5
+
 # Define the generic method to generate the best model for the provided estimator
 def generateModel(estimatorName, pipeline, X_train, Y_train, labels=None, scoring='accuracy'):
     start = timer()
     pipeline.fit(X_train, Y_train)
 
-    best_params = performance = selected_features = {}
+    best_params = performance = features = {}
 
-    if 'selector' in pipeline.named_steps:
-        selected_features = pd.Series(pipeline.named_steps['selector'].get_support(), index=list(X_train))
+    if 'feature_selector' in pipeline.named_steps:
+        features = pd.Series(pipeline.named_steps['feature_selector'].get_support(), index=list(X_train))
+        selected_features = features[features==True].axes[0]
+        print('\tFeatures used: ' + ', '.join(selected_features[:MAX_FEATURES_SHOWN]) + ('...' if selected_features.shape[0] > MAX_FEATURES_SHOWN else ''))
 
     if estimatorName in hyperParameterRange:
         performance = pd.DataFrame(pipeline.named_steps['estimator'].cv_results_)[['mean_test_score', 'std_test_score']].sort_values(by='mean_test_score', ascending=False)
@@ -36,6 +40,6 @@ def generateModel(estimatorName, pipeline, X_train, Y_train, labels=None, scorin
         'best_params': best_params,
         'best_score': (performance.iloc[0]['mean_test_score'], performance.iloc[0]['std_test_score']) if 'iloc' in performance else None,
         'performance': performance,
-        'selected_features': selected_features,
+        'features': features,
         'train_time': train_time
     }

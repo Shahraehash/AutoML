@@ -20,7 +20,7 @@ def importData(trainPath, testPath, labelColumn):
     negativeCount = data[data[labelColumn] == 0].shape[0]
     positiveCount = data[data[labelColumn] == 1].shape[0]
 
-    print('Negative Cases: %.7g\nPositive Cases: %.7g' % (negativeCount, positiveCount))
+    print('Negative Cases: %.7g\nPositive Cases: %.7g\n' % (negativeCount, positiveCount))
 
     if negativeCount / positiveCount < .9:
         print('Warning: Classes are not balanced.')

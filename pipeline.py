@@ -15,7 +15,7 @@ cv = StratifiedKFold(n_splits=10)
 
 class Debug(BaseEstimator, TransformerMixin):
     def transform(self, X):
-        print('\tNumber of features: %d\n\tNumber of items: %d' % (X.shape[1], X.shape[0]))
+        print('\tNumber of items: %d\n\tNumber of features: %d' % (X.shape[0], X.shape[1]))
         return X
 
     def fit(self, X, Y=None, **fit_params):
@@ -29,7 +29,7 @@ def generatePipeline(scaler, featureSelector, estimator, scoring='accuracy'):
         steps.append(('scaler', scalers[scaler]))
 
     if featureSelector and featureSelectors[featureSelector]:
-        steps.append(('selector', featureSelectors[featureSelector]))
+        steps.append(('feature_selector', featureSelectors[featureSelector]))
 
     steps.append(('debug', Debug()))
 

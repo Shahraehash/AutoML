@@ -38,7 +38,6 @@ labelColumn = 'AKI'
 # Import data
 data, data_test, X, Y, X2, Y2, X_train, X_test, Y_train, Y_test = importData('data/train.csv', 'data/test.csv', labelColumn)
 
-#%%
 # Generate all models
 models = {}
 for estimator, featureSelector, scaler, scorer in list(itertools.product(*[estimatorNames, featureSelectorNames, scalerNames, scorerNames])):
@@ -51,7 +50,10 @@ for estimator, featureSelector, scaler, scorer in list(itertools.product(*[estim
     if not featureSelector in models[scaler]:
         models[scaler][featureSelector] = {}
 
-    print('Generating ' + estimatorNames[estimator] + ' model (scoring: ' + scorerNames[scorer] + ') with ' + scalerNames[scaler] + ' and with ' + featureSelectorNames[featureSelector])
+    print('Generating ' + estimatorNames[estimator] + ' model using ' + scorerNames[scorer] + ' scored grid search with ' + scalerNames[scaler] + ' and with ' + featureSelectorNames[featureSelector])
     pipeline = generatePipeline(scaler, featureSelector, estimator, scorer)
     models[scaler][featureSelector][estimator] = generateModel(estimator, pipeline, X_train, Y_train, labels, scorer)
     generalize(models[scaler][featureSelector][estimator], scaler, X_train, X2, Y2, labels)
+
+
+#%%
