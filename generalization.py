@@ -5,12 +5,16 @@ from scalers import scalers
 
 def generalize(model, scaler, X_train, X2, Y2, labels=None):
 
-    # Identify the selected featured for the above pipeline
+    # Identify the selected featured for model provided
     for feature, selected in model['selected_features'].items():
+
+        # Remove the selected fields from X_train (used to generate the scaler)
+        # and also remove them from the X2 test data.
         if not selected:
             X_train = X_train.drop(feature, axis=1)
             X2 = X2.drop(feature, axis=1)
 
+    # If scaling is used in the pipeline, scale the test data
     if scalers[scaler]:
         sc = scalers[scaler]
         sc.fit(X_train)
