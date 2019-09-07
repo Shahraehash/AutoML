@@ -1,4 +1,3 @@
-#%%
 # Auto ML
 #
 # Supervised learning using an exhaustive search of ideal pre-processing (if any), algorithms,
@@ -54,6 +53,3 @@ for estimator, featureSelector, scaler, scorer in list(itertools.product(*[estim
     pipeline = generatePipeline(scaler, featureSelector, estimator, scorer)
     models[scaler][featureSelector][estimator] = generateModel(estimator, pipeline, X_train, Y_train, labels, scorer)
     generalize(models[scaler][featureSelector][estimator], scaler, X_train, X2, Y2, labels)
-
-
-#%%
