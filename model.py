@@ -1,5 +1,6 @@
 # Dependencies
 import pandas as pd
+import numpy as np
 import json
 from timeit import default_timer as timer
 
@@ -16,7 +17,17 @@ def generateModel(estimatorName, pipeline, X_train, Y_train, labels=None, scorin
     best_params = performance = features = {}
 
     if 'feature_selector' in pipeline.named_steps:
-        features = pd.Series(pipeline.named_steps['feature_selector'].get_support(), index=list(X_train))
+        featureSelectorType = pipeline.named_steps['feature_selector'].__class__.__module__
+
+        if featureSelectorType == 'sklearn.decomposition.pca':
+            components = pipeline.named_steps['feature_selector'].components_
+            most_important = [np.abs(components[i]).argmax() for i in range(components.shape[0])]
+            most_important_names = [list(X_train)[most_important[i]] for i in range(components.shape[0])]
+            features = pd.Series((i in most_important_names for i in list(X_train)), index=list(X_train))
+
+        if featureSelectorType == 'sklearn.feature_selection.univariate_selection':
+            features = pd.Series(pipeline.named_steps['feature_selector'].get_support(), index=list(X_train))
+ 
         selected_features = features[features==True].axes[0]
         print('\tFeatures used: ' + ', '.join(selected_features[:MAX_FEATURES_SHOWN]) + ('...' if selected_features.shape[0] > MAX_FEATURES_SHOWN else ''))
 
