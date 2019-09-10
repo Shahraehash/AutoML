@@ -11,13 +11,13 @@ from dotenv import load_dotenv
 
 from estimators import estimatorNames
 from feature_selection import featureSelectorNames
-
 from generalization import generalize
 from model import generateModel
 from import_data import importData
 from pipeline import generatePipeline
 from scalers import scalerNames
 from scorers import scorerNames
+from summary import printSummary
 
 # Load environment variables
 load_dotenv()
@@ -38,18 +38,17 @@ labelColumn = 'AKI'
 data, data_test, X, Y, X2, Y2, X_train, X_test, Y_train, Y_test = importData('data/train.csv', 'data/test.csv', labelColumn)
 
 # Generate all models
-models = {}
+models = results = {}
 for estimator, featureSelector, scaler, scorer in list(itertools.product(*[estimatorNames, featureSelectorNames, scalerNames, scorerNames])):
     if estimator in IGNORE_ESTIMATOR or featureSelector in IGNORE_FEATURE_SELECTOR or scaler in IGNORE_SCALER or scorer in IGNORE_SCORER:
         continue
 
-    if not scaler in models:
-        models[scaler] = {}
-    
-    if not featureSelector in models[scaler]:
-        models[scaler][featureSelector] = {}
-
     print('Generating ' + estimatorNames[estimator] + ' model using ' + scorerNames[scorer] + ' scored grid search with ' + scalerNames[scaler] + ' and with ' + featureSelectorNames[featureSelector])
+
+    key = '__'.join([scaler, featureSelector, estimator, scorer])
     pipeline = generatePipeline(scaler, featureSelector, estimator, scorer)
-    models[scaler][featureSelector][estimator] = generateModel(estimator, pipeline, X_train, Y_train, labels, scorer)
-    generalize(models[scaler][featureSelector][estimator], scaler, X_train, X2, Y2, labels)
+
+    models[key] = generateModel(estimator, pipeline, X_train, Y_train, labels, scorer)
+    results[key] = generalize(models[key], scaler, X_train, X2, Y2, labels)
+
+printSummary(results)
