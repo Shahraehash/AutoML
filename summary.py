@@ -6,7 +6,9 @@ from scalers import scalerNames
 from scorers import scorerNames
 
 def printSummary(results):
-    data = columns = runs = []
+    data = []
+    columns = []
+    runs = []
 
     for key in results:
         columns = list(results[key].keys())
