@@ -8,7 +8,7 @@ labels = ['No AKI', 'AKI']
 labelColumn = 'AKI'
 
 # Import data
-data, data_test, X, Y, X2, Y2, X_train, X_test, Y_train, Y_test = importData('data/train.csv', 'data/test.csv', labelColumn)
+data, data_test, X, Y, X2, Y2, X_train, X_test, Y_train, Y_test = importData('sample-data/train.csv', 'sample-data/test.csv', labelColumn)
 
 def test_logistic_regression():
     pipeline = generatePipeline('none', 'none', 'lr')
