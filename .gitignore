@@ -25,6 +25,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 report.txt
+report.csv
 
 # Flask stuff:
 instance/
