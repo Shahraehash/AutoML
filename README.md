@@ -8,13 +8,15 @@ in medicine (eg. disease or no disease).
 
 ## Data
 
-Currently data is expected to be in the `data` directory and named:
+Currently data is expected to be in CSV format in two files:
+
 `train.csv`: The complete training set which will be split into a train and test set.
-    This data set should be balanced 50/50. If the data set is not balanced a warning
-    will be shown.
+&nbsp;&nbsp;&nbsp;&nbsp;This data set should be balanced 50/50. If the data set is not balanced a warning
+&nbsp;&nbsp;&nbsp;&nbsp;will be shown.
+
 `test.csv`: A secondary data set which will be used independent of model generation
-    and will be used to determine the generalizability of the model. This data set
-    reflects the prevalence of disease being classified (eg. not balanced).
+&nbsp;&nbsp;&nbsp;&nbsp;and will be used to determine the generalizability of the model. This data set
+&nbsp;&nbsp;&nbsp;&nbsp;reflects the prevalence of disease being classified (eg. not balanced).
 
 ## Running
 
