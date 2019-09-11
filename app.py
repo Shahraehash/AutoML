@@ -8,6 +8,7 @@ import os
 import itertools
 import warnings
 from dotenv import load_dotenv
+import sys
 
 from estimators import estimatorNames
 from feature_selection import featureSelectorNames
@@ -26,6 +27,14 @@ IGNORE_FEATURE_SELECTOR = os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')
 IGNORE_SCALER = os.getenv('IGNORE_SCALER', '').split(',')
 IGNORE_SCORER = os.getenv('IGNORE_SCORER', '').split(',')
 
+# Parse input or load sample data
+if len(sys.argv) < 3:
+    train = 'sample-data/train.csv'
+    test = 'sample-data/test.csv'
+else:
+    train = sys.argv[1]
+    test = sys.argv[2]
+
 # Hide warning from the output
 warnings.filterwarnings('ignore')
 
@@ -35,7 +44,7 @@ labels = ['No AKI', 'AKI']
 labelColumn = 'AKI'
 
 # Import data
-data, data_test, X, Y, X2, Y2, X_train, X_test, Y_train, Y_test = importData('data/train.csv', 'data/test.csv', labelColumn)
+data, data_test, X, Y, X2, Y2, X_train, X_test, Y_train, Y_test = importData(train, test, labelColumn)
 
 # Generate all models
 models = {}
