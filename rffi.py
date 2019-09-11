@@ -3,7 +3,7 @@ from sklearn.base import TransformerMixin, BaseEstimator
 
 from estimators import estimators
 
-class RandomForestImportanceSelect(BaseEstimator, TransformerMixin):
+class RandomForestFeatureImportanceSelector(BaseEstimator, TransformerMixin):
     def __init__(self, n=.8):
         self.model = estimators['rf']
         self.n = n
