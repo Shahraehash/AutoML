@@ -35,6 +35,8 @@ def generateModel(estimatorName, pipeline, featureNames, X_train, Y_train, label
  
         selected_features = features[features==True].axes[0]
         print('\tFeatures used: ' + ', '.join(selected_features[:MAX_FEATURES_SHOWN]) + ('...' if selected_features.shape[0] > MAX_FEATURES_SHOWN else ''))
+    else:
+        print('\tAll features used: ' + ', '.join(featureNames[:MAX_FEATURES_SHOWN]) + ('...' if len(featureNames) > MAX_FEATURES_SHOWN else ''))
 
     if estimatorName in hyperParameterRange:
         performance = pd.DataFrame(pipeline.named_steps['estimator'].cv_results_)[['mean_test_score', 'std_test_score']].sort_values(by='mean_test_score', ascending=False)
