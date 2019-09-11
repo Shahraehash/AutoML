@@ -4,19 +4,17 @@ import numpy as np
 from utils import modelKeyToName
 
 def printSummary(results):
+    results = sorted(results.items(), key=lambda x: (x[1]['auc'], x[1]['accuracy'], x[1]['f1']), reverse=True)
+    columns = list(results[0][1].keys())
+
     data = []
-    columns = []
     runs = []
-    scores = []
 
-    for key in results:
-        columns = list(results[key].keys())
+    for key, value in results:
         runs.append(modelKeyToName(key))
-        values = list(results[key].values())
-        scores.append(sum([1-x for x in values]))
-        data.append(values)
+        data.append(list(value.values()))
 
-    print('Best model:', runs[np.array(scores).argmin()], '\n')
+    print('Best model:', runs[0], '\n')
 
     print('General summary (%d models generated):' % (len(results) * 10))
     summary = pd.DataFrame(data, index=runs, columns=columns)
