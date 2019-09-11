@@ -10,8 +10,11 @@ in medicine (eg. disease or no disease).
 
 Currently data is expected to be in the `data` directory and named:
 `train.csv`: The complete training set which will be split into a train and test set.
+    This data set should be balanced 50/50. If the data set is not balanced a warning
+    will be shown.
 `test.csv`: A secondary data set which will be used independent of model generation
-    and will be used to determine the generalizability of the model.
+    and will be used to determine the generalizability of the model. This data set
+    reflects the prevalence of disease being classified (eg. not balanced).
 
 ## Running
 
@@ -27,12 +30,3 @@ of all models generated.
 
 If you do not pass a train and test spreadsheet, sample data contained within
 `sample-data` will be used.
-
-The `train.csv` is will contain your full training data set which should be
-balanced 50/50 for binary classifications. If the data set is not balanced
-a warning will be shown.
-
-The `test.csv` is a secondary data set which reflects the prevalence of disease
-being classified (eg. not balanced). This data set is not used to train the models
-in any way and is only used to calculate the generalizability of the models
-generated.
