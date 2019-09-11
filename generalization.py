@@ -9,8 +9,6 @@ def generalize(model, pipeline, X2, Y2, labels=None):
     # If scaling is used in the pipeline, scale the test data
     if 'scaler' in pipeline.named_steps:
         X2 = pipeline.named_steps['scaler'].transform(X2)
-    else:
-        X2 = np.array(X2)
 
     if 'feature_selector' in pipeline.named_steps:
         featureSelectorType = pipeline.named_steps['feature_selector'].__class__.__module__
@@ -24,7 +22,7 @@ def generalize(model, pipeline, X2, Y2, labels=None):
                 if not feature[1]:
                     X2 = np.delete(X2, index, axis=1)
 
-        if featureSelectorType == 'sklearn.decomposition.pca':
+        if featureSelectorType == 'sklearn.decomposition.pca' or featureSelectorType == 'random_forest_importance_select':
             X2 = pipeline.named_steps['feature_selector'].transform(X2)
 
     predictions = model['best_estimator'].predict(X2)

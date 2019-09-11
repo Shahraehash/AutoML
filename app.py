@@ -3,10 +3,13 @@
 # Supervised learning using an exhaustive search of ideal pre-processing (if any), algorithms,
 # and hyper-parameters with feature engineering.
 
+# Hide warning from the output
+import warnings
+warnings.filterwarnings('ignore')
+
 # Dependencies
 import os
 import itertools
-import warnings
 from dotenv import load_dotenv
 import sys
 
@@ -36,16 +39,13 @@ else:
     train = sys.argv[1]
     test = sys.argv[2]
 
-# Hide warning from the output
-warnings.filterwarnings('ignore')
-
 # Define the labels for our classes
 # This is used for the classification reproting (more readable then 0/1)
 labels = ['No AKI', 'AKI']
 labelColumn = 'AKI'
 
 # Import data
-data, data_test, X, Y, X2, Y2, X_train, X_test, Y_train, Y_test = importData(train, test, labelColumn)
+data, data_test, X, Y, X2, Y2, featureNames, X_train, X_test, Y_train, Y_test = importData(train, test, labelColumn)
 
 # Generate all models
 models = {}
@@ -59,7 +59,7 @@ for estimator, featureSelector, scaler, scorer in list(itertools.product(*[estim
 
     pipeline = generatePipeline(scaler, featureSelector, estimator, scorer)
 
-    models[key] = generateModel(estimator, pipeline, X_train, Y_train, labels, scorer)
+    models[key] = generateModel(estimator, pipeline, featureNames, X_train, Y_train, labels, scorer)
     results[key] = generalize(models[key], pipeline, X2, Y2, labels)
 
 printSummary(results)

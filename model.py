@@ -10,7 +10,7 @@ from scorers import scorerNames
 MAX_FEATURES_SHOWN = 5
 
 # Define the generic method to generate the best model for the provided estimator
-def generateModel(estimatorName, pipeline, X_train, Y_train, labels=None, scoring='accuracy'):
+def generateModel(estimatorName, pipeline, featureNames, X_train, Y_train, labels=None, scoring='accuracy'):
     start = timer()
     pipeline.fit(X_train, Y_train)
 
@@ -22,11 +22,16 @@ def generateModel(estimatorName, pipeline, X_train, Y_train, labels=None, scorin
         if featureSelectorType == 'sklearn.decomposition.pca':
             components = pipeline.named_steps['feature_selector'].components_
             most_important = [np.abs(components[i]).argmax() for i in range(components.shape[0])]
-            most_important_names = [list(X_train)[most_important[i]] for i in range(components.shape[0])]
-            features = pd.Series((i in most_important_names for i in list(X_train)), index=list(X_train))
+            most_important_names = [featureNames[most_important[i]] for i in range(components.shape[0])]
+            features = pd.Series((i in most_important_names for i in featureNames), index=featureNames)
 
         if featureSelectorType == 'sklearn.feature_selection.univariate_selection':
-            features = pd.Series(pipeline.named_steps['feature_selector'].get_support(), index=list(X_train))
+            features = pd.Series(pipeline.named_steps['feature_selector'].get_support(), index=featureNames)
+
+        if featureSelectorType == 'random_forest_importance_select':
+            most_important = pipeline.named_steps['feature_selector'].get_top_features()
+            most_important_names = [featureNames[most_important[i]] for i in range(len(most_important))]
+            features = pd.Series((i in most_important_names for i in featureNames), index=featureNames)
  
         selected_features = features[features==True].axes[0]
         print('\tFeatures used: ' + ', '.join(selected_features[:MAX_FEATURES_SHOWN]) + ('...' if selected_features.shape[0] > MAX_FEATURES_SHOWN else ''))

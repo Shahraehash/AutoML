@@ -5,6 +5,7 @@ from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import StratifiedKFold
 
+from debug_pipeline import Debug
 from estimators import estimators
 from feature_selection import featureSelectors
 from hyperparameters import hyperParameterRange
@@ -12,14 +13,6 @@ from scalers import scalers
 
 # Define the cross validator
 cv = StratifiedKFold(n_splits=10)
-
-class Debug(BaseEstimator, TransformerMixin):
-    def transform(self, X):
-        print('\tNumber of items: %d\n\tNumber of features: %d' % (X.shape[0], X.shape[1]))
-        return X
-
-    def fit(self, X, Y=None, **fit_params):
-        return self
 
 # Generate a pipeline
 def generatePipeline(scaler, featureSelector, estimator, scoring='accuracy'):
