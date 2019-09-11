@@ -9,6 +9,8 @@ def generalize(model, pipeline, X2, Y2, labels=None):
     # If scaling is used in the pipeline, scale the test data
     if 'scaler' in pipeline.named_steps:
         X2 = pipeline.named_steps['scaler'].transform(X2)
+    else:
+        X2 = np.array(X2)
 
     if 'feature_selector' in pipeline.named_steps:
         featureSelectorType = pipeline.named_steps['feature_selector'].__class__.__module__
@@ -18,8 +20,7 @@ def generalize(model, pipeline, X2, Y2, labels=None):
             # Identify the selected featured for model provided
             for index, feature in reversed(list(enumerate(model['features'].items()))):
 
-                # Remove the selected fields from X_train (used to generate the scaler)
-                # and also remove them from the X2 test data.
+                # Remove the feature if unused from the X2 test data
                 if not feature[1]:
                     X2 = np.delete(X2, index, axis=1)
 
