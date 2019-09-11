@@ -3,10 +3,13 @@
 # Supervised learning using an exhaustive search of ideal pre-processing (if any), algorithms,
 # and hyper-parameters with feature engineering.
 
+# Hide warning from the output
+import warnings
+warnings.filterwarnings('ignore')
+
 # Dependencies
 import os
 import itertools
-import warnings
 from dotenv import load_dotenv
 import sys
 
@@ -35,9 +38,6 @@ if len(sys.argv) < 3:
 else:
     train = sys.argv[1]
     test = sys.argv[2]
-
-# Hide warning from the output
-warnings.filterwarnings('ignore')
 
 # Define the labels for our classes
 # This is used for the classification reproting (more readable then 0/1)
