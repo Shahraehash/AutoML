@@ -17,6 +17,11 @@ def importData(trainPath, testPath, labelColumn):
     X = X.loc[:, (X.dtypes == np.int64) | (X.dtypes == np.float64)].dropna()
     X2 = X2.loc[:, (X2.dtypes == np.int64) | (X2.dtypes == np.float64)].dropna()
 
+    featureNames = list(X)
+
+    X = X.to_numpy()
+    X2 = X2.to_numpy()
+
     negativeCount = data[data[labelColumn] == 0].shape[0]
     positiveCount = data[data[labelColumn] == 1].shape[0]
 
@@ -26,4 +31,4 @@ def importData(trainPath, testPath, labelColumn):
         print('Warning: Classes are not balanced.')
 
     # Generate test/train split from the train data
-    return [data, data_test, X, Y, X2, Y2] + train_test_split(X, Y, test_size=.2, random_state=5, stratify=Y)
+    return [data, data_test, X, Y, X2, Y2, featureNames] + train_test_split(X, Y, test_size=.2, random_state=5, stratify=Y)
