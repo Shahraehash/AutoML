@@ -19,6 +19,7 @@ from pipeline import generatePipeline
 from scalers import scalerNames
 from scorers import scorerNames
 from summary import printSummary
+from utils import modelKeyToName
 
 # Load environment variables
 load_dotenv()
@@ -53,9 +54,9 @@ for estimator, featureSelector, scaler, scorer in list(itertools.product(*[estim
     if estimator in IGNORE_ESTIMATOR or featureSelector in IGNORE_FEATURE_SELECTOR or scaler in IGNORE_SCALER or scorer in IGNORE_SCORER:
         continue
 
-    print('Generating ' + estimatorNames[estimator] + ' model using ' + scorerNames[scorer] + ' scored grid search with ' + scalerNames[scaler] + ' and with ' + featureSelectorNames[featureSelector])
-
     key = '__'.join([scaler, featureSelector, estimator, scorer])
+    print('Generating ' + modelKeyToName(key))
+
     pipeline = generatePipeline(scaler, featureSelector, estimator, scorer)
 
     models[key] = generateModel(estimator, pipeline, X_train, Y_train, labels, scorer)

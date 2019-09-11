@@ -1,10 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from estimators import estimatorNames
-from feature_selection import featureSelectorNames
-from scalers import scalerNames
-from scorers import scorerNames
+from utils import modelKeyToName
 
 def printSummary(results):
     data = []
@@ -14,7 +11,7 @@ def printSummary(results):
 
     for key in results:
         columns = list(results[key].keys())
-        runs.append(keyToName(key))
+        runs.append(modelKeyToName(key))
         values = list(results[key].values())
         scores.append(sum([1-x for x in values]))
         data.append(values)
@@ -26,7 +23,3 @@ def printSummary(results):
     summary.to_csv('report.csv')
 
     print(summary)
-
-def keyToName(key):
-    keys = key.split('__')
-    return '%s (%s) w/%s and %s' % (estimatorNames[keys[2]], scorerNames[keys[3]], scalerNames[keys[0]], featureSelectorNames[keys[1]])
