@@ -1,4 +1,7 @@
-# Dependencies
+"""
+Defines all estimators used
+"""
+
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
@@ -7,7 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 
-estimators = {
+ESTIMATORS = {
     'gb': GradientBoostingClassifier(),
     'knn': KNeighborsClassifier(),
     'lr': LogisticRegression(solver='lbfgs', max_iter=1000),
@@ -17,7 +20,7 @@ estimators = {
     'svm': SVC(gamma='auto'),
 }
 
-estimatorNames = {
+ESTIMATOR_NAMES = {
     'gb': 'gradient boosting machine',
     'knn': 'K-nearest neighbor',
     'lr': 'logistic regression',
