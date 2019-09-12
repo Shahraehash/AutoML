@@ -23,10 +23,9 @@ def get_static_file(path):
 
     return send_from_directory('static', path)
 
-
 @APP.route('/run')
 def run():
-    api.find_best_model()
+    api.find_best_model('sample-data/train.csv', 'sample-data/test.csv', None, 'AKI')
 
 if __name__ == "__main__":
     APP.run()

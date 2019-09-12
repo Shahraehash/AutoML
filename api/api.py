@@ -29,14 +29,20 @@ IGNORE_FEATURE_SELECTOR = os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')
 IGNORE_SCALER = os.getenv('IGNORE_SCALER', '').split(',')
 IGNORE_SCORER = os.getenv('IGNORE_SCORER', '').split(',')
 
-def find_best_model(train_set='sample-data/train.csv',
-                    test_set='sample-data/test.csv', labels=None, label_column='AKI'):
+def find_best_model(train_set=None, test_set=None, labels=None, label_column=None):
     """Generates all possible models and outputs the generalization results"""
 
-    # Define the labels for our classes
-    # This is used for the classification reproting
-    if labels is None:
-        labels = ['No AKI', 'AKI']
+    if train_set is None:
+        print('Missing training data')
+        return
+
+    if test_set is None:
+        print('Missing test data')
+        return
+
+    if label_column is None:
+        print('Missing column name for classifier target')
+        return
 
     # Import data
     (x_train, y_train, x2, y2, feature_names) = import_data(train_set, test_set, label_column)
