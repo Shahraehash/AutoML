@@ -16,6 +16,9 @@ pip-delete-this-directory.txt
 # Data
 data/
 
+# UI build
+static/
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
