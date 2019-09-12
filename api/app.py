@@ -12,10 +12,10 @@ import sys
 
 from dotenv import load_dotenv
 
-from .operators.estimators import ESTIMATOR_NAMES
-from .operators.feature_selection import FEATURE_SELECTOR_NAMES
-from .operators.scalers import SCALER_NAMES
-from .operators.scorers import SCORER_NAMES
+from .processors.estimators import ESTIMATOR_NAMES
+from .processors.feature_selection import FEATURE_SELECTOR_NAMES
+from .processors.scalers import SCALER_NAMES
+from .processors.scorers import SCORER_NAMES
 from .generalization import generalize
 from .model import generate_model
 from .import_data import import_data

@@ -26,7 +26,7 @@ def generalize(model, pipeline, x2, y2, labels=None):
                     x2 = np.delete(x2, index, axis=1)
 
         if feature_selector_type in\
-         ('sklearn.decomposition.pca', 'operators.rffi'):
+         ('sklearn.decomposition.pca', 'processors.rffi'):
             x2 = pipeline.named_steps['feature_selector'].transform(x2)
 
     predictions = model['best_estimator'].predict(x2)

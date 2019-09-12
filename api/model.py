@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 from .hyperparameters import HYPER_PARAMETER_RANGE
-from .operators.scorers import SCORER_NAMES
+from .processors.scorers import SCORER_NAMES
 
 MAX_FEATURES_SHOWN = 5
 
@@ -35,7 +35,7 @@ def generate_model(estimator_name, pipeline, feature_names, x_train, y_train, sc
             features = pd.Series(pipeline.named_steps['feature_selector'].get_support(),
                                  index=feature_names)
 
-        if feature_selector_type == 'operators.rffi':
+        if feature_selector_type == 'processors.rffi':
             most_important = pipeline.named_steps['feature_selector'].get_top_features()
             most_important_names =\
                 [feature_names[most_important[i]] for i in range(len(most_important))]
