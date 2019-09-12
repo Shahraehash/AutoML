@@ -6,7 +6,7 @@ using an Angular SPA.
 """
 
 import os
-from flask import Flask, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 
 from api import api
 
@@ -23,9 +23,12 @@ def get_static_file(path):
 
     return send_from_directory('static', path)
 
-@APP.route('/run')
+@APP.route('/train', methods=['POST'])
 def run():
-    api.find_best_model('sample-data/train.csv', 'sample-data/test.csv', None, 'AKI')
+    body = request.get_json()
+    print(body)
+    results = api.find_best_model(body['train'], body['test'], body['labels'], body['label_column'])
+    return jsonify(results)
 
 if __name__ == "__main__":
     APP.run()
