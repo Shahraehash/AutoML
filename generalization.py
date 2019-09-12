@@ -7,7 +7,6 @@ from sklearn.metrics import roc_auc_score, accuracy_score,\
     confusion_matrix, classification_report, f1_score
 
 def generalize(model, pipeline, x2, y2, labels=None):
-
     """"Generalize method"""
 
     # If scaling is used in the pipeline, scale the test data
