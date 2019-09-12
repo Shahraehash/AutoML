@@ -1,13 +1,16 @@
-# Dependencies
+"""
+All scalers used
+"""
+
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-scalers = {
+SCALERS = {
     'none': '',
     'minmax': MinMaxScaler(),
     'std': StandardScaler()
 }
 
-scalerNames = {
+SCALER_NAMES = {
     'none': 'no scaling',
     'minmax': 'min max scaler',
     'std': 'standard scaler'

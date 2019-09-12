@@ -1,34 +1,40 @@
-# Dependencies
+"""
+Import data and process/clean data
+"""
+
 import pandas as pd
 import numpy as np
 
 from sklearn.model_selection import train_test_split
 
-def importData(trainPath, testPath, labelColumn):
-    data = pd.read_csv(trainPath).dropna()
-    X = data.drop(labelColumn, axis=1)
-    Y = data[labelColumn]
+def import_data(train_path, test_path, label_column):
+    """Import data using the passed paths"""
 
-    data_test = pd.read_csv(testPath).dropna()
-    X2 = data_test.drop(labelColumn, axis=1)
-    Y2 = data_test[labelColumn]
+    data = pd.read_csv(train_path).dropna()
+    x = data.drop(label_column, axis=1)
+    y = data[label_column]
+
+    data_test = pd.read_csv(test_path).dropna()
+    x2 = data_test.drop(label_column, axis=1)
+    y2 = data_test[label_column]
 
     # Only keep numeric inputs
-    X = X.loc[:, (X.dtypes == np.int64) | (X.dtypes == np.float64)].dropna()
-    X2 = X2.loc[:, (X2.dtypes == np.int64) | (X2.dtypes == np.float64)].dropna()
+    x = x.loc[:, (x.dtypes == np.int64) | (x.dtypes == np.float64)].dropna()
+    x2 = x2.loc[:, (x2.dtypes == np.int64) | (x2.dtypes == np.float64)].dropna()
 
-    featureNames = list(X)
+    feature_names = list(x)
 
-    X = X.to_numpy()
-    X2 = X2.to_numpy()
+    x = x.to_numpy()
+    x2 = x2.to_numpy()
 
-    negativeCount = data[data[labelColumn] == 0].shape[0]
-    positiveCount = data[data[labelColumn] == 1].shape[0]
+    negative_count = data[data[label_column] == 0].shape[0]
+    positive_count = data[data[label_column] == 1].shape[0]
 
-    print('Negative Cases: %.7g\nPositive Cases: %.7g\n' % (negativeCount, positiveCount))
+    print('Negative Cases: %.7g\nPositive Cases: %.7g\n' % (negative_count, positive_count))
 
-    if negativeCount / positiveCount < .9:
+    if negative_count / positive_count < .9:
         print('Warning: Classes are not balanced.')
 
     # Generate test/train split from the train data
-    return [data, data_test, X, Y, X2, Y2, featureNames] + train_test_split(X, Y, test_size=.2, random_state=5, stratify=Y)
+    x_train, _, y_train, _ = train_test_split(x, y, test_size=.2, random_state=5, stratify=y)
+    return [x_train, y_train, x2, y2, feature_names]

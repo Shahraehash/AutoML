@@ -1,43 +1,48 @@
-# Dependencies
+"""
+Generalization of a provided model using a secondary test set.
+"""
+
 import numpy as np
-from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix, classification_report, f1_score
+from sklearn.metrics import roc_auc_score, accuracy_score,\
+    confusion_matrix, classification_report, f1_score
 
-from scalers import scalers
+def generalize(model, pipeline, x2, y2, labels=None):
 
-def generalize(model, pipeline, X2, Y2, labels=None):
+    """"Generalize method"""
 
     # If scaling is used in the pipeline, scale the test data
     if 'scaler' in pipeline.named_steps:
-        X2 = pipeline.named_steps['scaler'].transform(X2)
+        x2 = pipeline.named_steps['scaler'].transform(x2)
 
     if 'feature_selector' in pipeline.named_steps:
-        featureSelectorType = pipeline.named_steps['feature_selector'].__class__.__module__
+        feature_selector_type = pipeline.named_steps['feature_selector'].__class__.__module__
 
-        if featureSelectorType == 'sklearn.feature_selection.univariate_selection':
+        if feature_selector_type == 'sklearn.feature_selection.univariate_selection':
 
             # Identify the selected featured for model provided
             for index, feature in reversed(list(enumerate(model['features'].items()))):
 
-                # Remove the feature if unused from the X2 test data
+                # Remove the feature if unused from the x2 test data
                 if not feature[1]:
-                    X2 = np.delete(X2, index, axis=1)
+                    x2 = np.delete(x2, index, axis=1)
 
-        if featureSelectorType == 'sklearn.decomposition.pca' or featureSelectorType == 'random_forest_importance_select':
-            X2 = pipeline.named_steps['feature_selector'].transform(X2)
+        if feature_selector_type in\
+         ('sklearn.decomposition.pca', 'random_forest_importance_select'):
+            x2 = pipeline.named_steps['feature_selector'].transform(x2)
 
-    predictions = model['best_estimator'].predict(X2)
-    print('\t', classification_report(Y2, predictions, target_names=labels).replace('\n', '\n\t'))
+    predictions = model['best_estimator'].predict(x2)
+    print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
 
     print('\tGeneralization:')
 
-    accuracy = accuracy_score(Y2, predictions)
+    accuracy = accuracy_score(y2, predictions)
     print('\t\tAccuracy:', accuracy)
 
-    auc = roc_auc_score(Y2, predictions)
+    auc = roc_auc_score(y2, predictions)
     print('\t\tAUC:', auc)
 
-    tn, fp, fn, tp = confusion_matrix(Y2, predictions).ravel()
-    f1 = f1_score(Y2, predictions, average='macro')
+    tn, fp, fn, tp = confusion_matrix(y2, predictions).ravel()
+    f1 = f1_score(y2, predictions, average='macro')
     sensitivity = tp / (tp+fn)
     specificity = tn / (tn+fp)
     print('\t\tSensitivity:', sensitivity)

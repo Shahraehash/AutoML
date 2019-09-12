@@ -1,40 +1,44 @@
-# Dependencies
+"""
+Generates a pipeline
+"""
+
 from sklearn.pipeline import Pipeline
-from sklearn.base import TransformerMixin, BaseEstimator
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import StratifiedKFold
 
-from debug_pipeline import Debug
-from estimators import estimators
-from feature_selection import featureSelectors
-from hyperparameters import hyperParameterRange
-from scalers import scalers
+from operators.debug import Debug
+from operators.estimators import ESTIMATORS
+from operators.feature_selection import FEATURE_SELECTORS
+from operators.scalers import SCALERS
+from hyperparameters import HYPER_PARAMETER_RANGE
 
 # Define the cross validator
-cv = StratifiedKFold(n_splits=10)
+CROSS_VALIDATOR = StratifiedKFold(n_splits=10)
 
 # Generate a pipeline
-def generatePipeline(scaler, featureSelector, estimator, scoring='accuracy'):
+def generate_pipeline(scaler, feature_selector, estimator, scoring='accuracy'):
+    """Generate the pipeline based on incoming arguments"""
+
     steps = []
 
-    if scaler and scalers[scaler]:
-        steps.append(('scaler', scalers[scaler]))
+    if scaler and SCALERS[scaler]:
+        steps.append(('scaler', SCALERS[scaler]))
 
-    if featureSelector and featureSelectors[featureSelector]:
-        steps.append(('feature_selector', featureSelectors[featureSelector]))
+    if feature_selector and FEATURE_SELECTORS[feature_selector]:
+        steps.append(('feature_selector', FEATURE_SELECTORS[feature_selector]))
 
     steps.append(('debug', Debug()))
 
-    if estimator in hyperParameterRange:
+    if estimator in HYPER_PARAMETER_RANGE:
         steps.append(('estimator', GridSearchCV(
-                estimators[estimator],
-                hyperParameterRange[estimator],
-                return_train_score='False',
-                cv=cv,
-                n_jobs=-1,
-                scoring=scoring
-            )))
+            ESTIMATORS[estimator],
+            HYPER_PARAMETER_RANGE[estimator],
+            return_train_score='False',
+            cv=CROSS_VALIDATOR,
+            n_jobs=-1,
+            scoring=scoring
+        )))
     else:
-        steps.append(('estimator', estimators[estimator]))
+        steps.append(('estimator', ESTIMATORS[estimator]))
     return Pipeline(steps)
