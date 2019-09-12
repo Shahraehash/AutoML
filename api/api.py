@@ -32,8 +32,8 @@ IGNORE_SCORER = os.getenv('IGNORE_SCORER', '').split(',')
 
 # Parse input or load sample data
 if len(sys.argv) < 3:
-    TRAIN_SET = '../sample-data/train.csv'
-    TEST_SET = '../sample-data/test.csv'
+    TRAIN_SET = 'sample-data/train.csv'
+    TEST_SET = 'sample-data/test.csv'
 else:
     TRAIN_SET = sys.argv[1]
     TEST_SET = sys.argv[2]

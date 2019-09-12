@@ -4,7 +4,7 @@ Generate final summary
 
 import pandas as pd
 
-from utils import model_key_to_name
+from .utils import model_key_to_name
 
 def print_summary(results):
     """Prints the final summary"""
