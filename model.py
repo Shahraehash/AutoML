@@ -35,14 +35,14 @@ def generate_model(estimator_name, pipeline, feature_names, x_train, y_train, sc
             features = pd.Series(pipeline.named_steps['feature_selector'].get_support(),
                                  index=feature_names)
 
-        if feature_selector_type == 'random_forest_importance_select':
+        if feature_selector_type == 'operators.rffi':
             most_important = pipeline.named_steps['feature_selector'].get_top_features()
             most_important_names =\
                 [feature_names[most_important[i]] for i in range(len(most_important))]
             features = pd.Series((i in most_important_names for i in feature_names),
                                  index=feature_names)
 
-        selected_features = features[features].axes[0]
+        selected_features = features[features==True].axes[0]
         print('\tFeatures used: ' + ', '.join(selected_features[:MAX_FEATURES_SHOWN]) +
               ('...' if selected_features.shape[0] > MAX_FEATURES_SHOWN else ''))
     else:

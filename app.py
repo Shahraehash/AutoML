@@ -52,17 +52,17 @@ RESULTS = {}
 ALL_PIPELINES = list(itertools.product(
     *[ESTIMATOR_NAMES, FEATURE_SELECTOR_NAMES, SCALER_NAMES, SCORER_NAMES]))
 
-for estimator, featureSelector, scaler, scorer in ALL_PIPELINES:
+for estimator, feature_selector, scaler, scorer in ALL_PIPELINES:
     if estimator in IGNORE_ESTIMATOR or\
-        featureSelector in IGNORE_FEATURE_SELECTOR or\
+        feature_selector in IGNORE_FEATURE_SELECTOR or\
         scaler in IGNORE_SCALER or\
         scorer in IGNORE_SCORER:
         continue
 
-    key = '__'.join([scaler, featureSelector, estimator, scorer])
+    key = '__'.join([scaler, feature_selector, estimator, scorer])
     print('Generating ' + model_key_to_name(key))
 
-    pipeline = generate_pipeline(scaler, featureSelector, estimator, scorer)
+    pipeline = generate_pipeline(scaler, feature_selector, estimator, scorer)
 
     RESULTS[key] = generalize(
         generate_model(
