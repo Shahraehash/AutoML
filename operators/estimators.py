@@ -1,5 +1,5 @@
 """
-Defines all ESTIMATORS used
+Defines all estimators used
 """
 
 from sklearn.svm import SVC

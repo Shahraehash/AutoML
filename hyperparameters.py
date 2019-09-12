@@ -48,7 +48,7 @@ HYPER_PARAMETER_RANGE = {
         'max_features': ['auto'],
         'min_samples_leaf': [3, 4, 5],
         'min_samples_split': [2, 3, 4],
-        'n_ESTIMATORS': [10, 100, 200, 300, 1000]
+        'n_estimators': [10, 100, 200, 300, 1000]
     },
     'svm': {
         'C': [.1, 1, 10, 100, 1000],
