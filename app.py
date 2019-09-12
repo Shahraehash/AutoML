@@ -13,7 +13,12 @@ APP = Flask(__name__, static_url_path='/ui')
 
 @APP.route('/')
 def load_ui():
-    redirect(url_for('ui'), code=302)
+    return redirect(url_for('static', filename='index.html'))
+
+
+@APP.route('/run')
+def run():
+    api.find_best_model()
 
 if __name__ == "__main__":
     APP.run()
