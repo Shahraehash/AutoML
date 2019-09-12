@@ -7,11 +7,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import StratifiedKFold
 
-from operators.debug import Debug
-from operators.estimators import ESTIMATORS
-from operators.feature_selection import FEATURE_SELECTORS
-from operators.scalers import SCALERS
-from hyperparameters import HYPER_PARAMETER_RANGE
+from .operators.debug import Debug
+from .operators.estimators import ESTIMATORS
+from .operators.feature_selection import FEATURE_SELECTORS
+from .operators.scalers import SCALERS
+from .hyperparameters import HYPER_PARAMETER_RANGE
 
 # Define the cross validator
 CROSS_VALIDATOR = StratifiedKFold(n_splits=10)

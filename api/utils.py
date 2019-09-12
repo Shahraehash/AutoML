@@ -1,10 +1,10 @@
 """
 Utilities
 """
-from operators.estimators import ESTIMATOR_NAMES
-from operators.feature_selection import FEATURE_SELECTOR_NAMES
-from operators.scalers import SCALER_NAMES
-from operators.scorers import SCORER_NAMES
+from .operators.estimators import ESTIMATOR_NAMES
+from .operators.feature_selection import FEATURE_SELECTOR_NAMES
+from .operators.scalers import SCALER_NAMES
+from .operators.scorers import SCORER_NAMES
 
 def model_key_to_name(key):
     """"Resolve key name to descriptive name"""

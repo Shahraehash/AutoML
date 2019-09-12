@@ -8,8 +8,8 @@ from timeit import default_timer as timer
 import pandas as pd
 import numpy as np
 
-from hyperparameters import HYPER_PARAMETER_RANGE
-from operators.scorers import SCORER_NAMES
+from .hyperparameters import HYPER_PARAMETER_RANGE
+from .operators.scorers import SCORER_NAMES
 
 MAX_FEATURES_SHOWN = 5
 

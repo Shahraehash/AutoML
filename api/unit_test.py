@@ -2,10 +2,10 @@
 Unit Tests
 """
 
-from import_data import import_data
-from generalization import generalize
-from model import generate_model
-from pipeline import generate_pipeline
+from .import_data import import_data
+from .generalization import generalize
+from .model import generate_model
+from .pipeline import generate_pipeline
 
 # Load the test data
 LABEL_COLUMN = 'AKI'

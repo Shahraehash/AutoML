@@ -12,16 +12,16 @@ import sys
 
 from dotenv import load_dotenv
 
-from operators.estimators import ESTIMATOR_NAMES
-from operators.feature_selection import FEATURE_SELECTOR_NAMES
-from operators.scalers import SCALER_NAMES
-from operators.scorers import SCORER_NAMES
-from generalization import generalize
-from model import generate_model
-from import_data import import_data
-from pipeline import generate_pipeline
-from summary import print_summary
-from utils import model_key_to_name
+from .operators.estimators import ESTIMATOR_NAMES
+from .operators.feature_selection import FEATURE_SELECTOR_NAMES
+from .operators.scalers import SCALER_NAMES
+from .operators.scorers import SCORER_NAMES
+from .generalization import generalize
+from .model import generate_model
+from .import_data import import_data
+from .pipeline import generate_pipeline
+from .summary import print_summary
+from .utils import model_key_to_name
 
 # Load environment variables
 load_dotenv()
@@ -32,8 +32,8 @@ IGNORE_SCORER = os.getenv('IGNORE_SCORER', '').split(',')
 
 # Parse input or load sample data
 if len(sys.argv) < 3:
-    TRAIN_SET = 'sample-data/train.csv'
-    TEST_SET = 'sample-data/test.csv'
+    TRAIN_SET = '../sample-data/train.csv'
+    TEST_SET = '../sample-data/test.csv'
 else:
     TRAIN_SET = sys.argv[1]
     TEST_SET = sys.argv[2]
