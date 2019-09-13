@@ -23,7 +23,7 @@ Currently data is expected to be in CSV format in two files:
 To run the program simply execute the below command:
 
 ```sh
-python app.py train.csv test.csv | tee report.txt
+python cli.py train.csv test.csv | tee report.txt
 ```
 
 This will execute the program and send the output to both the terminal and
@@ -32,3 +32,19 @@ of all models generated.
 
 If you do not pass a train and test spreadsheet, sample data contained within
 `sample-data` will be used.
+
+## Web Service
+
+Running the application as a service with an HTTP API and Angular SPA front end.
+The following steps need to be completed before the server can be launched:
+
+```sh
+cd ui
+npm install
+npm run build
+cd ..
+python server.py
+```
+
+The `npm` steps only need to be run once or if a change to the Angular SPA are
+done.
