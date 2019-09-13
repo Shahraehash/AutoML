@@ -1,4 +1,5 @@
 Flask==1.1.1
+Flask-Cors==3.0.8
 future==0.17.1
 joblib==0.13.2
 json5==0.8.4

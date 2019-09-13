@@ -9,6 +9,20 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  Please start by selecting your data on the home page
+<ion-content class='ion-padding'>
+  <ion-card class='ion-text-center ion-padding' *ngIf='uploadComplete && !results'>
+    We are ready to begin training! Please click start below to get started.
+    <br>
+    <ion-spinner [hidden]='!training' style='margin: 20px 0 10px'></ion-spinner>
+    <br>
+    <ion-button (click)='startTraining()' [hidden]='training'>Start Training</ion-button>
+  </ion-card>
+
+  <ion-card class='ion-padding' *ngIf='results'>
+    {{ results | json }}
+  </ion-card>
+
+  <ng-container *ngIf='!uploadComplete'>
+    Please start by selecting your data on the home page
+  </ng-container>
 </ion-content>

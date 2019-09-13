@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
@@ -13,7 +14,8 @@ export class HomePage implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -28,9 +30,10 @@ export class HomePage implements OnInit {
     const formData = new FormData();
     formData.append('train', this.uploadForm.get('train').value);
     formData.append('test', this.uploadForm.get('test').value);
+    formData.append('label_column', this.uploadForm.get('label_column').value);
 
     this.httpClient.post<any>(this.SERVER_URL, formData).subscribe(
-      (res) => console.log(res),
+      () => this.router.navigate(['/train', {upload: true}]),
       (err) => console.log(err)
     );
 
