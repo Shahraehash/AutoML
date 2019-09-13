@@ -4,8 +4,7 @@ Generates a pipeline
 
 from sklearn.pipeline import Pipeline
 
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, ParameterGrid
 
 from .processors.debug import Debug
 from .processors.estimators import ESTIMATORS
@@ -40,6 +39,11 @@ def generate_pipeline(scaler, feature_selector, estimator, scoring='accuracy'):
             iid=True,
             scoring=scoring
         )))
+
+        total_fits = len(ParameterGrid(HYPER_PARAMETER_RANGE[estimator])) *\
+            CROSS_VALIDATOR.get_n_splits()
     else:
         steps.append(('estimator', ESTIMATORS[estimator]))
-    return Pipeline(steps)
+        total_fits = CROSS_VALIDATOR.get_n_splits()
+
+    return (Pipeline(steps), total_fits)

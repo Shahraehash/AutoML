@@ -34,21 +34,21 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
 
     if train_set is None:
         print('Missing training data')
-        return
+        return {}
 
     if test_set is None:
         print('Missing test data')
-        return
+        return {}
 
     if label_column is None:
         print('Missing column name for classifier target')
-        return
+        return {}
 
     # Import data
     (x_train, y_train, x2, y2, feature_names) = import_data(train_set, test_set, label_column)
 
-    # Generate all models
     results = {}
+    models = 0
 
     all_pipelines = list(itertools.product(
         *[ESTIMATOR_NAMES, FEATURE_SELECTOR_NAMES, SCALER_NAMES, SCORER_NAMES]))
@@ -64,12 +64,13 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         print('Generating ' + model_key_to_name(key))
 
         pipeline = generate_pipeline(scaler, feature_selector, estimator, scorer)
-
+        models += pipeline[1]
         results[key] = generalize(
             generate_model(
-                estimator, pipeline, feature_names, x_train, y_train, scorer
+                estimator, pipeline[0], feature_names, x_train, y_train, scorer
             ),
-            pipeline, x2, y2, labels)
+            pipeline[0], x2, y2, labels)
 
+    print('Total fits generated: %d' % models)
     print_summary(results)
     return results

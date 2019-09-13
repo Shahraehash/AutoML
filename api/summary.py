@@ -25,7 +25,7 @@ def print_summary(results):
 
     print('Best model:', runs[0], '\n')
 
-    print('General summary (%d models generated):' % (len(results) * 10))
+    print('General summary')
     summary = pd.DataFrame(data, index=runs, columns=columns)
     summary.to_csv('report.csv')
 
