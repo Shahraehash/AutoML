@@ -37,6 +37,7 @@ def generate_pipeline(scaler, feature_selector, estimator, scoring='accuracy'):
             return_train_score='False',
             cv=CROSS_VALIDATOR,
             n_jobs=-1,
+            iid=True,
             scoring=scoring
         )))
     else:
