@@ -9,9 +9,9 @@ from .rffi import RandomForestFeatureImportanceSelector
 
 FEATURE_SELECTORS = {
     'none': '',
-    'pca-25': PCA(n_components=.25, svd_solver='full'),
-    'pca-50': PCA(n_components=.50, svd_solver='full'),
-    'pca-75': PCA(n_components=.75, svd_solver='full'),
+    'pca-70': PCA(n_components=.70, svd_solver='full'),
+    'pca-80': PCA(n_components=.80, svd_solver='full'),
+    'pca-90': PCA(n_components=.90, svd_solver='full'),
     'rf-25': RandomForestFeatureImportanceSelector(percentile=.25),
     'rf-50': RandomForestFeatureImportanceSelector(percentile=.50),
     'rf-75': RandomForestFeatureImportanceSelector(percentile=.75),
@@ -22,9 +22,9 @@ FEATURE_SELECTORS = {
 
 FEATURE_SELECTOR_NAMES = {
     'none': 'all features (no feature selection)',
-    'pca-25': 'principal component analysis (25%)',
-    'pca-50': 'principal component analysis (50%)',
-    'pca-75': 'principal component analysis (75%)',
+    'pca-70': 'principal component analysis (70%)',
+    'pca-80': 'principal component analysis (80%)',
+    'pca-90': 'principal component analysis (90%)',
     'rf-25': 'random forest importance (25%)',
     'rf-50': 'random forest importance (50%)',
     'rf-75': 'random forest importance (75%)',
