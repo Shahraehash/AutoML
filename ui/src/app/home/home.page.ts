@@ -3,12 +3,15 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
+import { parse } from 'papaparse';
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
+  labels = [];
   SERVER_URL = 'http://localhost:5000/upload';
   uploadForm: FormGroup;
 
@@ -43,6 +46,11 @@ export class HomePage implements OnInit {
   onFileSelect(event) {
     if (event.target.files.length === 1) {
       const file = event.target.files[0];
+
+      parse(file, {
+        complete: reply => this.labels = reply.data[0]
+      });
+
       this.uploadForm.get(event.target.name).setValue(file);
     }
   }
