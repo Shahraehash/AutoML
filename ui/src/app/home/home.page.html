@@ -9,6 +9,22 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class='ion-padding'>
+  <form [formGroup]='uploadForm'>
+    <ion-card class='ion-padding'>
+      Train set: <input type='file' name='train' (change)="onFileSelect($event)">
+    </ion-card>
 
+    <ion-card class='ion-padding'>
+      Test set: <input type='file' name='test' (change)="onFileSelect($event)">
+    </ion-card>
+
+    <ion-card class='ion-padding'>
+      <ion-label>Label Column Name</ion-label>
+      <ion-input placeholder='Enter condition column...' name='label_column'>
+      </ion-input>
+    </ion-card>
+
+    <ion-button class='ion-padding' (click)='onSubmit()'>Submit</ion-button>
+  </form>
 </ion-content>
