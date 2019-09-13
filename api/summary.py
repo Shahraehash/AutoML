@@ -6,6 +6,9 @@ import pandas as pd
 
 from .utils import model_key_to_name
 
+pd.set_option('display.max_colwidth', -1)
+pd.set_option('display.max_columns', None)
+
 def print_summary(results):
     """Prints the final summary"""
 
