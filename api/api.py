@@ -68,7 +68,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
 
         pipeline = generate_pipeline(scaler, feature_selector, estimator, scorer, searcher)
         models += pipeline[1]
-        model = generate_model(estimator, pipeline[0], feature_names, x_train, y_train, scorer)
+        model = generate_model(pipeline[0], feature_names, x_train, y_train, scorer)
         results[key] = generalize(model, pipeline[0], x2, y2, labels)
         results[key]['best_params'] = model['best_params']
 

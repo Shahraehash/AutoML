@@ -12,7 +12,7 @@ from .processors.scorers import SCORER_NAMES
 
 MAX_FEATURES_SHOWN = 5
 
-def generate_model(estimator_name, pipeline, feature_names, x_train, y_train, scoring='accuracy'):
+def generate_model(pipeline, feature_names, x_train, y_train, scoring='accuracy'):
     """Define the generic method to generate the best model for the provided estimator"""
     start = timer()
     pipeline.fit(x_train, y_train)
