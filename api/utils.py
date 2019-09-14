@@ -14,15 +14,10 @@ def model_key_to_name(key):
 
     scaler, feature_selector, estimator, scorer, searcher = key.split('__')
 
-    search_method = ' using '
+    search_method = ' using ' + SCORER_NAMES[scorer] + ' scored ' + SEARCHER_NAMES[searcher]
 
-    if searcher == 'grid':
-        if estimator in HYPER_PARAMETER_RANGE:
-            search_method += SCORER_NAMES[scorer] + ' scored ' + SEARCHER_NAMES[searcher]
-        else:
-            search_method = ''
-    else:
-        search_method += SEARCHER_NAMES[searcher]
+    if searcher == 'grid' and estimator not in HYPER_PARAMETER_RANGE:
+        search_method = ''
 
     return ESTIMATOR_NAMES[estimator] + ' model' + search_method + ' with ' +\
         SCALER_NAMES[scaler] + ' and with ' + FEATURE_SELECTOR_NAMES[feature_selector]
