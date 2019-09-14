@@ -5,12 +5,14 @@ All hyper-parameter search methods
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, ParameterGrid
 
 from .estimators import ESTIMATORS
-from ..hyperparameters import HYPER_PARAMETER_RANGE
+from .hyperparameters import HYPER_PARAMETER_RANGE
 
 # Define the cross validator
 CROSS_VALIDATOR = StratifiedKFold(n_splits=10)
 
 def make_grid_search(estimator, scoring):
+    """Generate grid search with 10 fold cross validator"""
+
     if estimator not in HYPER_PARAMETER_RANGE['grid']:
         return (ESTIMATORS[estimator], 1)
 
