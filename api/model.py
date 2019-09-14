@@ -8,7 +8,6 @@ from timeit import default_timer as timer
 import pandas as pd
 import numpy as np
 
-from .hyperparameters import HYPER_PARAMETER_RANGE
 from .processors.scorers import SCORER_NAMES
 
 MAX_FEATURES_SHOWN = 5
@@ -49,7 +48,7 @@ def generate_model(estimator_name, pipeline, feature_names, x_train, y_train, sc
         print('\tAll features used: ' + ', '.join(feature_names[:MAX_FEATURES_SHOWN]) +
               ('...' if len(feature_names) > MAX_FEATURES_SHOWN else ''))
 
-    if estimator_name in HYPER_PARAMETER_RANGE:
+    if hasattr(pipeline.named_steps['estimator'], 'cv_results_'):
         performance = pd.DataFrame(
             pipeline.named_steps['estimator'].cv_results_
         )[['mean_test_score', 'std_test_score']].sort_values(by='mean_test_score', ascending=False)

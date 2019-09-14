@@ -2,7 +2,6 @@
 Utilities
 """
 
-from .hyperparameters import HYPER_PARAMETER_RANGE
 from .processors.estimators import ESTIMATOR_NAMES
 from .processors.feature_selection import FEATURE_SELECTOR_NAMES
 from .processors.scalers import SCALER_NAMES
@@ -16,7 +15,7 @@ def model_key_to_name(key):
 
     search_method = ' using ' + SCORER_NAMES[scorer] + ' scored ' + SEARCHER_NAMES[searcher]
 
-    if searcher == 'grid' and estimator not in HYPER_PARAMETER_RANGE:
+    if estimator == 'nb':
         search_method = ''
 
     return ESTIMATOR_NAMES[estimator] + ' model' + search_method + ' with ' +\
