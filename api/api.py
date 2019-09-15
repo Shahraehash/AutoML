@@ -28,7 +28,7 @@ load_dotenv()
 IGNORE_ESTIMATOR = os.getenv('IGNORE_ESTIMATOR', '').split(',')
 IGNORE_FEATURE_SELECTOR = os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')
 IGNORE_SCALER = os.getenv('IGNORE_SCALER', '').split(',')
-IGNORE_SEARCHERS = os.getenv('IGNORE_SEARCHERS', '').split(',')
+IGNORE_SEARCHER = os.getenv('IGNORE_SEARCHER', '').split(',')
 IGNORE_SCORER = os.getenv('IGNORE_SCORER', '').split(',')
 
 def find_best_model(train_set=None, test_set=None, labels=None, label_column=None):
@@ -60,7 +60,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
             estimator in IGNORE_ESTIMATOR or\
             feature_selector in IGNORE_FEATURE_SELECTOR or\
             scaler in IGNORE_SCALER or\
-            searcher in IGNORE_SEARCHERS or\
+            searcher in IGNORE_SEARCHER or\
             scorer in IGNORE_SCORER:
             continue
 
