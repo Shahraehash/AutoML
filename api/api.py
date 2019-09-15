@@ -56,7 +56,8 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         *[ESTIMATOR_NAMES, FEATURE_SELECTOR_NAMES, SCALER_NAMES, SCORER_NAMES, SEARCHER_NAMES]))
 
     for estimator, feature_selector, scaler, scorer, searcher in all_pipelines:
-        if estimator in IGNORE_ESTIMATOR or\
+        if (estimator == 'svm' and scaler == 'none') or\
+            estimator in IGNORE_ESTIMATOR or\
             feature_selector in IGNORE_FEATURE_SELECTOR or\
             scaler in IGNORE_SCALER or\
             searcher in IGNORE_SEARCHERS or\
