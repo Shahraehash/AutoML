@@ -16,7 +16,7 @@ def generalize(model, pipeline, x2, y2, labels=None):
     if 'feature_selector' in pipeline.named_steps:
         feature_selector_type = pipeline.named_steps['feature_selector'].__class__.__module__
 
-        if feature_selector_type == 'sklearn.feature_selection.univariate_selection':
+        if 'sklearn.feature_selection.univariate_selection' in feature_selector_type:
 
             # Identify the selected featured for model provided
             for index, feature in reversed(list(enumerate(model['features'].items()))):
@@ -25,8 +25,8 @@ def generalize(model, pipeline, x2, y2, labels=None):
                 if not feature[1]:
                     x2 = np.delete(x2, index, axis=1)
 
-        if feature_selector_type in\
-         ('sklearn.decomposition.pca', 'api.processors.rffi'):
+        if 'sklearn.decomposition.pca' in feature_selector_type or\
+            'processors.rffi' in feature_selector_type:
             x2 = pipeline.named_steps['feature_selector'].transform(x2)
 
     predictions = model['best_estimator'].predict(x2)
