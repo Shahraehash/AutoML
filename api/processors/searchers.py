@@ -2,13 +2,18 @@
 All hyper-parameter search methods
 """
 
+import os
+
 from sklearn.model_selection import GridSearchCV, ParameterGrid, RandomizedSearchCV, StratifiedKFold
 
 from .estimators import ESTIMATORS
 from .hyperparameters import HYPER_PARAMETER_RANGE
 
-# Define the cross validator
-CROSS_VALIDATOR = StratifiedKFold(n_splits=10, shuffle=True)
+SHUFFLE = False if os.getenv('NO_SHUFFLE', False) == 'True' else True
+
+# Define the cross validator (shuffle the data between each fold)
+# This reduces correlation between outcome and train data order.
+CROSS_VALIDATOR = StratifiedKFold(n_splits=10, shuffle=SHUFFLE)
 
 # Define the max iterations for random
 MAX_RANDOM_ITERATIONS = 100

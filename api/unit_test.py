@@ -2,6 +2,12 @@
 Unit Tests
 """
 
+import os
+
+# Prevent shuffling on cross validation to
+# allow consistent test results each run.
+os.environ['NO_SHUFFLE'] = 'True'
+
 from .import_data import import_data
 from .generalization import generalize
 from .model import generate_model
