@@ -2,6 +2,8 @@
 Define hyper-parameter ranges for grid search
 """
 
+from scipy.stats import randint, uniform
+
 HYPER_PARAMETER_RANGE = {
     'grid': {
         'gb': {
@@ -55,6 +57,22 @@ HYPER_PARAMETER_RANGE = {
             'C': [.1, 1, 10, 100, 1000],
             'kernel': ['rbf'],
             'gamma': [1, .1, .5, .01, .05, .001, .005, .0001]
+        }
+    },
+    'random': {
+        'mlp': {
+            'max_iter': [300, 400],
+            'activation': ['tanh', 'relu'],
+            'learning_rate': ['constant', 'adaptive'],
+            'alpha': uniform(loc=0, scale=4),
+            'tol': uniform(0.0001,0.005),
+            'hidden_layer_sizes': [(50,), (100,), (5, 5), (7, 7), (3, 3, 3), (5, 5, 5)],
+            'n_iter_no_change': (3, 5, 10)
+        },
+        'svm': {
+            'C': randint(1, 20),
+            'kernel': ['rbf','poly','sigmoid'],
+            'gamma': uniform(loc=0, scale=4)
         }
     }
 }

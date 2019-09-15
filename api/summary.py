@@ -12,6 +12,9 @@ pd.set_option('display.max_columns', None)
 def print_summary(results):
     """Prints the final summary"""
 
+    if not len(results):
+        return
+
     results = sorted(results.items(),
                      key=lambda x: (x[1]['auc'] + x[1]['sensitivity']) / 2, reverse=True)
     columns = list(results[0][1].keys())
