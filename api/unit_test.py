@@ -6,7 +6,7 @@ import os
 
 # Prevent shuffling on cross validation to
 # allow consistent test results each run.
-os.environ['NO_SHUFFLE'] = 'True'
+os.environ['IGNORE_SHUFFLE'] = 'True'
 
 from .import_data import import_data
 from .generalization import generalize

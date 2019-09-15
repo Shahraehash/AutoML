@@ -4,12 +4,15 @@ All hyper-parameter search methods
 
 import os
 
+from dotenv import load_dotenv
+
 from sklearn.model_selection import GridSearchCV, ParameterGrid, RandomizedSearchCV, StratifiedKFold
 
 from .estimators import ESTIMATORS
 from .hyperparameters import HYPER_PARAMETER_RANGE
 
-SHUFFLE = False if os.getenv('NO_SHUFFLE', False) == 'True' else True
+load_dotenv()
+SHUFFLE = False if os.getenv('IGNORE_SHUFFLE', '') != '' else True
 
 # Define the cross validator (shuffle the data between each fold)
 # This reduces correlation between outcome and train data order.
