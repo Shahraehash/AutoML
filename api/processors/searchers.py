@@ -4,6 +4,7 @@ All hyper-parameter search methods
 
 import os
 
+import pandas as pd
 from dotenv import load_dotenv
 
 from sklearn.model_selection import GridSearchCV, ParameterGrid, RandomizedSearchCV, StratifiedKFold
@@ -21,7 +22,7 @@ CROSS_VALIDATOR = StratifiedKFold(n_splits=10, shuffle=SHUFFLE)
 # Define the max iterations for random
 MAX_RANDOM_ITERATIONS = 100
 
-def make_grid_search(estimator, scoring):
+def make_grid_search(estimator, scoring, _):
     """Generate grid search with 10 fold cross validator"""
 
     if estimator not in HYPER_PARAMETER_RANGE['grid']:
@@ -41,19 +42,26 @@ def make_grid_search(estimator, scoring):
             CROSS_VALIDATOR.get_n_splits()
     )
 
-def make_random_search(estimator, scoring):
+def make_random_search(estimator, scoring, y_train):
     """Generate random search with defined max iterations"""
 
     if estimator not in HYPER_PARAMETER_RANGE['random']:
         return (ESTIMATORS[estimator], 1)
 
+    parameter_range = HYPER_PARAMETER_RANGE['random'][estimator]
+
+    if callable(parameter_range):
+        parameter_range = parameter_range(pd.Series(y_train).value_counts().min())
+
+    total_space = len(ParameterGrid(parameter_range))
+
     return (
         RandomizedSearchCV(
             ESTIMATORS[estimator],
-            HYPER_PARAMETER_RANGE['random'][estimator],
+            parameter_range,
             cv=CROSS_VALIDATOR,
             scoring=scoring,
-            n_iter=MAX_RANDOM_ITERATIONS,
+            n_iter=total_space if total_space < MAX_RANDOM_ITERATIONS else MAX_RANDOM_ITERATIONS,
             n_jobs=-1,
             iid=True,
             return_train_score=False

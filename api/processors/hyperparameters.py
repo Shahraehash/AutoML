@@ -79,8 +79,12 @@ HYPER_PARAMETER_RANGE = {
         },
         'svm': {
             'C': randint(1, 20),
-            'kernel': ['rbf','poly','sigmoid'],
+            'kernel': ['rbf', 'poly', 'sigmoid'],
             'gamma': uniform(loc=0, scale=4)
+        },
+        'knn': lambda class_member_count: {
+            'n_neighbors': list(range(1, class_member_count + 1)),
+            'weights': ['distance', 'uniform']
         }
     }
 }
