@@ -8,7 +8,7 @@ from .estimators import ESTIMATORS
 from .hyperparameters import HYPER_PARAMETER_RANGE
 
 # Define the cross validator
-CROSS_VALIDATOR = StratifiedKFold(n_splits=10)
+CROSS_VALIDATOR = StratifiedKFold(n_splits=10, shuffle=True)
 
 # Define the max iterations for random
 MAX_RANDOM_ITERATIONS = 100
