@@ -16,7 +16,7 @@ def print_summary(results):
         return
 
     results = sorted(results.items(),
-                     key=lambda x: (x[1]['auc'] + x[1]['sensitivity']) / 2, reverse=True)
+                     key=lambda x: (x[1]['auc'], x[1]['sensitivity'], x[1]['f1']), reverse=True)
     columns = list(results[0][1].keys())
 
     data = []
