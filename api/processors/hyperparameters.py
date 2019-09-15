@@ -69,6 +69,14 @@ HYPER_PARAMETER_RANGE = {
             'hidden_layer_sizes': [(50,), (100,), (5, 5), (7, 7), (3, 3, 3), (5, 5, 5)],
             'n_iter_no_change': (3, 5, 10)
         },
+        'rf': {
+            'bootstrap': [True],
+            'max_depth': randint(50, 110),
+            'max_features': ['auto'],
+            'min_samples_leaf': randint(3, 5),
+            'min_samples_split': randint(2, 4),
+            'n_estimators': randint(100, 1000)
+        },
         'svm': {
             'C': randint(1, 20),
             'kernel': ['rbf','poly','sigmoid'],
