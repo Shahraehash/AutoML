@@ -83,8 +83,16 @@ HYPER_PARAMETER_RANGE = {
             'gamma': uniform(loc=0, scale=4)
         },
         'knn': lambda class_member_count: {
+
+            # `n_neighbors` should be an integer between 1 and
+            # the smallest count of cases of a given class.
             'n_neighbors': list(range(1, class_member_count + 1)),
             'weights': ['distance', 'uniform']
+        },
+        'lr': {
+            'C': uniform(loc=50, scale=50),
+            'solver': ['lbfgs'],
+            'max_iter': list(range(1, 500))
         }
     }
 }
