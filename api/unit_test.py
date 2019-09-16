@@ -23,7 +23,7 @@ X_TRAIN, Y_TRAIN, X2, Y2, FEATURE_NAMES = import_data(
 def test_logistic_regression():
     """Test LR"""
 
-    pipeline = generate_pipeline('none', 'none', 'lr')
+    pipeline = generate_pipeline('none', 'none', 'lr', Y_TRAIN)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     generalization = generalize(model, pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.37254901960784315
@@ -35,7 +35,7 @@ def test_logistic_regression():
 def test_logistic_regression_with_standard_scaler():
     """Test LR with Standard Scaler"""
 
-    pipeline = generate_pipeline('std', 'none', 'lr')
+    pipeline = generate_pipeline('std', 'none', 'lr', Y_TRAIN)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     generalization = generalize(model, pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.49019607843137253
@@ -47,7 +47,7 @@ def test_logistic_regression_with_standard_scaler():
 def test_logistic_regression_with_standard_scaler_with_select_75():
     """Test LR with standard scaler and select percentile 75"""
 
-    pipeline = generate_pipeline('std', 'select-75', 'lr')
+    pipeline = generate_pipeline('std', 'select-75', 'lr', Y_TRAIN)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     generalization = generalize(model, pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.35294117647058826
@@ -59,7 +59,7 @@ def test_logistic_regression_with_standard_scaler_with_select_75():
 def test_k_nearest_neighbor():
     """Test KNN"""
 
-    pipeline = generate_pipeline('none', 'none', 'knn')
+    pipeline = generate_pipeline('none', 'none', 'knn', Y_TRAIN)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     generalization = generalize(model, pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.39215686274509803
@@ -71,7 +71,7 @@ def test_k_nearest_neighbor():
 def test_k_nearest_neighbor_with_standard_scaler():
     """Test KNN with standard scaler"""
 
-    pipeline = generate_pipeline('std', 'none', 'knn')
+    pipeline = generate_pipeline('std', 'none', 'knn', Y_TRAIN)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     generalization = generalize(model, pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.5490196078431373
@@ -83,7 +83,7 @@ def test_k_nearest_neighbor_with_standard_scaler():
 def test_k_nearest_neighbor_with_standard_scaler_with_select_75():
     """Test KNN with standard scaler and select percentile 75%"""
 
-    pipeline = generate_pipeline('std', 'select-75', 'knn')
+    pipeline = generate_pipeline('std', 'select-75', 'knn', Y_TRAIN)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     generalization = generalize(model, pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.49019607843137253
@@ -95,7 +95,7 @@ def test_k_nearest_neighbor_with_standard_scaler_with_select_75():
 def test_support_vector_machine():
     """Test SVM"""
 
-    pipeline = generate_pipeline('none', 'none', 'svm')
+    pipeline = generate_pipeline('none', 'none', 'svm', Y_TRAIN)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     generalization = generalize(model, pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.2549019607843137
@@ -107,7 +107,7 @@ def test_support_vector_machine():
 def test_support_vector_machine_with_standard_scaler():
     """Test SVM with standard scaler"""
 
-    pipeline = generate_pipeline('std', 'none', 'svm')
+    pipeline = generate_pipeline('std', 'none', 'svm', Y_TRAIN)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     generalization = generalize(model, pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.4117647058823529
@@ -119,7 +119,7 @@ def test_support_vector_machine_with_standard_scaler():
 def test_support_vector_machine_with_standard_scaler_with_select_75():
     """Test SVM with standard scaler and select percentile 75%"""
 
-    pipeline = generate_pipeline('std', 'select-75', 'svm')
+    pipeline = generate_pipeline('std', 'select-75', 'svm', Y_TRAIN)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     generalization = generalize(model, pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.23529411764705882
