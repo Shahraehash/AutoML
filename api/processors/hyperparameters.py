@@ -93,7 +93,7 @@ HYPER_PARAMETER_RANGE = {
             'C': uniform(loc=0, scale=4),
             'solver': ['lbfgs'],
             'max_iter': list(range(100, 500)),
-            'tol' = uniform(loc=0, scale=4)
+            'tol': uniform(loc=0, scale=4)
         }
     }
 }
