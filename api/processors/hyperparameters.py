@@ -90,9 +90,10 @@ HYPER_PARAMETER_RANGE = {
             'weights': ['distance', 'uniform']
         },
         'lr': {
-            'C': uniform(loc=50, scale=50),
+            'C': uniform(loc=0, scale=4),
             'solver': ['lbfgs'],
-            'max_iter': list(range(1, 500))
+            'max_iter': list(range(100, 500)),
+            'tol' = uniform(loc=0, scale=4)
         }
     }
 }
