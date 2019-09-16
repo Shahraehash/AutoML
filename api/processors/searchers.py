@@ -25,30 +25,28 @@ MAX_RANDOM_ITERATIONS = 100
 def make_grid_search(estimator, scoring, _):
     """Generate grid search with 10 fold cross validator"""
 
-    if estimator not in HYPER_PARAMETER_RANGE['grid']:
-        return (ESTIMATORS[estimator], 1)
+    parameter_range = HYPER_PARAMETER_RANGE['grid'][estimator]\
+        if estimator in HYPER_PARAMETER_RANGE['grid'] else {}
 
     return (
         GridSearchCV(
             ESTIMATORS[estimator],
-            HYPER_PARAMETER_RANGE['grid'][estimator],
+            parameter_range,
             cv=CROSS_VALIDATOR,
             scoring=scoring,
             n_jobs=-1,
             iid=True,
             return_train_score=False
         ),
-        len(ParameterGrid(HYPER_PARAMETER_RANGE['grid'][estimator])) *\
+        len(ParameterGrid(parameter_range)) *\
             CROSS_VALIDATOR.get_n_splits()
     )
 
 def make_random_search(estimator, scoring, y_train):
     """Generate random search with defined max iterations"""
 
-    if estimator not in HYPER_PARAMETER_RANGE['random']:
-        return (ESTIMATORS[estimator], 1)
-
-    parameter_range = HYPER_PARAMETER_RANGE['random'][estimator]
+    parameter_range = HYPER_PARAMETER_RANGE['random'][estimator]\
+        if estimator in HYPER_PARAMETER_RANGE['random'] else {}
 
     if callable(parameter_range):
         parameter_range = parameter_range(pd.Series(y_train).value_counts().min())

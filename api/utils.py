@@ -13,10 +13,8 @@ def model_key_to_name(key):
 
     scaler, feature_selector, estimator, scorer, searcher = key.split('__')
 
-    search_method = ' using ' + SCORER_NAMES[scorer] + ' scored ' + SEARCHER_NAMES[searcher]
-
-    if estimator == 'nb':
-        search_method = ''
+    search = 'cross validation' if estimator == 'nb' else SEARCHER_NAMES[searcher]
+    search_method = ' using ' + SCORER_NAMES[scorer] + ' scored ' + search
 
     return ESTIMATOR_NAMES[estimator] + ' model' + search_method + ' with ' +\
         SCALER_NAMES[scaler] + ' and with ' + FEATURE_SELECTOR_NAMES[feature_selector]
