@@ -39,7 +39,7 @@ def get_results():
         abort(404)
         return
 
-    return pd.read_csv('report.csv').to_json(orient='index')
+    return pd.read_csv('report.csv').to_json(orient='records')
 
 @APP.route('/upload', methods=['POST'])
 def upload_files():
