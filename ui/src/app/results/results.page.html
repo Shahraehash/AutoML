@@ -5,5 +5,12 @@
 </ion-header>
 
 <ion-content>
+  <ion-card *ngIf='results; else noResults'>
+
+  </ion-card>
+
+  <ng-template #noResults>
+    Please start by selecting your data on the home page
+  </ng-template>
 
 </ion-content>
