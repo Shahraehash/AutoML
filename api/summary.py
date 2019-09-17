@@ -30,6 +30,6 @@ def print_summary(results):
 
     print('General summary')
     summary = pd.DataFrame(data, index=runs, columns=columns)
-    summary.to_csv('report.csv')
+    summary.to_csv('report.csv', index_label='pipeline')
 
     print(summary)

@@ -6,7 +6,9 @@ using an Angular SPA.
 """
 
 import os
-from flask import Flask, jsonify, request, send_from_directory
+
+import pandas as pd
+from flask import abort, Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 from api import api
@@ -26,11 +28,23 @@ def run():
 
     labels = ['No ' + label_column, label_column]
 
-    results = api.find_best_model('data/train.csv', 'data/test.csv', labels, label_column)
-    return jsonify(results)
+    api.find_best_model('data/train.csv', 'data/test.csv', labels, label_column)
+    return jsonify({'success': True})
+
+@APP.route('/results', methods=['GET'])
+def get_results():
+    """Retrieve the training results"""
+
+    if not os.path.exists('report.csv'):
+        abort(404)
+        return
+
+    return pd.read_csv('report.csv').to_json(orient='index')
 
 @APP.route('/upload', methods=['POST'])
 def upload_files():
+    """Upload files to the server"""
+
     if 'train' not in request.files or 'test' not in request.files:
         return jsonify({'error': 'Missing files'})
 
@@ -51,6 +65,8 @@ def upload_files():
 
 @APP.route('/<path:path>')
 def get_static_file(path):
+    """Retrieve static files from the UI path"""
+
     if not os.path.isfile(os.path.join('static', path)):
         path = os.path.join(path, 'index.html')
 
