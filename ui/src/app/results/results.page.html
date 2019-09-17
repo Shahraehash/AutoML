@@ -6,7 +6,7 @@
 
 <ion-content>
   <ion-card *ngIf='results; else noResults' class='ion-padding'>
-    <table mat-table [dataSource]="results" matSort class="mat-elevation-z8">
+    <table mat-table [dataSource]="results" matSort class="mat-elevation-z8 result-table">
 
       <ng-container matColumnDef="pipeline">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Pipeline </th>
