@@ -22,6 +22,9 @@ os.environ['IGNORE_SEARCHER'] = 'grid'
 # Valid scorers: f1_macro,roc_auc,accuracy
 os.environ['IGNORE_SCORER'] = 'f1_macro'
 
+# If the below line is uncommented, shuffling will be turned off
+#os.environ['IGNORE_SHUFFLE'] = 'true'
+
 # Change this to point to the train data
 TRAIN_SET = 'sample-data/train.csv'
 
