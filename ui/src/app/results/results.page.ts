@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+
+import { BackendService } from '../services/backend.service';
 
 @Component({
   selector: 'app-results',
@@ -7,15 +8,14 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./results.page.scss'],
 })
 export class ResultsPage implements OnInit {
-  SERVER_URL = 'http://localhost:5000/results';
   results;
 
   constructor(
-    private http: HttpClient,
+    private backend: BackendService,
   ) {}
 
   ngOnInit() {
-    this.http.get(this.SERVER_URL).subscribe(data => this.results = data);
+    this.backend.getResults().subscribe(data => this.results = data);
   }
 
 }
