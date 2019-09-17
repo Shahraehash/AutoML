@@ -18,7 +18,7 @@
     <ion-button (click)='startTraining()' [hidden]='training'>Start Training</ion-button>
   </ion-card>
 
-  <ion-card class='ion-padding' *ngIf='results'>
+  <ion-card class='ion-text-center ion-padding' *ngIf='results'>
     Training complete!
     <br>
     <ion-button routerLink='/results' [hidden]='!results'>View Results</ion-button>

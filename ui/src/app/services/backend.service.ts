@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { GeneralizationResult } from '../interfaces.ts';
+import { GeneralizationResult } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
