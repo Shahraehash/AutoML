@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-
 import { HttpClient } from '@angular/common/http';
+
+import { GeneralizationResult } from '../interfaces.ts';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,6 @@ export class BackendService {
   }
 
   getResults() {
-    return this.http.get(this.SERVER_URL + '/results');
+    return this.http.get<GeneralizationResult[]>(this.SERVER_URL + '/results');
   }
 }
