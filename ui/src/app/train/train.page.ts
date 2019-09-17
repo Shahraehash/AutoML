@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
+
+import { BackendService } from '../services/backend.service';
 
 @Component({
   selector: 'app-train',
@@ -8,13 +9,12 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['train.page.scss']
 })
 export class TrainPage implements OnInit {
-  SERVER_URL = 'http://localhost:5000/train';
   uploadComplete = false;
   training = false;
   results;
 
   constructor(
-    private http: HttpClient,
+    private backend: BackendService,
     private route: ActivatedRoute
   ) {}
 
@@ -25,7 +25,7 @@ export class TrainPage implements OnInit {
   startTraining() {
     this.training = true;
 
-    this.http.post(this.SERVER_URL, {}).subscribe(
+    this.backend.startTraining().subscribe(
       (res) => {
         this.training = false;
         this.results = res;

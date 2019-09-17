@@ -20,6 +20,11 @@ export class AppComponent {
       title: 'Train',
       url: '/train',
       icon: 'contract'
+    },
+    {
+      title: 'Results',
+      url: '/results',
+      icon: 'filing'
     }
   ];
 

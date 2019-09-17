@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 
 import { parse } from 'papaparse';
+import { BackendService } from '../services/backend.service';
 
 @Component({
   selector: 'app-home',
@@ -12,12 +12,11 @@ import { parse } from 'papaparse';
 })
 export class HomePage implements OnInit {
   labels = [];
-  SERVER_URL = 'http://localhost:5000/upload';
   uploadForm: FormGroup;
 
   constructor(
+    private backend: BackendService,
     private formBuilder: FormBuilder,
-    private httpClient: HttpClient,
     private router: Router
   ) {}
 
@@ -35,7 +34,7 @@ export class HomePage implements OnInit {
     formData.append('test', this.uploadForm.get('test').value);
     formData.append('label_column', this.uploadForm.get('label_column').value);
 
-    this.httpClient.post<any>(this.SERVER_URL, formData).subscribe(
+    this.backend.submitData(formData).subscribe(
       () => this.router.navigate(['/train', {upload: true}]),
       (err) => console.log(err)
     );
