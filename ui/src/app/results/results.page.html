@@ -6,7 +6,7 @@
 
 <ion-content>
   <ion-card *ngIf='results; else noResults' class='ion-padding'>
-    <table mat-table [dataSource]="results" matSort class="mat-elevation-z8 result-table">
+    <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
       <ng-container matColumnDef="pipeline">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Pipeline </th>
@@ -39,7 +39,7 @@
       </ng-container>
 
       <ng-container matColumnDef="best_params">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Best Parameters </th>
+        <th mat-header-cell *matHeaderCellDef> Best Parameters </th>
         <td mat-cell *matCellDef="let element"> {{element.best_params}} </td>
       </ng-container>
 

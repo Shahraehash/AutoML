@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -20,6 +21,7 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
+    MatSortModule,
     MatTableModule
   ],
   declarations: [ResultsPage]
