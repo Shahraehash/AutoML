@@ -7,6 +7,7 @@ and hyper-parameters with feature engineering.
 
 # Dependencies
 import os
+import csv
 import itertools
 
 from dotenv import load_dotenv
@@ -55,6 +56,12 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
     all_pipelines = list(itertools.product(
         *[ESTIMATOR_NAMES, FEATURE_SELECTOR_NAMES, SCALER_NAMES, SCORER_NAMES, SEARCHER_NAMES]))
 
+    report = open('report.csv', 'w+')
+    reportWriter = csv.writer(report)
+
+    # TODO: This should come from a common place
+    reportWriter.writerow(['pipeline', 'accuracy', 'auc', 'f1', 'sensitivity', 'specificity', 'best_params'])
+
     for estimator, feature_selector, scaler, scorer, searcher in all_pipelines:
 
         # SVM without scaling can loop consume infinite CPU time so
@@ -77,7 +84,9 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         model = generate_model(pipeline[0], feature_names, x_train, y_train, scorer)
         results[key] = generalize(model, pipeline[0], x2, y2, labels)
         results[key]['best_params'] = model['best_params']
+        reportWriter.writerow([key] + list([str(i) for i in results[key].values()]))
 
+    report.close()
     print('Total fits generated: %d' % total_fits)
     print_summary(results)
     return results
