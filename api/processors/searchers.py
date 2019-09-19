@@ -38,7 +38,7 @@ def make_grid_search(estimator, scoring, _):
             iid=True,
             return_train_score=False
         ),
-        len(ParameterGrid(parameter_range)) *\
+        len(list(ParameterGrid(parameter_range))) *\
             CROSS_VALIDATOR.get_n_splits()
     )
 
@@ -51,18 +51,21 @@ def make_random_search(estimator, scoring, y_train):
     if callable(parameter_range):
         parameter_range = parameter_range(pd.Series(y_train).value_counts().min())
 
+    total_range = len(list(ParameterGrid(parameter_range)))
+    iterations = total_range if MAX_RANDOM_ITERATIONS >= total_range else MAX_RANDOM_ITERATIONS
+
     return (
         RandomizedSearchCV(
             ESTIMATORS[estimator],
             parameter_range,
             cv=CROSS_VALIDATOR,
             scoring=scoring,
-            n_iter=MAX_RANDOM_ITERATIONS,
+            n_iter=iterations,
             n_jobs=-1,
             iid=True,
             return_train_score=False
         ),
-        MAX_RANDOM_ITERATIONS * CROSS_VALIDATOR.get_n_splits()
+        iterations * CROSS_VALIDATOR.get_n_splits()
     )
 
 SEARCHERS = {
