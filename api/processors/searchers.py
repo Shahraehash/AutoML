@@ -51,8 +51,14 @@ def make_random_search(estimator, scoring, y_train):
     if callable(parameter_range):
         parameter_range = parameter_range(pd.Series(y_train).value_counts().min())
 
-    total_range = len(list(ParameterGrid(parameter_range)))
-    iterations = total_range if MAX_RANDOM_ITERATIONS >= total_range else MAX_RANDOM_ITERATIONS
+    # When the grid contains an RVS method, the parameter grid cannot generate
+    # an exhaustive list and throws an error. In this case, iterate the max
+    # count allowed.
+    try:
+        total_range = len(list(ParameterGrid(parameter_range)))
+        iterations = total_range if MAX_RANDOM_ITERATIONS >= total_range else MAX_RANDOM_ITERATIONS
+    except:
+        iterations = MAX_RANDOM_ITERATIONS
 
     return (
         RandomizedSearchCV(
