@@ -42,11 +42,11 @@ def generate_model(pipeline, feature_names, x_train, y_train, scoring='accuracy'
                                  index=feature_names)
 
         selected_features = features[features == True].axes[0]
-        print('\tFeatures used: ' + ', '.join(selected_features[:MAX_FEATURES_SHOWN]) +
-              ('...' if selected_features.shape[0] > MAX_FEATURES_SHOWN else ''))
     else:
-        print('\tAll features used: ' + ', '.join(feature_names[:MAX_FEATURES_SHOWN]) +
-              ('...' if len(feature_names) > MAX_FEATURES_SHOWN else ''))
+        selected_features = feature_names
+
+    print('\tFeatures used: ' + ', '.join(selected_features[:MAX_FEATURES_SHOWN]) +
+          ('...' if len(selected_features) > MAX_FEATURES_SHOWN else ''))
 
     if hasattr(pipeline.named_steps['estimator'], 'cv_results_'):
         performance = pd.DataFrame(
@@ -74,5 +74,6 @@ def generate_model(pipeline, feature_names, x_train, y_train, scoring='accuracy'
                        performance.iloc[0]['std_test_score']) if 'iloc' in performance else None,
         'performance': performance,
         'features': features,
+        'selected_features': selected_features,
         'train_time': train_time
     }

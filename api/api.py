@@ -50,7 +50,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
     # Import data
     (x_train, y_train, x2, y2, feature_names) = import_data(train_set, test_set, label_column)
 
-    results = {}
+    results = []
     total_fits = 0
 
     all_pipelines = list(itertools.product(
@@ -58,9 +58,6 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
 
     report = open('report.csv', 'w+')
     reportWriter = csv.writer(report)
-
-    # TODO: This should come from a common place
-    reportWriter.writerow(['pipeline', 'accuracy', 'auc', 'f1', 'sensitivity', 'specificity', 'best_params'])
 
     for estimator, feature_selector, scaler, scorer, searcher in all_pipelines:
 
@@ -77,14 +74,29 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
             continue
 
         key = '__'.join([scaler, feature_selector, estimator, scorer, searcher])
+        result = {
+            'key': key,
+            'scaler': scaler,
+            'feature_selector': feature_selector,
+            'estimator': estimator,
+            'scorer': scorer,
+            'searcher': searcher
+        }
         print('Generating ' + model_key_to_name(key))
 
         pipeline = generate_pipeline(scaler, feature_selector, estimator, y_train, scorer, searcher)
-        total_fits += pipeline[1]
         model = generate_model(pipeline[0], feature_names, x_train, y_train, scorer)
-        results[key] = generalize(model, pipeline[0], x2, y2, labels)
-        results[key]['best_params'] = model['best_params']
-        reportWriter.writerow([key] + list([str(i) for i in results[key].values()]))
+        result.update(generalize(model, pipeline[0], x2, y2, labels))
+
+        total_fits += pipeline[1]
+        result['selected_features'] = list(model['selected_features'])
+        result['best_params'] = model['best_params']
+
+        if not results:
+            reportWriter.writerow(result.keys())
+
+        reportWriter.writerow(list([str(i) for i in result.values()]))
+        results.append(result)
 
     report.close()
     print('Total fits generated: %d' % total_fits)
