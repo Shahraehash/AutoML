@@ -26,11 +26,11 @@ from .utils import model_key_to_name
 
 # Load environment variables
 load_dotenv()
-IGNORE_ESTIMATOR = os.getenv('IGNORE_ESTIMATOR', '').split(',')
-IGNORE_FEATURE_SELECTOR = os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')
-IGNORE_SCALER = os.getenv('IGNORE_SCALER', '').split(',')
-IGNORE_SEARCHER = os.getenv('IGNORE_SEARCHER', '').split(',')
-IGNORE_SCORER = os.getenv('IGNORE_SCORER', '').split(',')
+IGNORE_ESTIMATOR = [x.strip() for x in os.getenv('IGNORE_ESTIMATOR', '').split(',')]
+IGNORE_FEATURE_SELECTOR = [x.strip() for x in os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')]
+IGNORE_SCALER = [x.strip() for x in os.getenv('IGNORE_SCALER', '').split(',')]
+IGNORE_SEARCHER = [x.strip() for x in os.getenv('IGNORE_SEARCHER', '').split(',')]
+IGNORE_SCORER = [x.strip() for x in os.getenv('IGNORE_SCORER', '').split(',')]
 
 def find_best_model(train_set=None, test_set=None, labels=None, label_column=None):
     """Generates all possible models and outputs the generalization results"""
