@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 import { parse } from 'papaparse';
-import { BackendService } from '../services/backend.service';
+import { BackendService } from '../../services/backend.service';
 
 @Component({
   selector: 'app-home',

@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 
-import { BackendService } from '../services/backend.service';
+import { BackendService } from '../../services/backend.service';
 
 @Component({
   selector: 'app-results',
