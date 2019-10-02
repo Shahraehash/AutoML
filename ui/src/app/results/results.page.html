@@ -13,9 +13,9 @@
   <ion-card *ngIf='results; else noResults' class='ion-padding'>
     <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
-      <ng-container matColumnDef="pipeline">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Pipeline </th>
-        <td mat-cell *matCellDef="let element"> {{element.pipeline}} </td>
+      <ng-container matColumnDef="estimator">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Estimator </th>
+        <td mat-cell *matCellDef="let element"> {{element.estimator}} </td>
       </ng-container>
 
       <ng-container matColumnDef="accuracy">
@@ -43,9 +43,24 @@
         <td mat-cell *matCellDef="let element"> {{element.specificity}} </td>
       </ng-container>
 
-      <ng-container matColumnDef="best_params">
-        <th mat-header-cell *matHeaderCellDef> Best Parameters </th>
-        <td mat-cell *matCellDef="let element"> {{element.best_params}} </td>
+      <ng-container matColumnDef="scaler">
+        <th mat-header-cell *matHeaderCellDef> Scaler </th>
+        <td mat-cell *matCellDef="let element"> {{element.scaler}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="feature_selector">
+        <th mat-header-cell *matHeaderCellDef> Feature Selector </th>
+        <td mat-cell *matCellDef="let element"> {{element.feature_selector}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="scorer">
+        <th mat-header-cell *matHeaderCellDef> Scoring Type </th>
+        <td mat-cell *matCellDef="let element"> {{element.scorer}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="searcher">
+        <th mat-header-cell *matHeaderCellDef> Search Type </th>
+        <td mat-cell *matCellDef="let element"> {{element.searcher}} </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

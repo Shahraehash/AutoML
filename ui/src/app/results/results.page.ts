@@ -11,7 +11,8 @@ import { BackendService } from '../services/backend.service';
 })
 export class ResultsPage implements OnInit {
   results;
-  displayedColumns: string[] = ['pipeline', 'accuracy', 'auc', 'f1', 'sensitivity', 'specificity', 'best_params'];
+  displayedColumns: string[] = ['estimator', 'accuracy', 'auc', 'f1', 'sensitivity',
+    'specificity', 'scaler', 'feature_selector', 'scorer', 'searcher'];
 
   @ViewChild(MatSort, {static: false}) sort: MatSort;
 

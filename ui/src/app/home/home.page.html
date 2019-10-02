@@ -14,7 +14,7 @@
     <ion-card class='ion-padding'>
       Train set: <input type='file' name='train' (change)="onFileSelect($event)"><br><br>
       Test set: <input type='file' name='test' (change)="onFileSelect($event)"><br><br>
-      Label Column: <select name='label_column' formControlName='label_column'>
+      Target Column: <select name='label_column' formControlName='label_column'>
         <option *ngFor='let label of labels' [value]='label'>{{label}}</option>
       </select>
     </ion-card>
