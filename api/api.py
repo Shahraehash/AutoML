@@ -76,11 +76,11 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         key = '__'.join([scaler, feature_selector, estimator, scorer, searcher])
         result = {
             'key': key,
-            'scaler': scaler,
-            'feature_selector': feature_selector,
-            'estimator': estimator,
-            'scorer': scorer,
-            'searcher': searcher
+            'scaler': SCALER_NAMES[scaler],
+            'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
+            'estimator': ESTIMATOR_NAMES[estimator],
+            'scorer': SCORER_NAMES[scorer],
+            'searcher': SEARCHER_NAMES[searcher]
         }
         print('Generating ' + model_key_to_name(key))
 
