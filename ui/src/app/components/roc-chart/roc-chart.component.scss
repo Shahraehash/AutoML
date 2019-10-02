@@ -1,27 +1,22 @@
-.axis {
-    font: 10px sans-serif;
+path { 
+    stroke-width: 3;
+    fill: none;
+    opacity: .7;
 }
 
 .axis path,
 .axis line {
     fill: none;
-    stroke: #000;
+    stroke: grey;
+    stroke-width: 2;
     shape-rendering: crispEdges;
+    opacity: 1;
 }
 
-.axis-title {
-    fill: none;
-    stroke: black;
-    stroke-width: 0.5px;
-}
-
-
-.axis--x path {
-    /*display: none;*/
-}
-
-.line {
-    fill: none;
-    stroke: steelblue;
-    stroke-width: 1.5px;
-}
+.d3-tip {
+    font-family: Verdana;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 8px;
+    color: #fff; 
+    z-index: 5070;
+  }
