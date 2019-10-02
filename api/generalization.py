@@ -53,5 +53,9 @@ def generalize(model, pipeline, x2, y2, labels=None):
         'auc': auc,
         'f1': f1,
         'sensitivity': sensitivity,
-        'specificity': specificity
+        'specificity': specificity,
+        'tn': tn,
+        'tp': tp,
+        'fn': fn,
+        'fp': fp
     }
