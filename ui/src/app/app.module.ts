@@ -11,7 +11,6 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { BackendService } from './services/backend.service';
-import { ROCChartService } from './services/roc-chart.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -27,8 +26,7 @@ import { ROCChartService } from './services/roc-chart.service';
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    BackendService,
-    ROCChartService
+    BackendService
   ],
   bootstrap: [AppComponent]
 })
