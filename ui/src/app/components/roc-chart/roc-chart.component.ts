@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import { schemeCategory10 } from 'd3-scale-chromatic';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
@@ -6,8 +6,7 @@ import * as d3Axis from 'd3-axis';
 
 @Component({
   selector: 'app-roc-chart',
-  templateUrl: './roc-chart.component.html',
-  styleUrls: ['./roc-chart.component.scss'],
+  template: ''
 })
 export class RocChartComponent implements OnInit {
   @Input() data;
@@ -21,7 +20,9 @@ export class RocChartComponent implements OnInit {
     height: this.height
   };
 
-  constructor() {}
+  constructor(
+      private element: ElementRef
+  ) {}
 
   ngOnInit() {
     this.create(this.data, this.rocChartOptions);
@@ -74,7 +75,7 @@ export class RocChartComponent implements OnInit {
           return areaGenerator(points);
       };
 
-      const svg = d3.select('#roc')
+      const svg = d3.select(this.element.nativeElement)
           .append('svg')
           .attr('width', cfg.width + cfg.margin.left + cfg.margin.right)
           .attr('height', cfg.height + cfg.margin.top + cfg.margin.bottom)
