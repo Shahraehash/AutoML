@@ -22,26 +22,20 @@ def generate_model(pipeline, feature_names, x_train, y_train, scoring='accuracy'
     if 'feature_selector' in pipeline.named_steps:
         feature_selector_type = pipeline.named_steps['feature_selector'].__class__.__module__
 
-        if 'sklearn.decomposition.pca' in feature_selector_type:
-            components = pipeline.named_steps['feature_selector'].components_
-            most_important = [np.abs(components[i]).argmax() for i in range(components.shape[0])]
-            most_important_names =\
-                [feature_names[most_important[i]] for i in range(components.shape[0])]
-            features = pd.Series((i in most_important_names for i in feature_names),
-                                 index=feature_names)
-
         if 'sklearn.feature_selection.univariate_selection' in feature_selector_type:
             features = pd.Series(pipeline.named_steps['feature_selector'].get_support(),
                                  index=feature_names)
+            selected_features = features[features == True].axes[0]
 
-        if 'processors.rffi' in feature_selector_type:
+        elif 'processors.rffi' in feature_selector_type:
             most_important = pipeline.named_steps['feature_selector'].get_top_features()
             most_important_names =\
                 [feature_names[most_important[i]] for i in range(len(most_important))]
             features = pd.Series((i in most_important_names for i in feature_names),
                                  index=feature_names)
-
-        selected_features = features[features == True].axes[0]
+            selected_features = features[features == True].axes[0]
+        else:
+            selected_features = feature_names
     else:
         selected_features = feature_names
 
