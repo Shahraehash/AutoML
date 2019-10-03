@@ -65,6 +65,28 @@ export class ROCChartService {
         xAxis.tickFormat(format);
         yAxis.tickFormat(format);
 
+        // a function that returns a line generator
+        const curve = (input, tpr) => {
+
+            const lineGenerator = d3.line()
+                .curve(d3.curveBasis)
+                .x((d) => x(d[fpr]))
+                .y((d) => y(d[tpr]));
+
+            return lineGenerator(input);
+        };
+
+        // a function that returns an area generator
+        const areaUnderCurve = (input, tpr) => {
+
+            const areaGenerator = d3.area()
+                .x((d) => x(d[fpr]))
+                .y0(height)
+                .y1((d) => y(d[tpr]));
+
+            return areaGenerator(input);
+        };
+
         const svg = d3.select('#roc')
             .append('svg')
             .attr('width', width + cfg.margin.left + cfg.margin.right)
@@ -173,7 +195,7 @@ export class ROCChartService {
             svg.append('path')
                 .attr('class', 'curve')
                 .style('stroke', stroke)
-                .attr('d', this.curve(input, tpr, fpr, x, y))
+                .attr('d', curve(input, tpr, fpr, x, y))
                 .on('mouseover', () => {
                     const areaID = '#' + tpr + 'Area';
                     svg.select(areaID)
@@ -197,7 +219,7 @@ export class ROCChartService {
         // draw the area under the ROC curves
         const drawArea = (input, tpr, fill) => {
             svg.append('path')
-            .attr('d', this.areaUnderCurve(input, tpr, fpr, x, y, height))
+            .attr('d', areaUnderCurve(input, tpr, fpr, x, y, height))
             .attr('class', 'area')
             .attr('id', tpr + 'Area')
             .style({
@@ -317,27 +339,5 @@ export class ROCChartService {
             });
             return area;
         }
-    }
-
-    // a function that returns a line generator
-    private curve(input, tpr, fpr, x, y) {
-
-        const lineGenerator = d3.line()
-            .curve(d3.curveBasis)
-            .x((d) => x(d[fpr]))
-            .y((d) => y(d[tpr]));
-
-        return lineGenerator(input);
-    }
-
-    // a function that returns an area generator
-    private areaUnderCurve(input, tpr, fpr, x, y, height) {
-
-        const areaGenerator = d3.area()
-            .x((d) => x(d[fpr]))
-            .y0(height)
-            .y1((d) => y(d[tpr]));
-
-        return areaGenerator(input);
     }
 }
