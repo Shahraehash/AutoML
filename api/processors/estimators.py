@@ -17,7 +17,7 @@ ESTIMATORS = {
     'mlp': MLPClassifier(),
     'nb': GaussianNB(),
     'rf': RandomForestClassifier(n_estimators=10),
-    'svm': SVC(gamma='auto'),
+    'svm': SVC(gamma='auto', probability=True),
 }
 
 ESTIMATOR_NAMES = {
