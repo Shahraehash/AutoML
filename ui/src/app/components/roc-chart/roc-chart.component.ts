@@ -87,16 +87,19 @@ export class RocChartComponent implements OnInit {
       svg.append('g')
           .attr('class', 'x axis')
           .attr('transform', 'translate(0,' + cfg.height + ')')
+          .style('fill', 'black')
           .call(xAxis)
           .append('text')
               .attr('x', cfg.width / 2)
               .attr('y', 40 )
+              .style('font-size', '12px')
               .style('text-anchor', 'middle')
               .text('False Positive Rate');
 
 
       svg.append('g')
           .attr('class', 'y axis')
+          .style('fill', 'black')
           .call(yAxis)
           .append('text')
           .attr('transform', 'rotate(-90)')
