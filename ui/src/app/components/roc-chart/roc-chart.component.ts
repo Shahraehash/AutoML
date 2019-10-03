@@ -32,7 +32,6 @@ export class RocChartComponent implements OnInit {
           margin: {top: 30, right: 20, bottom: 70, left: 61},
           width: 470,
           height: 450,
-          ticks: undefined,
           tickValues: [0, .1, .25, .5, .75, .9, 1]
       }, ...options};
 
@@ -46,16 +45,8 @@ export class RocChartComponent implements OnInit {
       const xAxis = d3Axis.axisBottom(x);
       const yAxis = d3Axis.axisLeft(y);
 
-      if ('undefined' !== typeof cfg.ticks) {
-          xAxis.ticks(cfg.ticks);
-          yAxis.ticks(cfg.ticks);
-      } else if ('undefined' !== typeof cfg.tickValues) {
-          xAxis.tickValues(cfg.tickValues);
-          yAxis.tickValues(cfg.tickValues);
-      } else {
-          xAxis.ticks(5);
-          yAxis.ticks(5);
-      }
+      xAxis.tickValues(cfg.tickValues);
+      yAxis.tickValues(cfg.tickValues);
 
       // Apply the format to the ticks we chose
       xAxis.tickFormat(format);
@@ -165,7 +156,7 @@ export class RocChartComponent implements OnInit {
           .style('opacity', 0)
           .attr('transform', 'translate(' + .5 * cfg.width + ',' + .79 * cfg.height + ')')
           .append('text')
-              .text(key)
+              .text(key.replace(/__/g, ' '))
               .style('fill', 'white')
               .style('font-size', 18);
 
