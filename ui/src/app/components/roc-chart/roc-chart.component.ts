@@ -44,6 +44,6 @@ export class RocChartComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.roc.create(sampleData.default, this.rocChartOptions);
+    this.roc.create((sampleData as any).default, this.rocChartOptions);
   }
 }

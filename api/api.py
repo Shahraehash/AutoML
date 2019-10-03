@@ -21,6 +21,7 @@ from .generalization import generalize
 from .model import generate_model
 from .import_data import import_data
 from .pipeline import generate_pipeline
+from .roc import roc
 from .summary import print_summary
 from .utils import model_key_to_name
 
@@ -48,7 +49,8 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         return {}
 
     # Import data
-    (x_train, y_train, x2, y2, feature_names) = import_data(train_set, test_set, label_column)
+    (x_train, x_test, y_train, y_test, x2, y2, feature_names) = \
+        import_data(train_set, test_set, label_column)
 
     results = []
     total_fits = 0
@@ -91,6 +93,8 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         total_fits += pipeline[1]
         result['selected_features'] = list(model['selected_features'])
         result['best_params'] = model['best_params']
+
+        result.update(roc(model, pipeline[0], x_test, y_test))
 
         if not results:
             reportWriter.writerow(result.keys())

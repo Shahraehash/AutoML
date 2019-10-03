@@ -1,0 +1,29 @@
+"""
+Process a dataset based on a pipeline
+"""
+
+import numpy as np
+
+def preprocess(model, pipeline, data):
+
+    # If scaling is used in the pipeline, scale the test data
+    if 'scaler' in pipeline.named_steps:
+        data = pipeline.named_steps['scaler'].transform(data)
+
+    if 'feature_selector' in pipeline.named_steps:
+        feature_selector_type = pipeline.named_steps['feature_selector'].__class__.__module__
+
+        if 'sklearn.feature_selection.univariate_selection' in feature_selector_type:
+
+            # Identify the selected featured for model provided
+            for index, feature in reversed(list(enumerate(model['features'].items()))):
+
+                # Remove the feature if unused from the x2 test data
+                if not feature[1]:
+                    data = np.delete(data, index, axis=1)
+
+        if 'sklearn.decomposition.pca' in feature_selector_type or\
+            'processors.rffi' in feature_selector_type:
+            data = pipeline.named_steps['feature_selector'].transform(data)
+
+    return data
