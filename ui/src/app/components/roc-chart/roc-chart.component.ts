@@ -35,7 +35,7 @@ export class RocChartComponent implements OnInit {
         label: 'Net Points Won'
       }
     ],
-    animate: true,
+    animate: false,
     smooth: true
   };
 

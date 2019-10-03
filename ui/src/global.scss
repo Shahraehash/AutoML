@@ -26,3 +26,26 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 @import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+path { 
+    stroke-width: 3;
+    fill: none;
+    opacity: .7;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 2;
+    shape-rendering: crispEdges;
+    opacity: 1;
+}
+
+.d3-tip {
+    font-family: Verdana;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 8px;
+    color: #fff; 
+    z-index: 5070;
+}
