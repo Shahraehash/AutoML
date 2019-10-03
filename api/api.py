@@ -90,11 +90,11 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         model = generate_model(pipeline[0], feature_names, x_train, y_train, scorer)
         result.update(generalize(model, pipeline[0], x2, y2, labels))
 
-        total_fits += pipeline[1]
+        result.update(roc(model, pipeline[0], x_test, y_test))
         result['selected_features'] = list(model['selected_features'])
         result['best_params'] = model['best_params']
 
-        result.update(roc(model, pipeline[0], x_test, y_test))
+        total_fits += pipeline[1]
 
         if not results:
             reportWriter.writerow(result.keys())
