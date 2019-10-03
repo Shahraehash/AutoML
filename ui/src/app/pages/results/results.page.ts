@@ -12,8 +12,49 @@ import { BackendService } from '../../services/backend.service';
 export class ResultsPage implements OnInit {
   data;
   results;
-  displayedColumns: string[] = ['estimator', 'accuracy', 'auc', 'f1', 'sensitivity',
-    'specificity', 'scaler', 'feature_selector', 'scorer', 'searcher'];
+  columns: {key: string; name: string}[] = [
+    {
+      key: 'estimator',
+      name: 'Estimator'
+    },
+    {
+      key: 'accuracy',
+      name: 'Accuracy'
+    },
+    {
+      key: 'auc',
+      name: 'AUC'
+    },
+    {
+      key: 'f1',
+      name: 'F1'
+    },
+    {
+      key: 'sensitivity',
+      name: 'Sensitivity'
+    },
+    {
+      key: 'specificity',
+      name: 'Specificity'
+    },
+    {
+      key: 'scaler',
+      name: 'Scaler'
+    },
+    {
+      key: 'feature_selector',
+      name: 'Feature Selector'
+    },
+    {
+      key: 'scorer',
+      name: 'Scorer'
+    },
+    {
+      key: 'searcher',
+      name: 'Searcher'
+    }
+  ];
+  displayedColumns = this.columns.map(c => c.key);
 
   @ViewChild(MatSort, {static: false}) sort: MatSort;
 

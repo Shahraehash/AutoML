@@ -13,54 +13,9 @@
   <div *ngIf='results; else noResults'>
     <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
-      <ng-container matColumnDef="estimator">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Estimator </th>
-        <td mat-cell *matCellDef="let element" class="title-case"> {{element.estimator}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="accuracy">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Accuracy </th>
-        <td mat-cell *matCellDef="let element"> {{element.accuracy | number}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="auc">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> AUC </th>
-        <td mat-cell *matCellDef="let element"> {{element.auc | number}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="f1">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> F1 </th>
-        <td mat-cell *matCellDef="let element"> {{element.f1 | number}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="sensitivity">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Sensitivity </th>
-        <td mat-cell *matCellDef="let element"> {{element.sensitivity | number}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="specificity">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Specificity </th>
-        <td mat-cell *matCellDef="let element"> {{element.specificity | number}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="scaler">
-        <th mat-header-cell *matHeaderCellDef> Scaler </th>
-        <td mat-cell *matCellDef="let element" class="title-case"> {{element.scaler}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="feature_selector">
-        <th mat-header-cell *matHeaderCellDef> Feature Selector </th>
-        <td mat-cell *matCellDef="let element" class="title-case"> {{element.feature_selector}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="scorer">
-        <th mat-header-cell *matHeaderCellDef> Scoring Type </th>
-        <td mat-cell *matCellDef="let element" class="title-case"> {{element.scorer}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="searcher">
-        <th mat-header-cell *matHeaderCellDef> Search Type </th>
-        <td mat-cell *matCellDef="let element" class="title-case"> {{element.searcher}} </td>
+      <ng-container [matColumnDef]="column.key" *ngFor="let column of columns">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column.name}} </th>
+        <td mat-cell *matCellDef="let element" class="title-case"> {{element[column.key]}} </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
