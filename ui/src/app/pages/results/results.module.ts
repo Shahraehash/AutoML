@@ -7,6 +7,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { ResultsPage } from './results.page';
+import { RocChartComponent } from '../../components/roc-chart/roc-chart.component';
 
 const routes: Routes = [
   {
@@ -24,6 +25,6 @@ const routes: Routes = [
     MatSortModule,
     MatTableModule
   ],
-  declarations: [ResultsPage]
+  declarations: [RocChartComponent, ResultsPage]
 })
 export class ResultsPageModule {}

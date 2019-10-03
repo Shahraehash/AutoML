@@ -2,33 +2,16 @@
 Generalization of a provided model using a secondary test set.
 """
 
-import numpy as np
 from sklearn.metrics import roc_auc_score, accuracy_score,\
     confusion_matrix, classification_report, f1_score
+
+from .preprocess import preprocess
 
 def generalize(model, pipeline, x2, y2, labels=None):
     """"Generalize method"""
 
-    # If scaling is used in the pipeline, scale the test data
-    if 'scaler' in pipeline.named_steps:
-        x2 = pipeline.named_steps['scaler'].transform(x2)
-
-    if 'feature_selector' in pipeline.named_steps:
-        feature_selector_type = pipeline.named_steps['feature_selector'].__class__.__module__
-
-        if 'sklearn.feature_selection.univariate_selection' in feature_selector_type:
-
-            # Identify the selected featured for model provided
-            for index, feature in reversed(list(enumerate(model['features'].items()))):
-
-                # Remove the feature if unused from the x2 test data
-                if not feature[1]:
-                    x2 = np.delete(x2, index, axis=1)
-
-        if 'sklearn.decomposition.pca' in feature_selector_type or\
-            'processors.rffi' in feature_selector_type:
-            x2 = pipeline.named_steps['feature_selector'].transform(x2)
-
+    # Process test data based on pipeline
+    x2 = preprocess(model, pipeline, x2)
     predictions = model['best_estimator'].predict(x2)
     print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
 
