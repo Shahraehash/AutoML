@@ -99,7 +99,7 @@ export class ROCChartService {
 
         svg.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + (height - 20) + ')')
+            .attr('transform', 'translate(0,' + height + ')')
             .call(xAxis)
             .append('text')
                 .attr('x', width / 2)
@@ -107,30 +107,6 @@ export class ROCChartService {
                 .style('text-anchor', 'middle')
                 .text('False Positive Rate');
 
-        const xAxisG = svg.select('g.x.axis');
-
-        // draw the top boundary line
-        xAxisG.append('line').attr({
-            x1: -1,
-            x2: width + 1,
-            y1: -height,
-            y2: -height
-        });
-
-        // draw a bottom boundary line over the existing
-        // x-axis domain path to make even corners
-        xAxisG.append('line').attr({
-            x1: -1,
-            x2: width + 1,
-            y1: 0,
-            y2: 0
-        });
-
-        // position the axis tick labels below the x-axis
-        xAxisG.selectAll('.tick text').attr('transform', 'translate(0,' + 25 + ')');
-
-        // hide the y-axis ticks for 0 and 1
-        xAxisG.selectAll('g.tick line').style('opacity', (d) => d % 1 === 0 ? 0 : 1);
 
         svg.append('g')
             .attr('class', 'y axis')
@@ -138,57 +114,10 @@ export class ROCChartService {
             .append('text')
             .attr('transform', 'rotate(-90)')
             .attr('y', -35)
-            // manually configured so that the label is centered vertically
-            .attr('x', 0 - height / 1.56)
+            .attr('x', 0 - height / 2.8)
             .style('font-size', '12px')
             .style('text-anchor', 'left')
             .text('True Positive Rate');
-
-        const yAxisG = svg.select('g.y.axis');
-
-        // add the right boundary line
-        yAxisG.append('line')
-            .attr({
-            x1: width,
-            x2: width,
-            y1: 0,
-            y2: height
-            });
-
-        // position the axis tick labels to the right of
-        // the y-axis and
-        // translate the first and the last tick labels
-        // so that they are right aligned
-        // or even with the 2nd digit of the decimal number
-        // tick labels
-        yAxisG.selectAll('g.tick text').attr('transform', (d) => {
-            if (d % 1 === 0) { // if d is an integer
-                return 'translate(' + -22 + ',0)';
-            } else if ((d * 10) % 1 === 0) { // if d is a 1 place decimal
-                return 'translate(' + -32 + ',0)';
-            } else {
-                return 'translate(' + -42 + ',0)';
-            }
-        });
-
-        // hide the y-axis ticks for 0 and 1
-        yAxisG.selectAll('g.tick line').style('opacity', (d) => d % 1 === 0 ? 0 : 1);
-
-        // draw the random guess line
-        svg.append('line')
-            .attr('class', 'curve')
-            .style('stroke', 'black')
-            .attr({
-            x1: 0,
-            x2: width,
-            y1: height,
-            y2: 0
-            });
-            // .style({
-            //   'stroke-width': 2,
-            //   'stroke-dasharray': '8',
-            //   opacity: 0.4
-            // });
 
         // draw the ROC curves
         const drawCurve = (input, tpr, stroke) => {
@@ -198,21 +127,17 @@ export class ROCChartService {
                 .attr('d', curve(input, tpr))
                 .on('mouseover', () => {
                     const areaID = '#' + tpr + 'Area';
-                    svg.select(areaID)
-                    .style('opacity', .4);
+                    svg.select(areaID).style('opacity', .4);
 
                     const aucText = '.' + tpr + 'text';
-                    svg.selectAll(aucText)
-                    .style('opacity', .9);
+                    svg.selectAll(aucText).style('opacity', .9);
                 })
                 .on('mouseout', () => {
                     const areaID = '#' + tpr + 'Area';
-                    svg.select(areaID)
-                    .style('opacity', 0);
+                    svg.select(areaID).style('opacity', 0);
 
                     const aucText = '.' + tpr + 'text';
-                    svg.selectAll(aucText)
-                    .style('opacity', 0);
+                    svg.selectAll(aucText).style('opacity', 0);
                 });
         };
 
@@ -236,8 +161,8 @@ export class ROCChartService {
             .append('text')
                 .text(label)
                 .style({
-                fill: 'white',
-                'font-size': 18
+                    fill: 'white',
+                    'font-size': 18
                 });
 
             svg.append('g')
@@ -247,8 +172,8 @@ export class ROCChartService {
             .append('text')
                 .text('AUC = ' + aucFormat(auc))
                 .style({
-                fill: 'white',
-                'font-size': 18
+                    fill: 'white',
+                    'font-size': 18
                 });
         };
 
@@ -280,7 +205,7 @@ export class ROCChartService {
         if (animate) {
             // sort tprVariables ascending by AUC
             const tprVariablesAscByAUC = tprVariables.sort((a, b) => {
-            return a.auc - b.auc;
+                return a.auc - b.auc;
             });
 
             console.log('tprVariablesAscByAUC', tprVariablesAscByAUC);
@@ -310,10 +235,6 @@ export class ROCChartService {
             }
         }
 
-        ///////////////////////////////////////////////////
-        ///////////////////////////////////////////////////
-        ///////////////////////////////////////////////////
-
         function generatePoints(input, X, Y) {
             const points = [];
             input.forEach((d) => {
@@ -327,15 +248,15 @@ export class ROCChartService {
             let area = 0.0;
             const length = points.length;
             if (length <= 2) {
-            return area;
+                return area;
             }
             points.forEach((d, i) => {
-            const X = 0;
-            const Y = 1;
+                const X = 0;
+                const Y = 1;
 
-            if ('undefined' !== typeof points[i - 1]) {
-                area += (points[i][X] - points[i - 1][X]) * (points[i - 1][Y] + points[i][Y]) / 2;
-            }
+                if ('undefined' !== typeof points[i - 1]) {
+                    area += (points[i][X] - points[i - 1][X]) * (points[i - 1][Y] + points[i][Y]) / 2;
+                }
             });
             return area;
         }
