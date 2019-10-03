@@ -5,6 +5,8 @@ Process a dataset based on a pipeline
 import numpy as np
 
 def preprocess(model, pipeline, data):
+    """Process the test data based on the pipeline used to
+    generate the model"""
 
     # If scaling is used in the pipeline, scale the test data
     if 'scaler' in pipeline.named_steps:

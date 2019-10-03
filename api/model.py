@@ -6,7 +6,6 @@ import json
 from timeit import default_timer as timer
 
 import pandas as pd
-import numpy as np
 
 from .processors.scorers import SCORER_NAMES
 

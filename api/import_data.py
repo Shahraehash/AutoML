@@ -36,4 +36,5 @@ def import_data(train_path, test_path, label_column):
         print('Warning: Classes are not balanced.')
 
     # Generate test/train split from the train data
-    return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + [x2, y2, feature_names]
+    return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + \
+        [x2, y2, feature_names]
