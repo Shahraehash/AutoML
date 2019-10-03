@@ -13,43 +13,22 @@ export class ROCChartService {
         width: 470,
         height: 450,
         ticks: undefined,
-        tickValues: [0, .1, .25, .5, .75, .9, 1],
-        fpr: 'fpr',
-        tprVariables: [{
-            name: 'tpr0',
-            label: undefined,
-            auc: undefined
-        }],
-        animate: true
+        tickValues: [0, .1, .25, .5, .75, .9, 1]
     };
 
     public create(data, options) {
         const cfg = {...this.cfg, ...options};
 
-        const tprVariables = cfg.tprVariables;
-        tprVariables.forEach((d) => {
-            if (typeof d.label === 'undefined') {
-                d.label = d.name;
-            }
-        });
-
-        const fpr = cfg.fpr;
-        const width = cfg.width;
-        const height = cfg.height;
-        const animate = cfg.animate;
-
         const format = d3.format('.2');
         const aucFormat = d3.format('.4r');
 
-        const x = scaleLinear().range([0, width]);
-        const y = scaleLinear().range([height, 0]);
+        const x = scaleLinear().range([0, cfg.width]);
+        const y = scaleLinear().range([cfg.height, 0]);
         const color = scaleOrdinal(schemeCategory10);
 
         const xAxis = d3Axis.axisBottom(x);
         const yAxis = d3Axis.axisLeft(y);
 
-        // set the axis ticks based on input parameters,
-        // if ticks or tickValues are specified
         if ('undefined' !== typeof cfg.ticks) {
             xAxis.ticks(cfg.ticks);
             yAxis.ticks(cfg.ticks);
@@ -61,36 +40,36 @@ export class ROCChartService {
             yAxis.ticks(5);
         }
 
-        // apply the format to the ticks we chose
+        // Apply the format to the ticks we chose
         xAxis.tickFormat(format);
         yAxis.tickFormat(format);
 
-        // a function that returns a line generator
-        const curve = (input, tpr) => {
+        // A function that returns a line generator
+        const curve = (points) => {
 
             const lineGenerator = d3.line()
                 .curve(d3.curveBasis)
-                .x((d) => x(d[fpr]))
-                .y((d) => y(d[tpr]));
+                .x((d) => x(d[0]))
+                .y((d) => y(d[1]));
 
-            return lineGenerator(input);
+            return lineGenerator(points);
         };
 
-        // a function that returns an area generator
-        const areaUnderCurve = (input, tpr) => {
+        // A function that returns an area generator
+        const areaUnderCurve = (points) => {
 
             const areaGenerator = d3.area()
-                .x((d) => x(d[fpr]))
-                .y0(height)
-                .y1((d) => y(d[tpr]));
+                .x((d) => x(d[0]))
+                .y0(cfg.height)
+                .y1((d) => y(d[1]));
 
-            return areaGenerator(input);
+            return areaGenerator(points);
         };
 
         const svg = d3.select('#roc')
             .append('svg')
-            .attr('width', width + cfg.margin.left + cfg.margin.right)
-            .attr('height', height + cfg.margin.top + cfg.margin.bottom)
+            .attr('width', cfg.width + cfg.margin.left + cfg.margin.right)
+            .attr('height', cfg.height + cfg.margin.top + cfg.margin.bottom)
             .append('g')
                 .attr('transform', 'translate(' + cfg.margin.left + ',' + cfg.margin.top + ')');
 
@@ -99,10 +78,10 @@ export class ROCChartService {
 
         svg.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + height + ')')
+            .attr('transform', 'translate(0,' + cfg.height + ')')
             .call(xAxis)
             .append('text')
-                .attr('x', width / 2)
+                .attr('x', cfg.width / 2)
                 .attr('y', 40 )
                 .style('text-anchor', 'middle')
                 .text('False Positive Rate');
@@ -114,61 +93,73 @@ export class ROCChartService {
             .append('text')
             .attr('transform', 'rotate(-90)')
             .attr('y', -35)
-            .attr('x', 0 - height / 2.8)
+            .attr('x', 0 - cfg.height / 2.8)
             .style('font-size', '12px')
             .style('text-anchor', 'left')
             .text('True Positive Rate');
 
-        // draw the ROC curves
-        const drawCurve = (input, tpr, stroke) => {
+        // draw the random guess line
+        svg.append('line')
+            .attr('class', 'curve')
+            .style('stroke', 'black')
+            .attr('x1', 0)
+            .attr('x2', cfg.width)
+            .attr('y1', cfg.height)
+            .attr('y2', 0)
+            .style('stroke-width', 2)
+            .style('stroke-dasharray', 8)
+            .style('opacity', .4);
+
+        // Draw the ROC curves
+        const drawCurve = (key, points, stroke) => {
             svg.append('path')
                 .attr('class', 'curve')
                 .style('stroke', stroke)
-                .attr('d', curve(input, tpr))
+                .attr('d', curve(points))
                 .on('mouseover', () => {
-                    const areaID = '#' + tpr + 'Area';
+                    const areaID = '#' + key + '-area';
                     svg.select(areaID).style('opacity', .4);
 
-                    const aucText = '.' + tpr + 'text';
+                    const aucText = '.' + key + '-text';
                     svg.selectAll(aucText).style('opacity', .9);
                 })
                 .on('mouseout', () => {
-                    const areaID = '#' + tpr + 'Area';
+                    const areaID = '#' + key + '-area';
                     svg.select(areaID).style('opacity', 0);
 
-                    const aucText = '.' + tpr + 'text';
+                    const aucText = '.' + key + '-text';
                     svg.selectAll(aucText).style('opacity', 0);
                 });
         };
 
-        // draw the area under the ROC curves
-        const drawArea = (input, tpr, fill) => {
+        // Draw the area under the ROC curves
+        const drawArea = (key, points, fill) => {
             svg.append('path')
-            .attr('d', areaUnderCurve(input, tpr))
+            .attr('d', areaUnderCurve(points))
             .attr('class', 'area')
-            .attr('id', tpr + 'Area')
+           .attr('id', key + '-area')
             .style({
                 fill,
                 opacity: 0
             });
         };
 
-        const drawAUCText = (auc, tpr, label) => {
+        const drawAUCText = (key, auc) => {
             svg.append('g')
-            .attr('class', tpr + 'text')
+            .attr('class', key + '-text')
             .style('opacity', 0)
-            .attr('transform', 'translate(' + .5 * width + ',' + .79 * height + ')')
+            .attr('transform', 'translate(' + .5 * cfg.width + ',' + .79 * cfg.height + ')')
             .append('text')
-                .text(label)
+                .text(key)
                 .style({
                     fill: 'white',
                     'font-size': 18
                 });
 
             svg.append('g')
-            .attr('class', tpr + 'text')
+            .attr('class', key + '-text')
             .style('opacity', 0)
-            .attr('transform', 'translate(' + .5 * width + ',' + .84 * height + ')')
+            .attr('transform', 'translate(' + .5 * cfg.width + ',' + .84 * cfg.height + ')')
             .append('text')
                 .text('AUC = ' + aucFormat(auc))
                 .style({
@@ -177,85 +168,31 @@ export class ROCChartService {
                 });
         };
 
-        // calculate the area under each curve
-        tprVariables.forEach((d) => {
-            const tpr = d.name;
-            const points = generatePoints(data, fpr, tpr);
-            const auc = calculateArea(points);
-            d.auc = auc;
-        });
-
-        console.log('tprVariables', tprVariables);
-
-        // draw curves, areas, and text for each
+        // Draw curves, areas, and text for each
         // true-positive rate in the data
-        tprVariables.forEach((d, index) => {
-            console.log('drawing the curve for', d.label);
+        data.forEach((d, index) => {
+            const fpr = JSON.parse(d.fpr);
+            const tpr = JSON.parse(d.tpr);
+
+            const auc = calculateArea(fpr, tpr);
+            d.auc = auc;
+
+            const points = fpr.map((e, i) => {
+                return [e, tpr[i]];
+            });
+
+            console.log('drawing the curve for', d.key);
             console.log('color(', index, ')', color(index.toString()));
-            const tpr = d.name;
-            drawArea(data, tpr, color(index.toString()));
-            drawCurve(data, tpr, color(index.toString()));
-            drawAUCText(d.auc, tpr, d.label);
+            drawArea(d.key, points, color(index.toString()));
+            drawCurve(d.key, points, color(index.toString()));
+            drawAUCText(d.key, d.auc);
         });
 
-        ///////////////////////////////////////////////////
-        ////// animate through areas for each curve ///////
-        ///////////////////////////////////////////////////
-
-        if (animate) {
-            // sort tprVariables ascending by AUC
-            const tprVariablesAscByAUC = tprVariables.sort((a, b) => {
-                return a.auc - b.auc;
-            });
-
-            console.log('tprVariablesAscByAUC', tprVariablesAscByAUC);
-
-            for (let i = 0; i < tprVariablesAscByAUC.length; i++) {
-            const areaID = '#' + tprVariablesAscByAUC[i].name + 'Area';
-            svg.select(areaID)
-                .transition()
-                .delay(2000 * (i + 1))
-                .duration(250)
-                .style('opacity', .4)
-                .transition()
-                .delay(2000 * (i + 2))
-                .duration(250)
-                .style('opacity', 0);
-
-            const textClass = '.' + tprVariablesAscByAUC[i].name + 'text';
-            svg.selectAll(textClass)
-                .transition()
-                .delay(2000 * (i + 1))
-                .duration(250)
-                .style('opacity', .9)
-                .transition()
-                .delay(2000 * (i + 2))
-                .duration(250)
-                .style('opacity', 0);
-            }
-        }
-
-        function generatePoints(input, X, Y) {
-            const points = [];
-            input.forEach((d) => {
-                points.push([ Number(d[X]), Number(d[Y]) ]);
-            });
-            return points;
-        }
-
-        // numerical integration
-        function calculateArea(points) {
+        function calculateArea(fpr, tpr) {
             let area = 0.0;
-            const length = points.length;
-            if (length <= 2) {
-                return area;
-            }
-            points.forEach((d, i) => {
-                const X = 0;
-                const Y = 1;
-
-                if ('undefined' !== typeof points[i - 1]) {
-                    area += (points[i][X] - points[i - 1][X]) * (points[i - 1][Y] + points[i][Y]) / 2;
+            tpr.forEach((_, i) => {
+                if ('undefined' !== typeof fpr[i - 1]) {
+                    area += (fpr[i] - fpr[i - 1]) * (tpr[i - 1] + tpr[i]) / 2;
                 }
             });
             return area;

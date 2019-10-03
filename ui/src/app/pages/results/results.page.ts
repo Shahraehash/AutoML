@@ -10,6 +10,7 @@ import { BackendService } from '../../services/backend.service';
   styleUrls: ['./results.page.scss'],
 })
 export class ResultsPage implements OnInit {
+  data;
   results;
   displayedColumns: string[] = ['estimator', 'accuracy', 'auc', 'f1', 'sensitivity',
     'specificity', 'scaler', 'feature_selector', 'scorer', 'searcher'];
@@ -22,6 +23,7 @@ export class ResultsPage implements OnInit {
 
   ngOnInit() {
     this.backend.getResults().subscribe(data => {
+      this.data = data;
       this.results = new MatTableDataSource(data);
       setTimeout(() => {
         this.results.sort = this.sort;

@@ -11,10 +11,6 @@
 
 <ion-content class='ion-padding'>
   <div *ngIf='results; else noResults'>
-    <ion-card class='ion-padding'>
-      <app-roc-chart></app-roc-chart>
-    </ion-card>
-
     <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
       <ng-container matColumnDef="estimator">
@@ -70,6 +66,10 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+
+    <ion-card class='ion-padding ion-text-center'>
+      <app-roc-chart [data]="data"></app-roc-chart>
+    </ion-card>
   </div>
 
   <ng-template #noResults>
