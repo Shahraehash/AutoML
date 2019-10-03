@@ -195,7 +195,7 @@ export class ROCChartService {
             svg.append('path')
                 .attr('class', 'curve')
                 .style('stroke', stroke)
-                .attr('d', curve(input, tpr, fpr, x, y))
+                .attr('d', curve(input, tpr))
                 .on('mouseover', () => {
                     const areaID = '#' + tpr + 'Area';
                     svg.select(areaID)
@@ -219,7 +219,7 @@ export class ROCChartService {
         // draw the area under the ROC curves
         const drawArea = (input, tpr, fill) => {
             svg.append('path')
-            .attr('d', areaUnderCurve(input, tpr, fpr, x, y, height))
+            .attr('d', areaUnderCurve(input, tpr))
             .attr('class', 'area')
             .attr('id', tpr + 'Area')
             .style({
