@@ -88,7 +88,6 @@ export class RocChartComponent implements OnInit {
       svg.append('g')
           .attr('class', 'x axis')
           .attr('transform', 'translate(0,' + cfg.height + ')')
-          .style('fill', 'black')
           .call(xAxis)
           .append('text')
               .attr('x', cfg.width / 2)
@@ -100,7 +99,6 @@ export class RocChartComponent implements OnInit {
 
       svg.append('g')
           .attr('class', 'y axis')
-          .style('fill', 'black')
           .call(yAxis)
           .append('text')
           .attr('transform', 'rotate(-90)')
@@ -113,7 +111,7 @@ export class RocChartComponent implements OnInit {
       // draw the random guess line
       svg.append('line')
           .attr('class', 'curve')
-          .style('stroke', 'black')
+          .attr('class', 'guess')
           .attr('x1', 0)
           .attr('x2', cfg.width)
           .attr('y1', cfg.height)
