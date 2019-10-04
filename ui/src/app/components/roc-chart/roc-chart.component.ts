@@ -181,7 +181,7 @@ export class RocChartComponent implements OnInit {
           const tpr = JSON.parse(d.tpr);
 
           const auc = calculateArea(fpr, tpr);
-          d.auc = auc;
+          d.trainAuc = auc;
 
           const points = fpr.map((e, i) => {
               return [e, tpr[i]];
@@ -191,7 +191,7 @@ export class RocChartComponent implements OnInit {
           console.log('color(', index, ')', color(index.toString()));
           drawArea(d.key, points, color(index.toString()));
           drawCurve(d.key, points, color(index.toString()));
-          drawAUCText(d.key, d.auc);
+          drawAUCText(d.key, d.trainAuc);
       });
 
       function calculateArea(fpr, tpr) {
