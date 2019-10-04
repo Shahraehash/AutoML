@@ -46,9 +46,11 @@ export class HomePage implements OnInit {
     if (event.target.files.length === 1) {
       const file = event.target.files[0];
 
-      parse(file, {
-        complete: reply => this.labels = reply.data[0]
-      });
+      if (!this.labels.length) {
+        parse(file, {
+          complete: reply => this.labels = reply.data[0]
+        });
+      }
 
       this.uploadForm.get(event.target.name).setValue(file);
     }

@@ -1,4 +1,22 @@
-.welcome-card img {
-  max-height: 35vh;
-  overflow: hidden;
+.file-input {
+  padding: 10px;
+  background: var(--ion-color-medium); 
+  color: #fff;
+  margin-right: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+
+  input {
+    display: none;
+  }
+}
+
+ion-select {
+  border-radius: 4px;
+  padding-right: 16px;
+  background: var(--ion-color-medium); 
+  color: #fff;
+  max-width: 200px;
+  display: inline-flex;
+  height: 36px;
 }

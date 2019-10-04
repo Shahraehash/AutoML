@@ -11,14 +11,25 @@
 
 <ion-content class='ion-padding'>
   <form [formGroup]='uploadForm'>
-    <ion-card class='ion-padding'>
-      Train set: <input type='file' name='train' (change)="onFileSelect($event)"><br><br>
-      Test set: <input type='file' name='test' (change)="onFileSelect($event)"><br><br>
-      Target Column: <select name='label_column' formControlName='label_column'>
-        <option *ngFor='let label of labels' [value]='label'>{{label}}</option>
-      </select>
-    </ion-card>
+    <ion-card class='ion-padding ion-text-center'>
+      <ion-card-header>
+        <ion-card-subtitle>Please provide a training test set and a separate test set used for generalization. Both data sets must have the same columns.</ion-card-subtitle>
+        <ion-card-title>Data Upload</ion-card-title>
+      </ion-card-header>
 
-    <ion-button class='ion-padding' (click)='onSubmit()'>Submit</ion-button>
+      <label class='file-input'>
+        <ion-icon *ngIf="" name="checkmark-circle-outline" color="success"></ion-icon>
+        Select Training Data
+        <input type='file' name='train' (change)="onFileSelect($event)">
+      </label>
+      <label class='file-input'>
+        Select Test Data (Generalization)
+        <input type='file' name='test' (change)="onFileSelect($event)">
+      </label>
+      <ion-select placeholder='Target Column' interface='popover' [disabled]='!labels.length'>
+        <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
+      </ion-select>
+      <ion-button expand='block' class='ion-padding' (click)='onSubmit()' [disabled]='!labels.length'>Submit</ion-button>
+    </ion-card>
   </form>
 </ion-content>
