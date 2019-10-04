@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { parse } from 'papaparse';
 import { BackendService } from '../../services/backend.service';
@@ -22,9 +22,9 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.uploadForm = this.formBuilder.group({
-      label_column: '',
-      train: [''],
-      test: ['']
+      label_column: ['', Validators.required],
+      train: ['', Validators.required],
+      test: ['', Validators.required]
     });
   }
 
