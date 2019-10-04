@@ -12,30 +12,35 @@ import { BackendService } from '../../services/backend.service';
 export class ResultsPage implements OnInit {
   data;
   results;
-  columns: {key: string; name: string}[] = [
+  columns: {key: string; name: string; number?: boolean}[] = [
     {
       key: 'estimator',
       name: 'Estimator'
     },
     {
       key: 'accuracy',
-      name: 'Accuracy'
+      name: 'Accuracy',
+      number: true
     },
     {
       key: 'auc',
-      name: 'AUC'
+      name: 'AUC',
+      number: true
     },
     {
       key: 'f1',
-      name: 'F1'
+      name: 'F1',
+      number: true
     },
     {
       key: 'sensitivity',
-      name: 'Sensitivity'
+      name: 'Sensitivity',
+      number: true
     },
     {
       key: 'specificity',
-      name: 'Specificity'
+      name: 'Specificity',
+      number: true
     },
     {
       key: 'scaler',

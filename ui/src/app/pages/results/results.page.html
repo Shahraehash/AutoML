@@ -14,8 +14,10 @@
     <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
       <ng-container [matColumnDef]="column.key" *ngFor="let column of columns">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column.name}} </th>
-        <td mat-cell *matCellDef="let element" class="title-case"> {{element[column.key]}} </td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{column.name}}</th>
+        <td mat-cell *matCellDef="let element" class="title-case">
+          {{column.number ? ( element[column.key] | number ) : element[column.key]}}
+        </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
