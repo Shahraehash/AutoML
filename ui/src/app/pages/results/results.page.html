@@ -6,11 +6,25 @@
     <ion-title>
       Results
     </ion-title>
+    <ion-buttons slot="end" class="ion-padding-end">
+      <ion-button fill="solid" color="primary" (click)="export()">
+        <ion-icon name="download"></ion-icon>
+        Export
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class='ion-padding'>
   <div *ngIf='results; else noResults'>
+    <ion-card class='ion-padding ion-text-center roc-curve'>
+      <ion-card-header>
+        <ion-card-subtitle>Plot's the receiver operator characteristics from the hyperparameter search (grid, random, etc.) for all the models tabulated</ion-card-subtitle>
+        <ion-card-title>Hyperparameter Search ROCs</ion-card-title>
+      </ion-card-header>
+      <app-roc-chart [data]="data"></app-roc-chart>
+    </ion-card>
+
     <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
       <ng-container [matColumnDef]="column.key" *ngFor="let column of columns">
@@ -23,14 +37,6 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-
-    <ion-card class='ion-padding ion-text-center roc-curve'>
-      <ion-card-header>
-        <ion-card-subtitle>Plot's the receiver operator characteristics from the hyperparameter search (grid, random, etc.) for all the models tabulated</ion-card-subtitle>
-        <ion-card-title>Hyperparameter Search ROCs</ion-card-title>
-      </ion-card-header>
-      <app-roc-chart [data]="data"></app-roc-chart>
-    </ion-card>
   </div>
 
   <ng-template #noResults>

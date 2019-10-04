@@ -8,7 +8,7 @@ using an Angular SPA.
 import os
 
 import pandas as pd
-from flask import abort, Flask, jsonify, request, send_from_directory
+from flask import abort, Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
 
 from api import api
@@ -40,6 +40,16 @@ def get_results():
         return
 
     return pd.read_csv('report.csv').to_json(orient='records')
+
+@APP.route('/export', methods=['GET'])
+def export_results():
+    """Export the results CSV"""
+
+    if not os.path.exists('report.csv'):
+        abort(404)
+        return
+
+    return send_file('report.csv', as_attachment=True)
 
 @APP.route('/upload', methods=['POST'])
 def upload_files():

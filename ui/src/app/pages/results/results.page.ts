@@ -76,4 +76,8 @@ export class ResultsPage implements OnInit {
       }, 1);
     });
   }
+
+  export() {
+    window.open('http://127.0.0.1:5000/export', '_self');
+  }
 }
