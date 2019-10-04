@@ -9,7 +9,7 @@ import os
 # Valid estimators: rf,mlp,gb,svm,knn,lr,nb
 os.environ['IGNORE_ESTIMATOR'] = 'rf, mlp, gb, svm, knn, lr'
 
-# Valid feature selectors: none,pca-70,pca-80,pca-90,
+# Valid feature selectors: none,pca-80,pca-90,
 # rf-25,rf-50,rf-75,select-25,select-50,select-75
 os.environ['IGNORE_FEATURE_SELECTOR'] = 'rf-25, select-25'
 
