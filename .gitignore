@@ -13,6 +13,10 @@ __pycache__/
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Data
+data/*
+!data/.gitkeep
+
 # UI build
 static/
 
