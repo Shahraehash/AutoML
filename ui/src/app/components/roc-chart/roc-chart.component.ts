@@ -154,22 +154,22 @@ export class RocChartComponent implements OnInit {
 
       const drawAUCText = (key, auc) => {
           svg.append('g')
-          .attr('class', key + '-text')
-          .style('opacity', 0)
-          .attr('transform', 'translate(' + .5 * cfg.width + ',' + .79 * cfg.height + ')')
-          .append('text')
-              .text(key.replace(/__/g, ' '))
-              .style('fill', 'white')
-              .style('font-size', 18);
+            .attr('class', key + '-text')
+            .style('opacity', 0)
+            .attr('transform', 'translate(' + .5 * cfg.width + ',' + .79 * cfg.height + ')')
+            .append('text')
+                .text(key.replace(/__/g, ' '))
+                .style('fill', 'white')
+                .style('font-size', 18);
 
           svg.append('g')
-          .attr('class', key + '-text')
-          .style('opacity', 0)
-          .attr('transform', 'translate(' + .5 * cfg.width + ',' + .84 * cfg.height + ')')
-          .append('text')
-              .text('AUC = ' + aucFormat(auc))
-              .style('fill', 'white')
-              .style('font-size', 18);
+            .attr('class', key + '-text')
+            .style('opacity', 0)
+            .attr('transform', 'translate(' + .5 * cfg.width + ',' + .84 * cfg.height + ')')
+            .append('text')
+                .text('AUC = ' + aucFormat(auc))
+                .style('fill', 'white')
+                .style('font-size', 18);
       };
 
       // Draw curves, areas, and text for each
@@ -185,8 +185,6 @@ export class RocChartComponent implements OnInit {
               return [e, tpr[i]];
           });
 
-          console.log('drawing the curve for', d.key);
-          console.log('color(', index, ')', color(index.toString()));
           drawArea(d.key, points, color(index.toString()));
           drawCurve(d.key, points, color(index.toString()));
           drawAUCText(d.key, d.trainAuc);
