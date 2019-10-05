@@ -43,7 +43,7 @@
     <br>
     <ion-spinner [hidden]='!training'></ion-spinner>
     <br>
-    <ion-button expand='block' (click)='startTraining()' [hidden]='training'>Start Training</ion-button>
+    <ion-button expand='block' (click)='startTraining()' [hidden]='training' [disabled]='!trainForm.valid'>Start Training</ion-button>
   </div>
 
   <ion-card class='ion-text-center ion-padding' *ngIf='results'>

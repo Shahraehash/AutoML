@@ -5,6 +5,7 @@ import { AlertController } from '@ionic/angular';
 
 import * as pipelineOptions from './pipeline.processors.json';
 import { BackendService } from '../../services/backend.service';
+import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one-checked.validator';
 
 @Component({
   selector: 'app-train',
@@ -28,11 +29,11 @@ export class TrainPage implements OnInit {
   ngOnInit() {
     this.uploadComplete = this.route.snapshot.params.upload;
     this.trainForm = this.formBuilder.group({
-      estimators: this.formBuilder.array(this.pipelineProcessors.estimators),
-      scalers: this.formBuilder.array(this.pipelineProcessors.scalers),
-      featureSelectors: this.formBuilder.array(this.pipelineProcessors.featureSelectors),
-      searchers: this.formBuilder.array(this.pipelineProcessors.searchers),
-      scorers: this.formBuilder.array(this.pipelineProcessors.scorers)
+      estimators: this.formBuilder.array(this.pipelineProcessors.estimators, requireAtLeastOneCheckedValidator()),
+      scalers: this.formBuilder.array(this.pipelineProcessors.scalers, requireAtLeastOneCheckedValidator()),
+      featureSelectors: this.formBuilder.array(this.pipelineProcessors.featureSelectors, requireAtLeastOneCheckedValidator()),
+      searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
+      scorers: this.formBuilder.array(this.pipelineProcessors.scorers, requireAtLeastOneCheckedValidator())
     });
   }
 
