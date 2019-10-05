@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 
 import { TrainPage } from './train.page';
+import { RadialDendrogramComponent } from '../../components/radial-dendrogram/radial-dendrogram.component';
 
 @NgModule({
   imports: [
@@ -21,6 +22,6 @@ import { TrainPage } from './train.page';
       }
     ])
   ],
-  declarations: [TrainPage]
+  declarations: [RadialDendrogramComponent, TrainPage]
 })
 export class TrainPageModule {}

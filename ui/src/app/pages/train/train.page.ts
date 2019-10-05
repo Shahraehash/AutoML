@@ -13,6 +13,7 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
   styleUrls: ['train.page.scss']
 })
 export class TrainPage implements OnInit {
+  allPipelines;
   training = false;
   trainForm: FormGroup;
   pipelineProcessors = (pipelineOptions as any).default;
@@ -31,12 +32,16 @@ export class TrainPage implements OnInit {
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
       scorers: this.formBuilder.array(this.pipelineProcessors.scorers, requireAtLeastOneCheckedValidator())
     });
+
+    this.trainForm.valueChanges.subscribe(this.generatePipelines.bind(this));
   }
 
   ngOnInit() {
     if (this.route.snapshot.params.labels && this.route.snapshot.params.labels < 3) {
       this.trainForm.get('featureSelectors').disable();
     }
+
+    this.generatePipelines();
   }
 
   startTraining() {
@@ -70,5 +75,34 @@ export class TrainPage implements OnInit {
     return this.trainForm.get(key).value.flatMap((value, index) => {
       return value ? [] : this.pipelineProcessors[key][index].value;
     });
+  }
+
+  private getChecked(key) {
+    return this.trainForm.get(key).value.flatMap((value, index) => {
+      return !value ? [] : this.pipelineProcessors[key][index].label;
+    });
+  }
+
+  private product(..._) {
+    const args = Array.prototype.slice.call(arguments);
+    return args.reduce((accumulator, value) => {
+      const tmp = [];
+      accumulator.forEach((a0) => {
+        value.forEach((a1) => {
+          tmp.push(a0.concat(a1));
+        });
+      });
+      return tmp;
+    }, [[]]);
+  }
+
+  private generatePipelines() {
+    this.allPipelines = this.product(
+      this.getChecked('estimators'),
+      this.getChecked('scalers'),
+      this.getChecked('featureSelectors'),
+      this.getChecked('searchers'),
+      this.getChecked('scorers'),
+    );
   }
 }
