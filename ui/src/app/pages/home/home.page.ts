@@ -35,7 +35,7 @@ export class HomePage {
     formData.append('label_column', this.uploadForm.get('label_column').value);
 
     this.backend.submitData(formData).subscribe(
-      () => this.router.navigate(['/train', {upload: true}]),
+      () => this.router.navigate(['/train', {upload: true, labels: this.labels.length}]),
       async () => {
         const alert = await this.alertController.create({
           header: 'Unable to Upload Data',
@@ -54,7 +54,7 @@ export class HomePage {
     if (event.target.files.length === 1) {
       const file = event.target.files[0];
 
-      if (!this.labels.length) {
+      if (event.target.name === 'train') {
         parse(file, {
           complete: reply => this.labels = reply.data[0]
         });

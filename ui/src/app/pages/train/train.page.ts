@@ -35,6 +35,9 @@ export class TrainPage implements OnInit {
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
       scorers: this.formBuilder.array(this.pipelineProcessors.scorers, requireAtLeastOneCheckedValidator())
     });
+    if (this.route.snapshot.params.labels && this.route.snapshot.params.labels < 3) {
+      this.trainForm.get('featureSelectors').disable();
+    }
   }
 
   startTraining() {
