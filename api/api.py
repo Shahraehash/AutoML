@@ -11,6 +11,7 @@ import csv
 import itertools
 
 from dotenv import load_dotenv
+from sklearn.utils import parallel_backend
 
 from .processors.estimators import ESTIMATOR_NAMES
 from .processors.feature_selection import FEATURE_SELECTOR_NAMES
@@ -88,11 +89,13 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         }
         print('Generating ' + model_key_to_name(key))
 
-        pipeline = generate_pipeline(scaler, feature_selector, estimator, y_train, scorer, searcher)
-        model = generate_model(pipeline[0], feature_names, x_train, y_train, scorer)
-        result.update(generalize(model, pipeline[0], x2, y2, labels))
+        with parallel_backend('threading'):
+            pipeline = generate_pipeline(scaler, feature_selector, estimator, y_train, scorer, searcher)
+            model = generate_model(pipeline[0], feature_names, x_train, y_train, scorer)
+            result.update(generalize(model, pipeline[0], x2, y2, labels))
 
-        result.update(roc(model, pipeline[0], x_test, y_test))
+            result.update(roc(model, pipeline[0], x_test, y_test))
+
         result['selected_features'] = list(model['selected_features'])
         result['best_params'] = model['best_params']
 
