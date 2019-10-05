@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { AlertController } from '@ionic/angular';
 
 import * as pipelineOptions from './pipeline.processors.json';
 import { BackendService } from '../../services/backend.service';
@@ -18,6 +19,7 @@ export class TrainPage implements OnInit {
   pipelineProcessors = (pipelineOptions as any).default;
 
   constructor(
+    private alertController: AlertController,
     private backend: BackendService,
     private formBuilder: FormBuilder,
     private route: ActivatedRoute
@@ -48,6 +50,15 @@ export class TrainPage implements OnInit {
       (res) => {
         this.training = false;
         this.results = res;
+      },
+      async () => {
+        const alert = await this.alertController.create({
+          header: 'Unable to Start Training',
+          message: 'Please make sure the backend is reachable and try again.',
+          buttons: ['Dismiss']
+        });
+
+        await alert.present();
       }
     );
   }

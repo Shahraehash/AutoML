@@ -37,13 +37,13 @@ export class HomePage {
     this.backend.submitData(formData).subscribe(
       () => this.router.navigate(['/train', {upload: true}]),
       async () => {
-          const alert = await this.alertController.create({
-            header: 'Unable to Upload Data',
-            message: 'Please make sure the backend is reachable and try again.',
-            buttons: ['OK']
-          });
+        const alert = await this.alertController.create({
+          header: 'Unable to Upload Data',
+          message: 'Please make sure the backend is reachable and try again.',
+          buttons: ['Dismiss']
+        });
 
-          await alert.present();
+        await alert.present();
       }
     );
 

@@ -1,6 +1,7 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { AlertController } from '@ionic/angular';
 
 import { BackendService } from '../../services/backend.service';
 
@@ -64,17 +65,29 @@ export class ResultsPage implements OnInit {
   @ViewChild(MatSort, {static: false}) sort: MatSort;
 
   constructor(
+    private alertController: AlertController,
     private backend: BackendService,
   ) {}
 
   ngOnInit() {
-    this.backend.getResults().subscribe(data => {
-      this.data = data;
-      this.results = new MatTableDataSource(data);
-      setTimeout(() => {
-        this.results.sort = this.sort;
-      }, 1);
-    });
+    this.backend.getResults().subscribe(
+      data => {
+        this.data = data;
+        this.results = new MatTableDataSource(data);
+        setTimeout(() => {
+          this.results.sort = this.sort;
+        }, 1);
+     },
+      async () => {
+        const alert = await this.alertController.create({
+          header: 'Unable to Load Results',
+          message: 'Please make sure the backend is reachable and try again.',
+          buttons: ['Dismiss']
+        });
+
+        await alert.present();
+      }
+    );
   }
 
   export() {

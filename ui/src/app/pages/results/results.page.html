@@ -1,14 +1,14 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
+    <ion-buttons slot='start'>
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>
       Results
     </ion-title>
-    <ion-buttons slot="end" class="ion-padding-end">
-      <ion-button fill="solid" color="primary" (click)="export()">
-        <ion-icon name="download"></ion-icon>
+    <ion-buttons slot='end' class='ion-padding-end' *ngIf='results'>
+      <ion-button fill="solid" color='primary' (click)='export()'>
+        <ion-icon name='download'></ion-icon>
         Export
       </ion-button>
     </ion-buttons>
