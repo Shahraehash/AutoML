@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AlertController } from '@ionic/angular';
 import { parse } from 'papaparse';
 
 import { BackendService } from '../../services/backend.service';
@@ -10,17 +11,16 @@ import { BackendService } from '../../services/backend.service';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage {
   labels = [];
   uploadForm: FormGroup;
 
   constructor(
+    private alertController: AlertController,
     private backend: BackendService,
     private formBuilder: FormBuilder,
     private router: Router
-  ) {}
-
-  ngOnInit() {
+  ) {
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],
       train: ['', Validators.required],
@@ -36,7 +36,15 @@ export class HomePage implements OnInit {
 
     this.backend.submitData(formData).subscribe(
       () => this.router.navigate(['/train', {upload: true}]),
-      (err) => console.log(err)
+      async () => {
+          const alert = await this.alertController.create({
+            header: 'Unable to Upload Data',
+            message: 'Please make sure the backend is reachable and try again.',
+            buttons: ['OK']
+          });
+
+          await alert.present();
+      }
     );
 
     return false;
