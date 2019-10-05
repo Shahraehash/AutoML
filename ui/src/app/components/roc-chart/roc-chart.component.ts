@@ -11,7 +11,7 @@ import * as d3Axis from 'd3-axis';
 export class RocChartComponent implements OnInit {
   @Input() data;
 
-  private margin = {top: 30, right: 61, bottom: 70, left: 61};
+  private margin = {top: 30, right: 10, bottom: 70, left: 61};
   private width = 470 - this.margin.left - this.margin.right;
   private height = 450 - this.margin.top - this.margin.bottom;
   private rocChartOptions = {
