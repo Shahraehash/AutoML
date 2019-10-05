@@ -32,36 +32,6 @@
       </ion-select>
     </ion-card>
 
-    <ion-card class='ion-padding ion-text-center'>
-      <ion-card-header>
-        <ion-card-subtitle>Select pipeline processors that you would like to enable.</ion-card-subtitle>
-        <ion-card-title>Pipeline Elements</ion-card-title>
-      </ion-card-header>
-
-      <div class='pipeline-selection'>
-        <div formArrayName='estimators'>
-          Estimators<br>
-          <mat-checkbox *ngFor='let estimator of pipelineProcessors.estimators; let i=index' [formControlName]='i'>{{estimator.label}}</mat-checkbox>
-        </div>
-        <div formArrayName='scalers'>
-          Scalers<br>
-          <mat-checkbox *ngFor='let scaler of pipelineProcessors.scalers; let i=index' [formControlName]='i'>{{scaler.label}}</mat-checkbox>
-        </div>
-        <div formArrayName='featureSelectors'>
-          Feature Selectors<br>
-          <mat-checkbox *ngFor='let featureSelector of pipelineProcessors.featureSelectors; let i=index' [formControlName]='i'>{{featureSelector.label}}</mat-checkbox>
-        </div>
-        <div formArrayName='searchers'>
-          Searchers<br>
-          <mat-checkbox *ngFor='let searcher of pipelineProcessors.searchers; let i=index' [formControlName]='i'>{{searcher.label}}</mat-checkbox>
-        </div>
-        <div formArrayName='scorers'>
-          Scorers<br>
-          <mat-checkbox *ngFor='let scorer of pipelineProcessors.scorers; let i=index' [formControlName]='i'>{{scorer.label}}</mat-checkbox>
-        </div>
-      </div>
-    </ion-card>
-
-    <ion-button expand='block' class='ion-padding' (click)='onSubmit()' [disabled]='!uploadForm.valid'>Submit</ion-button>
+    <ion-button expand='block' class='ion-padding' (click)='onSubmit()' [disabled]='!uploadForm.valid'>Next</ion-button>
   </form>
 </ion-content>

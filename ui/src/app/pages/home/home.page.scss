@@ -20,19 +20,3 @@ ion-select {
   display: inline-flex;
   height: 36px;
 }
-
-.pipeline-selection {
-  display: flex;
-  justify-content: space-between;
-  text-align: left;
-
-  div {
-    flex-grow: 1;
-    flex-basis: 0;
-    padding: 0 5px;
-  }
-
-  mat-checkbox {
-    display: block;
-  }
-}

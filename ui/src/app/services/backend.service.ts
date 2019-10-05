@@ -17,8 +17,8 @@ export class BackendService {
     return this.http.post<any>(this.SERVER_URL + '/upload', formData);
   }
 
-  startTraining() {
-    return this.http.post(this.SERVER_URL + '/train', {});
+  startTraining(formData) {
+    return this.http.post(this.SERVER_URL + '/train', formData);
   }
 
   getResults() {
