@@ -18,23 +18,23 @@
 
     <div class='pipeline-selection' [formGroup]='trainForm'>
       <div formArrayName='estimators'>
-        Estimators<br>
+        <h6>Estimators</h6>
         <mat-checkbox *ngFor='let estimator of pipelineProcessors.estimators; let i=index' [formControlName]='i'>{{estimator.label}}</mat-checkbox>
       </div>
       <div formArrayName='scalers'>
-        Scalers<br>
+        <h6>Scalers</h6>
         <mat-checkbox *ngFor='let scaler of pipelineProcessors.scalers; let i=index' [formControlName]='i'>{{scaler.label}}</mat-checkbox>
       </div>
       <div formArrayName='featureSelectors'>
-        Feature Selectors<br>
+        <h6>Feature Selectors</h6>
         <mat-checkbox *ngFor='let featureSelector of pipelineProcessors.featureSelectors; let i=index' [formControlName]='i'>{{featureSelector.label}}</mat-checkbox>
       </div>
       <div formArrayName='searchers'>
-        Searchers<br>
+        <h6>Searchers</h6>
         <mat-checkbox *ngFor='let searcher of pipelineProcessors.searchers; let i=index' [formControlName]='i'>{{searcher.label}}</mat-checkbox>
       </div>
       <div formArrayName='scorers'>
-        Scorers<br>
+        <h6>Scorers</h6>
         <mat-checkbox *ngFor='let scorer of pipelineProcessors.scorers; let i=index' [formControlName]='i'>{{scorer.label}}</mat-checkbox>
       </div>
     </div>
