@@ -69,6 +69,12 @@ def upload_files():
         label.write(request.form['label_column'])
         label.close()
 
+        os.environ['IGNORE_ESTIMATOR'] = request.form['ignore_estimator']
+        os.environ['IGNORE_FEATURE_SELECTOR'] = request.form['ignore_feature_selector']
+        os.environ['IGNORE_SCALER'] = request.form['ignore_scaler']
+        os.environ['IGNORE_SEARCHER'] = request.form['ignore_searcher']
+        os.environ['IGNORE_SCORER'] = request.form['ignore_scorer']
+
         return jsonify({'success': 'true'})
 
     return jsonify({'error': 'unknown'})

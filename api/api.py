@@ -27,14 +27,16 @@ from .utils import model_key_to_name
 
 # Load environment variables
 load_dotenv()
-IGNORE_ESTIMATOR = [x.strip() for x in os.getenv('IGNORE_ESTIMATOR', '').split(',')]
-IGNORE_FEATURE_SELECTOR = [x.strip() for x in os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')]
-IGNORE_SCALER = [x.strip() for x in os.getenv('IGNORE_SCALER', '').split(',')]
-IGNORE_SEARCHER = [x.strip() for x in os.getenv('IGNORE_SEARCHER', '').split(',')]
-IGNORE_SCORER = [x.strip() for x in os.getenv('IGNORE_SCORER', '').split(',')]
 
 def find_best_model(train_set=None, test_set=None, labels=None, label_column=None):
     """Generates all possible models and outputs the generalization results"""
+
+    ignore_estimator = [x.strip() for x in os.getenv('IGNORE_ESTIMATOR', '').split(',')]
+    ignore_feature_selector = \
+        [x.strip() for x in os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')]
+    ignore_scaler = [x.strip() for x in os.getenv('IGNORE_SCALER', '').split(',')]
+    ignore_searcher = [x.strip() for x in os.getenv('IGNORE_SEARCHER', '').split(',')]
+    ignore_scorer = [x.strip() for x in os.getenv('IGNORE_SCORER', '').split(',')]
 
     if train_set is None:
         print('Missing training data')
@@ -68,11 +70,11 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         #
         # If any of the steps are matched in the ignore, then continue.
         if (estimator == 'svm' and scaler == 'none') or\
-            estimator in IGNORE_ESTIMATOR or\
-            feature_selector in IGNORE_FEATURE_SELECTOR or\
-            scaler in IGNORE_SCALER or\
-            searcher in IGNORE_SEARCHER or\
-            scorer in IGNORE_SCORER:
+            estimator in ignore_estimator or\
+            feature_selector in ignore_feature_selector or\
+            scaler in ignore_scaler or\
+            searcher in ignore_searcher or\
+            scorer in ignore_scorer:
             continue
 
         key = '__'.join([scaler, feature_selector, estimator, scorer, searcher])

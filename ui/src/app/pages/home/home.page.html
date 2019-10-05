@@ -41,23 +41,23 @@
       <div class='pipeline-selection'>
         <div formArrayName='estimators'>
           Estimators<br>
-          <mat-checkbox *ngFor='let estimator of estimators; let i=index' [formControlName]='i'>{{estimator.label}}</mat-checkbox>
+          <mat-checkbox *ngFor='let estimator of pipelineProcessors.estimators; let i=index' [formControlName]='i'>{{estimator.label}}</mat-checkbox>
         </div>
         <div formArrayName='scalers'>
           Scalers<br>
-          <mat-checkbox *ngFor='let scaler of scalers; let i=index' [formControlName]='i'>{{scaler.label}}</mat-checkbox>
+          <mat-checkbox *ngFor='let scaler of pipelineProcessors.scalers; let i=index' [formControlName]='i'>{{scaler.label}}</mat-checkbox>
         </div>
         <div formArrayName='featureSelectors'>
           Feature Selectors<br>
-          <mat-checkbox *ngFor='let featureSelector of featureSelectors; let i=index' [formControlName]='i'>{{featureSelector.label}}</mat-checkbox>
+          <mat-checkbox *ngFor='let featureSelector of pipelineProcessors.featureSelectors; let i=index' [formControlName]='i'>{{featureSelector.label}}</mat-checkbox>
         </div>
         <div formArrayName='searchers'>
           Searchers<br>
-          <mat-checkbox *ngFor='let searcher of searchers; let i=index' [formControlName]='i'>{{searcher.label}}</mat-checkbox>
+          <mat-checkbox *ngFor='let searcher of pipelineProcessors.searchers; let i=index' [formControlName]='i'>{{searcher.label}}</mat-checkbox>
         </div>
         <div formArrayName='scorers'>
           Scorers<br>
-          <mat-checkbox *ngFor='let scorer of scorers; let i=index' [formControlName]='i'>{{scorer.label}}</mat-checkbox>
+          <mat-checkbox *ngFor='let scorer of pipelineProcessors.scorers; let i=index' [formControlName]='i'>{{scorer.label}}</mat-checkbox>
         </div>
       </div>
     </ion-card>
