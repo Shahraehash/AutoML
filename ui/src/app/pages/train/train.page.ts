@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 
 import * as pipelineOptions from './pipeline.processors.json';
@@ -13,9 +13,7 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
   styleUrls: ['train.page.scss']
 })
 export class TrainPage implements OnInit {
-  uploadComplete = false;
   training = false;
-  results;
   trainForm: FormGroup;
   pipelineProcessors = (pipelineOptions as any).default;
 
@@ -23,11 +21,9 @@ export class TrainPage implements OnInit {
     private alertController: AlertController,
     private backend: BackendService,
     private formBuilder: FormBuilder,
-    private route: ActivatedRoute
-  ) {}
-
-  ngOnInit() {
-    this.uploadComplete = this.route.snapshot.params.upload;
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
     this.trainForm = this.formBuilder.group({
       estimators: this.formBuilder.array(this.pipelineProcessors.estimators, requireAtLeastOneCheckedValidator()),
       scalers: this.formBuilder.array(this.pipelineProcessors.scalers, requireAtLeastOneCheckedValidator()),
@@ -35,6 +31,9 @@ export class TrainPage implements OnInit {
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
       scorers: this.formBuilder.array(this.pipelineProcessors.scorers, requireAtLeastOneCheckedValidator())
     });
+  }
+
+  ngOnInit() {
     if (this.route.snapshot.params.labels && this.route.snapshot.params.labels < 3) {
       this.trainForm.get('featureSelectors').disable();
     }
@@ -51,9 +50,9 @@ export class TrainPage implements OnInit {
     formData.append('ignore_scorer', this.getValues('scorers').join(','));
 
     this.backend.startTraining(formData).subscribe(
-      (res) => {
+      () => {
         this.training = false;
-        this.results = res;
+        this.router.navigate(['/results']);
       },
       async () => {
         const alert = await this.alertController.create({
