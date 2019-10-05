@@ -75,10 +75,12 @@ export class RocChartComponent implements OnInit {
           return areaGenerator(points);
       };
 
+      const width = cfg.width + cfg.margin.left + cfg.margin.right;
+      const height = cfg.height + cfg.margin.top + cfg.margin.bottom;
+
       const svg = d3.select(this.element.nativeElement)
           .append('svg')
-          .attr('width', cfg.width + cfg.margin.left + cfg.margin.right)
-          .attr('height', cfg.height + cfg.margin.top + cfg.margin.bottom)
+          .attr('viewBox', `0 0 ${width} ${height}`)
           .append('g')
               .attr('transform', 'translate(' + cfg.margin.left + ',' + cfg.margin.top + ')');
 
