@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
 import { parse } from 'papaparse';
+
+import * as pipelineOptions from './pipeline.processors.json';
 import { BackendService } from '../../services/backend.service';
 
 @Component({
@@ -13,114 +14,7 @@ import { BackendService } from '../../services/backend.service';
 export class HomePage implements OnInit {
   labels = [];
   uploadForm: FormGroup;
-  pipelineProcessors = {
-    estimators: [
-      {
-        label: 'Gradient Boosting Machine',
-        value: 'gb'
-      },
-      {
-        label: 'K-nearest Neighbor',
-        value: 'knn'
-      },
-      {
-        label: 'Logistic Regression',
-        value: 'lr'
-      },
-      {
-        label: 'Neural Network',
-        value: 'mlp'
-      },
-      {
-        label: 'naive Bayes',
-        value: 'nb'
-      },
-      {
-        label: 'Random Forest',
-        value: 'rf'
-      },
-      {
-        label: 'Support Vector Machine',
-        value: 'svm'
-      }
-    ],
-    scalers: [
-      {
-        label: 'None',
-        value: 'none'
-      },
-      {
-        label: 'Standard',
-        value: 'std'
-      },
-      {
-        label: 'Min Max',
-        value: 'minmax'
-      }
-    ],
-    featureSelectors: [
-      {
-        label: 'None',
-        value: 'none'
-      },
-      {
-        label: 'Principal Component Analysis (80%)',
-        value: 'pca-80'
-      },
-      {
-        label: 'Principal Component Analysis (90%)',
-        value: 'pca-90'
-      },
-      {
-        label: 'Random Forest Importance (25%)',
-        value: 'rf-25'
-      },
-      {
-        label: 'Random Forest Importance (50%)',
-        value: 'rf-50'
-      },
-      {
-        label: 'Random Forest Importance (75%)',
-        value: 'rf-75'
-      },
-      {
-        label: 'Select Percentile (25%)',
-        value: 'select-25'
-      },
-      {
-        label: 'Select Percentile (50%)',
-        value: 'select-50'
-      },
-      {
-        label: 'Select Percentile (75%)',
-        value: 'select-75'
-      }
-    ],
-    searchers: [
-      {
-        label: 'Grid',
-        value: 'grid'
-      },
-      {
-        label: 'Random',
-        value: 'random'
-      }
-    ],
-    scorers: [
-      {
-        label: 'Accuracy',
-        value: 'accuracy'
-      },
-      {
-        label: 'ROC AUC',
-        value: 'roc_auc'
-      },
-      {
-        label: 'F1',
-        value: 'f1_macro'
-      }
-    ]
-  };
+  pipelineProcessors = (pipelineOptions as any).default;
 
   constructor(
     private backend: BackendService,
