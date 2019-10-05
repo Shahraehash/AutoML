@@ -13,7 +13,7 @@ import { BackendService } from '../../services/backend.service';
 export class ResultsPage implements OnInit {
   data;
   results;
-  columns: {key: string; name: string; number?: boolean}[] = [
+  columns: {key: string; name: string; number?: boolean, hideMobile?: boolean}[] = [
     {
       key: 'estimator',
       name: 'Estimator'
@@ -45,22 +45,25 @@ export class ResultsPage implements OnInit {
     },
     {
       key: 'scaler',
-      name: 'Scaler'
+      name: 'Scaler',
+      hideMobile: true
     },
     {
       key: 'feature_selector',
-      name: 'Feature Selector'
+      name: 'Feature Selector',
+      hideMobile: true
     },
     {
       key: 'scorer',
-      name: 'Scorer'
+      name: 'Scorer',
+      hideMobile: true
     },
     {
       key: 'searcher',
-      name: 'Searcher'
+      name: 'Searcher',
+      hideMobile: true
     }
   ];
-  displayedColumns = this.columns.map(c => c.key);
 
   @ViewChild(MatSort, {static: false}) sort: MatSort;
 
@@ -88,6 +91,11 @@ export class ResultsPage implements OnInit {
         await alert.present();
       }
     );
+  }
+
+  getColumns() {
+    const isMobile = window.screen.width < 420;
+    return isMobile ? this.columns.filter(c => !c.hideMobile).map(c => c.key) : this.columns.map(c => c.key);
   }
 
   export() {
