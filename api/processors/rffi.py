@@ -24,7 +24,8 @@ class RandomForestFeatureImportanceSelector(BaseEstimator, TransformerMixin):
     def transform(self, x):
         """Drop the 'unimportant' features"""
 
-        self.total = math.floor(self.percentile * x.shape[1])
+        total = math.floor(self.percentile * x.shape[1])
+        self.total = total if total > 1 else 1
         return x[:, self.get_top_features()]
 
     def get_top_features(self):

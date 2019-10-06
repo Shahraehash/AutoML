@@ -111,7 +111,7 @@ export class RocChartComponent implements OnInit {
           .style('text-anchor', 'left')
           .text('True Positive Rate');
 
-      // draw the random guess line
+      // Draw the random guess line
       svg.append('line')
           .attr('class', 'curve')
           .attr('class', 'guess')
