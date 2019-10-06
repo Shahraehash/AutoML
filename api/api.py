@@ -86,16 +86,18 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         pipeline = \
             generate_pipeline(scaler, feature_selector, estimator, y_train, scorers, searcher)
 
+        total_fits += pipeline[1]
+
         # Fit the pipeline
         with parallel_backend('threading'):
             model = generate_model(pipeline[0], feature_names, x_train, y_train)
-
-        total_fits += pipeline[1]
 
         for scorer in scorers:
             key += '__' + scorer
             model.update(
                 score_model(pipeline[0], model['features'], estimator, scorer, x_train, y_train))
+
+            total_fits += 1
 
             result = {
                 'key': key,
