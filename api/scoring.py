@@ -5,6 +5,7 @@ scoring method.
 """
 
 import json
+from sklearn.base import clone
 
 from .processors.estimators import ESTIMATORS
 from .processors.scorers import SCORER_NAMES
@@ -31,7 +32,7 @@ def score_model(pipeline, features, estimator, scoring, x_train, y_train):
     print('\tBest parameters:',
           json.dumps(best_params_, indent=4, sort_keys=True).replace('\n', '\n\t'))
 
-    model = ESTIMATORS[estimator].set_params(**best_params_).fit(x_train, y_train)
+    model = clone(ESTIMATORS[estimator]).set_params(**best_params_).fit(x_train, y_train)
 
     return {
         'best_estimator': model,
