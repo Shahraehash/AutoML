@@ -23,6 +23,7 @@ from .model import generate_model
 from .import_data import import_data
 from .pipeline import generate_pipeline
 from .roc import roc
+from .scoring import score_model
 from .summary import print_summary
 from .utils import model_key_to_name
 
@@ -37,7 +38,8 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         [x.strip() for x in os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')]
     ignore_scaler = [x.strip() for x in os.getenv('IGNORE_SCALER', '').split(',')]
     ignore_searcher = [x.strip() for x in os.getenv('IGNORE_SEARCHER', '').split(',')]
-    ignore_scorer = [x.strip() for x in os.getenv('IGNORE_SCORER', '').split(',')]
+    scorers = [x for x in SCORER_NAMES if x not in \
+        [x.strip() for x in os.getenv('IGNORE_SCORER', '').split(',')]]
 
     if train_set is None:
         print('Missing training data')
@@ -59,12 +61,12 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
     total_fits = 0
 
     all_pipelines = list(itertools.product(
-        *[ESTIMATOR_NAMES, FEATURE_SELECTOR_NAMES, SCALER_NAMES, SCORER_NAMES, SEARCHER_NAMES]))
+        *[ESTIMATOR_NAMES, FEATURE_SELECTOR_NAMES, SCALER_NAMES, SEARCHER_NAMES]))
 
     report = open('report.csv', 'w+')
     reportWriter = csv.writer(report)
 
-    for estimator, feature_selector, scaler, scorer, searcher in all_pipelines:
+    for estimator, feature_selector, scaler, searcher in all_pipelines:
 
         # SVM without scaling can loop consume infinite CPU time so
         # prevent that combination here.
@@ -74,38 +76,50 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
             estimator in ignore_estimator or\
             feature_selector in ignore_feature_selector or\
             scaler in ignore_scaler or\
-            searcher in ignore_searcher or\
-            scorer in ignore_scorer:
+            searcher in ignore_searcher:
             continue
 
-        key = '__'.join([scaler, feature_selector, estimator, scorer, searcher])
-        result = {
-            'key': key,
-            'scaler': SCALER_NAMES[scaler],
-            'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
-            'estimator': ESTIMATOR_NAMES[estimator],
-            'scorer': SCORER_NAMES[scorer],
-            'searcher': SEARCHER_NAMES[searcher]
-        }
+        key = '__'.join([scaler, feature_selector, estimator, searcher])
         print('Generating ' + model_key_to_name(key))
 
-        with parallel_backend('threading'):
-            pipeline = generate_pipeline(scaler, feature_selector, estimator, y_train, scorer, searcher)
-            model = generate_model(pipeline[0], feature_names, x_train, y_train, scorer)
-            result.update(generalize(model, pipeline[0], x2, y2, labels))
-
-            result.update(roc(model, pipeline[0], x_test, y_test))
-
-        result['selected_features'] = list(model['selected_features'])
-        result['best_params'] = model['best_params']
+        # Generate the pipeline
+        pipeline = \
+            generate_pipeline(scaler, feature_selector, estimator, y_train, scorers, searcher)
 
         total_fits += pipeline[1]
 
-        if not results:
-            reportWriter.writerow(result.keys())
+        # Fit the pipeline
+        with parallel_backend('threading'):
+            model = generate_model(pipeline[0], feature_names, x_train, y_train)
 
-        reportWriter.writerow(list([str(i) for i in result.values()]))
-        results.append(result)
+        for scorer in scorers:
+            key += '__' + scorer
+            model.update(
+                score_model(pipeline[0], model['features'], estimator, scorer, x_train, y_train))
+
+            total_fits += 1
+
+            result = {
+                'key': key,
+                'scaler': SCALER_NAMES[scaler],
+                'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
+                'estimator': ESTIMATOR_NAMES[estimator],
+                'searcher': SEARCHER_NAMES[searcher],
+                'scorer': SCORER_NAMES[scorer]
+            }
+
+            result.update(generalize(model, pipeline[0], x2, y2, labels))
+            result.update({
+                'selected_features': list(model['selected_features']),
+                'best_params': model['best_params']
+            })
+            result.update(roc(pipeline[0], model, x_test, y_test))
+
+            if not results:
+                reportWriter.writerow(result.keys())
+
+            reportWriter.writerow(list([str(i) for i in result.values()]))
+            results.append(result)
 
     report.close()
     print('Total fits generated: %d' % total_fits)

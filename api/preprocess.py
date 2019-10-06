@@ -4,7 +4,7 @@ Process a dataset based on a pipeline
 
 import numpy as np
 
-def preprocess(model, pipeline, data):
+def preprocess(features, pipeline, data):
     """Process the test data based on the pipeline used to
     generate the model"""
 
@@ -18,7 +18,7 @@ def preprocess(model, pipeline, data):
         if 'sklearn.feature_selection.univariate_selection' in feature_selector_type:
 
             # Identify the selected featured for model provided
-            for index, feature in reversed(list(enumerate(model['features'].items()))):
+            for index, feature in reversed(list(enumerate(features.items()))):
 
                 # Remove the feature if unused from the x2 test data
                 if not feature[1]:

@@ -34,6 +34,7 @@ def make_grid_search(estimator, scoring, _):
             parameter_range,
             cv=CROSS_VALIDATOR,
             scoring=scoring,
+            refit=False,
             n_jobs=-1,
             iid=True,
             return_train_score=False
@@ -66,6 +67,7 @@ def make_random_search(estimator, scoring, y_train):
             parameter_range,
             cv=CROSS_VALIDATOR,
             scoring=scoring,
+            refit=False,
             n_iter=iterations,
             n_jobs=-1,
             iid=True,
