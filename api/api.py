@@ -105,13 +105,15 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
                 'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
                 'estimator': ESTIMATOR_NAMES[estimator],
                 'searcher': SEARCHER_NAMES[searcher],
-                'scorer': SCORER_NAMES[scorer],
-                'selected_features': list(model['selected_features']),
-                'best_params': model['best_params']
+                'scorer': SCORER_NAMES[scorer]
             }
 
-            result.update(roc(pipeline[0], model, x_test, y_test))
             result.update(generalize(model, pipeline[0], x2, y2, labels))
+            result.update({
+                'selected_features': list(model['selected_features']),
+                'best_params': model['best_params']
+            })
+            result.update(roc(pipeline[0], model, x_test, y_test))
 
             if not results:
                 reportWriter.writerow(result.keys())
