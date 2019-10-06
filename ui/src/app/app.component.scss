@@ -1,3 +1,7 @@
 .navigation-menu {
     --width: 200px;
+
+    &.menu-pane-visible {
+        max-width: 200px;
+    }
 }
