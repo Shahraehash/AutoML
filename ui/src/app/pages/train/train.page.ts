@@ -30,10 +30,15 @@ export class TrainPage implements OnInit {
       scalers: this.formBuilder.array(this.pipelineProcessors.scalers, requireAtLeastOneCheckedValidator()),
       featureSelectors: this.formBuilder.array(this.pipelineProcessors.featureSelectors, requireAtLeastOneCheckedValidator()),
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
-      scorers: this.formBuilder.array(this.pipelineProcessors.scorers, requireAtLeastOneCheckedValidator())
+      scorers: this.formBuilder.array(this.pipelineProcessors.scorers, requireAtLeastOneCheckedValidator()),
+      shuffle: [true]
     });
 
-    this.trainForm.valueChanges.subscribe(this.generatePipelines.bind(this));
+    this.trainForm.get('estimators').valueChanges.subscribe(this.generatePipelines.bind(this));
+    this.trainForm.get('scalers').valueChanges.subscribe(this.generatePipelines.bind(this));
+    this.trainForm.get('featureSelectors').valueChanges.subscribe(this.generatePipelines.bind(this));
+    this.trainForm.get('searchers').valueChanges.subscribe(this.generatePipelines.bind(this));
+    this.trainForm.get('scorers').valueChanges.subscribe(this.generatePipelines.bind(this));
   }
 
   ngOnInit() {
@@ -53,6 +58,10 @@ export class TrainPage implements OnInit {
     formData.append('ignore_feature_selector', this.getValues('featureSelectors').join(','));
     formData.append('ignore_searcher', this.getValues('searchers').join(','));
     formData.append('ignore_scorer', this.getValues('scorers').join(','));
+
+    if (!this.trainForm.get('shuffle').value) {
+      formData.append('ignore_shuffle', 'true');
+    }
 
     this.backend.startTraining(formData).subscribe(
       () => {

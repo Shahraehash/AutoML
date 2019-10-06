@@ -3,10 +3,11 @@ import * as d3 from 'd3';
 
 @Component({
   selector: 'app-radial-dendrogram',
-  template: '<svg class="radial" width="1664" height="1664"></svg>'
+  template: '<svg class="radial" width="1664" height="1664" [ngClass]="{\'training\': training}"></svg>'
 })
 export class RadialDendrogramComponent implements OnInit, OnChanges {
   @Input() data;
+  @Input() training;
   hierarchy;
 
   constructor(

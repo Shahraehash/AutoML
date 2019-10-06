@@ -33,6 +33,8 @@ def run():
     os.environ['IGNORE_SCALER'] = request.form['ignore_scaler']
     os.environ['IGNORE_SEARCHER'] = request.form['ignore_searcher']
     os.environ['IGNORE_SCORER'] = request.form['ignore_scorer']
+    if request.form.get('ignore_shuffle'):
+        os.environ['IGNORE_SHUFFLE'] = request.form.get('ignore_shuffle')
 
     api.find_best_model('data/train.csv', 'data/test.csv', labels, label_column)
     return jsonify({'success': True})
