@@ -80,6 +80,7 @@ export class RocChartComponent implements OnInit {
 
       const svg = d3.select(this.element.nativeElement)
           .append('svg')
+          .attr('class', 'roc')
           .attr('viewBox', `0 0 ${width} ${height}`)
           .append('g')
               .attr('transform', 'translate(' + cfg.margin.left + ',' + cfg.margin.top + ')');

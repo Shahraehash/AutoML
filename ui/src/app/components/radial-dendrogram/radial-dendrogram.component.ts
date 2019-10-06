@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 @Component({
   selector: 'app-radial-dendrogram',
-  template: '<svg width="1000" height="1000"></svg>'
+  template: '<svg class="radial" width="1664" height="1664"></svg>'
 })
 export class RadialDendrogramComponent implements OnInit, OnChanges {
   @Input() data;
@@ -24,16 +24,16 @@ export class RadialDendrogramComponent implements OnInit, OnChanges {
 
     let parents = [];
 
-    parents.push('pipelines');
+    parents.push('Pipelines');
 
     const data = this.data.map(d => {
-      const id = 'pipelines.' + d.join('.');
+      const id = 'Pipelines.' + d.join('.');
 
       parents.push(...[
-        'pipelines.' + d.slice(0, 1).join('.'),
-        'pipelines.' + d.slice(0, 2).join('.'),
-        'pipelines.' + d.slice(0, 3).join('.'),
-        'pipelines.' + d.slice(0, 4).join('.'),
+        'Pipelines.' + d.slice(0, 1).join('.'),
+        'Pipelines.' + d.slice(0, 2).join('.'),
+        'Pipelines.' + d.slice(0, 3).join('.'),
+        'Pipelines.' + d.slice(0, 4).join('.'),
       ]);
       return {id};
     });
@@ -43,10 +43,10 @@ export class RadialDendrogramComponent implements OnInit, OnChanges {
     data.push(...parents);
     const svg = d3.select(this.element.nativeElement).select('svg');
     svg.selectAll('*').remove();
-    const width = 960;
-    const height = 950;
+    const width = parseInt(svg.attr('width'), 10);
+    const height = parseInt(svg.attr('height'), 10);
     const g = svg.append('g')
-      .attr('transform', 'translate(' + (width / 2 - 15) + ',' + (height / 2 + 25) + ')');
+      .attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')');
 
     const stratify = d3.stratify()
       .parentId((d: any) => {
@@ -54,7 +54,7 @@ export class RadialDendrogramComponent implements OnInit, OnChanges {
       });
 
     const tree = d3.cluster()
-      .size([360, 390])
+      .size([350, 780])
       .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
 
     const root = tree(stratify(data)

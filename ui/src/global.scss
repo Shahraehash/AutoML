@@ -72,36 +72,61 @@
     }
   }
 
-  .axis {
-    fill: var(--ion-color-light);
+  .roc{
+    .axis {
+      fill: var(--ion-color-light);
+    }
+    
+    .guess {
+      stroke: var(--ion-color-light);
+    }
   }
-  
-  .guess {
-    stroke: var(--ion-color-light);
-  }  
+
+  .radial {
+    fill: white;
+  }
 }
 
 @import '@angular/material/prebuilt-themes/purple-green.css';
 
-path { 
+.roc {
+  path { 
     stroke-width: 3;
     fill: none;
     opacity: .7;
+  }
+
+  .axis path,
+  .axis line {
+      fill: none;
+      stroke: grey;
+      stroke-width: 2;
+      shape-rendering: crispEdges;
+      opacity: 1;
+  }
 }
 
-.axis path,
-.axis line {
+.radial {
+  .node circle {
+    fill: #999;
+  }
+  
+  .node text {
+    font: 10px sans-serif;
+  }
+  
+  .node--internal circle {
+    fill: #555;
+  }
+  
+  .node--internal text {
+    text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+  }
+  
+  .link {
     fill: none;
-    stroke: grey;
-    stroke-width: 2;
-    shape-rendering: crispEdges;
-    opacity: 1;
-}
-
-.d3-tip {
-    font-family: Verdana;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 8px;
-    color: #fff; 
-    z-index: 5070;
+    stroke: #555;
+    stroke-opacity: 0.4;
+    stroke-width: 1.5px;
+  }
 }
