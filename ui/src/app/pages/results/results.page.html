@@ -20,16 +20,16 @@
     <div class='roc-graphs'>
       <ion-card class='ion-padding ion-text-center roc-curve'>
         <ion-card-header>
-          <ion-card-subtitle>Plot the receiver operator characteristics with one plus/minus standard deviation for the currently sorted best pipeline</ion-card-subtitle>
-          <ion-card-title>Training ROC</ion-card-title>
+          <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline with one plus/minus standard deviation</ion-card-subtitle>
+          <ion-card-title>Training Search ROC</ion-card-title>
         </ion-card-header>
         <app-roc-chart [data]="trainingRocData"></app-roc-chart>
       </ion-card>
 
       <ion-card class='ion-padding ion-text-center roc-curve'>
         <ion-card-header>
-          <ion-card-subtitle>Plot the receiver operator characteristics for the top 10 pipelines against the train/test split as sorted in the table</ion-card-subtitle>
-          <ion-card-title>Top 10 Test ROCs</ion-card-title>
+          <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (balanced test)</ion-card-subtitle>
+          <ion-card-title>Training Validation ROC</ion-card-title>
         </ion-card-header>
         <app-roc-chart [data]="rocData"></app-roc-chart>
       </ion-card>

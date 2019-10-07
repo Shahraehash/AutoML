@@ -85,7 +85,7 @@ export class ResultsPage implements OnInit {
         }, 1);
 
         this.results.connect().subscribe(d => {
-          this.rocData = d.slice(0, 10);
+          this.rocData = d.slice(0, 1);
           this.trainingRocData = d[0];
         });
      },

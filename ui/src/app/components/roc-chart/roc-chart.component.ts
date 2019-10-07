@@ -134,18 +134,12 @@ export class RocChartComponent implements OnInit, OnChanges {
                   svg.select(areaID)
                     .style('opacity', .4)
                     .style('visibility', 'initial');
-
-                  const aucText = '.' + key + '-text';
-                  svg.selectAll(aucText).style('opacity', .9);
               })
               .on('mouseout', () => {
                   const areaID = '#' + key + '-area';
                   svg.select(areaID)
                     .style('opacity', 0)
                     .style('visibility', 'hidden');
-
-                  const aucText = '.' + key + '-text';
-                  svg.selectAll(aucText).style('opacity', 0);
               });
       };
 
@@ -174,28 +168,9 @@ export class RocChartComponent implements OnInit, OnChanges {
             .style('opacity', '.2');
       };
 
-      const drawAUCSDText = (item) => {
-        svg.append('g')
-          .attr('class', item.key + '-sdtext')
-          .attr('transform', 'translate(' + .6 * cfg.height + ',' + .65 * cfg.height + ')')
-          .append('text')
-              .text('AUC: ' + item.trainAuc.toFixed(2))
-              .style('fill', 'white')
-              .style('font-size', 16);
-
-        svg.append('g')
-          .attr('class', item.key + '-sdtext')
-          .attr('transform', 'translate(' + .6 * cfg.height + ',' + .70 * cfg.height + ')')
-          .append('text')
-              .text('SD: <missing>')
-              .style('fill', 'white')
-              .style('font-size', 16);
-      };
-
-      const drawAUCText = (item) => {
+      const drawAUCText = (item, auc, sd?) => {
           svg.append('g')
             .attr('class', item.key + '-text')
-            .style('opacity', 0)
             .attr('transform', 'translate(' + .4 * cfg.height + ',' + .70 * cfg.height + ')')
             .append('text')
                 .text('Estimator: ' + item.estimator)
@@ -204,7 +179,6 @@ export class RocChartComponent implements OnInit, OnChanges {
 
           svg.append('g')
             .attr('class', item.key + '-text')
-            .style('opacity', 0)
             .attr('transform', 'translate(' + .4 * cfg.height + ',' + .75 * cfg.height + ')')
             .append('text')
                 .text('Scaler: ' + item.scaler)
@@ -213,7 +187,6 @@ export class RocChartComponent implements OnInit, OnChanges {
 
           svg.append('g')
             .attr('class', item.key + '-text')
-            .style('opacity', 0)
             .attr('transform', 'translate(' + .4 * cfg.height + ',' + .80 * cfg.height + ')')
             .append('text')
                 .text('Selector: ' + item.feature_selector)
@@ -222,7 +195,6 @@ export class RocChartComponent implements OnInit, OnChanges {
 
           svg.append('g')
             .attr('class', item.key + '-text')
-            .style('opacity', 0)
             .attr('transform', 'translate(' + .4 * cfg.height + ',' + .85 * cfg.height + ')')
             .append('text')
                 .text('Scorer: ' + item.scorer)
@@ -231,7 +203,6 @@ export class RocChartComponent implements OnInit, OnChanges {
 
           svg.append('g')
             .attr('class', item.key + '-text')
-            .style('opacity', 0)
             .attr('transform', 'translate(' + .4 * cfg.height + ',' + .90 * cfg.height + ')')
             .append('text')
                 .text('Searcher: ' + item.searcher)
@@ -240,10 +211,9 @@ export class RocChartComponent implements OnInit, OnChanges {
 
           svg.append('g')
             .attr('class', item.key + '-text')
-            .style('opacity', 0)
             .attr('transform', 'translate(' + .4 * cfg.height + ',' + .95 * cfg.height + ')')
             .append('text')
-                .text('AUC = ' + aucFormat(item.auc))
+                .text('AUC = ' + aucFormat(auc) + (sd ? ' ± ' + aucFormat(sd) : ''))
                 .style('fill', 'white')
                 .style('font-size', 12);
       };
@@ -257,15 +227,13 @@ export class RocChartComponent implements OnInit, OnChanges {
             const tpr = JSON.parse(d.test_tpr);
 
             const auc = calculateArea(fpr, tpr);
-            d.trainAuc = auc;
-
             const points = fpr.map((e, i) => {
                 return [e, tpr[i]];
             });
 
             drawArea(d.key, points, color(index.toString()));
+            drawAUCText(d, auc);
             drawCurve(d.key, points, color(index.toString()));
-            drawAUCText(d);
         });
       } else {
         const fpr = JSON.parse(this.data.mean_fpr);
@@ -273,7 +241,6 @@ export class RocChartComponent implements OnInit, OnChanges {
         const upper = JSON.parse(this.data.tprs_upper);
         const lower = JSON.parse(this.data.tprs_lower);
         const auc = calculateArea(fpr, tpr);
-        this.data.trainAuc = auc;
 
         const points = [];
         const sdPoints = [];
@@ -283,9 +250,10 @@ export class RocChartComponent implements OnInit, OnChanges {
             sdPoints.push([e, upper[i], lower[i]]);
         });
 
-        drawCurve(this.data.key, points, color('0'));
+        drawArea(this.data.key, points, color('0'));
         drawDeviation(this.data.key, sdPoints);
-        drawAUCSDText(this.data);
+        drawCurve(this.data.key, points, color('0'));
+        drawAUCText(this.data, auc, this.data.std_auc);
       }
 
       function calculateArea(fpr, tpr) {
