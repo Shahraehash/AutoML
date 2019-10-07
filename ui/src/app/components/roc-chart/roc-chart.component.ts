@@ -68,6 +68,7 @@ export class RocChartComponent implements OnInit, OnChanges {
       const areaUnderCurve = (points) => {
 
           const areaGenerator = d3.area()
+              .curve(d3.curveBasis)
               .x((d) => x(d[0]))
               .y0(cfg.height)
               .y1((d) => y(d[1]));
