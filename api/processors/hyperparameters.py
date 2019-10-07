@@ -14,11 +14,11 @@ HYPER_PARAMETER_RANGE = {
         },
         'knn': [
             {
-                'n_neighbors': list(range(1, 31)),
+                'n_neighbors': list(range(3, 31)),
                 'weights': ['uniform']
             },
             {
-                'n_neighbors': list(range(1, 31)),
+                'n_neighbors': list(range(3, 31)),
                 'weights': ['distance']
             }
         ],
@@ -86,7 +86,7 @@ HYPER_PARAMETER_RANGE = {
 
             # `n_neighbors` should be an integer between 1 and
             # the smallest count of cases of a given class.
-            'n_neighbors': list(range(1, class_member_count + 1)),
+            'n_neighbors': list(range(3, class_member_count + 1)),
             'weights': ['distance', 'uniform']
         },
         'lr': {
