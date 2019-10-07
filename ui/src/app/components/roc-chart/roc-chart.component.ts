@@ -78,11 +78,10 @@ export class RocChartComponent implements OnInit, OnChanges {
       const width = cfg.width + cfg.margin.left + cfg.margin.right;
       const height = cfg.height + cfg.margin.top + cfg.margin.bottom;
 
-      const svg = d3.select(this.element.nativeElement).select('svg');
+      let svg = d3.select(this.element.nativeElement).select('svg');
       svg.selectAll('*').remove();
 
-      svg
-          .attr('viewBox', `0 0 ${width} ${height}`).append('g')
+      svg = svg.attr('viewBox', `0 0 ${width} ${height}`).append('g')
           .attr('transform', 'translate(' + cfg.margin.left + ',' + cfg.margin.top + ')');
 
       x.domain([0, 1]);
