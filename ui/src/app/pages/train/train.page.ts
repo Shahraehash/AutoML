@@ -39,6 +39,11 @@ export class TrainPage implements OnInit {
     this.trainForm.get('featureSelectors').valueChanges.subscribe(this.generatePipelines.bind(this));
     this.trainForm.get('searchers').valueChanges.subscribe(this.generatePipelines.bind(this));
     this.trainForm.get('scorers').valueChanges.subscribe(this.generatePipelines.bind(this));
+
+    try {
+      const options = JSON.parse(localStorage.getItem('training-options'));
+      this.trainForm.setValue(options);
+    } catch (err) {}
   }
 
   ngOnInit() {
@@ -78,6 +83,8 @@ export class TrainPage implements OnInit {
         await alert.present();
       }
     );
+
+    localStorage.setItem('training-options', JSON.stringify(this.trainForm.value));
   }
 
   private getValues(key) {
