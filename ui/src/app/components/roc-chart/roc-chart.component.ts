@@ -178,8 +178,8 @@ export class RocChartComponent implements OnInit {
       // Draw curves, areas, and text for each
       // true-positive rate in the data
       data.forEach((d, index) => {
-          const fpr = JSON.parse(d.fpr);
-          const tpr = JSON.parse(d.tpr);
+          const fpr = JSON.parse(d.test_fpr);
+          const tpr = JSON.parse(d.test_tpr);
 
           const auc = calculateArea(fpr, tpr);
           d.trainAuc = auc;

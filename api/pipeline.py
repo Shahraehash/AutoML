@@ -15,6 +15,7 @@ def generate_pipeline(scaler, feature_selector, estimator, y_train, scoring=None
     """Generate the pipeline based on incoming arguments"""
 
     steps = []
+    auc_scorer = None
 
     if scaler and SCALERS[scaler]:
         steps.append(('scaler', SCALERS[scaler]))

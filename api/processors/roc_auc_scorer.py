@@ -18,7 +18,6 @@ class ROCAUCScorer:
     def __init__(self):
         """Initializes the class"""
 
-        self.aucs = []
         self.tprs = []
         self.mean_fpr = np.linspace(0, 1, 100)
 
@@ -30,12 +29,14 @@ class ROCAUCScorer:
     def get_mean(self):
         mean_tpr = np.mean(self.tprs, axis=0)
         mean_tpr[-1] = 1.0
-        mean_auc = auc(self.mean_fpr, mean_tpr)
-        std_auc = np.std(self.aucs)
         std_tpr = np.std(self.tprs, axis=0)
-        tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-        tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-        print(mean_auc, std_auc, std_tpr, tprs_upper, tprs_lower)
+
+        return {
+            'mean_fpr': list(np.around(self.mean_fpr, decimals=2)),
+            'mean_tpr': list(np.around(mean_tpr, decimals=2)),
+            'tprs_upper': list(np.around(np.minimum(mean_tpr + std_tpr, 1), decimals=2)),
+            'tprs_lower': list(np.around(np.maximum(mean_tpr - std_tpr, 0), decimals=2))
+        }
 
     def roc_auc_score(self, y_true, y_score, average='macro', sample_weight=None):
         """
@@ -51,9 +52,7 @@ class ROCAUCScorer:
                                     sample_weight=sample_weight)
             self.tprs.append(interp(self.mean_fpr, fpr, tpr))
             self.tprs[-1][0] = 0.0
-            roc_auc = auc(fpr, tpr)
-            self.aucs.append(roc_auc)
-            return roc_auc
+            return auc(fpr, tpr)
 
         labels = np.unique(y_true)
         y_true = label_binarize(y_true, labels)[:, 0]
