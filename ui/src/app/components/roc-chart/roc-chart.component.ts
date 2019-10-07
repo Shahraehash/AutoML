@@ -160,24 +160,60 @@ export class RocChartComponent implements OnInit, OnChanges {
             .style('opacity', 0);
       };
 
-      const drawAUCText = (key, auc) => {
+      const drawAUCText = (item) => {
           svg.append('g')
-            .attr('class', key + '-text')
+            .attr('class', item.key + '-text')
             .style('opacity', 0)
-            .attr('transform', 'translate(' + .5 * cfg.margin.left + ',' + .79 * cfg.height + ')')
+            .attr('transform', 'translate(' + .4 * cfg.height + ',' + .65 * cfg.height + ')')
             .append('text')
-                .text(key.replace(/__/g, ' '))
+                .text('Estimator: ' + item.estimator)
                 .style('fill', 'white')
-                .style('font-size', 18);
+                .style('font-size', 12);
 
           svg.append('g')
-            .attr('class', key + '-text')
+            .attr('class', item.key + '-text')
             .style('opacity', 0)
-            .attr('transform', 'translate(' + .5 * cfg.margin.left + ',' + .84 * cfg.height + ')')
+            .attr('transform', 'translate(' + .4 * cfg.height + ',' + .70 * cfg.height + ')')
             .append('text')
-                .text('AUC = ' + aucFormat(auc))
+                .text('Scaler: ' + item.scaler)
                 .style('fill', 'white')
-                .style('font-size', 18);
+                .style('font-size', 12);
+
+          svg.append('g')
+            .attr('class', item.key + '-text')
+            .style('opacity', 0)
+            .attr('transform', 'translate(' + .4 * cfg.height + ',' + .75 * cfg.height + ')')
+            .append('text')
+                .text('Selector: ' + item.feature_selector)
+                .style('fill', 'white')
+                .style('font-size', 12);
+
+          svg.append('g')
+            .attr('class', item.key + '-text')
+            .style('opacity', 0)
+            .attr('transform', 'translate(' + .4 * cfg.height + ',' + .80 * cfg.height + ')')
+            .append('text')
+                .text('Scorer: ' + item.scorer)
+                .style('fill', 'white')
+                .style('font-size', 12);
+
+          svg.append('g')
+            .attr('class', item.key + '-text')
+            .style('opacity', 0)
+            .attr('transform', 'translate(' + .4 * cfg.height + ',' + .85 * cfg.height + ')')
+            .append('text')
+                .text('Searcher: ' + item.searcher)
+                .style('fill', 'white')
+                .style('font-size', 12);
+
+          svg.append('g')
+            .attr('class', item.key + '-text')
+            .style('opacity', 0)
+            .attr('transform', 'translate(' + .4 * cfg.height + ',' + .90 * cfg.height + ')')
+            .append('text')
+                .text('AUC = ' + aucFormat(item.auc))
+                .style('fill', 'white')
+                .style('font-size', 12);
       };
 
       // Draw curves, areas, and text for each
@@ -195,7 +231,7 @@ export class RocChartComponent implements OnInit, OnChanges {
 
           drawArea(d.key, points, color(index.toString()));
           drawCurve(d.key, points, color(index.toString()));
-          drawAUCText(d.key, d.trainAuc);
+          drawAUCText(d);
       });
 
       function calculateArea(fpr, tpr) {

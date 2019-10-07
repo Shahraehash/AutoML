@@ -104,6 +104,10 @@
       shape-rendering: crispEdges;
       opacity: 1;
   }
+
+  text {
+    text-transform: capitalize;
+  }
 }
 
 .radial {
