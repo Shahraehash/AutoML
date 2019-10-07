@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, OnChanges } from '@angular/core';
 import * as d3 from 'd3';
 import { schemeCategory10 } from 'd3-scale-chromatic';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
@@ -6,9 +6,9 @@ import * as d3Axis from 'd3-axis';
 
 @Component({
   selector: 'app-roc-chart',
-  template: ''
+  template: '<svg class="roc"></svg>'
 })
-export class RocChartComponent implements OnInit {
+export class RocChartComponent implements OnInit, OnChanges {
   @Input() data;
 
   private margin = {top: 30, right: 10, bottom: 70, left: 61};
@@ -25,16 +25,16 @@ export class RocChartComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.create(this.data, this.rocChartOptions);
+    this.ngOnChanges();
   }
 
-  private create(data, options) {
+  ngOnChanges() {
       const cfg = {...{
           margin: {top: 30, right: 20, bottom: 70, left: 61},
           width: 470,
           height: 450,
           tickValues: [0, .1, .25, .5, .75, .9, 1]
-      }, ...options};
+      }, ...this.rocChartOptions};
 
       const format = d3.format('.2');
       const aucFormat = d3.format('.4r');
@@ -78,12 +78,12 @@ export class RocChartComponent implements OnInit {
       const width = cfg.width + cfg.margin.left + cfg.margin.right;
       const height = cfg.height + cfg.margin.top + cfg.margin.bottom;
 
-      const svg = d3.select(this.element.nativeElement)
-          .append('svg')
-          .attr('class', 'roc')
-          .attr('viewBox', `0 0 ${width} ${height}`)
-          .append('g')
-              .attr('transform', 'translate(' + cfg.margin.left + ',' + cfg.margin.top + ')');
+      const svg = d3.select(this.element.nativeElement).select('svg');
+      svg.selectAll('*').remove();
+
+      svg
+          .attr('viewBox', `0 0 ${width} ${height}`).append('g')
+          .attr('transform', 'translate(' + cfg.margin.left + ',' + cfg.margin.top + ')');
 
       x.domain([0, 1]);
       y.domain([0, 1]);
@@ -177,7 +177,7 @@ export class RocChartComponent implements OnInit {
 
       // Draw curves, areas, and text for each
       // true-positive rate in the data
-      data.forEach((d, index) => {
+      this.data.forEach((d, index) => {
           const fpr = JSON.parse(d.test_fpr);
           const tpr = JSON.parse(d.test_tpr);
 
