@@ -130,14 +130,18 @@ export class RocChartComponent implements OnInit, OnChanges {
               .attr('d', curve(points))
               .on('mouseover', () => {
                   const areaID = '#' + key + '-area';
-                  svg.select(areaID).style('opacity', .4);
+                  svg.select(areaID)
+                    .style('opacity', .4)
+                    .style('visibility', 'initial');
 
                   const aucText = '.' + key + '-text';
                   svg.selectAll(aucText).style('opacity', .9);
               })
               .on('mouseout', () => {
                   const areaID = '#' + key + '-area';
-                  svg.select(areaID).style('opacity', 0);
+                  svg.select(areaID)
+                    .style('opacity', 0)
+                    .style('visibility', 'hidden');
 
                   const aucText = '.' + key + '-text';
                   svg.selectAll(aucText).style('opacity', 0);
@@ -147,18 +151,19 @@ export class RocChartComponent implements OnInit, OnChanges {
       // Draw the area under the ROC curves
       const drawArea = (key, points, fill) => {
           svg.append('path')
-          .attr('d', areaUnderCurve(points))
-          .attr('class', 'area')
-          .attr('id', key + '-area')
-          .style('fill', fill)
-          .style('opacity', 0);
+            .attr('d', areaUnderCurve(points))
+            .attr('class', 'area')
+            .attr('id', key + '-area')
+            .style('fill', fill)
+            .style('visibility', 'hidden')
+            .style('opacity', 0);
       };
 
       const drawAUCText = (key, auc) => {
           svg.append('g')
             .attr('class', key + '-text')
             .style('opacity', 0)
-            .attr('transform', 'translate(' + .5 * cfg.width + ',' + .79 * cfg.height + ')')
+            .attr('transform', 'translate(' + .5 * cfg.margin.left + ',' + .79 * cfg.height + ')')
             .append('text')
                 .text(key.replace(/__/g, ' '))
                 .style('fill', 'white')
@@ -167,7 +172,7 @@ export class RocChartComponent implements OnInit, OnChanges {
           svg.append('g')
             .attr('class', key + '-text')
             .style('opacity', 0)
-            .attr('transform', 'translate(' + .5 * cfg.width + ',' + .84 * cfg.height + ')')
+            .attr('transform', 'translate(' + .5 * cfg.margin.left + ',' + .84 * cfg.height + ')')
             .append('text')
                 .text('AUC = ' + aucFormat(auc))
                 .style('fill', 'white')
