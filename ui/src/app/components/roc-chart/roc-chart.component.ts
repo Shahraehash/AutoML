@@ -160,6 +160,38 @@ export class RocChartComponent implements OnInit, OnChanges {
             .style('opacity', 0);
       };
 
+      const drawDeviation = (key, points) => {
+          svg.append('path')
+            .attr('d', d3.area()
+                .curve(d3.curveBasis)
+                .x(d => x(d[0]))
+                .y0(d => y(d[1]))
+                .y1((d: any) => y(d[2]))
+                (points))
+            .attr('class', 'deviation')
+            .attr('id', key + '-deviation')
+            .style('fill', 'grey')
+            .style('opacity', '.2');
+      };
+
+      const drawAUCSDText = (item) => {
+        svg.append('g')
+          .attr('class', item.key + '-sdtext')
+          .attr('transform', 'translate(' + .6 * cfg.height + ',' + .65 * cfg.height + ')')
+          .append('text')
+              .text('AUC: ' + item.trainAuc.toFixed(2))
+              .style('fill', 'white')
+              .style('font-size', 16);
+
+        svg.append('g')
+          .attr('class', item.key + '-sdtext')
+          .attr('transform', 'translate(' + .6 * cfg.height + ',' + .70 * cfg.height + ')')
+          .append('text')
+              .text('SD: <missing>')
+              .style('fill', 'white')
+              .style('font-size', 16);
+      };
+
       const drawAUCText = (item) => {
           svg.append('g')
             .attr('class', item.key + '-text')
@@ -216,23 +248,45 @@ export class RocChartComponent implements OnInit, OnChanges {
                 .style('font-size', 12);
       };
 
-      // Draw curves, areas, and text for each
-      // true-positive rate in the data
-      this.data.forEach((d, index) => {
-          const fpr = JSON.parse(d.test_fpr);
-          const tpr = JSON.parse(d.test_tpr);
+      if (Array.isArray(this.data)) {
 
-          const auc = calculateArea(fpr, tpr);
-          d.trainAuc = auc;
+        // Draw curves, areas, and text for each
+        // true-positive rate in the data
+        this.data.forEach((d, index) => {
+            const fpr = JSON.parse(d.test_fpr);
+            const tpr = JSON.parse(d.test_tpr);
 
-          const points = fpr.map((e, i) => {
-              return [e, tpr[i]];
-          });
+            const auc = calculateArea(fpr, tpr);
+            d.trainAuc = auc;
 
-          drawArea(d.key, points, color(index.toString()));
-          drawCurve(d.key, points, color(index.toString()));
-          drawAUCText(d);
-      });
+            const points = fpr.map((e, i) => {
+                return [e, tpr[i]];
+            });
+
+            drawArea(d.key, points, color(index.toString()));
+            drawCurve(d.key, points, color(index.toString()));
+            drawAUCText(d);
+        });
+      } else {
+        const fpr = JSON.parse(this.data.mean_fpr);
+        const tpr = JSON.parse(this.data.mean_tpr);
+        const upper = JSON.parse(this.data.tprs_upper);
+        const lower = JSON.parse(this.data.tprs_lower);
+        const auc = calculateArea(fpr, tpr);
+        this.data.trainAuc = auc;
+
+        const points = [];
+        const sdPoints = [];
+
+        fpr.forEach((e, i) => {
+            points.push([e, tpr[i]]);
+            sdPoints.push([e, upper[i], lower[i]]);
+        });
+
+        drawCurve(this.data.key, points, color('0'));
+        drawDeviation(this.data.key, sdPoints);
+        drawAUCSDText(this.data);
+      }
 
       function calculateArea(fpr, tpr) {
           let area = 0.0;

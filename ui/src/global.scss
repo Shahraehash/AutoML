@@ -25,12 +25,42 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
-.axis {
-  fill: var(--ion-color-dark);
+.mat-table {
+  background: #fff;
+
+  .mat-cell,
+  .mat-header-cell {
+      color: var(--ion-color-dark);
+  }
 }
 
-.guess {
-  stroke: var(--ion-color-dark);
+.roc {
+  .axis {
+    fill: var(--ion-color-dark);
+
+    path,
+    line {
+        fill: none;
+        stroke: grey;
+        stroke-width: 2;
+        shape-rendering: crispEdges;
+        opacity: 1;
+    }  
+  }
+  
+  .guess {
+    stroke: var(--ion-color-dark);
+  } 
+  
+  path { 
+    stroke-width: 3;
+    fill: none;
+    opacity: .7;
+  }
+
+  text {
+    text-transform: capitalize;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -88,27 +118,6 @@
 }
 
 @import '@angular/material/prebuilt-themes/purple-green.css';
-
-.roc {
-  path { 
-    stroke-width: 3;
-    fill: none;
-    opacity: .7;
-  }
-
-  .axis path,
-  .axis line {
-      fill: none;
-      stroke: grey;
-      stroke-width: 2;
-      shape-rendering: crispEdges;
-      opacity: 1;
-  }
-
-  text {
-    text-transform: capitalize;
-  }
-}
 
 .radial {
   .node circle {

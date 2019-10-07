@@ -13,8 +13,9 @@ import { GeneralizationResult } from '../../interfaces';
 })
 export class ResultsPage implements OnInit {
   data;
-  results: MatTableDataSource<GeneralizationResult>;
   rocData;
+  trainingRocData;
+  results: MatTableDataSource<GeneralizationResult>;
   columns: {key: string; name: string; number?: boolean, hideMobile?: boolean}[] = [
     {
       key: 'estimator',
@@ -85,6 +86,7 @@ export class ResultsPage implements OnInit {
 
         this.results.connect().subscribe(d => {
           this.rocData = d.slice(0, 10);
+          this.trainingRocData = d[0];
         });
      },
       async () => {

@@ -16,3 +16,26 @@
     max-width: 600px;
     margin: 25px auto;
 }
+
+.roc-graphs {
+    display: flex;
+
+    ion-card {
+        margin: 10px;
+        margin-top: 0;
+
+        &:first-of-type {
+            margin-left: 0;
+        }
+
+        &:last-of-type {
+            margin-right: 0;
+        }
+    }
+}
+
+@media(max-width: 600px) {
+    .roc-graphs {
+        display: initial;
+    }
+}
