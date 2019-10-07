@@ -4,6 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { AlertController } from '@ionic/angular';
 
 import { BackendService } from '../../services/backend.service';
+import { GeneralizationResult } from '../../interfaces';
 
 @Component({
   selector: 'app-results',
@@ -12,7 +13,8 @@ import { BackendService } from '../../services/backend.service';
 })
 export class ResultsPage implements OnInit {
   data;
-  results;
+  results: MatTableDataSource<GeneralizationResult>;
+  rocData;
   columns: {key: string; name: string; number?: boolean, hideMobile?: boolean}[] = [
     {
       key: 'estimator',
@@ -80,6 +82,10 @@ export class ResultsPage implements OnInit {
         setTimeout(() => {
           this.results.sort = this.sort;
         }, 1);
+
+        this.results.connect().subscribe(d => {
+          this.rocData = d.slice(0, 10);
+        });
      },
       async () => {
         const alert = await this.alertController.create({

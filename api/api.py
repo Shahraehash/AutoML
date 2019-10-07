@@ -80,10 +80,10 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
             continue
 
         key = '__'.join([scaler, feature_selector, estimator, searcher])
+        roc_curves = {}
         print('Generating ' + model_key_to_name(key))
 
         # Generate the pipeline
-        # TODO: Return super of new roc_auc output here (pipeline, auc_scorer)
         pipeline = \
             generate_pipeline(scaler, feature_selector, estimator, y_train, scorers, searcher)
 
@@ -92,6 +92,9 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         # Fit the pipeline
         with parallel_backend('threading'):
             model = generate_model(pipeline[0], feature_names, x_train, y_train)
+
+        if pipeline[2]:
+            roc_curves = pipeline[2].get_mean()
 
         for scorer in scorers:
             key += '__' + scorer
@@ -114,6 +117,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
                 'selected_features': list(model['selected_features']),
                 'best_params': model['best_params']
             })
+            result.update(roc_curves)
             result.update(roc(pipeline[0], model, x_test, y_test))
 
             if not results:

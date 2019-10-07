@@ -19,10 +19,10 @@
   <div *ngIf='results; else noResults'>
     <ion-card class='ion-padding ion-text-center roc-curve'>
       <ion-card-header>
-        <ion-card-subtitle>Plot's the receiver operator characteristics from the hyperparameter search (grid, random, etc.) for all the models tabulated</ion-card-subtitle>
-        <ion-card-title>Hyperparameter Search ROCs</ion-card-title>
+        <ion-card-subtitle>Plot the receiver operator characteristics for the top 10 pipelines against the train/test split as sorted in the table</ion-card-subtitle>
+        <ion-card-title>Top 10 ROCs</ion-card-title>
       </ion-card-header>
-      <app-roc-chart [data]="data"></app-roc-chart>
+      <app-roc-chart [data]="rocData"></app-roc-chart>
     </ion-card>
 
     <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>

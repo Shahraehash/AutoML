@@ -16,6 +16,6 @@ def roc(pipeline, model, x_test, y_test):
     fpr, tpr, _ = roc_curve(y_test, probabilities[:, 1])
 
     return {
-        'fpr': list(fpr),
-        'tpr': list(tpr)
+        'test_fpr': list(fpr),
+        'test_tpr': list(tpr)
     }
