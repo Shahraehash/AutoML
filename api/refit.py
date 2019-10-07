@@ -29,7 +29,7 @@ def refit_model(pipeline, features, estimator, scoring, x_train, y_train):
     print('\tBest %s: %.7g (sd=%.7g)'
           % (SCORER_NAMES[scoring], best_score_,\
                 results['std_test_%s' % scoring][best_index_]))
-    print('\tBest parameters:',
+    print('\tBest %s parameters:' % SCORER_NAMES[scoring],
           json.dumps(best_params_, indent=4, sort_keys=True).replace('\n', '\n\t'))
 
     model = clone(ESTIMATORS[estimator]).set_params(**best_params_).fit(x_train, y_train)

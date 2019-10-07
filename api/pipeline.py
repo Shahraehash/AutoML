@@ -10,7 +10,7 @@ from .processors.scalers import SCALERS
 from .processors.searchers import SEARCHERS
 
 # Generate a pipeline
-def generate_pipeline(scaler, feature_selector, estimator, y_train, scoring=['accuracy'], searcher='grid'):
+def generate_pipeline(scaler, feature_selector, estimator, y_train, scoring=None, searcher='grid'):
     """Generate the pipeline based on incoming arguments"""
 
     steps = []
@@ -23,7 +23,14 @@ def generate_pipeline(scaler, feature_selector, estimator, y_train, scoring=['ac
 
     steps.append(('debug', Debug()))
 
-    search_step = SEARCHERS[searcher](estimator, scoring, y_train)
+    if not scoring:
+        scoring = ['accuracy']
+
+    scorers = {}
+    for scorer in scoring:
+        scorers[scorer] = scorer
+
+    search_step = SEARCHERS[searcher](estimator, scorers, y_train)
 
     steps.append(('estimator', search_step[0]))
 
