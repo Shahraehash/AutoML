@@ -11,7 +11,7 @@ from .processors.estimators import ESTIMATORS
 from .processors.scorers import SCORER_NAMES
 from .preprocess import preprocess
 
-def score_model(pipeline, features, estimator, scoring, x_train, y_train):
+def refit_model(pipeline, features, estimator, scoring, x_train, y_train):
     """
     Determine the best model based on the provided scoring method
     and the fitting pipeline results.

@@ -22,8 +22,8 @@ from .generalization import generalize
 from .model import generate_model
 from .import_data import import_data
 from .pipeline import generate_pipeline
+from .refit import refit_model
 from .roc import roc
-from .scoring import score_model
 from .summary import print_summary
 from .utils import model_key_to_name
 
@@ -83,6 +83,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         print('Generating ' + model_key_to_name(key))
 
         # Generate the pipeline
+        # TODO: Return super of new roc_auc output here (pipeline, auc_scorer)
         pipeline = \
             generate_pipeline(scaler, feature_selector, estimator, y_train, scorers, searcher)
 
@@ -95,7 +96,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         for scorer in scorers:
             key += '__' + scorer
             model.update(
-                score_model(pipeline[0], model['features'], estimator, scorer, x_train, y_train))
+                refit_model(pipeline[0], model['features'], estimator, scorer, x_train, y_train))
 
             total_fits += 1
 
