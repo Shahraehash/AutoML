@@ -96,6 +96,10 @@
   .mat-table {
     background: var(--ion-color-dark);
 
+    .active {
+      background: #333 !important;
+    }
+
     .mat-cell,
     .mat-header-cell {
         color: var(--ion-color-light);

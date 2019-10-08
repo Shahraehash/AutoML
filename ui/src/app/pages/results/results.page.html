@@ -16,7 +16,7 @@
 </ion-header>
 
 <ion-content class='ion-padding'>
-  <div *ngIf='results; else noResults'>
+  <div *ngIf='results; else noResults' class='results-viewer'>
     <div class='roc-graphs'>
       <ion-card class='ion-padding ion-text-center roc-curve'>
         <ion-card-header>
@@ -44,8 +44,8 @@
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="getColumns(); sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: getColumns();"></tr>
+      <tr mat-header-row *matHeaderRowDef='getColumns(); sticky: true'></tr>
+      <tr mat-row *matRowDef='let row; let i = index; columns: getColumns();' (click)='setActive(i)' [ngClass]='{"active": i === activeRow}'></tr>
     </table>
   </div>
 

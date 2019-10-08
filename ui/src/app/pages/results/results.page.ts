@@ -12,8 +12,10 @@ import { GeneralizationResult } from '../../interfaces';
   styleUrls: ['./results.page.scss'],
 })
 export class ResultsPage implements OnInit {
+  activeRow = 0;
   data;
   rocData;
+  sortedData;
   trainingRocData;
   results: MatTableDataSource<GeneralizationResult>;
   columns: {key: string; name: string; number?: boolean, hideMobile?: boolean}[] = [
@@ -85,8 +87,13 @@ export class ResultsPage implements OnInit {
         }, 1);
 
         this.results.connect().subscribe(d => {
-          this.rocData = d.slice(0, 1);
-          this.trainingRocData = d[0];
+          if (!this.sortedData) {
+            this.sortedData = d;
+            this.setActive(0);
+            return;
+          }
+
+          this.sortedData = d;
         });
      },
       async () => {
@@ -108,5 +115,11 @@ export class ResultsPage implements OnInit {
 
   export() {
     window.open('http://127.0.0.1:5000/export', '_self');
+  }
+
+  setActive(index) {
+    this.rocData = [this.sortedData[index]];
+    this.trainingRocData = this.sortedData[index];
+    this.activeRow = index;
   }
 }

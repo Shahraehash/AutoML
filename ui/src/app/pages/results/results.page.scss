@@ -1,9 +1,17 @@
+.results-viewer {
+    // display: flex;
+}
+
 .result-table {
     width: 100%;
     table-layout: fixed;
 
     td {
         padding: 5px;
+    }
+
+    .active {
+        background: #ccc;
     }
 }
 
