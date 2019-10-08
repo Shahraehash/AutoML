@@ -119,6 +119,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
             })
             result.update(roc_curves)
             result.update(roc(pipeline[0], model, x_test, y_test, 'test'))
+            result.update(roc(pipeline[0], model, x2, y2, 'generalization'))
 
             if not results:
                 reportWriter.writerow(result.keys())
