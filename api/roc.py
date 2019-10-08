@@ -6,7 +6,7 @@ from sklearn.metrics import roc_curve
 
 from .preprocess import preprocess
 
-def roc(pipeline, model, x_test, y_test):
+def roc(pipeline, model, x_test, y_test, key_prefix):
     """Generate the ROC values"""
 
     # Transform values based on the pipeline
@@ -16,6 +16,6 @@ def roc(pipeline, model, x_test, y_test):
     fpr, tpr, _ = roc_curve(y_test, probabilities[:, 1])
 
     return {
-        'test_fpr': list(fpr),
-        'test_tpr': list(tpr)
+        key_prefix + '_fpr': list(fpr),
+        key_prefix + '_tpr': list(tpr)
     }
