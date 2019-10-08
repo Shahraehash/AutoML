@@ -87,12 +87,6 @@ export class ResultsPage implements OnInit {
         }, 1);
 
         this.results.connect().subscribe(d => {
-          if (!this.sortedData) {
-            this.sortedData = d;
-            this.setActive(0);
-            return;
-          }
-
           this.sortedData = d;
         });
      },
@@ -115,11 +109,5 @@ export class ResultsPage implements OnInit {
 
   export() {
     window.open('http://127.0.0.1:5000/export', '_self');
-  }
-
-  setActive(index) {
-    this.rocData = [this.sortedData[index]];
-    this.trainingRocData = this.sortedData[index];
-    this.activeRow = index;
   }
 }

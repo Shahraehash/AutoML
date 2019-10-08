@@ -36,8 +36,8 @@ class ROCAUCScorer:
             'std_auc': np.std(self.aucs),
             'mean_fpr': list(np.around(self.mean_fpr, decimals=2)),
             'mean_tpr': list(np.around(mean_tpr, decimals=2)),
-            'tprs_upper': list(np.around(np.minimum(mean_tpr + std_tpr, 1), decimals=2)),
-            'tprs_lower': list(np.around(np.maximum(mean_tpr - std_tpr, 0), decimals=2))
+            'mean_upper': list(np.around(np.minimum(mean_tpr + std_tpr, 1), decimals=2)),
+            'mean_lower': list(np.around(np.maximum(mean_tpr - std_tpr, 0), decimals=2))
         }
 
     def roc_auc_score(self, y_true, y_score, average='macro', sample_weight=None):
