@@ -20,6 +20,14 @@
     <div class='roc-graphs'>
       <ion-card class='ion-padding ion-text-center roc-curve'>
         <ion-card-header>
+          <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (prevalence dependent test)</ion-card-subtitle>
+          <ion-card-title>Generalization ROC</ion-card-title>
+        </ion-card-header>
+        <app-roc-chart [data]='sortedData[activeRow]' mode='generalization'></app-roc-chart>
+      </ion-card>
+
+      <ion-card class='ion-padding ion-text-center roc-curve'>
+        <ion-card-header>
           <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline with one plus/minus standard deviation</ion-card-subtitle>
           <ion-card-title>Training Search ROC</ion-card-title>
         </ion-card-header>
@@ -28,18 +36,10 @@
 
       <ion-card class='ion-padding ion-text-center roc-curve'>
         <ion-card-header>
-          <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (balanced test)</ion-card-subtitle>
+          <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (prevalence independent test)</ion-card-subtitle>
           <ion-card-title>Training Validation ROC</ion-card-title>
         </ion-card-header>
         <app-roc-chart [data]='sortedData[activeRow]' mode='test'></app-roc-chart>
-      </ion-card>
-
-      <ion-card class='ion-padding ion-text-center roc-curve'>
-        <ion-card-header>
-          <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (prevalence dependent test)</ion-card-subtitle>
-          <ion-card-title>Generalization ROC</ion-card-title>
-        </ion-card-header>
-        <app-roc-chart [data]='sortedData[activeRow]' mode='generalization'></app-roc-chart>
       </ion-card>
     </div>
 

@@ -34,6 +34,10 @@
   }
 }
 
+.mat-checkbox-frame {
+  border-color: #ccc;
+}
+
 .roc {
   .axis {
     fill: var(--ion-color-dark);
@@ -104,6 +108,10 @@
     .mat-header-cell {
         color: var(--ion-color-light);
     }
+  }
+
+  .mat-checkbox-frame {
+    border-color: rgba(255,255,255,.7);
   }
 
   .roc{
