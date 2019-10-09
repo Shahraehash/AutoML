@@ -10,7 +10,7 @@ import * as d3Axis from 'd3-axis';
 })
 export class RocChartComponent implements OnInit, OnChanges {
     @Input() data;
-    @Input() mode: 'mean' | 'test' | 'generalization';
+    @Input() mode: 'mean' | 'test' | 'generalization' | 'reliability';
 
     private margin = { top: 30, right: 10, bottom: 70, left: 61 };
     private width = 470 - this.margin.left - this.margin.right;
@@ -100,7 +100,7 @@ export class RocChartComponent implements OnInit, OnChanges {
             .attr('y', 40)
             .style('font-size', '12px')
             .style('text-anchor', 'middle')
-            .text('False Positive Rate');
+            .text(this.mode === 'reliability' ? 'Mean Predicted Value' : 'False Positive Rate');
 
 
         svg.append('g')
@@ -112,7 +112,7 @@ export class RocChartComponent implements OnInit, OnChanges {
             .attr('x', 0 - cfg.height / 2.8)
             .style('font-size', '12px')
             .style('text-anchor', 'left')
-            .text('True Positive Rate');
+            .text(this.mode === 'reliability' ? 'Fraction of Positives' : 'True Positive Rate');
 
         // Draw the random guess line
         svg.append('line')
@@ -223,8 +223,16 @@ export class RocChartComponent implements OnInit, OnChanges {
 
         let upper;
         let lower;
-        const fpr = JSON.parse(this.data[this.mode + '_fpr']);
-        const tpr = JSON.parse(this.data[this.mode + '_tpr']);
+        let fpr;
+        let tpr;
+
+        if (this.mode === 'reliability') {
+            fpr = JSON.parse(this.data.mpv);
+            tpr = JSON.parse(this.data.fop);
+        } else {
+            fpr = JSON.parse(this.data[this.mode + '_fpr']);
+            tpr = JSON.parse(this.data[this.mode + '_tpr']);
+        }
 
         if (this.mode === 'mean') {
             upper = JSON.parse(this.data.mean_upper);
@@ -242,12 +250,17 @@ export class RocChartComponent implements OnInit, OnChanges {
             }
         });
 
-        drawArea(this.data.key, color('0'));
+        if (this.mode !== 'reliability') {
+            drawArea(this.data.key, color('0'));
+        }
+
         if (sdPoints.length) {
             drawDeviation(this.data.key);
         }
         drawCurve(this.data.key, color('0'));
-        drawAUCText(this.data, this.mode === 'mean' ? this.data.std_auc : undefined);
+        if (this.mode !== 'reliability') {
+            drawAUCText(this.data, this.mode === 'mean' ? this.data.std_auc : undefined);
+        }
 
         function calculateArea() {
             let area = 0.0;

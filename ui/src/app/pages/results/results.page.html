@@ -28,6 +28,14 @@
 
       <ion-card class='ion-padding ion-text-center roc-curve'>
         <ion-card-header>
+          <ion-card-subtitle>Plot the reliability diagram (calibration curve) for predictions against the generalization dataset</ion-card-subtitle>
+          <ion-card-title>Generalization Reliability</ion-card-title>
+        </ion-card-header>
+        <app-roc-chart [data]='sortedData[activeRow]' mode='reliability'></app-roc-chart>
+      </ion-card>
+
+      <ion-card class='ion-padding ion-text-center roc-curve'>
+        <ion-card-header>
           <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline with one plus/minus standard deviation</ion-card-subtitle>
           <ion-card-title>Training Search ROC</ion-card-title>
         </ion-card-header>

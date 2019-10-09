@@ -22,6 +22,7 @@ from .generalization import generalize
 from .model import generate_model
 from .import_data import import_data
 from .pipeline import generate_pipeline
+from .reliability import reliability
 from .refit import refit_model
 from .roc import roc
 from .summary import print_summary
@@ -120,6 +121,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
             result.update(roc_curves)
             result.update(roc(pipeline[0], model, x_test, y_test, 'test'))
             result.update(roc(pipeline[0], model, x2, y2, 'generalization'))
+            result.update(reliability(pipeline[0], model, x2, y2))
 
             if not results:
                 reportWriter.writerow(result.keys())
