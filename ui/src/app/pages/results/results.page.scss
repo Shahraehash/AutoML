@@ -11,6 +11,10 @@
         padding: 5px;
     }
 
+    .mat-header-cell:first-of-type {
+        padding-left: 2px;
+    }
+
     .active {
         background: #ccc;
     }

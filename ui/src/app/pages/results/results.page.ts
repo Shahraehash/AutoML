@@ -24,13 +24,13 @@ export class ResultsPage implements OnInit {
       name: 'Estimator'
     },
     {
-      key: 'accuracy',
-      name: 'Accuracy',
+      key: 'auc',
+      name: 'AUC',
       number: true
     },
     {
-      key: 'auc',
-      name: 'AUC',
+      key: 'accuracy',
+      name: 'Accuracy',
       number: true
     },
     {

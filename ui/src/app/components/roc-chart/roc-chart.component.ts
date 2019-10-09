@@ -171,7 +171,7 @@ export class RocChartComponent implements OnInit, OnChanges {
                 .style('opacity', '.2');
         };
 
-        const drawAUCText = (item, sd?) => {
+        const drawAUCText = (item) => {
             svg.append('g')
                 .attr('class', item.key + '-text')
                 .attr('transform', 'translate(' + .4 * cfg.height + ',' + .70 * cfg.height + ')')
@@ -212,13 +212,19 @@ export class RocChartComponent implements OnInit, OnChanges {
                 .style('fill', 'white')
                 .style('font-size', 12);
 
-            svg.append('g')
+
+            const text = svg.append('g')
                 .attr('class', item.key + '-text')
                 .attr('transform', 'translate(' + .4 * cfg.height + ',' + .95 * cfg.height + ')')
                 .append('text')
-                .text('AUC = ' + aucFormat(auc) + (sd ? ' ± ' + aucFormat(sd) : ''))
                 .style('fill', 'white')
                 .style('font-size', 12);
+
+            if (this.mode === 'reliability') {
+                text.text('Brier Score: ' + aucFormat(item.brier_score));
+            } else {
+                text.text('AUC = ' + aucFormat(auc) + (this.mode === 'mean' ? ' ± ' + aucFormat(item.std_auc) : ''));
+            }
         };
 
         let upper;
@@ -258,9 +264,7 @@ export class RocChartComponent implements OnInit, OnChanges {
             drawDeviation(this.data.key);
         }
         drawCurve(this.data.key, color('0'));
-        if (this.mode !== 'reliability') {
-            drawAUCText(this.data, this.mode === 'mean' ? this.data.std_auc : undefined);
-        }
+        drawAUCText(this.data);
 
         function calculateArea() {
             let area = 0.0;
