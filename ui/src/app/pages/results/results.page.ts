@@ -110,4 +110,8 @@ export class ResultsPage implements OnInit {
   export() {
     window.open('http://127.0.0.1:5000/export', '_self');
   }
+
+  parse(object) {
+    return JSON.parse(object);
+  }
 }

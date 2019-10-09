@@ -23,7 +23,11 @@
           <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (prevalence dependent test)</ion-card-subtitle>
           <ion-card-title>Generalization ROC</ion-card-title>
         </ion-card-header>
-        <app-roc-chart [data]='sortedData[activeRow]' mode='generalization'></app-roc-chart>
+        <app-roc-chart
+        [data]='sortedData[activeRow]'
+        [fpr]='parse(sortedData[activeRow].generalization_fpr)'
+        [tpr]='parse(sortedData[activeRow].generalization_tpr)'
+        mode='generalization'></app-roc-chart>
       </ion-card>
 
       <ion-card class='ion-padding ion-text-center roc-curve'>
@@ -31,7 +35,11 @@
           <ion-card-subtitle>Plot the reliability diagram (calibration curve) for predictions against the generalization dataset</ion-card-subtitle>
           <ion-card-title>Generalization Reliability</ion-card-title>
         </ion-card-header>
-        <app-roc-chart [data]='sortedData[activeRow]' mode='reliability'></app-roc-chart>
+        <app-roc-chart
+        [data]='sortedData[activeRow]'
+        [fpr]='parse(sortedData[activeRow].mpv)'
+        [tpr]='parse(sortedData[activeRow].fop)'
+        mode='reliability'></app-roc-chart>
       </ion-card>
 
       <ion-card class='ion-padding ion-text-center roc-curve'>
@@ -39,7 +47,13 @@
           <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline with one plus/minus standard deviation</ion-card-subtitle>
           <ion-card-title>Training Search ROC</ion-card-title>
         </ion-card-header>
-        <app-roc-chart [data]='sortedData[activeRow]' mode='mean'></app-roc-chart>
+        <app-roc-chart
+        [data]='sortedData[activeRow]'
+        [fpr]='parse(sortedData[activeRow].mean_fpr)'
+        [tpr]='parse(sortedData[activeRow].mean_tpr)'
+        [upper]='parse(sortedData[activeRow].mean_upper)'
+        [lower]='parse(sortedData[activeRow].mean_lower)'
+        mode='mean'></app-roc-chart>
       </ion-card>
 
       <ion-card class='ion-padding ion-text-center roc-curve'>
@@ -47,7 +61,11 @@
           <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (prevalence independent test)</ion-card-subtitle>
           <ion-card-title>Training Validation ROC</ion-card-title>
         </ion-card-header>
-        <app-roc-chart [data]='sortedData[activeRow]' mode='test'></app-roc-chart>
+        <app-roc-chart
+        [data]='sortedData[activeRow]'
+        [fpr]='parse(sortedData[activeRow].test_fpr)'
+        [tpr]='parse(sortedData[activeRow].test_tpr)'
+        mode='reliability'></app-roc-chart>
       </ion-card>
     </div>
 

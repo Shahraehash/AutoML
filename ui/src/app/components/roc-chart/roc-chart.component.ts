@@ -10,6 +10,10 @@ import * as d3Axis from 'd3-axis';
 })
 export class RocChartComponent implements OnInit, OnChanges {
     @Input() data;
+    @Input() fpr;
+    @Input() tpr;
+    @Input() upper;
+    @Input() lower;
     @Input() mode: 'mean' | 'test' | 'generalization' | 'reliability';
     svg;
 
@@ -46,33 +50,15 @@ export class RocChartComponent implements OnInit, OnChanges {
         xAxis.tickFormat(format);
         yAxis.tickFormat(format);
 
-        let upper;
-        let lower;
-        let fpr;
-        let tpr;
-
-        if (this.mode === 'reliability') {
-            fpr = JSON.parse(this.data.mpv);
-            tpr = JSON.parse(this.data.fop);
-        } else {
-            fpr = JSON.parse(this.data[this.mode + '_fpr']);
-            tpr = JSON.parse(this.data[this.mode + '_tpr']);
-        }
-
-        if (this.mode === 'mean') {
-            upper = JSON.parse(this.data.mean_upper);
-            lower = JSON.parse(this.data.mean_lower);
-        }
-
         const points = [];
         const sdPoints = [];
-        const auc = this.calculateArea(fpr, tpr);
+        const auc = this.calculateArea(this.fpr, this.tpr);
 
-        fpr.forEach((e, i) => {
-            points.push([e, tpr[i]]);
+        this.fpr.forEach((e, i) => {
+            points.push([e, this.tpr[i]]);
 
-            if (upper && lower) {
-                sdPoints.push([e, upper[i], lower[i]]);
+            if (this.upper && this.lower) {
+                sdPoints.push([e, this.upper[i], this.lower[i]]);
             }
         });
 
