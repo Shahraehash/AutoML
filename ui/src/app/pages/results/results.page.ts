@@ -49,6 +49,11 @@ export class ResultsPage implements OnInit {
       number: true
     },
     {
+      key: 'brier_score',
+      name: 'Brier Score',
+      number: true
+    },
+    {
       key: 'scaler',
       name: 'Scaler',
       hideMobile: true
@@ -143,9 +148,9 @@ export class ResultsPage implements OnInit {
     }
 
     if (mode === 'reliability') {
-      textElements.push('Brier Score: ' + object.brier_score);
+      textElements.push('Brier Score: ' + object.brier_score.toFixed(4));
     } else {
-      textElements.push('AUC = ' + this.calculateArea(tpr, fpr) + (mode === 'mean' ? ' ± ' + object.std_auc : ''));
+      textElements.push('AUC = ' + this.calculateArea(tpr, fpr) + (mode === 'mean' ? ' ± ' + object.std_auc.toFixed(4) : ''));
     }
 
     return {
@@ -164,6 +169,6 @@ export class ResultsPage implements OnInit {
         area += (fpr[i] - fpr[i - 1]) * (tpr[i - 1] + tpr[i]) / 2;
       }
     });
-    return area;
+    return area.toFixed(4);
   }
 }
