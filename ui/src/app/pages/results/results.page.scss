@@ -17,6 +17,8 @@
 }
 
 .result-table {
+    width: 100%;
+
     td {
         padding: 5px;
     }
@@ -60,6 +62,16 @@
 @media(max-width: 1200px) {
     .results-viewer {
         display: block;
+        overflow: scroll;
+    }
+
+    .roc-graphs {
+        height: initial;
+    }
+
+    .table-wrapper {
+        overflow-y: initial;
+        height: initial;
     }
 }
 

@@ -103,7 +103,7 @@ export class ResultsPage implements OnInit {
   }
 
   getColumns() {
-    const isMobile = window.screen.width < 420;
+    const isMobile = window.innerWidth < 1350;
     return isMobile ? this.columns.filter(c => !c.hideMobile).map(c => c.key) : this.columns.map(c => c.key);
   }
 
