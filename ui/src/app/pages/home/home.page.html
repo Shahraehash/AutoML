@@ -1,37 +1,22 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>
-      Home
-    </ion-title>
+    <ion-title>MILO: Machine Learning Intelligence Optimizer</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class='ion-padding'>
-  <form [formGroup]='uploadForm'>
-    <ion-card class='ion-padding ion-text-center'>
-      <ion-card-header>
-        <ion-card-subtitle>Please provide a training test set and a separate test set used for generalization. Both data sets must have the same columns.</ion-card-subtitle>
-        <ion-card-title>Data Upload</ion-card-title>
-      </ion-card-header>
-
-      <label class='file-input'>
-        <ion-icon *ngIf='uploadForm.get("train").valid' name="checkmark-circle-outline" color="success"></ion-icon>
-        Select Training Data
-        <input type='file' name='train' (change)="onFileSelect($event)">
-      </label>
-      <label class='file-input'>
-        <ion-icon *ngIf='uploadForm.get("test").valid' name="checkmark-circle-outline" color="success"></ion-icon>
-        Select Test Data (Generalization)
-        <input type='file' name='test' (change)="onFileSelect($event)">
-      </label>
-      <ion-select placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column'>
-        <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
-      </ion-select>
-    </ion-card>
-
-    <ion-button expand='block' class='ion-padding' (click)='onSubmit()' [disabled]='!uploadForm.valid'>Next</ion-button>
-  </form>
+<ion-content>
+  <mat-horizontal-stepper #stepper linear>
+    <mat-step>
+      <ng-template matStepLabel>Select Data</ng-template>
+      <app-upload></app-upload>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Train</ng-template>
+      <app-train></app-train>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Train</ng-template>
+      <app-results></app-results>
+    </mat-step>
+  </mat-horizontal-stepper>
 </ion-content>

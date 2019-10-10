@@ -1,0 +1,24 @@
+<form [formGroup]='uploadForm'>
+  <ion-card class='ion-padding ion-text-center'>
+    <ion-card-header>
+      <ion-card-subtitle>Please provide a training test set and a separate test set used for generalization. Both data sets must have the same columns.</ion-card-subtitle>
+      <ion-card-title>Data Upload</ion-card-title>
+    </ion-card-header>
+
+    <label class='file-input'>
+      <ion-icon *ngIf='uploadForm.get("train").valid' name="checkmark-circle-outline" color="success"></ion-icon>
+      Select Training Data
+      <input type='file' name='train' (change)="onFileSelect($event)">
+    </label>
+    <label class='file-input'>
+      <ion-icon *ngIf='uploadForm.get("test").valid' name="checkmark-circle-outline" color="success"></ion-icon>
+      Select Test Data (Generalization)
+      <input type='file' name='test' (change)="onFileSelect($event)">
+    </label>
+    <ion-select placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column'>
+      <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
+    </ion-select>
+  </ion-card>
+
+  <ion-button expand='block' class='ion-padding' (click)='onSubmit()' [disabled]='!uploadForm.valid'>Next</ion-button>
+</form>

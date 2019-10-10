@@ -7,7 +7,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { ResultsPage } from './results.page';
-import { RocChartComponent } from '../../components/roc-chart/roc-chart.component';
+import { RocChartComponent } from '../roc-chart/roc-chart.component';
 
 const routes: Routes = [
   {
