@@ -88,7 +88,7 @@ export class RocChartComponent implements OnInit, OnChanges {
 
         this.svg.append('line')
             .attr('class', 'curve')
-            .attr('class', 'guess')
+            .attr('class', this.mode === 'reliability' ? 'ideal' : 'guess')
             .attr('x1', 0)
             .attr('x2', this.cfg.width)
             .attr('y1', this.cfg.height)

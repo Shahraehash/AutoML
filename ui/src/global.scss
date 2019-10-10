@@ -56,6 +56,10 @@
     stroke: var(--ion-color-danger);
   } 
   
+  .ideal {
+    stroke: var(--ion-color-success);
+  } 
+
   path { 
     stroke-width: 3;
     fill: none;
