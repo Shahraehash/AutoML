@@ -1,18 +1,22 @@
+.container {
+    padding: 16px;
+    overflow: auto;
+}
+
 .results-viewer {
     display: flex;
+    align-items: flex-start;
 }
 
 .result-table {
     width: 100%;
-    table-layout: fixed;
-    flex-basis: 200%;
 
     td {
         padding: 5px;
     }
 
     .mat-header-cell:first-of-type {
-        padding-left: 2px;
+        padding-left: 8px;
     }
 
     .active {
@@ -41,18 +45,10 @@
         margin-top: 0;
         flex-grow: 1;
         flex-basis: 45%;
-
-        &:first-of-type {
-            margin-left: 0;
-        }
-
-        &:last-of-type {
-            margin-right: 0;
-        }
     }
 }
 
-@media(max-width: 1000px) {
+@media(max-width: 1200px) {
     .results-viewer {
         display: block;
     }

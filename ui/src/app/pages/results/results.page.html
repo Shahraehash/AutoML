@@ -15,7 +15,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class='ion-padding'>
+<div class='container'>
   <div *ngIf='results; else noResults' class='results-viewer'>
     <div class='roc-graphs'>
       <ion-card class='ion-padding ion-text-center roc-curve'>
@@ -68,5 +68,4 @@
   <ng-template #noResults>
     Please start by selecting your data on the home page
   </ng-template>
-
-</ion-content>
+</div>
