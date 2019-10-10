@@ -10,13 +10,9 @@ import * as d3Axis from 'd3-axis';
 })
 export class RocChartComponent implements OnInit, OnChanges {
     @Input() data;
-    @Input() fpr;
-    @Input() tpr;
-    @Input() upper;
-    @Input() lower;
     @Input() mode: 'mean' | 'test' | 'generalization' | 'reliability';
-    svg;
 
+    private svg;
     private cfg = {
         margin: { top: 30, right: 10, bottom: 70, left: 61 },
         width: 399,
@@ -34,36 +30,29 @@ export class RocChartComponent implements OnInit, OnChanges {
 
     ngOnChanges() {
         const format = d3.format('.2');
-        const aucFormat = d3.format('.4r');
-
-        const x = scaleLinear().range([0, this.cfg.width]);
-        const y = scaleLinear().range([this.cfg.height, 0]);
         const color = scaleOrdinal(schemeCategory10);
 
+        const width = this.cfg.width + this.cfg.margin.left + this.cfg.margin.right;
+        const height = this.cfg.height + this.cfg.margin.top + this.cfg.margin.bottom;
+        const x = scaleLinear().range([0, this.cfg.width]);
+        const y = scaleLinear().range([this.cfg.height, 0]);
         const xAxis = d3Axis.axisBottom(x);
         const yAxis = d3Axis.axisLeft(y);
-
         xAxis.tickValues(this.cfg.tickValues);
         yAxis.tickValues(this.cfg.tickValues);
-
-        // Apply the format to the ticks we chose
         xAxis.tickFormat(format);
         yAxis.tickFormat(format);
 
         const points = [];
         const sdPoints = [];
-        const auc = this.calculateArea(this.fpr, this.tpr);
 
-        this.fpr.forEach((e, i) => {
-            points.push([e, this.tpr[i]]);
+        this.data.fpr.forEach((e, i) => {
+            points.push([e, this.data.tpr[i]]);
 
-            if (this.upper && this.lower) {
-                sdPoints.push([e, this.upper[i], this.lower[i]]);
+            if (this.data.upper && this.data.lower) {
+                sdPoints.push([e, this.data.upper[i], this.data.lower[i]]);
             }
         });
-
-        const width = this.cfg.width + this.cfg.margin.left + this.cfg.margin.right;
-        const height = this.cfg.height + this.cfg.margin.top + this.cfg.margin.bottom;
 
         this.svg = d3.select(this.element.nativeElement).select('svg');
         this.svg.selectAll('*').remove();
@@ -97,7 +86,6 @@ export class RocChartComponent implements OnInit, OnChanges {
             .style('text-anchor', 'left')
             .text(this.mode === 'reliability' ? 'Fraction of Positives' : 'True Positive Rate');
 
-        // Draw the random guess line
         this.svg.append('line')
             .attr('class', 'curve')
             .attr('class', 'guess')
@@ -110,21 +98,21 @@ export class RocChartComponent implements OnInit, OnChanges {
             .style('opacity', .4);
 
         if (this.mode !== 'reliability') {
-            this.drawArea(this.data.key, color('0'), x, y, points);
+            this.drawArea(color('0'), x, y, points);
         }
 
         if (sdPoints.length) {
-            this.drawDeviation(this.data.key, x, y, sdPoints);
+            this.drawDeviation(x, y, sdPoints);
         }
-        this.drawCurve(this.data.key, color('0'), x, y, points);
-        this.drawAUCText(this.data, auc, aucFormat);
+        this.drawCurve(color('0'), x, y, points);
+        this.drawAUCText(this.data.textElements);
     }
 
     // A function that returns a line generator
     private curve(x, y, points) {
 
         const lineGenerator = d3.line()
-            .curve(d3.curveBasis)
+            // .curve(d3.curveBasis)
             .x((d) => x(d[0]))
             .y((d) => y(d[1]));
 
@@ -135,7 +123,7 @@ export class RocChartComponent implements OnInit, OnChanges {
     private areaUnderCurve(x, y, height, points) {
 
         const areaGenerator = d3.area()
-            .curve(d3.curveBasis)
+            // .curve(d3.curveBasis)
             .x((d) => x(d[0]))
             .y0(height)
             .y1((d) => y(d[1]));
@@ -144,113 +132,48 @@ export class RocChartComponent implements OnInit, OnChanges {
     }
 
     // Draw the ROC curves
-    private drawCurve(key, stroke, x, y, points) {
+    private drawCurve(stroke, x, y, points) {
         this.svg.append('path')
             .attr('class', 'curve')
             .style('stroke', stroke)
-            .attr('d', this.curve(x, y, points))
-            .on('mouseover', () => {
-                const areaID = '#' + key + '-area';
-                this.svg.select(areaID)
-                    .style('opacity', .4)
-                    .style('visibility', 'initial');
-            })
-            .on('mouseout', () => {
-                const areaID = '#' + key + '-area';
-                this.svg.select(areaID)
-                    .style('opacity', 0)
-                    .style('visibility', 'hidden');
-            });
+            .attr('d', this.curve(x, y, points));
     }
 
     // Draw the area under the ROC curves
-    private drawArea(key, fill, x, y, points) {
+    private drawArea(fill, x, y, points) {
         this.svg.append('path')
-            .attr('d', this.areaUnderCurve(x, y, this.cfg.height, points))
             .attr('class', 'area')
-            .attr('id', key + '-area')
+            .attr('d', this.areaUnderCurve(x, y, this.cfg.height, points))
             .style('fill', fill)
-            .style('visibility', 'hidden')
-            .style('opacity', 0);
+            .style('opacity', .2);
     }
 
-    private drawDeviation(key, x, y, sdPoints) {
+    private drawDeviation(x, y, sdPoints) {
         this.svg.append('path')
             .attr('d', d3.area()
-                .curve(d3.curveBasis)
+                // .curve(d3.curveBasis)
                 .x(d => x(d[0]))
                 .y0(d => y(d[1]))
                 .y1((d: any) => y(d[2]))
                 (sdPoints))
             .attr('class', 'deviation')
-            .attr('id', key + '-deviation')
             .style('fill', 'grey')
             .style('opacity', '.2');
     }
 
-    private drawAUCText(item, auc, aucFormat) {
-        this.svg.append('g')
-            .attr('class', item.key + '-text')
-            .attr('transform', 'translate(' + .4 * this.cfg.height + ',' + .70 * this.cfg.height + ')')
-            .append('text')
-            .text('Estimator: ' + item.estimator)
-            .style('fill', 'white')
-            .style('font-size', 12);
+    private drawAUCText(items: any[]) {
+        let vAlign = .7;
 
-        this.svg.append('g')
-            .attr('class', item.key + '-text')
-            .attr('transform', 'translate(' + .4 * this.cfg.height + ',' + .75 * this.cfg.height + ')')
-            .append('text')
-            .text('Scaler: ' + item.scaler)
-            .style('fill', 'white')
-            .style('font-size', 12);
+        items.forEach(item => {
+            this.svg.append('g')
+                .attr('class', 'text')
+                .attr('transform', 'translate(' + .4 * this.cfg.height + ',' + vAlign * this.cfg.height + ')')
+                .append('text')
+                    .text(item)
+                    .style('fill', 'white')
+                    .style('font-size', 12);
 
-        this.svg.append('g')
-            .attr('class', item.key + '-text')
-            .attr('transform', 'translate(' + .4 * this.cfg.height + ',' + .80 * this.cfg.height + ')')
-            .append('text')
-            .text('Selector: ' + item.feature_selector)
-            .style('fill', 'white')
-            .style('font-size', 12);
-
-        this.svg.append('g')
-            .attr('class', item.key + '-text')
-            .attr('transform', 'translate(' + .4 * this.cfg.height + ',' + .85 * this.cfg.height + ')')
-            .append('text')
-            .text('Scorer: ' + item.scorer)
-            .style('fill', 'white')
-            .style('font-size', 12);
-
-        this.svg.append('g')
-            .attr('class', item.key + '-text')
-            .attr('transform', 'translate(' + .4 * this.cfg.height + ',' + .90 * this.cfg.height + ')')
-            .append('text')
-            .text('Searcher: ' + item.searcher)
-            .style('fill', 'white')
-            .style('font-size', 12);
-
-
-        const text = this.svg.append('g')
-            .attr('class', item.key + '-text')
-            .attr('transform', 'translate(' + .4 * this.cfg.height + ',' + .95 * this.cfg.height + ')')
-            .append('text')
-            .style('fill', 'white')
-            .style('font-size', 12);
-
-        if (this.mode === 'reliability') {
-            text.text('Brier Score: ' + aucFormat(item.brier_score));
-        } else {
-            text.text('AUC = ' + aucFormat(auc) + (this.mode === 'mean' ? ' ± ' + aucFormat(item.std_auc) : ''));
-        }
-    }
-
-    private calculateArea(tpr, fpr) {
-        let area = 0.0;
-        tpr.forEach((_, i) => {
-            if ('undefined' !== typeof fpr[i - 1]) {
-                area += (fpr[i] - fpr[i - 1]) * (tpr[i - 1] + tpr[i]) / 2;
-            }
+            vAlign += 0.05;
         });
-        return area;
     }
 }

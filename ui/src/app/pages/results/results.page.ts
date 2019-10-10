@@ -111,7 +111,59 @@ export class ResultsPage implements OnInit {
     window.open('http://127.0.0.1:5000/export', '_self');
   }
 
-  parse(object) {
-    return JSON.parse(object);
+  parse(object, mode) {
+    let fpr;
+    let tpr;
+    let upper;
+    let lower;
+    const textElements = [
+      'Estimator: ' + object.estimator,
+      'Scaler: ' + object.scaler,
+      'Selector: ' + object.feature_selector,
+      'Scorer: ' + object.scorer,
+      'Searcher: ' + object.searcher
+    ];
+
+    if (mode === 'generalization') {
+      fpr = JSON.parse(object.generalization_fpr);
+      tpr = JSON.parse(object.generalization_tpr);
+    } else if (mode === 'reliability') {
+      fpr = JSON.parse(object.mpv);
+      tpr = JSON.parse(object.fop);
+    } else if (mode === 'mean') {
+      fpr = JSON.parse(object.mean_fpr);
+      tpr = JSON.parse(object.mean_tpr);
+      upper = JSON.parse(object.mean_upper);
+      lower = JSON.parse(object.mean_lower);
+    } else if (mode === 'test') {
+      fpr = JSON.parse(object.test_fpr);
+      tpr = JSON.parse(object.test_tpr);
+    } else {
+      return;
+    }
+
+    if (mode === 'reliability') {
+      textElements.push('Brier Score: ' + object.brier_score);
+    } else {
+      textElements.push('AUC = ' + this.calculateArea(tpr, fpr) + (mode === 'mean' ? ' ± ' + object.std_auc : ''));
+    }
+
+    return {
+      fpr,
+      tpr,
+      upper,
+      lower,
+      textElements
+    };
+  }
+
+  private calculateArea(tpr, fpr) {
+    let area = 0.0;
+    tpr.forEach((_, i) => {
+      if ('undefined' !== typeof fpr[i - 1]) {
+        area += (fpr[i] - fpr[i - 1]) * (tpr[i - 1] + tpr[i]) / 2;
+      }
+    });
+    return area;
   }
 }
