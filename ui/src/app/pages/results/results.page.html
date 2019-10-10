@@ -51,18 +51,20 @@
       </ion-card>
     </div>
 
-    <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
+    <div class='table-wrapper'>
+      <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
-      <ng-container [matColumnDef]="column.key" *ngFor="let column of columns">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{column.name}}</th>
-        <td mat-cell *matCellDef="let element" class="title-case">
-          {{column.number ? ( element[column.key] | number ) : element[column.key]}}
-        </td>
-      </ng-container>
+        <ng-container [matColumnDef]="column.key" *ngFor="let column of columns">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{column.name}}</th>
+          <td mat-cell *matCellDef="let element" class="title-case">
+            {{column.number ? ( element[column.key] | number ) : element[column.key]}}
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef='getColumns(); sticky: true'></tr>
-      <tr mat-row *matRowDef='let row; let i = index; columns: getColumns();' (click)='activeRow = i' [ngClass]='{"active": i === activeRow}'></tr>
-    </table>
+        <tr mat-header-row *matHeaderRowDef='getColumns(); sticky: true'></tr>
+        <tr mat-row *matRowDef='let row; let i = index; columns: getColumns();' (click)='activeRow = i' [ngClass]='{"active": i === activeRow}'></tr>
+      </table>
+    </div>
   </div>
 
   <ng-template #noResults>

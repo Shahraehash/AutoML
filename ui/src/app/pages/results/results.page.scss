@@ -1,16 +1,22 @@
 .container {
     padding: 16px;
-    overflow: auto;
+    overflow: hidden;
 }
 
 .results-viewer {
     display: flex;
     align-items: flex-start;
+    overflow: hidden;
+    height: 100%;
+}
+
+.table-wrapper {
+    overflow-y: scroll;
+    height: 100%;
+    width: 100%;
 }
 
 .result-table {
-    width: 100%;
-
     td {
         padding: 5px;
     }
@@ -39,6 +45,9 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
+    overflow-y: scroll;
+    width: 100%;
+    height: 100%;
 
     ion-card {
         margin: 10px;
