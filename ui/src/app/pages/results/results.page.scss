@@ -1,6 +1,9 @@
 .container {
     padding: 16px;
     overflow: hidden;
+    height: 100%;
+    width: 100%;
+    color: var(--ion-text-color);
 }
 
 .results-viewer {

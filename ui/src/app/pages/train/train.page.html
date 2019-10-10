@@ -4,7 +4,7 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>
-      Train
+      {{training ? 'Training, please wait...' : 'Train'}}
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -48,7 +48,5 @@
     <mat-checkbox formControlName='shuffle'><h6>Shuffle per Fold</h6></mat-checkbox>
   </ion-card>
   <ion-button expand='block' (click)='startTraining()' [hidden]='training' [disabled]='!trainForm.valid'>Start Training</ion-button>
-  <ion-card class='all-pipelines'>
-    <app-radial-dendrogram [data]='allPipelines' [training]='training'></app-radial-dendrogram>
-  </ion-card>
+  <app-radial-dendrogram [data]='allPipelines' [training]='training' [hidden]='!training'></app-radial-dendrogram>
 </ion-content>
