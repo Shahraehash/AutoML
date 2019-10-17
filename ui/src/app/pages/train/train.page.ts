@@ -30,7 +30,7 @@ export class TrainPage implements OnInit {
       scalers: this.formBuilder.array(this.pipelineProcessors.scalers, requireAtLeastOneCheckedValidator()),
       featureSelectors: this.formBuilder.array(this.pipelineProcessors.featureSelectors, requireAtLeastOneCheckedValidator()),
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
-      scorers: this.formBuilder.array(this.pipelineProcessors.scorers, requireAtLeastOneCheckedValidator()),
+      scorers: this.formBuilder.array(this.pipelineProcessors.scorers),
       shuffle: [true]
     });
 
@@ -93,7 +93,7 @@ export class TrainPage implements OnInit {
     });
   }
 
-  private getChecked(key) {
+  private getChecked(key): any[] {
     return this.trainForm.get(key).value.flatMap((value, index) => {
       return !value ? [] : this.pipelineProcessors[key][index].label;
     });
@@ -118,7 +118,9 @@ export class TrainPage implements OnInit {
       this.getChecked('scalers'),
       this.getChecked('featureSelectors'),
       this.getChecked('searchers'),
-      this.getChecked('scorers'),
+
+      /** Manually add this since it's required for the UI */
+      this.getChecked('scorers').concat('ROC_AUC'),
     );
   }
 }
