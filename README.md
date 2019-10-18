@@ -48,3 +48,26 @@ python server.py
 
 The `npm` steps only need to be run once or if a change to the Angular SPA are
 done.
+
+### Environment Setup
+
+Below are the steps to setup a new environment for running MILO on a
+Debian based machine. The below steps are based on a fresh Debian 10.1
+install.
+
+```sh
+# Install dependencies
+apt install build-essential nodejs libpython3.7-dev python-virtualenv
+
+# Setup virtual environment
+virtualenv -p python3 milo-env
+
+# Change to this environment
+source milo-env/bin/activate
+
+# Always source this environment (optional)
+printf "\nsource /home/<username>/milo-env/bin/activate" >> .bashrc
+
+# Install python requirements
+pip install -r requirements.txt
+```
