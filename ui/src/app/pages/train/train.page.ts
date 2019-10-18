@@ -34,12 +34,6 @@ export class TrainPage implements OnInit {
       shuffle: [true]
     });
 
-    this.trainForm.get('estimators').valueChanges.subscribe(this.generatePipelines.bind(this));
-    this.trainForm.get('scalers').valueChanges.subscribe(this.generatePipelines.bind(this));
-    this.trainForm.get('featureSelectors').valueChanges.subscribe(this.generatePipelines.bind(this));
-    this.trainForm.get('searchers').valueChanges.subscribe(this.generatePipelines.bind(this));
-    this.trainForm.get('scorers').valueChanges.subscribe(this.generatePipelines.bind(this));
-
     try {
       const options = JSON.parse(localStorage.getItem('training-options'));
       this.trainForm.setValue(options);
@@ -85,6 +79,8 @@ export class TrainPage implements OnInit {
     );
 
     localStorage.setItem('training-options', JSON.stringify(this.trainForm.value));
+
+    this.generatePipelines();
   }
 
   private getValues(key) {
