@@ -72,6 +72,10 @@ export class ResultsPage implements OnInit {
       key: 'searcher',
       name: 'Searcher',
       hideMobile: true
+    },
+    {
+      key: 'actions',
+      name: ''
     }
   ];
 
@@ -160,6 +164,10 @@ export class ResultsPage implements OnInit {
       lower,
       textElements
     };
+  }
+
+  launchModel(index: number) {
+    console.log(index);
   }
 
   private calculateArea(tpr, fpr) {
