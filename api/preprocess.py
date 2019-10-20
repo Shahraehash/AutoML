@@ -20,7 +20,7 @@ def preprocess(features, pipeline, data):
             # Identify the selected featured for model provided
             for index, feature in reversed(list(enumerate(features.items()))):
 
-                # Remove the feature if unused from the x2 test data
+                # Remove the feature if unused from the data
                 if not feature[1]:
                     data = np.delete(data, index, axis=1)
 
