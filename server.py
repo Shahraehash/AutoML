@@ -14,6 +14,7 @@ from flask_cors import CORS
 
 from api import api
 from api import create_model
+from api import predict
 
 APP = Flask(__name__, static_url_path='')
 CORS(APP)
@@ -41,6 +42,21 @@ def create():
     )
 
     return jsonify({'success': True})
+
+@APP.route('/test', methods=['POST'])
+def test_model():
+    """Tests the selected model against the provided data"""
+
+    label = open('data/label.txt', 'r')
+    label_column = label.read()
+    label.close()
+
+    return jsonify(predict.predict(
+        [float(x) for x in request.form['data'].split(',')],
+        ast.literal_eval(request.form['features']),
+        'data/train.csv',
+        label_column
+    ))
 
 @APP.route('/train', methods=['POST'])
 def find_best_model():

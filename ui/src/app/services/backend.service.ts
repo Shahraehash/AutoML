@@ -28,4 +28,8 @@ export class BackendService {
   createModel(formData) {
     return this.http.post(this.SERVER_URL + '/create', formData);
   }
+
+  testModel(formData) {
+    return this.http.post(this.SERVER_URL + '/test', formData);
+  }
 }
