@@ -8,33 +8,49 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 def import_data(train_path, test_path, label_column):
-    """Import data using the passed paths"""
+    """Import both the training and test data using the passed paths"""
 
-    data = pd.read_csv(train_path).dropna()
-    x = data.drop(label_column, axis=1)
-    y = data[label_column]
+    x, y, feature_names = import_csv(train_path, label_column, True)
+    x2, y2, _ = import_csv(test_path, label_column)
 
-    data_test = pd.read_csv(test_path).dropna()
-    x2 = data_test.drop(label_column, axis=1)
-    y2 = data_test[label_column]
-
-    # Only keep numeric inputs
-    x = x.loc[:, (x.dtypes == np.int64) | (x.dtypes == np.float64)].dropna()
-    x2 = x2.loc[:, (x2.dtypes == np.int64) | (x2.dtypes == np.float64)].dropna()
-
-    feature_names = list(x)
-
+    # Convert the data to a NumPy array
     x = x.to_numpy()
     x2 = x2.to_numpy()
 
-    negative_count = data[data[label_column] == 0].shape[0]
-    positive_count = data[data[label_column] == 1].shape[0]
-
-    print('Negative Cases: %.7g\nPositive Cases: %.7g\n' % (negative_count, positive_count))
-
-    if negative_count / positive_count < .9:
-        print('Warning: Classes are not balanced.')
-
-    # Generate test/train split from the train data
     return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + \
         [x2, y2, feature_names]
+
+def import_train(train_path, label_column):
+    """Import training data using the passed path"""
+
+    x, y, feature_names = import_csv(train_path, label_column, True)
+    return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + [feature_names]
+
+def import_csv(path, label_column, show_warning=False):
+    """Import the specificed sheet"""
+
+    # Read the CSV to memory and drop rows with empty values
+    data = pd.read_csv(path).dropna()
+
+    # Drop the label column from the data
+    x = data.drop(label_column, axis=1)
+
+    # Save the label colum values
+    y = data[label_column]
+
+    # Remove rows which contain data that is not an integer or float value
+    x = x.loc[:, (x.dtypes == np.int64) | (x.dtypes == np.float64)].dropna()
+
+    # Grab the feature names
+    feature_names = list(x)
+
+    if show_warning:
+        negative_count = data[data[label_column] == 0].shape[0]
+        positive_count = data[data[label_column] == 1].shape[0]
+
+        print('Negative Cases: %.7g\nPositive Cases: %.7g\n' % (negative_count, positive_count))
+
+        if negative_count / positive_count < .9:
+            print('Warning: Classes are not balanced.')
+
+    return [x, y, feature_names]

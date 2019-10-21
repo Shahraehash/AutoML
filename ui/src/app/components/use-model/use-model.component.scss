@@ -1,0 +1,11 @@
+.mat-form-field {
+    display: block;
+}
+
+.container {
+    display: flex;
+
+    .inputs {
+        flex-grow: 0.3;
+    }
+}

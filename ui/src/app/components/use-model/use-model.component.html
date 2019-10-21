@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Use Selected Model
+    </ion-title>
+    <ion-buttons slot='end' class='ion-padding-end'>
+      <ion-button fill='solid' color='primary' (click)='exportPMML()'>
+        <ion-icon name='code-download'></ion-icon>
+        PMML
+      </ion-button>
+      <ion-button fill='solid' color='primary' (click)='exportModel()'>
+        <ion-icon name='download'></ion-icon>
+        Download
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class='ion-padding' [formGroup]='testForm'>
+  <div class='container'>
+    <div class='inputs ion-padding' formArrayName='inputs'>
+      <ng-container *ngFor='let feature of features; let i=index'>
+        <mat-form-field>
+          <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
+        </mat-form-field>
+      </ng-container>
+
+      <ion-button expand='block' (click)='testModel()'>Run</ion-button>
+    </div>
+    <div class='results ion-padding'>
+      <span *ngIf='!result'>Enter your test values and push run to the result</span>
+      <div *ngIf='result'>
+        Predicted Outcome: {{result.predicted === 1 ? 'Positive' : 'Negative'}}
+        <br><br>
+        Probability: {{result.probability | number}}%
+      </div>
+    </div>
+  </div>
+</ion-content>

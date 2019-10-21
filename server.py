@@ -5,6 +5,7 @@ Launches the API server and allows access
 using an Angular SPA.
 """
 
+import ast
 import os
 
 import pandas as pd
@@ -12,16 +13,54 @@ from flask import abort, Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
 
 from api import api
+from api import create_model
+from api import predict
 
 APP = Flask(__name__, static_url_path='')
 CORS(APP)
 
 @APP.route('/')
 def load_ui():
+    """Loads `index.html` for the root path"""
+
     return send_from_directory('static', 'index.html')
 
+@APP.route('/create', methods=['POST'])
+def create():
+    """Create a static copy of the selected model"""
+
+    label = open('data/label.txt', 'r')
+    label_column = label.read()
+    label.close()
+
+    create_model.create_model(
+        request.form['key'],
+        ast.literal_eval(request.form['parameters']),
+        ast.literal_eval(request.form['features']),
+        'data/train.csv',
+        label_column
+    )
+
+    return jsonify({'success': True})
+
+@APP.route('/test', methods=['POST'])
+def test_model():
+    """Tests the selected model against the provided data"""
+
+    label = open('data/label.txt', 'r')
+    label_column = label.read()
+    label.close()
+
+    return jsonify(predict.predict(
+        [float(x) for x in request.form['data'].split(',')],
+        'data/train.csv',
+        label_column
+    ))
+
 @APP.route('/train', methods=['POST'])
-def run():
+def find_best_model():
+    """Finds the best model for the selected parameters/data"""
+
     label = open('data/label.txt', 'r')
     label_column = label.read()
     label.close()
@@ -58,6 +97,26 @@ def export_results():
         return
 
     return send_file('report.csv', as_attachment=True)
+
+@APP.route('/export-pmml', methods=['GET'])
+def export_results():
+    """Export the selected model's PMML"""
+
+    if not os.path.exists('pipeline.pmml'):
+        abort(404)
+        return
+
+    return send_file('pipeline.pmml', as_attachment=True)
+
+@APP.route('/export-model', methods=['GET'])
+def export_results():
+    """Export the selected model"""
+
+    if not os.path.exists('pipeline.joblib'):
+        abort(404)
+        return
+
+    return send_file('pipeline.joblib', as_attachment=True)
 
 @APP.route('/upload', methods=['POST'])
 def upload_files():

@@ -1,10 +1,11 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController, ToastController } from '@ionic/angular';
 
 import { BackendService } from '../../services/backend.service';
 import { GeneralizationResult } from '../../interfaces';
+import { UseModelComponent } from '../../components/use-model/use-model.component';
 
 @Component({
   selector: 'app-results',
@@ -13,9 +14,9 @@ import { GeneralizationResult } from '../../interfaces';
 })
 export class ResultsPage implements OnInit {
   activeRow = 0;
-  data;
+  data: GeneralizationResult[];
   rocData;
-  sortedData;
+  sortedData: GeneralizationResult[];
   trainingRocData;
   results: MatTableDataSource<GeneralizationResult>;
   columns: {key: string; name: string; number?: boolean, hideMobile?: boolean}[] = [
@@ -72,6 +73,10 @@ export class ResultsPage implements OnInit {
       key: 'searcher',
       name: 'Searcher',
       hideMobile: true
+    },
+    {
+      key: 'actions',
+      name: ''
     }
   ];
 
@@ -80,6 +85,8 @@ export class ResultsPage implements OnInit {
   constructor(
     private alertController: AlertController,
     private backend: BackendService,
+    private modalController: ModalController,
+    private toastController: ToastController,
   ) {}
 
   ngOnInit() {
@@ -160,6 +167,33 @@ export class ResultsPage implements OnInit {
       lower,
       textElements
     };
+  }
+
+  launchModel(index: number) {
+    const formData = new FormData();
+    formData.append('key', this.sortedData[index].key);
+    formData.append('parameters', this.sortedData[index].best_params);
+    formData.append('features', this.sortedData[index].selected_features);
+
+    this.backend.createModel(formData).subscribe(
+      async () => {
+        const modal = await this.modalController.create({
+          component: UseModelComponent,
+          cssClass: 'test-model',
+          componentProps: {
+            features: JSON.parse(this.sortedData[index].selected_features.replace(/'/g, '"'))
+          }
+        });
+        return await modal.present();
+      },
+      async () => {
+        const toast = await this.toastController.create({
+          message: 'Unable to create the model.',
+          duration: 2000
+        });
+        toast.present();
+      }
+    );
   }
 
   private calculateArea(tpr, fpr) {

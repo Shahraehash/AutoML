@@ -11,10 +11,13 @@ from .processors.scorers import SCORER_NAMES
 def model_key_to_name(key):
     """"Resolve key name to descriptive name"""
 
-    scaler, feature_selector, estimator, searcher, scorer = (key.split('__') + [None])[:5]
+    scaler, feature_selector, estimator, searcher, scorer = explode_key(key)
     search = 'cross validation' if estimator == 'nb' else SEARCHER_NAMES[searcher]
     if scorer:
         search = SCORER_NAMES[scorer] + ' scored ' + search
 
     return ESTIMATOR_NAMES[estimator] + ' model using ' + search + ' with ' +\
         SCALER_NAMES[scaler] + ' and with ' + FEATURE_SELECTOR_NAMES[feature_selector]
+
+def explode_key(key):
+    return (key.split('__') + [None])[:5]
