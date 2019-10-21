@@ -11,6 +11,7 @@ import { BackendService } from '../../services/backend.service';
 export class UseModelComponent implements OnInit {
   @Input() features: string[];
   testForm: FormGroup;
+  result;
 
   constructor(
     private backend: BackendService,
@@ -28,6 +29,13 @@ export class UseModelComponent implements OnInit {
     data.append('data', this.testForm.get('inputs').value);
     data.append('features', JSON.stringify(this.features));
 
-    this.backend.testModel(data).subscribe();
+    this.backend.testModel(data).subscribe(
+      (result) => {
+        this.result = result;
+      },
+      () => {
+        this.result = undefined;
+      }
+    );
   }
 }

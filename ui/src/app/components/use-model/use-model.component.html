@@ -8,7 +8,6 @@
 
 <ion-content class='ion-padding' [formGroup]='testForm'>
   <div class='container'>
-    <ion-label>Input:</ion-label>
     <div class='inputs ion-padding' formArrayName='inputs'>
       <ng-container *ngFor='let feature of features; let i=index'>
         <mat-form-field>
@@ -19,7 +18,12 @@
       <ion-button expand='block' (click)='testModel()'>Run</ion-button>
     </div>
     <div class='results ion-padding'>
-      <ion-label>Output:</ion-label>
+      <span *ngIf='!result'>Enter your test values and push run to the result</span>
+      <div *ngIf='result'>
+        Predicted Outcome: {{result.predicted === 1 ? 'Positive' : 'Negative'}}
+        <br><br>
+        Probability: {{result.probability | number}}%
+      </div>
     </div>
   </div>
 </ion-content>

@@ -53,7 +53,6 @@ def test_model():
 
     return jsonify(predict.predict(
         [float(x) for x in request.form['data'].split(',')],
-        ast.literal_eval(request.form['features']),
         'data/train.csv',
         label_column
     ))

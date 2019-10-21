@@ -31,31 +31,23 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
     scaler, feature_selector, estimator, _, _ = explode_key(key)
     steps = []
 
-    # Add the scaler, if used
-    if scaler and SCALERS[scaler]:
-        steps.append(('scaler', SCALERS[scaler].fit(x_train, y_train)))
-
-    # Add the feature transformer
-    if 'pca-' in feature_selector:
-        steps.append((
-            'feature_selector',
-            FEATURE_SELECTORS[feature_selector].fit(x_train, y_train)
-        ))
-
-    # Or, remove the unused features from the training data
-    elif feature_selector != 'none':
+    # Drop the unused features
+    if 'pca-' not in feature_selector:
         for index, feature in reversed(list(enumerate(features))):
             if feature not in selected_features:
                 x_train = np.delete(x_train, index, axis=1)
 
+    # Add the scaler, if used
+    if scaler and SCALERS[scaler]:
+        steps.append(('scaler', SCALERS[scaler]))
+
+    # Add the feature transformer
+    if 'pca-' in feature_selector:
+        steps.append(('feature_selector', FEATURE_SELECTORS[feature_selector]))
+
     # Add the estimator
-    steps.append((
-        'estimator',
-        ESTIMATORS[estimator].set_params(**hyper_parameters).fit(x_train, y_train)
-    ))
+    steps.append(('estimator', ESTIMATORS[estimator].set_params(**hyper_parameters)))
 
-    pipeline = Pipeline(steps)
-
+    pipeline = Pipeline(steps).fit(x_train, y_train)
     dump(pipeline, 'pipeline.joblib')
-
     return pipeline
