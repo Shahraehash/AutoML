@@ -32,7 +32,7 @@
       <div *ngIf='result'>
         Predicted Outcome: {{result.predicted === 1 ? 'Positive' : 'Negative'}}
         <br><br>
-        Probability: {{result.probability | number}}%
+        Probability: {{(result.probability * 100) | number}}%
       </div>
     </div>
   </div>

@@ -20,7 +20,6 @@ def predict(data, train_set=None, label_column=None):
 
     predicted = pipeline.predict([data])
     probability = pipeline.predict_proba([data])[:, predicted]
-    print(probability)
 
     return {
         'predicted': int(predicted[0]),
