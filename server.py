@@ -99,7 +99,7 @@ def export_results():
     return send_file('report.csv', as_attachment=True)
 
 @APP.route('/export-pmml', methods=['GET'])
-def export_results():
+def export_pmml():
     """Export the selected model's PMML"""
 
     if not os.path.exists('pipeline.pmml'):
@@ -109,7 +109,7 @@ def export_results():
     return send_file('pipeline.pmml', as_attachment=True)
 
 @APP.route('/export-model', methods=['GET'])
-def export_results():
+def export_model():
     """Export the selected model"""
 
     if not os.path.exists('pipeline.joblib'):
