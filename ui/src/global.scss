@@ -162,6 +162,11 @@
   }
 }
 
+.test-model {
+  --height: 80%;
+  --width: 80%;
+}
+
 @-webkit-keyframes load8 {
   0% {
     -webkit-transform: rotate(0deg);

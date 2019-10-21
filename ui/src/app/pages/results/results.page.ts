@@ -1,10 +1,11 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController, ToastController } from '@ionic/angular';
 
 import { BackendService } from '../../services/backend.service';
 import { GeneralizationResult } from '../../interfaces';
+import { UseModelComponent } from '../../components/use-model/use-model.component';
 
 @Component({
   selector: 'app-results',
@@ -84,6 +85,8 @@ export class ResultsPage implements OnInit {
   constructor(
     private alertController: AlertController,
     private backend: BackendService,
+    private modalController: ModalController,
+    private toastController: ToastController,
   ) {}
 
   ngOnInit() {
@@ -167,13 +170,27 @@ export class ResultsPage implements OnInit {
   }
 
   launchModel(index: number) {
-    console.log(index);
     const formData = new FormData();
     formData.append('key', this.sortedData[index].key);
     formData.append('parameters', this.sortedData[index].best_params);
     formData.append('features', this.sortedData[index].selected_features);
 
-    this.backend.createModel(formData).subscribe();
+    this.backend.createModel(formData).subscribe(
+      async () => {
+        const modal = await this.modalController.create({
+          component: UseModelComponent,
+          cssClass: 'test-model'
+        });
+        return await modal.present();
+      },
+      async () => {
+        const toast = await this.toastController.create({
+          message: 'Unable to create the model.',
+          duration: 2000
+        });
+        toast.present();
+      }
+    );
   }
 
   private calculateArea(tpr, fpr) {

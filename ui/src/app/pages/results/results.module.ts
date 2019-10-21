@@ -8,6 +8,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ResultsPage } from './results.page';
 import { RocChartComponent } from '../../components/roc-chart/roc-chart.component';
+import { UseModelComponent } from '../../components/use-model/use-model.component';
 
 const routes: Routes = [
   {
@@ -17,14 +18,15 @@ const routes: Routes = [
 ];
 
 @NgModule({
+  entryComponents: [UseModelComponent],
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
     MatSortModule,
-    MatTableModule
+    MatTableModule,
   ],
-  declarations: [RocChartComponent, ResultsPage]
+  declarations: [RocChartComponent, UseModelComponent, ResultsPage]
 })
 export class ResultsPageModule {}
