@@ -19,6 +19,7 @@ data/*
 
 # UI build
 static/
+*.joblib
 
 # Unit test / coverage reports
 htmlcov/

@@ -1,9 +1,31 @@
 export  class GeneralizationResult {
-    pipeline: string;
-    accuracy: string;
-    auc: string;
-    f1: string;
-    sensitivity: string;
-    specificity: string;
+    key: string;
+    scaler: string;
+    feature_selector: string;
+    estimator: string;
+    searcher: string;
+    scorer: string;
+    accuracy: number;
+    auc: number;
+    f1: number;
+    sensitivity: number;
+    specificity: number;
+    tn: number;
+    tp: number;
+    fn: number;
+    fp: number;
+    selected_features: string;
     best_params: string;
+    std_auc: string;
+    mean_fpr: string;
+    mean_tpr: string;
+    mean_upper: string;
+    mean_lower: string;
+    test_fpr: string;
+    test_tpr: string;
+    generalization_fpr: string;
+    generalization_tpr: string;
+    brier_score: string;
+    fop: string;
+    mpv: string;
 }

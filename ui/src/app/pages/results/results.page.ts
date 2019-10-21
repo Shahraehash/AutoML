@@ -13,9 +13,9 @@ import { GeneralizationResult } from '../../interfaces';
 })
 export class ResultsPage implements OnInit {
   activeRow = 0;
-  data;
+  data: GeneralizationResult[];
   rocData;
-  sortedData;
+  sortedData: GeneralizationResult[];
   trainingRocData;
   results: MatTableDataSource<GeneralizationResult>;
   columns: {key: string; name: string; number?: boolean, hideMobile?: boolean}[] = [
@@ -168,6 +168,12 @@ export class ResultsPage implements OnInit {
 
   launchModel(index: number) {
     console.log(index);
+    const formData = new FormData();
+    formData.append('key', this.sortedData[index].key);
+    formData.append('parameters', this.sortedData[index].best_params);
+    formData.append('features', this.sortedData[index].selected_features);
+
+    this.backend.createModel(formData).subscribe();
   }
 
   private calculateArea(tpr, fpr) {

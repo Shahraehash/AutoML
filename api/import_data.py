@@ -19,7 +19,7 @@ def import_train(train_path, label_column):
     """Import training data using the passed path"""
 
     x, y, feature_names = import_csv(train_path, label_column, True)
-    return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + feature_names
+    return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + [feature_names]
 
 def import_csv(path, label_column, show_warning=False):
     """Import the specificed sheet"""
