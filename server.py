@@ -98,6 +98,26 @@ def export_results():
 
     return send_file('report.csv', as_attachment=True)
 
+@APP.route('/export-pmml', methods=['GET'])
+def export_results():
+    """Export the selected model's PMML"""
+
+    if not os.path.exists('pipeline.pmml'):
+        abort(404)
+        return
+
+    return send_file('pipeline.pmml', as_attachment=True)
+
+@APP.route('/export-model', methods=['GET'])
+def export_results():
+    """Export the selected model"""
+
+    if not os.path.exists('pipeline.joblib'):
+        abort(404)
+        return
+
+    return send_file('pipeline.joblib', as_attachment=True)
+
 @APP.route('/upload', methods=['POST'])
 def upload_files():
     """Upload files to the server"""

@@ -3,6 +3,16 @@
     <ion-title>
       Use Selected Model
     </ion-title>
+    <ion-buttons slot='end' class='ion-padding-end'>
+      <ion-button fill='solid' color='primary' (click)='exportPMML()'>
+        <ion-icon name='code-download'></ion-icon>
+        PMML
+      </ion-button>
+      <ion-button fill='solid' color='primary' (click)='exportModel()'>
+        <ion-icon name='download'></ion-icon>
+        Download
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 

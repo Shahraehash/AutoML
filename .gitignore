@@ -20,6 +20,7 @@ data/*
 # UI build
 static/
 *.joblib
+*.pmml
 
 # Unit test / coverage reports
 htmlcov/

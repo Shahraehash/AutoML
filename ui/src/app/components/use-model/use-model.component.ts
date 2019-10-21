@@ -38,4 +38,12 @@ export class UseModelComponent implements OnInit {
       }
     );
   }
+
+  exportModel() {
+    window.open('http://127.0.0.1:5000/export-model', '_self');
+  }
+
+  exportPMML() {
+    window.open('http://127.0.0.1:5000/export-pmml', '_self');
+  }
 }

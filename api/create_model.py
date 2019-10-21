@@ -5,7 +5,8 @@ the key, hyper parameters and features used).
 
 import numpy as np
 from joblib import dump
-from sklearn.pipeline import Pipeline
+from sklearn2pmml import sklearn2pmml
+from sklearn2pmml.pipeline import PMMLPipeline as Pipeline
 
 from .processors.estimators import ESTIMATORS
 from .processors.feature_selection import FEATURE_SELECTORS
@@ -50,4 +51,5 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
 
     pipeline = Pipeline(steps).fit(x_train, y_train)
     dump(pipeline, 'pipeline.joblib')
+    sklearn2pmml(pipeline, 'pipeline.pmml', with_repr=True)
     return pipeline

@@ -12,6 +12,11 @@ def import_data(train_path, test_path, label_column):
 
     x, y, feature_names = import_csv(train_path, label_column, True)
     x2, y2, _ = import_csv(test_path, label_column)
+
+    # Convert the data to a NumPy array
+    x = x.to_numpy()
+    x2 = x2.to_numpy()
+
     return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + \
         [x2, y2, feature_names]
 
@@ -38,9 +43,6 @@ def import_csv(path, label_column, show_warning=False):
 
     # Grab the feature names
     feature_names = list(x)
-
-    # Convert the data to a NumPy array
-    x = x.to_numpy()
 
     if show_warning:
         negative_count = data[data[label_column] == 0].shape[0]
