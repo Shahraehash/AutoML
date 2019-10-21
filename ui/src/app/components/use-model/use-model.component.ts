@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-use-model',
@@ -6,9 +7,16 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./use-model.component.scss'],
 })
 export class UseModelComponent implements OnInit {
+  @Input() features: string[];
+  testForm: FormGroup;
 
-  constructor() { }
+  constructor(
+    private formBuilder: FormBuilder,
+  ) {}
 
-  ngOnInit() {}
-
+  ngOnInit() {
+    this.testForm = this.formBuilder.group({
+      inputs: this.formBuilder.array(this.features, Validators.required)
+    });
+  }
 }

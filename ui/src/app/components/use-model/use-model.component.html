@@ -1,3 +1,17 @@
-<p>
-  use-model works!
-</p>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Use Selected Model
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class='ion-padding' [formGroup]='testForm'>
+  <div class='inputs' formArrayName='inputs'>
+    <div *ngFor='let feature of features; let i=index'>
+      <mat-form-field>
+        <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
+      </mat-form-field>
+    </div>
+  </div>
+</ion-content>

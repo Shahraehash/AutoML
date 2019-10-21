@@ -179,7 +179,10 @@ export class ResultsPage implements OnInit {
       async () => {
         const modal = await this.modalController.create({
           component: UseModelComponent,
-          cssClass: 'test-model'
+          cssClass: 'test-model',
+          componentProps: {
+            features: JSON.parse(this.sortedData[index].selected_features.replace(/'/g, '"'))
+          }
         });
         return await modal.present();
       },
