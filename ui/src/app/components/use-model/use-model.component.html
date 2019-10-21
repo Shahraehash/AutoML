@@ -7,11 +7,19 @@
 </ion-header>
 
 <ion-content class='ion-padding' [formGroup]='testForm'>
-  <div class='inputs' formArrayName='inputs'>
-    <div *ngFor='let feature of features; let i=index'>
-      <mat-form-field>
-        <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
-      </mat-form-field>
+  <div class='container'>
+    <ion-label>Input:</ion-label>
+    <div class='inputs ion-padding' formArrayName='inputs'>
+      <ng-container *ngFor='let feature of features; let i=index'>
+        <mat-form-field>
+          <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
+        </mat-form-field>
+      </ng-container>
+
+      <ion-button expand='block' (click)='testModel()'>Run</ion-button>
+    </div>
+    <div class='results ion-padding'>
+      <ion-label>Output:</ion-label>
     </div>
   </div>
 </ion-content>

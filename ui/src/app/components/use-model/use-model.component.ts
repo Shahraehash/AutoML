@@ -19,4 +19,8 @@ export class UseModelComponent implements OnInit {
       inputs: this.formBuilder.array(this.features, Validators.required)
     });
   }
+
+  testModel() {
+    
+  }
 }
