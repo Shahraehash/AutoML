@@ -5,15 +5,15 @@
 </ion-header>
 
 <ion-content>
-  <mat-horizontal-stepper #stepper>
-    <mat-step label='Select Data'>
+  <mat-horizontal-stepper #stepper [formGroup]='progressForm'>
+    <mat-step label='Select Data' formGroupName='upload' [stepControl]='progressForm.get("upload")'>
       <app-upload [stepFinished]='stepFinished'></app-upload>
     </mat-step>
-    <mat-step label='Train'>
+    <mat-step label='Train' formGroupName='train'>
       <app-train [stepFinished]='stepFinished' [featureCount]='featureCount'></app-train>
     </mat-step>
-    <mat-step label='View Results'>
-      <app-results></app-results>
+    <mat-step label='View Results' formGroupName='result'>
+      <app-results [isActive]='stepper?.selectedIndex === 2'></app-results>
     </mat-step>
   </mat-horizontal-stepper>
 </ion-content>

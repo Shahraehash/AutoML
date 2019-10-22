@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, Input, ViewChild, OnChanges } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
@@ -12,7 +12,8 @@ import { UseModelComponent } from '../../components/use-model/use-model.componen
   templateUrl: './results.page.html',
   styleUrls: ['./results.page.scss'],
 })
-export class ResultsPage implements OnInit {
+export class ResultsPage implements OnChanges {
+  @Input() isActive: boolean;
   activeRow = 0;
   data: GeneralizationResult[];
   loading: HTMLIonLoadingElement;
@@ -91,7 +92,11 @@ export class ResultsPage implements OnInit {
     private toastController: ToastController,
   ) {}
 
-  ngOnInit() {
+  ngOnChanges() {
+    if (!this.isActive) {
+      return;
+    }
+
     this.backend.getResults().subscribe(
       data => {
         this.data = data;

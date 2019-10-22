@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatStepper } from '@angular/material';
 
 @Component({
@@ -6,23 +7,29 @@ import { MatStepper } from '@angular/material';
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage {
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
-  featureCount;
-  uploadCompleted = false;
+  progressForm: FormGroup;
+  featureCount: number;
 
   stepFinished = (step, extra) => {
     this.stepper.next();
 
     switch (step) {
       case 'upload':
-        this.uploadCompleted = true;
         this.featureCount = extra;
+        this.progressForm.get('upload').setValue(true);
     }
   }
 
-  constructor() {}
-
-  ngOnInit() {}
+  constructor(
+    private formBuilder: FormBuilder
+  ) {
+    this.progressForm = this.formBuilder.group({
+      upload: ['', Validators.required],
+      train: ['', Validators.required],
+      result: ['', Validators.required]
+    });
+  }
 }
