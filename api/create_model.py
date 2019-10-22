@@ -49,7 +49,16 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
     # Add the estimator
     steps.append(('estimator', ESTIMATORS[estimator].set_params(**hyper_parameters)))
 
+    # Fit the pipeline using the same training data
     pipeline = Pipeline(steps).fit(x_train, y_train)
+
+    # Dump the pipeline to a file
     dump(pipeline, 'pipeline.joblib')
-    skl_to_pmml(pipeline, selected_features, label_column, 'pipeline.pmml')
+
+    # Export the model as a PMML
+    try:
+        skl_to_pmml(pipeline, selected_features, label_column, 'pipeline.pmml')
+    except:
+        print('Unable to export PMML of the model...')
+
     return pipeline
