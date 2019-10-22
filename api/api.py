@@ -69,8 +69,8 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
 
     for estimator, feature_selector, scaler, searcher in all_pipelines:
 
-        # SVM without scaling can loop consume infinite CPU time so
-        # prevent that combination here.
+        # SVM without scaling can loop consuming infinite CPU time so
+        # we prevent that combination here.
         #
         # If any of the steps are matched in the ignore, then continue.
         if (estimator == 'svm' and scaler == 'none') or\

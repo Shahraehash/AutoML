@@ -37,10 +37,15 @@
     <div class='table-wrapper'>
       <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
-        <ng-container [matColumnDef]="column.key" *ngFor="let column of columns">
+        <ng-container [matColumnDef]='column.key' *ngFor='let column of columns'>
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{column.name}}</th>
-          <td mat-cell *matCellDef="let element" class="title-case">
-            {{column.number ? ( element[column.key] | number ) : element[column.key]}}
+          <td mat-cell *matCellDef='let element; let i = index' class='title-case'>
+            <span *ngIf='column.key !== "actions"'>
+              {{column.number ? ( element[column.key] | number ) : element[column.key]}}
+            </span>
+            <span *ngIf='column.key === "actions"'>
+              <ion-icon name='play-circle' color='success' size='large' (click)='launchModel(i)'></ion-icon>
+            </span>
           </td>
         </ng-container>
 

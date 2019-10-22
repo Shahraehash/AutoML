@@ -30,15 +30,9 @@ export class TrainPage implements OnInit {
       scalers: this.formBuilder.array(this.pipelineProcessors.scalers, requireAtLeastOneCheckedValidator()),
       featureSelectors: this.formBuilder.array(this.pipelineProcessors.featureSelectors, requireAtLeastOneCheckedValidator()),
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
-      scorers: this.formBuilder.array(this.pipelineProcessors.scorers, requireAtLeastOneCheckedValidator()),
+      scorers: this.formBuilder.array(this.pipelineProcessors.scorers),
       shuffle: [true]
     });
-
-    this.trainForm.get('estimators').valueChanges.subscribe(this.generatePipelines.bind(this));
-    this.trainForm.get('scalers').valueChanges.subscribe(this.generatePipelines.bind(this));
-    this.trainForm.get('featureSelectors').valueChanges.subscribe(this.generatePipelines.bind(this));
-    this.trainForm.get('searchers').valueChanges.subscribe(this.generatePipelines.bind(this));
-    this.trainForm.get('scorers').valueChanges.subscribe(this.generatePipelines.bind(this));
 
     try {
       const options = JSON.parse(localStorage.getItem('training-options'));
@@ -85,6 +79,8 @@ export class TrainPage implements OnInit {
     );
 
     localStorage.setItem('training-options', JSON.stringify(this.trainForm.value));
+
+    this.generatePipelines();
   }
 
   private getValues(key) {
@@ -93,7 +89,7 @@ export class TrainPage implements OnInit {
     });
   }
 
-  private getChecked(key) {
+  private getChecked(key): any[] {
     return this.trainForm.get(key).value.flatMap((value, index) => {
       return !value ? [] : this.pipelineProcessors[key][index].label;
     });
@@ -118,7 +114,9 @@ export class TrainPage implements OnInit {
       this.getChecked('scalers'),
       this.getChecked('featureSelectors'),
       this.getChecked('searchers'),
-      this.getChecked('scorers'),
+
+      /** Manually add this since it's required for the UI */
+      this.getChecked('scorers').concat('ROC_AUC'),
     );
   }
 }

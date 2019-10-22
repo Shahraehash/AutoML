@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Use Selected Model
+    </ion-title>
+    <ion-buttons slot='end' class='ion-padding-end'>
+      <ion-button fill='solid' color='primary' (click)='exportPMML()'>
+        <ion-icon name='code-download'></ion-icon>
+        PMML
+      </ion-button>
+      <ion-button fill='solid' color='primary' (click)='exportModel()'>
+        <ion-icon name='download'></ion-icon>
+        Download
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class='ion-padding' [formGroup]='testForm'>
+  <div class='container'>
+    <div class='inputs ion-padding' formArrayName='inputs'>
+      <ng-container *ngFor='let feature of features; let i=index'>
+        <mat-form-field color='accent'>
+          <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
+        </mat-form-field>
+      </ng-container>
+    </div>
+    <div class='results ion-padding'>
+      <span *ngIf='!result'>Please enter the values you wish to test</span>
+      <div *ngIf='result'>
+        <span class='label'>Predicted Outcome</span>:
+        {{result.predicted === 1 ? 'Positive' : 'Negative'}} for {{ result.target }}
+        <ion-icon
+          class='indicator'
+          size='large'
+          [color]='result.predicted === 1 ? "danger" : "success"'
+          [name]='result.predicted === 1 ? "add-circle" : "remove-circle"'></ion-icon>
+        <br><br>
+        <span class='label'>Probability</span>: {{(result.probability * 100) | number}}%
+
+        <p>
+          The predications confidence is indicated by the probability above. Higher indicates a stronger confidence in the prediction.
+        </p>
+      </div>
+    </div>
+  </div>
+  <ion-button expand='block' (click)='testModel()' class='submit'>Run</ion-button>
+</ion-content>

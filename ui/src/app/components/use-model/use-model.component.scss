@@ -1,0 +1,29 @@
+.mat-form-field {
+    display: block;
+}
+
+.container {
+    display: flex;
+    height: 80%;
+    overflow-y: hidden;
+    margin-bottom: 20px;
+
+    .inputs {
+        overflow-y: scroll;
+    }
+
+    .results {
+        .label {
+            font-weight: 700;
+        }
+
+        .indicator {
+            vertical-align: middle;
+        }
+    }
+}
+
+.submit {
+    width: 80%;
+    margin: 0 auto;
+}

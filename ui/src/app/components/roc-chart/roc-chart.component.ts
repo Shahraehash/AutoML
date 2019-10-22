@@ -72,7 +72,7 @@ export class RocChartComponent implements OnInit, OnChanges {
             .attr('y', 40)
             .style('font-size', '12px')
             .style('text-anchor', 'middle')
-            .text(this.mode === 'reliability' ? 'Mean Predicted Value' : 'False Positive Rate');
+            .text(this.mode === 'reliability' ? 'Predicted Probability' : 'False Positive Rate');
 
 
         this.svg.append('g')
@@ -84,11 +84,11 @@ export class RocChartComponent implements OnInit, OnChanges {
             .attr('x', 0 - this.cfg.height / 2.8)
             .style('font-size', '12px')
             .style('text-anchor', 'left')
-            .text(this.mode === 'reliability' ? 'Fraction of Positives' : 'True Positive Rate');
+            .text(this.mode === 'reliability' ? 'Observed Probability' : 'True Positive Rate');
 
         this.svg.append('line')
             .attr('class', 'curve')
-            .attr('class', 'guess')
+            .attr('class', this.mode === 'reliability' ? 'ideal' : 'guess')
             .attr('x1', 0)
             .attr('x2', this.cfg.width)
             .attr('y1', this.cfg.height)

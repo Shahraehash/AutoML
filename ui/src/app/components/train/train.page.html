@@ -24,6 +24,9 @@
       </div>
       <div formArrayName='scorers'>
         <h6>Scorers</h6>
+
+        <!-- Manually add ROC AUC since it's required by the UI -->
+        <mat-checkbox disabled='disabled' checked='checked'>ROC AUC</mat-checkbox>
         <mat-checkbox *ngFor='let scorer of pipelineProcessors.scorers; let i=index' [formControlName]='i'>{{scorer.label}}</mat-checkbox>
       </div>
     </div>

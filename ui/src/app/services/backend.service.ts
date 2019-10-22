@@ -24,4 +24,12 @@ export class BackendService {
   getResults() {
     return this.http.get<GeneralizationResult[]>(this.SERVER_URL + '/results');
   }
+
+  createModel(formData) {
+    return this.http.post(this.SERVER_URL + '/create', formData);
+  }
+
+  testModel(formData) {
+    return this.http.post(this.SERVER_URL + '/test', formData);
+  }
 }

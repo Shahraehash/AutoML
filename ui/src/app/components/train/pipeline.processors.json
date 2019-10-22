@@ -97,10 +97,6 @@
         "value": "accuracy"
       },
       {
-        "label": "ROC AUC",
-        "value": "roc_auc"
-      },
-      {
         "label": "F1",
         "value": "f1_macro"
       }
