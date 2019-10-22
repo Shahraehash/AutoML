@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   MatCheckboxModule,
+  MatInputModule,
   MatStepperModule,
   MatTableModule,
   MatSortModule
@@ -17,6 +18,7 @@ import { TrainPage } from '../../components/train/train.page';
 import { UploadPage } from '../../components/upload/upload.page';
 import { RadialDendrogramComponent } from '../../components/radial-dendrogram/radial-dendrogram.component';
 import { RocChartComponent } from '../../components/roc-chart/roc-chart.component';
+import { UseModelComponent } from '../../components/use-model/use-model.component';
 
 const routes: Routes = [
   {
@@ -26,17 +28,19 @@ const routes: Routes = [
 ];
 
 @NgModule({
+  entryComponents: [UseModelComponent],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
     MatCheckboxModule,
+    MatInputModule,
     MatTableModule,
     MatStepperModule,
     MatSortModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [HomePage, UploadPage, ResultsPage, TrainPage, RadialDendrogramComponent, RocChartComponent]
+  declarations: [HomePage, UploadPage, ResultsPage, TrainPage, RadialDendrogramComponent, RocChartComponent, UseModelComponent]
 })
 export class HomePageModule {}

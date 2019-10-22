@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
@@ -12,6 +12,7 @@ import { BackendService } from '../../services/backend.service';
   styleUrls: ['upload.scss'],
 })
 export class UploadPage {
+  @Input() stepFinished;
   labels = [];
   uploadForm: FormGroup;
 
@@ -35,7 +36,7 @@ export class UploadPage {
     formData.append('label_column', this.uploadForm.get('label_column').value);
 
     this.backend.submitData(formData).subscribe(
-      () => this.router.navigate(['/train', {upload: true, labels: this.labels.length}]),
+      this.stepFinished,
       async () => {
         const alert = await this.alertController.create({
           header: 'Unable to Upload Data',

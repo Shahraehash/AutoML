@@ -5,14 +5,14 @@
 </ion-header>
 
 <ion-content>
-  <mat-horizontal-stepper #stepper linear>
+  <mat-horizontal-stepper #stepper>
     <mat-step>
       <ng-template matStepLabel>Select Data</ng-template>
-      <app-upload></app-upload>
+      <app-upload [stepFinished]='stepFinished'></app-upload>
     </mat-step>
     <mat-step>
       <ng-template matStepLabel>Train</ng-template>
-      <app-train></app-train>
+      <app-train [stepFinished]='stepFinished'></app-train>
     </mat-step>
     <mat-step>
       <ng-template matStepLabel>View Results</ng-template>

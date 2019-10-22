@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatStepper } from '@angular/material';
 
 @Component({
   selector: 'app-home',
@@ -6,10 +7,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
+  @ViewChild('stepper', {static: false}) stepper: MatStepper;
+  uploadCompleted: false;
+  stepFinished = () => {
+    this.stepper.next();
   }
 
+  constructor() {}
+
+  ngOnInit() {}
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
@@ -13,6 +13,7 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
   styleUrls: ['train.page.scss']
 })
 export class TrainPage implements OnInit {
+  @Input() stepFinished;
   allPipelines;
   training = false;
   trainForm: FormGroup;
@@ -65,7 +66,7 @@ export class TrainPage implements OnInit {
     this.backend.startTraining(formData).subscribe(
       () => {
         this.training = false;
-        this.router.navigate(['/results']);
+        this.stepFinished();
       },
       async () => {
         const alert = await this.alertController.create({
