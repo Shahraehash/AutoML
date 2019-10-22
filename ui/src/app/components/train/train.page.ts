@@ -1,6 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 
 import * as pipelineOptions from './pipeline.processors.json';
@@ -12,8 +11,9 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
   templateUrl: 'train.page.html',
   styleUrls: ['train.page.scss']
 })
-export class TrainPage implements OnInit {
+export class TrainPage implements OnChanges {
   @Input() stepFinished;
+  @Input() featureCount;
   allPipelines;
   training = false;
   trainForm: FormGroup;
@@ -22,8 +22,7 @@ export class TrainPage implements OnInit {
   constructor(
     private alertController: AlertController,
     private backend: BackendService,
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute
+    private formBuilder: FormBuilder
   ) {
     this.trainForm = this.formBuilder.group({
       estimators: this.formBuilder.array(this.pipelineProcessors.estimators, requireAtLeastOneCheckedValidator()),
@@ -40,12 +39,10 @@ export class TrainPage implements OnInit {
     } catch (err) {}
   }
 
-  ngOnInit() {
-    if (this.route.snapshot.params.labels && this.route.snapshot.params.labels < 3) {
+  ngOnChanges() {
+    if (this.featureCount && this.featureCount < 3) {
       this.trainForm.get('featureSelectors').disable();
     }
-
-    this.generatePipelines();
   }
 
   startTraining() {

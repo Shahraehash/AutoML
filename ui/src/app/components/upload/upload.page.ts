@@ -34,7 +34,9 @@ export class UploadPage {
     formData.append('label_column', this.uploadForm.get('label_column').value);
 
     this.backend.submitData(formData).subscribe(
-      this.stepFinished,
+      () => {
+        this.stepFinished('upload', this.labels.length);
+      },
       async () => {
         const alert = await this.alertController.create({
           header: 'Unable to Upload Data',

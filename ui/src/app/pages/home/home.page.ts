@@ -8,9 +8,18 @@ import { MatStepper } from '@angular/material';
 })
 export class HomePage implements OnInit {
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
-  uploadCompleted: false;
-  stepFinished = () => {
+
+  featureCount;
+  uploadCompleted = false;
+
+  stepFinished = (step, extra) => {
     this.stepper.next();
+
+    switch (step) {
+      case 'upload':
+        this.uploadCompleted = true;
+        this.featureCount = extra;
+    }
   }
 
   constructor() {}
