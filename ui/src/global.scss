@@ -25,6 +25,22 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
+@import '@angular/material/prebuilt-themes/purple-green.css';
+
+@media(min-width: 768px) {
+  .test-model {
+    --height: 45%;
+  }  
+}
+
+.mat-form-field-underline {
+  background-color: var(--ion-color-dark) !important;
+}
+
+.mat-form-field-label {
+  color: var(--ion-color-dark) !important;
+}
+
 .mat-table {
   background: #fff;
 
@@ -118,6 +134,14 @@
     border-color: rgba(255,255,255,.7);
   }
 
+  .mat-form-field-underline {
+    background-color: var(--ion-color-light) !important;
+  }
+  
+  .mat-form-field-label {
+    color: var(--ion-color-light) !important;
+  }  
+
   .roc{
     .axis {
       fill: var(--ion-color-light);
@@ -128,8 +152,6 @@
     fill: white;
   }
 }
-
-@import '@angular/material/prebuilt-themes/purple-green.css';
 
 .radial {
   .node circle {

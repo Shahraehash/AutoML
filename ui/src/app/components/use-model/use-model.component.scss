@@ -8,4 +8,14 @@
     .inputs {
         flex-grow: 0.3;
     }
+
+    .results {
+        .label {
+            font-weight: 700;
+        }
+
+        .indicator {
+            vertical-align: middle;
+        }
+    }
 }
