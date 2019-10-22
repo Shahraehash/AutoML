@@ -24,8 +24,6 @@
           <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
         </mat-form-field>
       </ng-container>
-
-      <ion-button expand='block' (click)='testModel()'>Run</ion-button>
     </div>
     <div class='results ion-padding'>
       <span *ngIf='!result'>Please enter the values you wish to test</span>
@@ -46,4 +44,5 @@
       </div>
     </div>
   </div>
+  <ion-button expand='block' (click)='testModel()' class='submit'>Run</ion-button>
 </ion-content>

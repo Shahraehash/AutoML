@@ -4,9 +4,12 @@
 
 .container {
     display: flex;
+    height: 80%;
+    overflow-y: hidden;
+    margin-bottom: 20px;
 
     .inputs {
-        flex-grow: 0.3;
+        overflow-y: scroll;
     }
 
     .results {
@@ -18,4 +21,9 @@
             vertical-align: middle;
         }
     }
+}
+
+.submit {
+    width: 80%;
+    margin: 0 auto;
 }
