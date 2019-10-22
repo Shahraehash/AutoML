@@ -15,7 +15,7 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
 export class TrainPage implements OnInit {
   @Input() stepFinished;
   allPipelines;
-  training = true;
+  training = false;
   trainForm: FormGroup;
   pipelineProcessors = (pipelineOptions as any).default;
 
