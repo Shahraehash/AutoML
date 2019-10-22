@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { parse } from 'papaparse';
@@ -19,8 +18,7 @@ export class UploadPage {
   constructor(
     private alertController: AlertController,
     private backend: BackendService,
-    private formBuilder: FormBuilder,
-    private router: Router
+    private formBuilder: FormBuilder
   ) {
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],

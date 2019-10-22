@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 
 import * as pipelineOptions from './pipeline.processors.json';
@@ -15,7 +15,7 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
 export class TrainPage implements OnInit {
   @Input() stepFinished;
   allPipelines;
-  training = false;
+  training = true;
   trainForm: FormGroup;
   pipelineProcessors = (pipelineOptions as any).default;
 
@@ -23,8 +23,7 @@ export class TrainPage implements OnInit {
     private alertController: AlertController,
     private backend: BackendService,
     private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router
+    private route: ActivatedRoute
   ) {
     this.trainForm = this.formBuilder.group({
       estimators: this.formBuilder.array(this.pipelineProcessors.estimators, requireAtLeastOneCheckedValidator()),
