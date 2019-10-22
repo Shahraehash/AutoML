@@ -33,12 +33,28 @@
   }  
 }
 
+.mat-stepper-horizontal {
+  background-color: transparent;
+}
+
 .mat-form-field-underline {
   background-color: var(--ion-color-dark) !important;
 }
 
 .mat-form-field-label {
   color: var(--ion-color-dark) !important;
+}
+
+.mat-step-label {
+  color: var(--ion-color-dark) !important;
+}
+
+.mat-step-icon {
+  background-color: var(--ion-color-primary) !important;
+}
+
+.mat-stepper-horizontal-line {
+  border-top-color: rgba(0,0,0,.12) !important;
 }
 
 .mat-table {
@@ -142,6 +158,14 @@
     color: var(--ion-color-light) !important;
   }  
 
+  .mat-step-label {
+    color: var(--ion-color-light) !important;
+  }
+
+  .mat-stepper-horizontal-line {
+    border-top-color: rgba(255,255,255,.12) !important;
+  }  
+  
   .roc{
     .axis {
       fill: var(--ion-color-light);
