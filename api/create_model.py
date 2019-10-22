@@ -3,6 +3,7 @@ Creates the model based on the pipeline components (provided by
 the key, hyper parameters and features used).
 """
 
+import os
 import numpy as np
 from joblib import dump
 from nyoka import skl_to_pmml
@@ -59,6 +60,6 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
     try:
         skl_to_pmml(pipeline, selected_features, label_column, 'pipeline.pmml')
     except:
-        print('Unable to export PMML of the model...')
+        os.remove('pipeline.pmml')
 
     return pipeline
