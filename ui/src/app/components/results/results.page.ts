@@ -1,7 +1,7 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
 
 import { BackendService } from '../../services/backend.service';
 import { GeneralizationResult } from '../../interfaces';
@@ -15,6 +15,7 @@ import { UseModelComponent } from '../../components/use-model/use-model.componen
 export class ResultsPage implements OnInit {
   activeRow = 0;
   data: GeneralizationResult[];
+  loading: HTMLIonLoadingElement;
   rocData;
   sortedData: GeneralizationResult[];
   trainingRocData;
@@ -85,6 +86,7 @@ export class ResultsPage implements OnInit {
   constructor(
     private alertController: AlertController,
     private backend: BackendService,
+    private loadingController: LoadingController,
     private modalController: ModalController,
     private toastController: ToastController,
   ) {}
@@ -170,6 +172,7 @@ export class ResultsPage implements OnInit {
   }
 
   launchModel(index: number) {
+    this.presentLoading();
     const formData = new FormData();
     formData.append('key', this.sortedData[index].key);
     formData.append('parameters', this.sortedData[index].best_params);
@@ -184,7 +187,8 @@ export class ResultsPage implements OnInit {
             features: JSON.parse(this.sortedData[index].selected_features.replace(/'/g, '"'))
           }
         });
-        return await modal.present();
+        await modal.present();
+        this.loading.dismiss();
       },
       async () => {
         const toast = await this.toastController.create({
@@ -204,5 +208,12 @@ export class ResultsPage implements OnInit {
       }
     });
     return area.toFixed(4);
+  }
+
+  private async presentLoading() {
+    this.loading = await this.loadingController.create({
+      message: 'Refitting selected model'
+    });
+    await this.loading.present();
   }
 }
