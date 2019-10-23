@@ -20,7 +20,9 @@ export class UseModelComponent implements OnInit {
 
   ngOnInit() {
     this.testForm = this.formBuilder.group({
-      inputs: this.formBuilder.array(this.features, Validators.required)
+      inputs: this.formBuilder.array(
+        new Array(this.features.length).fill(['', Validators.required])
+      )
     });
   }
 
