@@ -62,7 +62,7 @@ export class TrainPage implements OnChanges {
     this.backend.startTraining(formData).subscribe(
       () => {
         this.training = false;
-        this.stepFinished();
+        this.stepFinished('train');
       },
       async () => {
         const alert = await this.alertController.create({

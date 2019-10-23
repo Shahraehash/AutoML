@@ -5,14 +5,14 @@
 </ion-header>
 
 <ion-content>
-  <mat-horizontal-stepper #stepper [formGroup]='progressForm'>
-    <mat-step label='Select Data' formGroupName='upload' [stepControl]='progressForm.get("upload")'>
+  <mat-horizontal-stepper #stepper>
+    <mat-step label='Select Data' [stepControl]='uploadForm' [editable]='!uploadForm.valid' errorMessage='Data upload is required.'>
       <app-upload [stepFinished]='stepFinished'></app-upload>
     </mat-step>
-    <mat-step label='Train' formGroupName='train'>
+    <mat-step label='Train' [stepControl]='trainForm' [editable]='!trainForm.valid' errorMessage='Pipeline elements need selection.'>
       <app-train [stepFinished]='stepFinished' [featureCount]='featureCount'></app-train>
     </mat-step>
-    <mat-step label='View Results' formGroupName='result'>
+    <mat-step label='View Results'>
       <app-results [isActive]='stepper?.selectedIndex === 2'></app-results>
     </mat-step>
   </mat-horizontal-stepper>

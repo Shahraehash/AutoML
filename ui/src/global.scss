@@ -49,7 +49,7 @@
   color: var(--ion-color-dark) !important;
 }
 
-.mat-step-icon {
+.mat-step-icon:not(.mat-step-icon-state-error) {
   background-color: var(--ion-color-primary) !important;
 }
 

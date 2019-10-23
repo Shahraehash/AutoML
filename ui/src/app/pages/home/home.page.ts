@@ -1,16 +1,21 @@
 import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatStepper } from '@angular/material';
+import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
+  providers: [{
+    provide: STEPPER_GLOBAL_OPTIONS, useValue: {showError: true}
+  }]
 })
 export class HomePage {
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
-  progressForm: FormGroup;
+  uploadForm: FormGroup;
+  trainForm: FormGroup;
   featureCount: number;
 
   stepFinished = (step, extra) => {
@@ -19,17 +24,22 @@ export class HomePage {
     switch (step) {
       case 'upload':
         this.featureCount = extra;
-        this.progressForm.get('upload').setValue(true);
+        this.uploadForm.get('upload').setValue('true');
+        break;
+      case 'train':
+        this.trainForm.get('train').setValue('true');
     }
   }
 
   constructor(
     private formBuilder: FormBuilder
   ) {
-    this.progressForm = this.formBuilder.group({
-      upload: ['', Validators.required],
-      train: ['', Validators.required],
-      result: ['', Validators.required]
+    this.uploadForm = this.formBuilder.group({
+      upload: ['', Validators.required]
+    });
+
+    this.trainForm = this.formBuilder.group({
+      train: ['', Validators.required]
     });
   }
 }
