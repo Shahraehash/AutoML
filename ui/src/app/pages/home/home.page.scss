@@ -1,0 +1,22 @@
+.container {
+    height: 100%;
+    width: 100%;
+}
+
+::ng-deep {
+    mat-horizontal-stepper,
+    .mat-horizontal-content-container,
+    .mat-horizontal-stepper-content {
+        height: 100%;
+    }
+
+    .mat-horizontal-stepper-content {
+        &:not(:last-child) {
+            overflow-y: auto;
+
+            &[aria-expanded="true"] {
+                padding-bottom: 80px;
+            }    
+        }
+    }
+}

@@ -10,7 +10,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<div class='container'>
   <mat-horizontal-stepper #stepper>
     <mat-step label='Select Data' [stepControl]='uploadForm' [editable]='!uploadForm.valid' errorMessage='Data upload is required.'>
       <app-upload [stepFinished]='stepFinished'></app-upload>
@@ -22,4 +22,4 @@
       <app-results [isActive]='stepper?.selectedIndex === 2'></app-results>
     </mat-step>
   </mat-horizontal-stepper>
-</ion-content>
+</div>
