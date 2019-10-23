@@ -44,5 +44,5 @@
       </div>
     </div>
   </div>
-  <ion-button expand='block' (click)='testModel()' class='submit'>Run</ion-button>
+  <ion-button expand='block' (click)='testModel()' class='submit' [disabled]='!testForm.valid'>Predict</ion-button>
 </ion-content>
