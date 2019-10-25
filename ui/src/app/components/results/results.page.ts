@@ -32,6 +32,11 @@ export class ResultsPage implements OnChanges {
       number: true
     },
     {
+      key: 'roc_auc',
+      name: 'ROC AUC',
+      number: true
+    },
+    {
       key: 'accuracy',
       name: 'Accuracy',
       number: true

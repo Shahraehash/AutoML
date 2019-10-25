@@ -21,7 +21,10 @@ def generalize(model, pipeline, x2, y2, labels=None):
     print('\t\tAccuracy:', accuracy)
 
     auc = roc_auc_score(y2, predictions)
-    print('\t\tAUC:', auc)
+    print('\t\tBinary AUC:', auc)
+
+    roc_auc = roc_auc_score(y2, model['best_estimator'].predict_proba(x2)[:, 1])
+    print('\t\tROC AUC:', roc_auc)
 
     tn, fp, fn, tp = confusion_matrix(y2, predictions).ravel()
     f1 = f1_score(y2, predictions, average='macro')
@@ -34,6 +37,7 @@ def generalize(model, pipeline, x2, y2, labels=None):
     return {
         'accuracy': accuracy,
         'auc': auc,
+        'roc_auc': roc_auc,
         'f1': f1,
         'sensitivity': sensitivity,
         'specificity': specificity,
