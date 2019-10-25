@@ -131,10 +131,6 @@ export class ResultsPage implements OnChanges {
     return isMobile ? this.columns.filter(c => !c.hideMobile).map(c => c.key) : this.columns.map(c => c.key);
   }
 
-  export() {
-    window.open('http://127.0.0.1:5000/export', '_self');
-  }
-
   parse(object, mode) {
     let fpr;
     let tpr;

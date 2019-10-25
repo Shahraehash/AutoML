@@ -42,4 +42,8 @@ export class HomePage {
       train: ['', Validators.required]
     });
   }
+
+  exportCSV() {
+    window.open('http://127.0.0.1:5000/export', '_self');
+  }
 }
