@@ -23,7 +23,7 @@ Currently data is expected to be in CSV format in two files:
 To run the program simply execute the below command:
 
 ```sh
-python cli.py train.csv test.csv | tee report.txt
+python cli.py train.csv test.csv TARGET | tee report.txt
 ```
 
 This will execute the program and send the output to both the terminal and
