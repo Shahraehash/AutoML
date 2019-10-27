@@ -170,7 +170,7 @@ export class RocChartComponent implements OnInit, OnChanges {
                 .attr('transform', 'translate(' + .4 * this.cfg.height + ',' + vAlign * this.cfg.height + ')')
                 .append('text')
                     .text(item)
-                    .style('fill', 'white')
+                    .attr('class', 'auc-text')
                     .style('font-size', 12);
 
             vAlign += 0.05;
