@@ -131,6 +131,10 @@ export class ResultsPage implements OnChanges {
     return isMobile ? this.columns.filter(c => !c.hideMobile).map(c => c.key) : this.columns.map(c => c.key);
   }
 
+  applyFilter(filterValue: string) {
+    this.results.filter = filterValue.trim().toLowerCase();
+  }
+
   parse(object, mode) {
     let fpr;
     let tpr;

@@ -35,6 +35,10 @@
     </div>
 
     <div class='table-wrapper'>
+      <mat-form-field color='accent'>
+        <input matInput (keyup)='applyFilter($event.target.value)' placeholder='Filter results...'>
+      </mat-form-field>
+
       <table mat-table [dataSource]='results' matSort matSortActive='roc_auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
         <ng-container [matColumnDef]='column.key' *ngFor='let column of columns'>
