@@ -23,8 +23,6 @@ export class BackendService {
       if (userData === null) {
         throw new Error('No user data found');
       }
-
-      this.updatePreviousJobs(userData.id);
     } catch (err) {
       userData = {
         id: uuid()
@@ -68,8 +66,8 @@ export class BackendService {
     return this.SERVER_URL + '/export-pmml/' + this.userData.id + '/' + this.currentJobId;
   }
 
-  private updatePreviousJobs(id) {
-    this.http.get(this.SERVER_URL + '/list-jobs/' + id).subscribe(result => {
+  updatePreviousJobs() {
+    this.http.get(this.SERVER_URL + '/list-jobs/' + this.userData.id).subscribe(result => {
       this.previousJobs = result;
     });
   }

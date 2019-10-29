@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { parse } from 'papaparse';
@@ -10,10 +10,9 @@ import { BackendService } from '../../services/backend.service';
   templateUrl: 'upload.html',
   styleUrls: ['upload.scss'],
 })
-export class UploadPage {
+export class UploadPage implements OnInit {
   @Input() stepFinished;
   labels = [];
-  previousJobForm: FormGroup;
   uploadForm: FormGroup;
 
   constructor(
@@ -21,10 +20,6 @@ export class UploadPage {
     private alertController: AlertController,
     private formBuilder: FormBuilder
   ) {
-    this.previousJobForm = this.formBuilder.group({
-      previousJob: ['', Validators.required]
-    });
-
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],
       train: ['', Validators.required],
@@ -32,15 +27,11 @@ export class UploadPage {
     });
   }
 
+  ngOnInit() {
+    this.backend.updatePreviousJobs();
+  }
+
   onSubmit() {
-    const previous = this.previousJobForm.get('previousJob').value;
-
-    if (previous) {
-      this.backend.currentJobId = previous;
-      this.stepFinished('upload');
-      return;
-    }
-
     const formData = new FormData();
     formData.append('train', this.uploadForm.get('train').value);
     formData.append('test', this.uploadForm.get('test').value);
@@ -76,5 +67,16 @@ export class UploadPage {
 
       this.uploadForm.get(event.target.name).setValue(file);
     }
+  }
+
+  trainPrior(id) {
+    this.backend.currentJobId = id;
+    this.stepFinished('upload');
+  }
+
+  viewPrior(id) {
+    this.backend.currentJobId = id;
+    this.stepFinished('upload');
+    this.stepFinished('train');
   }
 }

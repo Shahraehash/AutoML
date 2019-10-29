@@ -21,8 +21,6 @@ export class HomePage {
   featureCount: number;
 
   stepFinished = (step, extra) => {
-    this.stepper.next();
-
     switch (step) {
       case 'upload':
         this.featureCount = extra;
@@ -31,6 +29,8 @@ export class HomePage {
       case 'train':
         this.trainForm.get('train').setValue('true');
     }
+
+    this.stepper.next();
   }
 
   constructor(
