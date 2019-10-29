@@ -25,11 +25,13 @@ def load_ui():
 
     return send_from_directory('static', 'index.html')
 
-@APP.route('/create', methods=['POST'])
-def create():
+@APP.route('/create/<uuid:userid>/<uuid:jobid>', methods=['POST'])
+def create(userid, jobid):
     """Create a static copy of the selected model"""
 
-    label = open('data/label.txt', 'r')
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    label = open(folder + '/label.txt', 'r')
     label_column = label.read()
     label.close()
 
@@ -37,31 +39,35 @@ def create():
         request.form['key'],
         ast.literal_eval(request.form['parameters']),
         ast.literal_eval(request.form['features']),
-        'data/train.csv',
+        folder + '/train.csv',
         label_column
     )
 
     return jsonify({'success': True})
 
-@APP.route('/test', methods=['POST'])
-def test_model():
+@APP.route('/test/<uuid:userid>/<uuid:jobid>', methods=['POST'])
+def test_model(userid, jobid):
     """Tests the selected model against the provided data"""
 
-    label = open('data/label.txt', 'r')
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    label = open(folder + '/label.txt', 'r')
     label_column = label.read()
     label.close()
 
     return jsonify(predict.predict(
         [float(x) for x in request.form['data'].split(',')],
-        'data/train.csv',
+        folder + '/train.csv',
         label_column
     ))
 
-@APP.route('/train', methods=['POST'])
-def find_best_model():
+@APP.route('/train/<uuid:userid>/<uuid:jobid>', methods=['POST'])
+def find_best_model(userid, jobid):
     """Finds the best model for the selected parameters/data"""
 
-    label = open('data/label.txt', 'r')
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    label = open(folder + '/label.txt', 'r')
     label_column = label.read()
     label.close()
 
@@ -75,18 +81,47 @@ def find_best_model():
     if request.form.get('ignore_shuffle'):
         os.environ['IGNORE_SHUFFLE'] = request.form.get('ignore_shuffle')
 
-    api.find_best_model('data/train.csv', 'data/test.csv', labels, label_column)
+    api.find_best_model(folder + '/train.csv', folder + '/test.csv', labels, label_column, folder)
     return jsonify({'success': True})
 
-@APP.route('/results', methods=['GET'])
-def get_results():
+@APP.route('/results/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def get_results(userid, jobid):
     """Retrieve the training results"""
 
-    if not os.path.exists('report.csv'):
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/report.csv'):
         abort(404)
         return
 
-    return pd.read_csv('report.csv').to_json(orient='records')
+    return pd.read_csv(folder + '/report.csv').to_json(orient='records')
+
+@APP.route('/upload/<uuid:userid>/<uuid:jobid>', methods=['POST'])
+def upload_files(userid, jobid):
+    """Upload files to the server"""
+
+    if 'train' not in request.files or 'test' not in request.files:
+        return jsonify({'error': 'Missing files'})
+
+    train = request.files['train']
+    test = request.files['test']
+
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    if train and test:
+        train.save(folder + '/train.csv')
+        test.save(folder + '/test.csv')
+
+        label = open(folder + '/label.txt', 'w')
+        label.write(request.form['label_column'])
+        label.close()
+
+        return jsonify({'success': 'true'})
+
+    return jsonify({'error': 'unknown'})
 
 @APP.route('/export', methods=['GET'])
 def export_results():
@@ -117,28 +152,6 @@ def export_model():
         return
 
     return send_file('pipeline.joblib', as_attachment=True)
-
-@APP.route('/upload', methods=['POST'])
-def upload_files():
-    """Upload files to the server"""
-
-    if 'train' not in request.files or 'test' not in request.files:
-        return jsonify({'error': 'Missing files'})
-
-    train = request.files['train']
-    test = request.files['test']
-
-    if train and test:
-        train.save('data/train.csv')
-        test.save('data/test.csv')
-
-        label = open('data/label.txt', 'w')
-        label.write(request.form['label_column'])
-        label.close()
-
-        return jsonify({'success': 'true'})
-
-    return jsonify({'error': 'unknown'})
 
 @APP.route('/<path:path>')
 def get_static_file(path):

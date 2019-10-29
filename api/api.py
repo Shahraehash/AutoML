@@ -31,7 +31,7 @@ from .utils import model_key_to_name
 # Load environment variables
 load_dotenv()
 
-def find_best_model(train_set=None, test_set=None, labels=None, label_column=None):
+def find_best_model(train_set=None, test_set=None, labels=None, label_column=None, output_path='.'):
     """Generates all possible models and outputs the generalization results"""
 
     ignore_estimator = [x.strip() for x in os.getenv('IGNORE_ESTIMATOR', '').split(',')]
@@ -64,7 +64,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
     all_pipelines = list(itertools.product(
         *[ESTIMATOR_NAMES, FEATURE_SELECTOR_NAMES, SCALER_NAMES, SEARCHER_NAMES]))
 
-    report = open('report.csv', 'w+')
+    report = open(output_path + '/report.csv', 'w+')
     reportWriter = csv.writer(report)
 
     for estimator, feature_selector, scaler, searcher in all_pipelines:
