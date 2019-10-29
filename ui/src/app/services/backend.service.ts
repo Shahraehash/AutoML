@@ -9,6 +9,7 @@ import { GeneralizationResult } from '../interfaces';
 })
 export class BackendService {
   currentJobId;
+  previousJobs;
   userData;
   SERVER_URL = 'http://localhost:5000';
 
@@ -22,6 +23,8 @@ export class BackendService {
       if (userData === null) {
         throw new Error('No user data found');
       }
+
+      this.updatePreviousJobs(userData.id);
     } catch (err) {
       userData = {
         id: uuid()
@@ -63,5 +66,11 @@ export class BackendService {
 
   get exportPMML() {
     return this.SERVER_URL + '/export-pmml/' + this.userData.id + '/' + this.currentJobId;
+  }
+
+  private updatePreviousJobs(id) {
+    this.http.get(this.SERVER_URL + '/list-jobs/' + id).subscribe(result => {
+      this.previousJobs = result;
+    });
   }
 }
