@@ -25,11 +25,13 @@ def load_ui():
 
     return send_from_directory('static', 'index.html')
 
-@APP.route('/create', methods=['POST'])
-def create():
+@APP.route('/create/<uuid:userid>/<uuid:jobid>', methods=['POST'])
+def create(userid, jobid):
     """Create a static copy of the selected model"""
 
-    label = open('data/label.txt', 'r')
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    label = open(folder + '/label.txt', 'r')
     label_column = label.read()
     label.close()
 
@@ -37,31 +39,37 @@ def create():
         request.form['key'],
         ast.literal_eval(request.form['parameters']),
         ast.literal_eval(request.form['features']),
-        'data/train.csv',
-        label_column
+        folder + '/train.csv',
+        label_column,
+        folder
     )
 
     return jsonify({'success': True})
 
-@APP.route('/test', methods=['POST'])
-def test_model():
+@APP.route('/test/<uuid:userid>/<uuid:jobid>', methods=['POST'])
+def test_model(userid, jobid):
     """Tests the selected model against the provided data"""
 
-    label = open('data/label.txt', 'r')
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    label = open(folder + '/label.txt', 'r')
     label_column = label.read()
     label.close()
 
     return jsonify(predict.predict(
         [float(x) for x in request.form['data'].split(',')],
-        'data/train.csv',
-        label_column
+        folder + '/train.csv',
+        label_column,
+        folder
     ))
 
-@APP.route('/train', methods=['POST'])
-def find_best_model():
+@APP.route('/train/<uuid:userid>/<uuid:jobid>', methods=['POST'])
+def find_best_model(userid, jobid):
     """Finds the best model for the selected parameters/data"""
 
-    label = open('data/label.txt', 'r')
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    label = open(folder + '/label.txt', 'r')
     label_column = label.read()
     label.close()
 
@@ -75,51 +83,23 @@ def find_best_model():
     if request.form.get('ignore_shuffle'):
         os.environ['IGNORE_SHUFFLE'] = request.form.get('ignore_shuffle')
 
-    api.find_best_model('data/train.csv', 'data/test.csv', labels, label_column)
+    api.find_best_model(folder + '/train.csv', folder + '/test.csv', labels, label_column, folder)
     return jsonify({'success': True})
 
-@APP.route('/results', methods=['GET'])
-def get_results():
+@APP.route('/results/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def get_results(userid, jobid):
     """Retrieve the training results"""
 
-    if not os.path.exists('report.csv'):
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/report.csv'):
         abort(404)
         return
 
-    return pd.read_csv('report.csv').to_json(orient='records')
+    return pd.read_csv(folder + '/report.csv').to_json(orient='records')
 
-@APP.route('/export', methods=['GET'])
-def export_results():
-    """Export the results CSV"""
-
-    if not os.path.exists('report.csv'):
-        abort(404)
-        return
-
-    return send_file('report.csv', as_attachment=True)
-
-@APP.route('/export-pmml', methods=['GET'])
-def export_pmml():
-    """Export the selected model's PMML"""
-
-    if not os.path.exists('pipeline.pmml'):
-        abort(404)
-        return
-
-    return send_file('pipeline.pmml', as_attachment=True)
-
-@APP.route('/export-model', methods=['GET'])
-def export_model():
-    """Export the selected model"""
-
-    if not os.path.exists('pipeline.joblib'):
-        abort(404)
-        return
-
-    return send_file('pipeline.joblib', as_attachment=True)
-
-@APP.route('/upload', methods=['POST'])
-def upload_files():
+@APP.route('/upload/<uuid:userid>/<uuid:jobid>', methods=['POST'])
+def upload_files(userid, jobid):
     """Upload files to the server"""
 
     if 'train' not in request.files or 'test' not in request.files:
@@ -128,17 +108,86 @@ def upload_files():
     train = request.files['train']
     test = request.files['test']
 
-    if train and test:
-        train.save('data/train.csv')
-        test.save('data/test.csv')
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
 
-        label = open('data/label.txt', 'w')
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    if train and test:
+        train.save(folder + '/train.csv')
+        test.save(folder + '/test.csv')
+
+        label = open(folder + '/label.txt', 'w')
         label.write(request.form['label_column'])
         label.close()
 
         return jsonify({'success': 'true'})
 
     return jsonify({'error': 'unknown'})
+
+@APP.route('/list-jobs/<uuid:userid>', methods=['GET'])
+def list_jobs(userid):
+    """Get all the jobs for a given user ID"""
+
+    folder = 'data/' + userid.urn[9:]
+
+    if not os.path.exists(folder):
+        abort(404)
+        return
+
+    jobs = []
+    for job in os.listdir(folder):
+        if not os.path.isdir(folder + '/' + job):
+            continue
+        
+        has_results = os.path.exists(folder + '/' + job + '/report.csv')
+        label = open(folder + '/' + job + '/label.txt', 'r')
+        label_column = label.read()
+        label.close()
+
+        jobs.append({
+            'id': job,
+            'label': label_column,
+            'results': has_results
+        })
+
+    return jsonify(jobs)
+
+@APP.route('/export/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def export_results(userid, jobid):
+    """Export the results CSV"""
+
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/report.csv'):
+        abort(404)
+        return
+
+    return send_file(folder + '/report.csv', as_attachment=True)
+
+@APP.route('/export-pmml/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def export_pmml(userid, jobid):
+    """Export the selected model's PMML"""
+
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/pipeline.pmml'):
+        abort(404)
+        return
+
+    return send_file(folder + '/pipeline.pmml', as_attachment=True)
+
+@APP.route('/export-model/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def export_model(userid, jobid):
+    """Export the selected model"""
+
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/pipeline.joblib'):
+        abort(404)
+        return
+
+    return send_file(folder + '/pipeline.joblib', as_attachment=True)
 
 @APP.route('/<path:path>')
 def get_static_file(path):

@@ -21,6 +21,22 @@ ion-select {
   height: 36px;
 }
 
+.previous-jobs {
+  table {
+    width: 100%;
+    
+    tr td {
+      &:first-child {
+        text-align: left;
+      }
+
+      &:last-child {
+        text-align: right;
+      }
+    }
+  }
+}
+
 form {
   max-width: 900px;
   margin: 0 auto;

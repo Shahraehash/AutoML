@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatStepper } from '@angular/material';
 import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 
+import { BackendService } from '../../services/backend.service';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -19,8 +21,6 @@ export class HomePage {
   featureCount: number;
 
   stepFinished = (step, extra) => {
-    this.stepper.next();
-
     switch (step) {
       case 'upload':
         this.featureCount = extra;
@@ -29,9 +29,12 @@ export class HomePage {
       case 'train':
         this.trainForm.get('train').setValue('true');
     }
+
+    this.stepper.next();
   }
 
   constructor(
+    private backend: BackendService,
     private formBuilder: FormBuilder
   ) {
     this.uploadForm = this.formBuilder.group({
@@ -44,6 +47,6 @@ export class HomePage {
   }
 
   exportCSV() {
-    window.open('http://127.0.0.1:5000/export', '_self');
+    window.open(this.backend.exportCSV, '_self');
   }
 }

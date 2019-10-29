@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { parse } from 'papaparse';
@@ -10,14 +10,14 @@ import { BackendService } from '../../services/backend.service';
   templateUrl: 'upload.html',
   styleUrls: ['upload.scss'],
 })
-export class UploadPage {
+export class UploadPage implements OnInit {
   @Input() stepFinished;
   labels = [];
   uploadForm: FormGroup;
 
   constructor(
+    public backend: BackendService,
     private alertController: AlertController,
-    private backend: BackendService,
     private formBuilder: FormBuilder
   ) {
     this.uploadForm = this.formBuilder.group({
@@ -25,6 +25,10 @@ export class UploadPage {
       train: ['', Validators.required],
       test: ['', Validators.required]
     });
+  }
+
+  ngOnInit() {
+    this.backend.updatePreviousJobs();
   }
 
   onSubmit() {
@@ -63,5 +67,16 @@ export class UploadPage {
 
       this.uploadForm.get(event.target.name).setValue(file);
     }
+  }
+
+  trainPrior(id) {
+    this.backend.currentJobId = id;
+    this.stepFinished('upload');
+  }
+
+  viewPrior(id) {
+    this.backend.currentJobId = id;
+    this.stepFinished('upload');
+    this.stepFinished('train');
   }
 }

@@ -4,7 +4,7 @@ Predicts outcome from incoming data against exported model
 
 from joblib import load
 
-def predict(data, train_set=None, label_column=None):
+def predict(data, train_set=None, label_column=None, path='.'):
     """Predicts against the provided data"""
 
     if train_set is None:
@@ -16,7 +16,7 @@ def predict(data, train_set=None, label_column=None):
         return {}
 
     # Load the pipeline
-    pipeline = load('pipeline.joblib')
+    pipeline = load(path + '/pipeline.joblib')
 
     predicted = pipeline.predict([data])
     probability = pipeline.predict_proba([data])[:, predicted]
