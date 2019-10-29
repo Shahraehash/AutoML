@@ -125,6 +125,34 @@ def upload_files(userid, jobid):
 
     return jsonify({'error': 'unknown'})
 
+@APP.route('/list-jobs/<uuid:userid>', methods=['GET'])
+def list_jobs(userid):
+    """Get all the jobs for a given user ID"""
+
+    folder = 'data/' + userid.urn[9:]
+
+    if not os.path.exists(folder):
+        abort(404)
+        return
+
+    jobs = []
+    for job in os.listdir(folder):
+        if not os.path.isdir(folder + '/' + job):
+            continue
+        
+        has_results = os.path.exists(folder + '/' + job + '/report.csv')
+        label = open(folder + '/' + job + '/label.txt', 'r')
+        label_column = label.read()
+        label.close()
+
+        jobs.append({
+            'jobId': job,
+            'label': label_column,
+            'hasResults': has_results
+        })
+
+    return jsonify(jobs)
+
 @APP.route('/export/<uuid:userid>/<uuid:jobid>', methods=['GET'])
 def export_results(userid, jobid):
     """Export the results CSV"""
