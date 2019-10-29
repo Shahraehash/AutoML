@@ -15,7 +15,7 @@ from .processors.scalers import SCALERS
 from .import_data import import_train
 from .utils import explode_key
 
-def create_model(key, hyper_parameters, selected_features, train_set=None, label_column=None):
+def create_model(key, hyper_parameters, selected_features, train_set=None, label_column=None, output_path='.'):
     """Refits the requested model and pickles it for export"""
 
     if train_set is None:
@@ -54,12 +54,12 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
     pipeline = Pipeline(steps).fit(x_train, y_train)
 
     # Dump the pipeline to a file
-    dump(pipeline, 'pipeline.joblib')
+    dump(pipeline, output_path + '/pipeline.joblib')
 
     # Export the model as a PMML
     try:
-        skl_to_pmml(pipeline, selected_features, label_column, 'pipeline.pmml')
+        skl_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
     except:
-        os.remove('pipeline.pmml')
+        os.remove(output_path + '/pipeline.pmml')
 
     return pipeline

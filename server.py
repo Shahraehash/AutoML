@@ -40,7 +40,8 @@ def create(userid, jobid):
         ast.literal_eval(request.form['parameters']),
         ast.literal_eval(request.form['features']),
         folder + '/train.csv',
-        label_column
+        label_column,
+        folder
     )
 
     return jsonify({'success': True})
@@ -58,7 +59,8 @@ def test_model(userid, jobid):
     return jsonify(predict.predict(
         [float(x) for x in request.form['data'].split(',')],
         folder + '/train.csv',
-        label_column
+        label_column,
+        folder
     ))
 
 @APP.route('/train/<uuid:userid>/<uuid:jobid>', methods=['POST'])
