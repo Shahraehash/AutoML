@@ -146,9 +146,9 @@ def list_jobs(userid):
         label.close()
 
         jobs.append({
-            'jobId': job,
+            'id': job,
             'label': label_column,
-            'hasResults': has_results
+            'results': has_results
         })
 
     return jsonify(jobs)

@@ -13,13 +13,18 @@ import { BackendService } from '../../services/backend.service';
 export class UploadPage {
   @Input() stepFinished;
   labels = [];
+  previousJobForm: FormGroup;
   uploadForm: FormGroup;
 
   constructor(
+    public backend: BackendService,
     private alertController: AlertController,
-    private backend: BackendService,
     private formBuilder: FormBuilder
   ) {
+    this.previousJobForm = this.formBuilder.group({
+      previousJob: ['', Validators.required]
+    });
+
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],
       train: ['', Validators.required],
@@ -28,6 +33,14 @@ export class UploadPage {
   }
 
   onSubmit() {
+    const previous = this.previousJobForm.get('previousJob').value;
+
+    if (previous) {
+      this.backend.currentJobId = previous;
+      this.stepFinished('upload');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('train', this.uploadForm.get('train').value);
     formData.append('test', this.uploadForm.get('test').value);
