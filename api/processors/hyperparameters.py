@@ -7,10 +7,9 @@ from scipy.stats import randint, uniform
 HYPER_PARAMETER_RANGE = {
     'grid': {
         'gb': {
-            'learning_rate': [0.1, 0.05, 0.02, 0.01],
-            'max_depth': [4, 6, 8],
-            'min_samples_leaf': [20, 50, 100, 150],
-            'max_features': [1.0, 0.3, 0.1]
+            'learning_rate': [.01, .05, .1],
+            'max_depth': [2, 3, 4, 5, 6],
+            'n_estimators': [100, 1000]
         },
         'knn': [
             {
@@ -60,6 +59,11 @@ HYPER_PARAMETER_RANGE = {
         }
     },
     'random': {
+        'gb': {
+            'max_depth': range(2, 6),
+            'n_estimators': range(100, 200),
+            'learning_rate': uniform(0.01, 0.1)
+        },
         'mlp': {
             'max_iter': [300, 400],
             'activation': ['tanh', 'relu'],
