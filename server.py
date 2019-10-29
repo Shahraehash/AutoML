@@ -125,35 +125,41 @@ def upload_files(userid, jobid):
 
     return jsonify({'error': 'unknown'})
 
-@APP.route('/export', methods=['GET'])
-def export_results():
+@APP.route('/export/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def export_results(userid, jobid):
     """Export the results CSV"""
 
-    if not os.path.exists('report.csv'):
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/report.csv'):
         abort(404)
         return
 
-    return send_file('report.csv', as_attachment=True)
+    return send_file(folder + '/report.csv', as_attachment=True)
 
-@APP.route('/export-pmml', methods=['GET'])
-def export_pmml():
+@APP.route('/export-pmml/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def export_pmml(userid, jobid):
     """Export the selected model's PMML"""
 
-    if not os.path.exists('pipeline.pmml'):
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/pipeline.pmml'):
         abort(404)
         return
 
-    return send_file('pipeline.pmml', as_attachment=True)
+    return send_file(folder + '/pipeline.pmml', as_attachment=True)
 
-@APP.route('/export-model', methods=['GET'])
-def export_model():
+@APP.route('/export-model/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def export_model(userid, jobid):
     """Export the selected model"""
 
-    if not os.path.exists('pipeline.joblib'):
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/pipeline.joblib'):
         abort(404)
         return
 
-    return send_file('pipeline.joblib', as_attachment=True)
+    return send_file(folder + '/pipeline.joblib', as_attachment=True)
 
 @APP.route('/<path:path>')
 def get_static_file(path):

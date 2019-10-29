@@ -52,4 +52,16 @@ export class BackendService {
   testModel(formData) {
     return this.http.post(this.SERVER_URL + '/test/' + this.userData.id + '/' + this.currentJobId, formData);
   }
+
+  get exportCSV() {
+    return this.SERVER_URL + '/export/' + this.userData.id + '/' + this.currentJobId;
+  }
+
+  get exportModel() {
+    return this.SERVER_URL + '/export-model/' + this.userData.id + '/' + this.currentJobId;
+  }
+
+  get exportPMML() {
+    return this.SERVER_URL + '/export-pmml/' + this.userData.id + '/' + this.currentJobId;
+  }
 }
