@@ -1,0 +1,28 @@
+{
+  "name": "auto-ml",
+  "version": "1.0.0",
+  "description": "AutoML integration containing both the backend (Python) and frontend (TypeScript)",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "pip install -r requirements.txt && cd ui && npm install",
+    "serve": "concurrently 'python server.py' 'cd ui && npm run start' 'sleep 10s && open http://localhost:4200'",
+    "test": "pytest api/unit_test.py",
+    "update": "git pull && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "albahra@vs-ssh.visualstudio.com:v3/albahra/AutoML/AutoML"
+  },
+  "keywords": [
+    "machine",
+    "learning",
+    "automl",
+    "ml",
+    "scikit"
+  ],
+  "author": "Samer Albahra",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^5.0.0"
+  }
+}

@@ -54,3 +54,4 @@ venv.bak/
 
 # macOS meta data file
 .DS_Store
+node_modules
