@@ -23,6 +23,6 @@ def predict(data, train_set=None, label_column=None, path='.'):
 
     return {
         'predicted': int(predicted[0]),
-        'probability': probability[0][0],
+        'probability': str(probability[0][0]),
         'target': label_column
     }
