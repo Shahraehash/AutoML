@@ -6,7 +6,7 @@ the key, hyper parameters and features used).
 import os
 import numpy as np
 from joblib import dump
-from nyoka import skl_to_pmml
+from nyoka import skl_to_pmml, xgboost_to_pmml
 from sklearn.pipeline import Pipeline
 
 from .processors.estimators import ESTIMATORS
@@ -58,7 +58,10 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
 
     # Export the model as a PMML
     try:
-        skl_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
+        if estimator == 'gb':
+            xgboost_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
+        else:
+            skl_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
     except:
         os.remove(output_path + '/pipeline.pmml')
 
