@@ -37,6 +37,10 @@
   font-weight: 700;
 }
 
+.mat-checkbox-disabled .mat-checkbox-label {
+  color: inherit;
+}
+
 .mat-stepper-horizontal {
   background-color: transparent;
 }
