@@ -41,7 +41,13 @@ export class TrainPage implements OnChanges {
 
   ngOnChanges() {
     if (this.featureCount && this.featureCount < 3) {
-      this.trainForm.get('featureSelectors').disable();
+      const features = this.trainForm.get('featureSelectors');
+      const disabledValues = new Array(features.value.length).fill(0);
+
+      /** Enable the `None` feature selector */
+      disabledValues[0] = 1;
+      features.setValue(disabledValues);
+      features.disable();
     }
   }
 
