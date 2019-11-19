@@ -63,6 +63,9 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
         else:
             skl_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
     except:
-        os.remove(output_path + '/pipeline.pmml')
+        try:
+            os.remove(output_path + '/pipeline.pmml')
+        except:
+            pass
 
     return pipeline
