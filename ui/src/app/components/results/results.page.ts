@@ -104,8 +104,8 @@ export class ResultsPage implements OnChanges {
 
     this.backend.getResults().subscribe(
       data => {
-        this.data = data;
-        this.results = new MatTableDataSource(data);
+        this.data = data.results;
+        this.results = new MatTableDataSource(data.results);
         setTimeout(() => {
           this.results.sort = this.sort;
         }, 1);

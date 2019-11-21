@@ -7,6 +7,7 @@ using an Angular SPA.
 
 import ast
 import os
+import json
 
 import pandas as pd
 from flask import abort, Flask, jsonify, request, send_file, send_from_directory
@@ -91,12 +92,20 @@ def get_results(userid, jobid):
     """Retrieve the training results"""
 
     folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    metadata = {}
 
     if not os.path.exists(folder + '/report.csv'):
         abort(404)
         return
 
-    return pd.read_csv(folder + '/report.csv').to_json(orient='records')
+    if os.path.exists(folder + '/metadata.json'):
+        with open('metadata.json') as metafile:
+            metadata = json.load(metafile)
+
+    return jsonify({
+        'results': json.loads(pd.read_csv(folder + '/report.csv').to_json(orient='records')),
+        'metadata': metadata
+    })
 
 @APP.route('/upload/<uuid:userid>/<uuid:jobid>', methods=['POST'])
 def upload_files(userid, jobid):

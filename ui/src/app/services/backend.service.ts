@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
-import { GeneralizationResult } from '../interfaces';
+import { Results } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +43,7 @@ export class BackendService {
   }
 
   getResults() {
-    return this.http.get<GeneralizationResult[]>(this.SERVER_URL + '/results/' + this.userData.id + '/' + this.currentJobId);
+    return this.http.get<Results>(this.SERVER_URL + '/results/' + this.userData.id + '/' + this.currentJobId);
   }
 
   createModel(formData) {

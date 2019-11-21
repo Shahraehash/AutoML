@@ -1,4 +1,15 @@
-export  class GeneralizationResult {
+export class Results {
+    metadata: {
+        fits: number;
+        train_negative_count: number;
+        train_positive_count: number;
+        test_negative_count: number;
+        test_positive_count: number;
+    };
+    results: GeneralizationResult[];
+}
+
+export class GeneralizationResult {
     key: string;
     scaler: string;
     feature_selector: string;
