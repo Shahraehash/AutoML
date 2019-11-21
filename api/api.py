@@ -8,6 +8,7 @@ and hyper-parameters with feature engineering.
 # Dependencies
 import os
 import csv
+import json
 import itertools
 
 from dotenv import load_dotenv
@@ -55,7 +56,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         return {}
 
     # Import data
-    (x_train, x_test, y_train, y_test, x2, y2, feature_names) = \
+    (x_train, x_test, y_train, y_test, x2, y2, feature_names, metadata) = \
         import_data(train_set, test_set, label_column)
 
     results = []
@@ -132,4 +133,10 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
     report.close()
     print('Total fits generated: %d' % total_fits)
     print_summary(results)
+
+    # Update the metadata and write it out
+    metadata.update({'fits': total_fits})
+    with open(output_path + '/metadata.json', 'w') as metafile:
+        json.dump(metadata, metafile)
+
     return results

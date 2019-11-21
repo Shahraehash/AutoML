@@ -18,7 +18,7 @@ from .refit import refit_model
 LABEL_COLUMN = 'AKI'
 
 # Import data
-X_TRAIN, X_TEST, Y_TRAIN, Y_TEST, X2, Y2, FEATURE_NAMES = import_data(
+X_TRAIN, X_TEST, Y_TRAIN, Y_TEST, X2, Y2, FEATURE_NAMES, _ = import_data(
     'sample-data/train.csv', 'sample-data/test.csv', LABEL_COLUMN)
 
 def test_logistic_regression():
