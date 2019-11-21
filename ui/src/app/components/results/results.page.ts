@@ -230,11 +230,11 @@ export class ResultsPage implements OnChanges {
           <ion-note slot='end'>${this.metadata.train_negative_count}</ion-note>
         </ion-item>
         <ion-item>
-          <ion-label>Testing Positive Cases</ion-label>
+          <ion-label>Testing (Generalization) Positive Cases</ion-label>
           <ion-note slot='end'>${this.metadata.test_positive_count}</ion-note>
         </ion-item>
         <ion-item>
-          <ion-label>Testing Negative Cases</ion-label>
+          <ion-label>Testing (Generalization) Negative Cases</ion-label>
           <ion-note slot='end'>${this.metadata.test_negative_count}</ion-note>
         </ion-item>
       `;

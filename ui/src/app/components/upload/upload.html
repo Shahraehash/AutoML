@@ -11,7 +11,7 @@
   </label>
   <label class='file-input'>
     <ion-icon *ngIf='uploadForm.get("test").valid' name="checkmark-circle-outline" color="success"></ion-icon>
-    Select Test Data (Generalization)
+    Select Testing Data (Generalization)
     <input type='file' name='test' (change)="onFileSelect($event)">
   </label>
   <ion-select placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column'>
