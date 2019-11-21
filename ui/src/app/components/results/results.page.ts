@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
 
 import { BackendService } from '../../services/backend.service';
-import { GeneralizationResult } from '../../interfaces';
+import { GeneralizationResult, MetaData } from '../../interfaces';
 import { UseModelComponent } from '../../components/use-model/use-model.component';
 
 @Component({
@@ -18,6 +18,7 @@ export class ResultsPage implements OnChanges {
   data: GeneralizationResult[];
   loading: HTMLIonLoadingElement;
   rocData;
+  metadata: MetaData;
   sortedData: GeneralizationResult[];
   trainingRocData;
   results: MatTableDataSource<GeneralizationResult>;
@@ -105,6 +106,7 @@ export class ResultsPage implements OnChanges {
     this.backend.getResults().subscribe(
       data => {
         this.data = data.results;
+        this.metadata = data.metadata;
         this.results = new MatTableDataSource(data.results);
         setTimeout(() => {
           this.results.sort = this.sort;
@@ -208,6 +210,51 @@ export class ResultsPage implements OnChanges {
         toast.present();
       }
     );
+  }
+
+  async showDetails() {
+    let alert;
+
+    if (this.metadata) {
+      const message = `
+        <ion-item>
+          <ion-label>Total Models</ion-label>
+          <ion-note slot='end'>${this.metadata.fits}</ion-note>
+        </ion-item>
+        <ion-item>
+          <ion-label>Training Positive Cases</ion-label>
+          <ion-note slot='end'>${this.metadata.train_positive_count}</ion-note>
+        </ion-item>
+        <ion-item>
+          <ion-label>Training Negative Cases</ion-label>
+          <ion-note slot='end'>${this.metadata.train_negative_count}</ion-note>
+        </ion-item>
+        <ion-item>
+          <ion-label>Testing Positive Cases</ion-label>
+          <ion-note slot='end'>${this.metadata.test_positive_count}</ion-note>
+        </ion-item>
+        <ion-item>
+          <ion-label>Testing Negative Cases</ion-label>
+          <ion-note slot='end'>${this.metadata.test_negative_count}</ion-note>
+        </ion-item>
+      `;
+
+      alert = await this.alertController.create({
+        cssClass: 'wide-alert',
+        buttons: ['Dismiss'],
+        header: 'Analysis Details',
+        subHeader: 'Provided below are the details from the model training and validation',
+        message
+      });
+    } else {
+      alert = await this.alertController.create({
+        buttons: ['Dismiss'],
+        header: 'Analysis Details',
+        message: 'This run does not contain the metadata needed to display analysis details.'
+      });
+    }
+
+    await alert.present();
   }
 
   private calculateArea(tpr, fpr) {

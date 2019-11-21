@@ -92,14 +92,14 @@ def get_results(userid, jobid):
     """Retrieve the training results"""
 
     folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
-    metadata = {}
+    metadata = None
 
     if not os.path.exists(folder + '/report.csv'):
         abort(404)
         return
 
     if os.path.exists(folder + '/metadata.json'):
-        with open('metadata.json') as metafile:
+        with open(folder + '/metadata.json') as metafile:
             metadata = json.load(metafile)
 
     return jsonify({

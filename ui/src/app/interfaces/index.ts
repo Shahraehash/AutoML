@@ -1,12 +1,14 @@
 export class Results {
-    metadata: {
-        fits: number;
-        train_negative_count: number;
-        train_positive_count: number;
-        test_negative_count: number;
-        test_positive_count: number;
-    };
+    metadata: MetaData;
     results: GeneralizationResult[];
+}
+
+export class MetaData {
+    fits: number;
+    train_negative_count: number;
+    train_positive_count: number;
+    test_negative_count: number;
+    test_positive_count: number;
 }
 
 export class GeneralizationResult {

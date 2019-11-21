@@ -63,6 +63,11 @@
     }
 }
 
+.details-button {
+    float: right;
+    margin-top: 20px;
+}
+
 @media(max-width: 1200px) {
     .results-viewer {
         display: block;

@@ -3,11 +3,11 @@
     <ion-title>MILO: Machine Intelligence Learning Optimizer</ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
       <ion-button fill='solid' color='primary' (click)='stepper.reset()' *ngIf='uploadForm.valid && trainForm.valid'>
-        <ion-icon name='add'></ion-icon>
+        <ion-icon slot='start' name='add'></ion-icon>
         Start New Search
       </ion-button>
       <ion-button fill="solid" color='primary' (click)='exportCSV()' *ngIf='stepper?.selectedIndex === 2'>
-        <ion-icon name='download'></ion-icon>
+        <ion-icon slot='start' name='download'></ion-icon>
         Export
       </ion-button>
     </ion-buttons>
