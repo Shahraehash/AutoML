@@ -154,10 +154,17 @@ def list_jobs(userid):
         label_column = label.read()
         label.close()
 
+        if os.path.exists(folder + '/' + job + '/metadata.json'):
+            with open(folder + '/' + job + '/metadata.json') as json_file:
+                metadata = json.load(json_file)
+        else:
+            metadata = {}
+
         jobs.append({
             'id': job,
             'label': label_column,
-            'results': has_results
+            'results': has_results,
+            'metadata': metadata
         })
 
     return jsonify(jobs)

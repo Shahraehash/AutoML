@@ -29,7 +29,12 @@
 
   <table>
     <tr *ngFor='let job of backend.previousJobs'>
-      <td><span class='bold'>{{job.label}}</span> - {{job.id}}</td>
+      <td>
+        <span class='bold'>{{job.label}}</span>
+         - 
+        <span *ngIf='job.metadata && job.metadata.date; else noDate'>{{job.metadata.date * 1000 | date : 'medium'}}</span>
+        <ng-template #noDate>{{job.id}}</ng-template>
+      </td>
       <td><ion-button size='small' (click)='trainPrior(job.id)'>Train</ion-button></td>
       <td><ion-button size='small' (click)='viewPrior(job.id)' [disabled]='!job.results'>View Results</ion-button></td>
     </tr>

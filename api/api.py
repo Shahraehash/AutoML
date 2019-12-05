@@ -9,6 +9,7 @@ and hyper-parameters with feature engineering.
 import os
 import csv
 import json
+import time
 import itertools
 
 from dotenv import load_dotenv
@@ -137,7 +138,10 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
     print_summary(results)
 
     # Update the metadata and write it out
-    metadata.update({'fits': total_fits})
+    metadata.update({
+        'date': time.time(),
+        'fits': total_fits
+    })
     with open(output_path + '/metadata.json', 'w') as metafile:
         json.dump(metadata, metafile)
 
