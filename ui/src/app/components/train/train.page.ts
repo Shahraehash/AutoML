@@ -2,7 +2,7 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 
-import * as pipelineOptions from './pipeline.processors.json';
+import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { BackendService } from '../../services/backend.service';
 import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one-checked.validator';
 
