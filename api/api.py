@@ -60,7 +60,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         import_data(train_set, test_set, label_column)
 
     results = []
-    total_fits = 0
+    total_fits = {}
 
     all_pipelines = list(itertools.product(
         *[ESTIMATOR_NAMES, FEATURE_SELECTOR_NAMES, SCALER_NAMES, SEARCHER_NAMES]))
@@ -89,7 +89,9 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         pipeline = \
             generate_pipeline(scaler, feature_selector, estimator, y_train, scorers, searcher)
 
-        total_fits += pipeline[1]
+        if not estimator in total_fits:
+            total_fits[estimator] = 0
+        total_fits[estimator] += pipeline[1]
 
         # Fit the pipeline
         with parallel_backend('threading'):
@@ -103,7 +105,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
             model.update(
                 refit_model(pipeline[0], model['features'], estimator, scorer, x_train, y_train))
 
-            total_fits += 1
+            total_fits[estimator] += 1
 
             result = {
                 'key': key,
@@ -131,7 +133,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
             results.append(result)
 
     report.close()
-    print('Total fits generated: %d' % total_fits)
+    print('Total fits generated', sum(total_fits.values()))
     print_summary(results)
 
     # Update the metadata and write it out

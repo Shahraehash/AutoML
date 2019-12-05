@@ -220,6 +220,34 @@ export class ResultsPage implements OnChanges {
         <ion-item>
           <ion-label>Total Models</ion-label>
           <ion-note slot='end'>${this.metadata.fits}</ion-note>
+          <ion-item>
+            <ion-label>K-nearest neighbor</ion-label>
+            <ion-note slot='end'>${this.metadata.fits.knn}</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>naive Bayes</ion-label>
+            <ion-note slot='end'>${this.metadata.fits.nb}</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>Gradient boosting machine</ion-label>
+            <ion-note slot='end'>${this.metadata.fits.gb}</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>Random forest</ion-label>
+            <ion-note slot='end'>${this.metadata.fits.rf}</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>Support vector machine</ion-label>
+            <ion-note slot='end'>${this.metadata.fits.svm}</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>Logistic Regression</ion-label>
+            <ion-note slot='end'>${this.metadata.fits.lr}</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>Neural Network</ion-label>
+            <ion-note slot='end'>${this.metadata.fits.mlp}</ion-note>
+          </ion-item>
         </ion-item>
         <ion-item>
           <ion-label>Training Positive Cases</ion-label>

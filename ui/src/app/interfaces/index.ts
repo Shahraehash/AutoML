@@ -4,7 +4,15 @@ export class Results {
 }
 
 export class MetaData {
-    fits: number;
+    fits: {
+        knn: number;
+        nb: number;
+        svm: number;
+        rf: number;
+        mlp: number;
+        lr: number;
+        gb: number;
+    };
     train_negative_count: number;
     train_positive_count: number;
     test_negative_count: number;
