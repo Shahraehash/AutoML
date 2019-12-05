@@ -3,6 +3,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
 
+import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { BackendService } from '../../services/backend.service';
 import { GeneralizationResult, MetaData } from '../../interfaces';
 import { UseModelComponent } from '../../components/use-model/use-model.component';
@@ -216,27 +217,44 @@ export class ResultsPage implements OnChanges {
     let alert;
 
     if (this.metadata) {
+      const fitDetails = pipelineOptions.estimators.map(estimator => {
+        if (!this.metadata.fits[estimator.value]) {
+          return '';
+        }
+
+        return `
+          <ion-item>
+              <ion-label>${estimator.label}</ion-label>
+              <ion-note slot='end'>${this.metadata.fits[estimator.value]}</ion-note>
+          </ion-item>
+        `;
+      }).join('');
+
       const message = `
-        <ion-item>
-          <ion-label>Total Models</ion-label>
-          <ion-note slot='end'>${this.metadata.fits}</ion-note>
-        </ion-item>
-        <ion-item>
-          <ion-label>Training Positive Cases</ion-label>
-          <ion-note slot='end'>${this.metadata.train_positive_count}</ion-note>
-        </ion-item>
-        <ion-item>
-          <ion-label>Training Negative Cases</ion-label>
-          <ion-note slot='end'>${this.metadata.train_negative_count}</ion-note>
-        </ion-item>
-        <ion-item>
-          <ion-label>Testing (Generalization) Positive Cases</ion-label>
-          <ion-note slot='end'>${this.metadata.test_positive_count}</ion-note>
-        </ion-item>
-        <ion-item>
-          <ion-label>Testing (Generalization) Negative Cases</ion-label>
-          <ion-note slot='end'>${this.metadata.test_negative_count}</ion-note>
-        </ion-item>
+        <ion-list>
+            <ion-item>
+                <ion-label>Total Models: ${Object.values(this.metadata.fits).reduce((a, b) => a + b, 0)}</ion-label>
+                <ion-list>
+                  ${fitDetails}
+                </ion-list>
+            </ion-item>
+            <ion-item>
+                <ion-label>Training Positive Cases</ion-label>
+                <ion-note slot='end'>${this.metadata.train_positive_count}</ion-note>
+            </ion-item>
+            <ion-item>
+                <ion-label>Training Negative Cases</ion-label>
+                <ion-note slot='end'>${this.metadata.train_negative_count}</ion-note>
+            </ion-item>
+            <ion-item>
+                <ion-label>Testing (Generalization) Positive Cases</ion-label>
+                <ion-note slot='end'>${this.metadata.test_positive_count}</ion-note>
+            </ion-item>
+            <ion-item>
+                <ion-label>Testing (Generalization) Negative Cases</ion-label>
+                <ion-note slot='end'>${this.metadata.test_negative_count}</ion-note>
+            </ion-item>
+        </ion-list>
       `;
 
       alert = await this.alertController.create({
