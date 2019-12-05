@@ -5,12 +5,12 @@
   </ion-card-header>
 
   <label class='file-input'>
-    <ion-icon *ngIf='uploadForm.get("train").valid' name="checkmark-circle-outline" color="success"></ion-icon>
+    <ion-icon *ngIf='uploadForm.get("train").valid' name='checkmark-circle' color='success'></ion-icon>
     Select Training Data
     <input type='file' name='train' (change)="onFileSelect($event)">
   </label>
   <label class='file-input'>
-    <ion-icon *ngIf='uploadForm.get("test").valid' name="checkmark-circle-outline" color="success"></ion-icon>
+    <ion-icon *ngIf='uploadForm.get("test").valid' name='checkmark-circle' color='success'></ion-icon>
     Select Testing Data (Generalization)
     <input type='file' name='test' (change)="onFileSelect($event)">
   </label>
