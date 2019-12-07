@@ -47,7 +47,7 @@
       <table mat-table [dataSource]='results' matSort matSortActive='roc_auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
         <ng-container [matColumnDef]='column.key' *ngFor='let column of columns'>
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{column.name}}</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]='column.class'>{{column.name}}</th>
           <td mat-cell *matCellDef='let element; let i = index' class='title-case'>
             <span *ngIf='column.key !== "actions"'>
               {{column.number ? ( element[column.key] | number ) : element[column.key]}}

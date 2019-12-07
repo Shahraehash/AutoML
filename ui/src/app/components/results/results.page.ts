@@ -23,14 +23,15 @@ export class ResultsPage implements OnChanges {
   sortedData: GeneralizationResult[];
   trainingRocData;
   results: MatTableDataSource<GeneralizationResult>;
-  columns: {key: string; name: string; number?: boolean, hideMobile?: boolean}[] = [
+  columns: {key: string; class?: string, name: string; number?: boolean, hideMobile?: boolean}[] = [
     {
       key: 'estimator',
       name: 'Estimator'
     },
     {
       key: 'auc',
-      name: 'AUC',
+      name: 'Sn+Sp',
+      class: 'overline',
       number: true
     },
     {
