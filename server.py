@@ -104,16 +104,17 @@ def test_published_model(model):
         abort(404)
         return
 
-    # label = open(folder + '/label.txt', 'r')
-    # label_column = label.read()
-    # label.close()
+    folder = published[model]['path'][:published[model]['path'].rfind('/')]
+    label = open(folder + '/label.txt', 'r')
+    label_column = label.read()
+    label.close()
 
     reply = predict.predict(
         [float(x) for x in request.form['data'].split(',')],
         published[model]['path']
     )
 
-    reply['target'] = 'AKI'
+    reply['target'] = label_column
 
     return jsonify(reply)
 
