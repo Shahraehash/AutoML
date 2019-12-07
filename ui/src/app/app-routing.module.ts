@@ -7,8 +7,8 @@ const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full'
   },
-  { path: 'home', loadChildren: () => import('./pages/home/home.module').then(m => m.HomePageModule)
-}
+  { path: 'home', loadChildren: () => import('./pages/home/home.module').then(m => m.HomePageModule) },
+  { path: 'model/:id', loadChildren: () => import('./pages/run-model/run-model.module').then(m => m.RunModelPageModule) }
 ];
 
 @NgModule({
