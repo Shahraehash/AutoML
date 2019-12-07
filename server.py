@@ -20,6 +20,7 @@ from api import predict
 
 APP = Flask(__name__, static_url_path='')
 CORS(APP)
+PUBLISHED_MODELS = 'data/published-models.json'
 
 @APP.route('/')
 def load_ui():
@@ -47,7 +48,23 @@ def create(userid, jobid):
     )
 
     if 'publishName' in request.form:
-        copyfile(folder + '/pipeline.joblib', folder + '/' + request.form['publishName'] + '.joblib')
+        model_path = folder + '/' + request.form['publishName'] + '.joblib'
+        copyfile(folder + '/pipeline.joblib', model_path)
+
+        if os.path.exists(PUBLISHED_MODELS):
+            with open(PUBLISHED_MODELS) as published_file:
+                published = json.load(published_file)
+        else:
+            published = {}
+
+        if request.form['publishName'] in published:
+            abort(409)
+            return
+        
+        published[request.form['publishName']] = model_path
+
+        with open(PUBLISHED_MODELS, 'w') as published_file:
+            json.dump(published, published_file)
 
     return jsonify({'success': True})
 
