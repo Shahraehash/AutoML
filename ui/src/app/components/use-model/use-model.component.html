@@ -27,7 +27,16 @@
       </ng-container>
     </div>
     <div class='results ion-padding'>
-      <div *ngIf='!result' class='ion-padding-top ion-margin-top'>Please enter the values you wish to test</div>
+      <div *ngIf='!result' class='ion-padding-top ion-margin-top'>
+        <div *ngIf='publishName; else testDetail'>
+          This model has been published here to test the {{publishName}} model.
+          <br><br>
+          Please enter your values and press predict to test the model against your sample data.
+          <br><br>
+          If you wish you may download a copy of the model or it's PMML representation from the header buttons above.
+        </div>
+        <ng-template #testDetail>Please enter the values you wish to test</ng-template>
+      </div>
       <div *ngIf='result'>
         <span class='label'>Predicted Outcome</span>:
         {{result.predicted === 1 ? 'Positive' : 'Negative'}} for {{ result.target }}
