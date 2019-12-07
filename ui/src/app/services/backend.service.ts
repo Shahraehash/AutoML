@@ -46,6 +46,10 @@ export class BackendService {
     return this.http.get<Results>(this.SERVER_URL + '/results/' + this.userData.id + '/' + this.currentJobId);
   }
 
+  getModelFeatures(model: string) {
+    return this.http.get<string>(this.SERVER_URL + '/features/' + model);
+  }
+
   createModel(formData) {
     return this.http.post(this.SERVER_URL + '/create/' + this.userData.id + '/' + this.currentJobId, formData);
   }

@@ -71,11 +71,22 @@ def create(userid, jobid):
 
     return jsonify({'success': True})
 
-@APP.route('/features/<string:model>', methods=['POST'])
+@APP.route('/features/<string:model>', methods=['GET'])
 def get_model_features(model):
     """Returns the features for a published model"""
 
-    return jsonify({})
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if model not in published:
+        abort(404)
+        return
+
+    return jsonify(published[model]['features'])
 
 @APP.route('/test/<uuid:userid>/<uuid:jobid>', methods=['POST'])
 def test_model(userid, jobid):
@@ -87,12 +98,14 @@ def test_model(userid, jobid):
     label_column = label.read()
     label.close()
 
-    return jsonify(predict.predict(
+    reply = predict.predict(
         [float(x) for x in request.form['data'].split(',')],
-        folder + '/train.csv',
-        label_column,
         folder
-    ))
+    )
+
+    reply['target'] = label_column
+
+    return jsonify(reply)
 
 @APP.route('/train/<uuid:userid>/<uuid:jobid>', methods=['POST'])
 def find_best_model(userid, jobid):

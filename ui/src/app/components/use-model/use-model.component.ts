@@ -9,7 +9,8 @@ import { BackendService } from '../../services/backend.service';
   styleUrls: ['./use-model.component.scss'],
 })
 export class UseModelComponent implements OnInit {
-  @Input() features: string[];
+  @Input() features: string;
+  parsedFeatures: string[];
   testForm: FormGroup;
   result;
 
@@ -19,9 +20,11 @@ export class UseModelComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.parsedFeatures = JSON.parse(this.features.replace(/'/g, '"'));
+
     this.testForm = this.formBuilder.group({
       inputs: this.formBuilder.array(
-        new Array(this.features.length).fill(['', Validators.required])
+        new Array(this.parsedFeatures.length).fill(['', Validators.required])
       )
     });
   }
@@ -29,7 +32,7 @@ export class UseModelComponent implements OnInit {
   testModel() {
     const data = new FormData();
     data.append('data', this.testForm.get('inputs').value);
-    data.append('features', JSON.stringify(this.features));
+    data.append('features', JSON.stringify(this.parsedFeatures));
 
     this.backend.testModel(data).subscribe(
       (result) => {

@@ -19,7 +19,7 @@
 <ion-content class='ion-padding' [formGroup]='testForm'>
   <div class='container'>
     <div class='inputs ion-padding' formArrayName='inputs'>
-      <ng-container *ngFor='let feature of features; let i=index'>
+      <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
         <mat-form-field color='accent'>
           <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
         </mat-form-field>

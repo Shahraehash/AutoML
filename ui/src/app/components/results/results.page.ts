@@ -262,7 +262,7 @@ export class ResultsPage implements OnChanges {
           component: UseModelComponent,
           cssClass: 'test-model',
           componentProps: {
-            features: JSON.parse(this.sortedData[index].selected_features.replace(/'/g, '"'))
+            features: this.sortedData[index].selected_features
           }
         });
         await modal.present();
