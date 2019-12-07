@@ -224,36 +224,36 @@ export class ResultsPage implements OnChanges {
 
         return `
           <ion-item>
-              <ion-label>${estimator.label}</ion-label>
-              <ion-note slot='end'>${this.metadata.fits[estimator.value]}</ion-note>
+            <ion-label>${estimator.label}</ion-label>
+            <ion-note slot='end'>${this.metadata.fits[estimator.value]}</ion-note>
           </ion-item>
         `;
       }).join('');
 
       const message = `
         <ion-list>
-            <ion-item>
-                <ion-label>Total Models: ${Object.values(this.metadata.fits).reduce((a, b) => a + b, 0)}</ion-label>
-                <ion-list>
-                  ${fitDetails}
-                </ion-list>
-            </ion-item>
-            <ion-item>
-                <ion-label>Training Positive Cases</ion-label>
-                <ion-note slot='end'>${this.metadata.train_positive_count}</ion-note>
-            </ion-item>
-            <ion-item>
-                <ion-label>Training Negative Cases</ion-label>
-                <ion-note slot='end'>${this.metadata.train_negative_count}</ion-note>
-            </ion-item>
-            <ion-item>
-                <ion-label>Testing (Generalization) Positive Cases</ion-label>
-                <ion-note slot='end'>${this.metadata.test_positive_count}</ion-note>
-            </ion-item>
-            <ion-item>
-                <ion-label>Testing (Generalization) Negative Cases</ion-label>
-                <ion-note slot='end'>${this.metadata.test_negative_count}</ion-note>
-            </ion-item>
+          <ion-item>
+            <ion-label>Total Models: ${Object.values(this.metadata.fits).reduce((a, b) => a + b, 0)}</ion-label>
+            <ion-list>
+              ${fitDetails}
+            </ion-list>
+          </ion-item>
+          <ion-item>
+            <ion-label>Training Positive Cases</ion-label>
+            <ion-note slot='end'>${this.metadata.train_positive_count}</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>Training Negative Cases</ion-label>
+            <ion-note slot='end'>${this.metadata.train_negative_count}</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>Testing (Generalization) Positive Cases</ion-label>
+            <ion-note slot='end'>${this.metadata.test_positive_count}</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>Testing (Generalization) Negative Cases</ion-label>
+            <ion-note slot='end'>${this.metadata.test_negative_count}</ion-note>
+          </ion-item>
         </ion-list>
       `;
 

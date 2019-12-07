@@ -120,7 +120,12 @@
 }
 
 .wide-alert {
-  --max-width: 80%;
+  --max-width: 70%;
+  --max-height: 90%;
+
+  .alert-message {
+    max-height: initial;
+  }
 }
 
 .radial {
