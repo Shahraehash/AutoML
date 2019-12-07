@@ -8,7 +8,7 @@ def predict(data, path='.'):
     """Predicts against the provided data"""
 
     # Load the pipeline
-    pipeline = load(path + '/pipeline.joblib')
+    pipeline = load(path + '.joblib')
 
     predicted = pipeline.predict([data])
     probability = pipeline.predict_proba([data])[:, predicted]

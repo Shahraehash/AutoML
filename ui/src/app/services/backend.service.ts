@@ -54,6 +54,10 @@ export class BackendService {
     return this.http.post(this.SERVER_URL + '/create/' + this.userData.id + '/' + this.currentJobId, formData);
   }
 
+  testPublishedModel(formData, publishName) {
+    return this.http.post(this.SERVER_URL + '/test/' + publishName, formData);
+  }
+
   testModel(formData) {
     return this.http.post(this.SERVER_URL + '/test/' + this.userData.id + '/' + this.currentJobId, formData);
   }

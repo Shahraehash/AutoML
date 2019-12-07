@@ -48,9 +48,9 @@ def create(userid, jobid):
     )
 
     if 'publishName' in request.form:
-        model_path = folder + '/' + request.form['publishName'] + '.joblib'
-        copyfile(folder + '/pipeline.joblib', model_path)
-        copyfile(folder + '/pipeline.pmml', folder + '/' + request.form['publishName'] + '.pmml')
+        model_path = folder + '/' + request.form['publishName']
+        copyfile(folder + '/pipeline.joblib', model_path + '.joblib')
+        copyfile(folder + '/pipeline.pmml', model_path + '.pmml')
 
         if os.path.exists(PUBLISHED_MODELS):
             with open(PUBLISHED_MODELS) as published_file:
@@ -61,7 +61,7 @@ def create(userid, jobid):
         if request.form['publishName'] in published:
             abort(409)
             return
-    
+
         published[request.form['publishName']] = {
             'features': request.form['features'],
             'path': model_path
@@ -89,6 +89,34 @@ def get_model_features(model):
 
     return jsonify(published[model]['features'])
 
+@APP.route('/test/<string:model>', methods=['POST'])
+def test_published_model(model):
+    """Tests the published model against the provided data"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if model not in published:
+        abort(404)
+        return
+
+    # label = open(folder + '/label.txt', 'r')
+    # label_column = label.read()
+    # label.close()
+
+    reply = predict.predict(
+        [float(x) for x in request.form['data'].split(',')],
+        published[model]['path']
+    )
+
+    reply['target'] = 'AKI'
+
+    return jsonify(reply)
+
 @APP.route('/test/<uuid:userid>/<uuid:jobid>', methods=['POST'])
 def test_model(userid, jobid):
     """Tests the selected model against the provided data"""
@@ -101,7 +129,7 @@ def test_model(userid, jobid):
 
     reply = predict.predict(
         [float(x) for x in request.form['data'].split(',')],
-        folder
+        folder + '/pipeline'
     )
 
     reply['target'] = label_column

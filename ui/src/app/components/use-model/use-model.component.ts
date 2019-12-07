@@ -31,15 +31,18 @@ export class UseModelComponent implements OnInit {
   }
 
   testModel() {
+    let observable;
     const data = new FormData();
     data.append('data', this.testForm.get('inputs').value);
     data.append('features', JSON.stringify(this.parsedFeatures));
 
     if (this.publishName) {
-      data.append('publishName', this.publishName);
+      observable = this.backend.testPublishedModel(data, this.publishName);
+    } else {
+      observable = this.backend.testModel(data);
     }
 
-    this.backend.testModel(data).subscribe(
+    observable.subscribe(
       (result) => {
         this.result = result;
       },
