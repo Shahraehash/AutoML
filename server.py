@@ -61,7 +61,10 @@ def create(userid, jobid):
             abort(409)
             return
         
-        published[request.form['publishName']] = model_path
+        published[request.form['publishName']] = {
+            'features': request.form['features'],
+            'path': model_path
+        }
 
         with open(PUBLISHED_MODELS, 'w') as published_file:
             json.dump(published, published_file)

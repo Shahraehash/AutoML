@@ -15,6 +15,5 @@ export class RunModelPage implements OnInit {
     this.route.params.subscribe( params => this.id = params.id );
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 }
