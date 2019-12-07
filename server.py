@@ -50,6 +50,7 @@ def create(userid, jobid):
     if 'publishName' in request.form:
         model_path = folder + '/' + request.form['publishName'] + '.joblib'
         copyfile(folder + '/pipeline.joblib', model_path)
+        copyfile(folder + '/pipeline.pmml', folder + '/' + request.form['publishName'] + '.pmml')
 
         if os.path.exists(PUBLISHED_MODELS):
             with open(PUBLISHED_MODELS) as published_file:
@@ -60,7 +61,7 @@ def create(userid, jobid):
         if request.form['publishName'] in published:
             abort(409)
             return
-        
+    
         published[request.form['publishName']] = {
             'features': request.form['features'],
             'path': model_path

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Use Selected Model
+      {{publishName ? publishName : 'Use Selected'}} Model
     </ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
       <ion-button fill='solid' color='primary' (click)='exportPMML()'>

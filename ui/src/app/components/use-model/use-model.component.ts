@@ -10,6 +10,7 @@ import { BackendService } from '../../services/backend.service';
 })
 export class UseModelComponent implements OnInit {
   @Input() features: string;
+  @Input() publishName: string;
   parsedFeatures: string[];
   testForm: FormGroup;
   result;
@@ -33,6 +34,10 @@ export class UseModelComponent implements OnInit {
     const data = new FormData();
     data.append('data', this.testForm.get('inputs').value);
     data.append('features', JSON.stringify(this.parsedFeatures));
+
+    if (this.publishName) {
+      data.append('publishName', this.publishName);
+    }
 
     this.backend.testModel(data).subscribe(
       (result) => {
