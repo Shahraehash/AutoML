@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      {{publishName ? publishName : 'Use Selected'}} Model
+      {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : 'Use Selected Model'}}
     </ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
       <ion-button fill='solid' color='primary' (click)='exportPMML()'>
@@ -16,7 +16,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class='ion-padding' [formGroup]='testForm'>
+<ion-content class='ion-padding' [formGroup]='testForm' [ngClass]='{"page-view": publishName}'>
+  <ion-title *ngIf='publishName' class='ion-text-center'>{{publishName}} Model</ion-title>
   <div class='container'>
     <div class='inputs ion-padding' formArrayName='inputs'>
       <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
@@ -26,7 +27,7 @@
       </ng-container>
     </div>
     <div class='results ion-padding'>
-      <span *ngIf='!result'>Please enter the values you wish to test</span>
+      <div *ngIf='!result' class='ion-padding-top ion-margin-top'>Please enter the values you wish to test</div>
       <div *ngIf='result'>
         <span class='label'>Predicted Outcome</span>:
         {{result.predicted === 1 ? 'Positive' : 'Negative'}} for {{ result.target }}

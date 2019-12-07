@@ -4,9 +4,9 @@
 
 .container {
     display: flex;
-    height: 80%;
     overflow-y: hidden;
     margin-bottom: 10px;
+    height: calc(100% - 50px);
 
     .inputs {
         overflow-y: scroll;
@@ -20,5 +20,11 @@
         .indicator {
             vertical-align: middle;
         }
+    }
+}
+
+.page-view {
+    .container {
+        height: calc(100% - 130px);
     }
 }
