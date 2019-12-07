@@ -71,6 +71,12 @@ def create(userid, jobid):
 
     return jsonify({'success': True})
 
+@APP.route('/features/<string:model>', methods=['POST'])
+def get_model_features(model):
+    """Returns the features for a published model"""
+
+    return jsonify({})
+
 @APP.route('/test/<uuid:userid>/<uuid:jobid>', methods=['POST'])
 def test_model(userid, jobid):
     """Tests the selected model against the provided data"""
