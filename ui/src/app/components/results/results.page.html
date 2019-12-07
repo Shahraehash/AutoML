@@ -52,8 +52,9 @@
             <span *ngIf='column.key !== "actions"'>
               {{column.number ? ( element[column.key] | number ) : element[column.key]}}
             </span>
-            <span *ngIf='column.key === "actions"'>
+            <span *ngIf='column.key === "actions"' class='actions'>
               <ion-icon name='play-circle' color='success' size='large' (click)='launchModel(i)'></ion-icon>
+              <ion-icon name='cloud-upload' color='primary' size='large' (click)='beginPublish(i)'></ion-icon>
             </span>
           </td>
         </ng-container>
