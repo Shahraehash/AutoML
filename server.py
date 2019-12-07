@@ -8,6 +8,7 @@ using an Angular SPA.
 import ast
 import os
 import json
+from shutil import copyfile
 
 import pandas as pd
 from flask import abort, Flask, jsonify, request, send_file, send_from_directory
@@ -44,6 +45,9 @@ def create(userid, jobid):
         label_column,
         folder
     )
+
+    if 'publishName' in request.form:
+        copyfile(folder + '/pipeline.joblib', folder + '/' + request.form['publishName'] + '.joblib')
 
     return jsonify({'success': True})
 

@@ -204,7 +204,14 @@ export class ResultsPage implements OnChanges {
         'Dismiss',
         {
           text: 'Publish',
-          handler: (data) => this.publishModel(model, data.name)
+          handler: (data) => {
+            if (!data.name || !data.name.match(/^[!#$&-;=?-[\]_a-z~]+$/)) {
+              this.showError('Invalid characters detected, please use an alphanumeric name.');
+              return false;
+            }
+
+            this.publishModel(model, data.name);
+          }
         }
       ]
     });
@@ -223,6 +230,7 @@ export class ResultsPage implements OnChanges {
       async () => {
         const alert = await this.alertController.create({
           buttons: ['Dismiss'],
+          cssClass: 'wide-alert',
           header: 'Your model has been published!',
           message: `You may now access your model here:
             <a class='external-link' href='${location.origin}/model/${name}'>${location.origin}/model/${name}</a>`
@@ -348,5 +356,10 @@ export class ResultsPage implements OnChanges {
       message: 'Refitting selected model'
     });
     await this.loading.present();
+  }
+
+  private async showError(message: string) {
+    const toast = await this.toastController.create({message, duration: 2000});
+    toast.present();
   }
 }
