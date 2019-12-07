@@ -9,7 +9,9 @@ import { BackendService } from '../../services/backend.service';
   styleUrls: ['./use-model.component.scss'],
 })
 export class UseModelComponent implements OnInit {
-  @Input() features: string[];
+  @Input() features: string;
+  @Input() publishName: string;
+  parsedFeatures: string[];
   testForm: FormGroup;
   result;
 
@@ -19,19 +21,28 @@ export class UseModelComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.parsedFeatures = JSON.parse(this.features.replace(/'/g, '"'));
+
     this.testForm = this.formBuilder.group({
       inputs: this.formBuilder.array(
-        new Array(this.features.length).fill(['', Validators.required])
+        new Array(this.parsedFeatures.length).fill(['', Validators.required])
       )
     });
   }
 
   testModel() {
+    let observable;
     const data = new FormData();
     data.append('data', this.testForm.get('inputs').value);
-    data.append('features', JSON.stringify(this.features));
+    data.append('features', JSON.stringify(this.parsedFeatures));
 
-    this.backend.testModel(data).subscribe(
+    if (this.publishName) {
+      observable = this.backend.testPublishedModel(data, this.publishName);
+    } else {
+      observable = this.backend.testModel(data);
+    }
+
+    observable.subscribe(
       (result) => {
         this.result = result;
       },
@@ -42,10 +53,10 @@ export class UseModelComponent implements OnInit {
   }
 
   exportModel() {
-    window.open(this.backend.exportModel, '_self');
+    window.open(this.publishName ? this.backend.exportPublishedModel(this.publishName) : this.backend.exportModel(), '_self');
   }
 
   exportPMML() {
-    window.open(this.backend.exportPMML, '_self');
+    window.open(this.publishName ? this.backend.exportPublishedPMML(this.publishName) : this.backend.exportPMML(), '_self');
   }
 }

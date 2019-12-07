@@ -1,0 +1,30 @@
+<app-use-model *ngIf='features; else noModel' [features]='features' [publishName]='id'></app-use-model>
+
+<ng-template #noModel>
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>{{id}} Model</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class='ion-padding'>
+    <ion-card *ngIf='error' class='error'>
+      <ion-card-header>
+        <ion-card-subtitle>The requested model `{{id}}` cannot be found</ion-card-subtitle>
+        <ion-card-title>Unable to Find Model</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        If you published this model, please verify the URL.
+        <br>
+        If someone provided you this URL, please contact them for an updated URL.
+        <br>
+        If you continue to have issues please contact support@miloml.com.
+        <br><br>
+        Thank you,
+        <br>
+        Milo Team
+      </ion-card-content>
+    </ion-card>
+  </ion-content>
+</ng-template>

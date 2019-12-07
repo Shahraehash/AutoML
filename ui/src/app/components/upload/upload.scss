@@ -21,6 +21,11 @@ ion-select {
   height: 36px;
 }
 
+.upload-new, .previous-jobs {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
 .previous-jobs {
   table {
     width: 100%;

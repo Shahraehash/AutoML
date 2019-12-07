@@ -23,14 +23,15 @@ export class ResultsPage implements OnChanges {
   sortedData: GeneralizationResult[];
   trainingRocData;
   results: MatTableDataSource<GeneralizationResult>;
-  columns: {key: string; name: string; number?: boolean, hideMobile?: boolean}[] = [
+  columns: {key: string; class?: string, name: string; number?: boolean, hideMobile?: boolean}[] = [
     {
       key: 'estimator',
       name: 'Estimator'
     },
     {
       key: 'auc',
-      name: 'AUC',
+      name: 'Sn+Sp',
+      class: 'overline',
       number: true
     },
     {
@@ -184,6 +185,70 @@ export class ResultsPage implements OnChanges {
     };
   }
 
+  async beginPublish(index: number) {
+    const model = this.sortedData[index];
+
+    const alert = await this.alertController.create({
+      cssClass: 'wide-alert',
+      header: 'Publish Model',
+      subHeader: 'Publish your model for standalone use',
+      message: `Once published, the model will be available at ${location.origin}/&lt;name&gt;.`,
+      inputs: [
+        {
+          name: 'name',
+          type: 'text',
+          placeholder: 'Enter the name of your model'
+        }
+      ],
+      buttons: [
+        'Dismiss',
+        {
+          text: 'Publish',
+          handler: (data) => {
+            if (!data.name || !data.name.match(/^[!#$&-;=?-[\]_a-z~]+$/)) {
+              this.showError('Invalid characters detected, please use an alphanumeric name.');
+              return false;
+            }
+
+            this.publishModel(model, data.name);
+          }
+        }
+      ]
+    });
+
+    alert.present();
+  }
+
+  async publishModel(model, name) {
+    await this.presentLoading();
+    const formData = new FormData();
+    formData.append('publishName', name);
+    formData.append('key', model.key);
+    formData.append('parameters', model.best_params);
+    formData.append('features', model.selected_features);
+    this.backend.createModel(formData).subscribe(
+      async () => {
+        const alert = await this.alertController.create({
+          buttons: ['Dismiss'],
+          cssClass: 'wide-alert',
+          header: 'Your model has been published!',
+          message: `You may now access your model here:
+            <a class='external-link' href='${location.origin}/model/${name}'>${location.origin}/model/${name}</a>`
+        });
+        await alert.present();
+        this.loading.dismiss();
+      },
+      async () => {
+        const toast = await this.toastController.create({
+          message: 'Unable to publish the model.',
+          duration: 2000
+        });
+        toast.present();
+        this.loading.dismiss();
+      }
+    );
+  }
+
   launchModel(index: number) {
     this.presentLoading();
     const formData = new FormData();
@@ -197,7 +262,7 @@ export class ResultsPage implements OnChanges {
           component: UseModelComponent,
           cssClass: 'test-model',
           componentProps: {
-            features: JSON.parse(this.sortedData[index].selected_features.replace(/'/g, '"'))
+            features: this.sortedData[index].selected_features
           }
         });
         await modal.present();
@@ -209,6 +274,7 @@ export class ResultsPage implements OnChanges {
           duration: 2000
         });
         toast.present();
+        this.loading.dismiss();
       }
     );
   }
@@ -290,5 +356,10 @@ export class ResultsPage implements OnChanges {
       message: 'Refitting selected model'
     });
     await this.loading.present();
+  }
+
+  private async showError(message: string) {
+    const toast = await this.toastController.create({message, duration: 2000});
+    toast.present();
   }
 }

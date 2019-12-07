@@ -17,11 +17,16 @@
     overflow-y: auto;
     height: 100%;
     width: 100%;
+    padding-bottom: 40px;
 }
 
 .result-table {
     width: 100%;
 
+    .mat-header-cell:last-of-type {
+        pointer-events: none;
+    }
+    
     td {
         padding: 5px;
     }
@@ -32,6 +37,12 @@
 
     .active {
         background: #ccc;
+    }
+
+    .actions {
+        ion-icon {
+            cursor: pointer;
+        }
     }
 }
 
@@ -82,6 +93,12 @@
     .table-wrapper {
         overflow-y: initial;
         height: initial;
+        padding-bottom: initial;
+
+        .actions {
+            display: flex;
+            justify-content: space-between;    
+        }
     }
 }
 

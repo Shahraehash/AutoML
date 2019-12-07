@@ -47,6 +47,6 @@ export class HomePage {
   }
 
   exportCSV() {
-    window.open(this.backend.exportCSV, '_self');
+    window.open(this.backend.exportCSV(), '_self');
   }
 }

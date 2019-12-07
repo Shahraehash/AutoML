@@ -8,6 +8,7 @@ using an Angular SPA.
 import ast
 import os
 import json
+from shutil import copyfile
 
 import pandas as pd
 from flask import abort, Flask, jsonify, request, send_file, send_from_directory
@@ -19,6 +20,7 @@ from api import predict
 
 APP = Flask(__name__, static_url_path='')
 CORS(APP)
+PUBLISHED_MODELS = 'data/published-models.json'
 
 @APP.route('/')
 def load_ui():
@@ -45,7 +47,76 @@ def create(userid, jobid):
         folder
     )
 
+    if 'publishName' in request.form:
+        model_path = folder + '/' + request.form['publishName']
+        copyfile(folder + '/pipeline.joblib', model_path + '.joblib')
+        copyfile(folder + '/pipeline.pmml', model_path + '.pmml')
+
+        if os.path.exists(PUBLISHED_MODELS):
+            with open(PUBLISHED_MODELS) as published_file:
+                published = json.load(published_file)
+        else:
+            published = {}
+
+        if request.form['publishName'] in published:
+            abort(409)
+            return
+
+        published[request.form['publishName']] = {
+            'features': request.form['features'],
+            'path': model_path
+        }
+
+        with open(PUBLISHED_MODELS, 'w') as published_file:
+            json.dump(published, published_file)
+
     return jsonify({'success': True})
+
+@APP.route('/features/<string:model>', methods=['GET'])
+def get_model_features(model):
+    """Returns the features for a published model"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if model not in published:
+        abort(404)
+        return
+
+    return jsonify(published[model]['features'])
+
+@APP.route('/test/<string:model>', methods=['POST'])
+def test_published_model(model):
+    """Tests the published model against the provided data"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if model not in published:
+        abort(404)
+        return
+
+    folder = published[model]['path'][:published[model]['path'].rfind('/')]
+    label = open(folder + '/label.txt', 'r')
+    label_column = label.read()
+    label.close()
+
+    reply = predict.predict(
+        [float(x) for x in request.form['data'].split(',')],
+        published[model]['path']
+    )
+
+    reply['target'] = label_column
+
+    return jsonify(reply)
 
 @APP.route('/test/<uuid:userid>/<uuid:jobid>', methods=['POST'])
 def test_model(userid, jobid):
@@ -57,12 +128,14 @@ def test_model(userid, jobid):
     label_column = label.read()
     label.close()
 
-    return jsonify(predict.predict(
+    reply = predict.predict(
         [float(x) for x in request.form['data'].split(',')],
-        folder + '/train.csv',
-        label_column,
-        folder
-    ))
+        folder + '/pipeline'
+    )
+
+    reply['target'] = label_column
+
+    return jsonify(reply)
 
 @APP.route('/train/<uuid:userid>/<uuid:jobid>', methods=['POST'])
 def find_best_model(userid, jobid):
@@ -148,7 +221,7 @@ def list_jobs(userid):
     for job in os.listdir(folder):
         if not os.path.isdir(folder + '/' + job):
             continue
-        
+
         has_results = os.path.exists(folder + '/' + job + '/report.csv')
         label = open(folder + '/' + job + '/label.txt', 'r')
         label_column = label.read()
@@ -193,6 +266,27 @@ def export_pmml(userid, jobid):
 
     return send_file(folder + '/pipeline.pmml', as_attachment=True)
 
+@APP.route('/export-pmml/<string:model>', methods=['GET'])
+def export_published_pmml(model):
+    """Export the published model's PMML"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if model not in published:
+        abort(404)
+        return
+
+    if not os.path.exists(published[model]['path'] + '.pmml'):
+        abort(404)
+        return
+
+    return send_file(published[model]['path'] + '.pmml', as_attachment=True)
+
 @APP.route('/export-model/<uuid:userid>/<uuid:jobid>', methods=['GET'])
 def export_model(userid, jobid):
     """Export the selected model"""
@@ -204,6 +298,27 @@ def export_model(userid, jobid):
         return
 
     return send_file(folder + '/pipeline.joblib', as_attachment=True)
+
+@APP.route('/export-model/<string:model>', methods=['GET'])
+def export_published_model(model):
+    """Export the published model"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if model not in published:
+        abort(404)
+        return
+
+    if not os.path.exists(published[model]['path'] + '.joblib'):
+        abort(404)
+        return
+
+    return send_file(published[model]['path'] + '.joblib', as_attachment=True)
 
 @APP.route('/<path:path>')
 def get_static_file(path):
