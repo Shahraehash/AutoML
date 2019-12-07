@@ -53,10 +53,10 @@ export class UseModelComponent implements OnInit {
   }
 
   exportModel() {
-    window.open(this.backend.exportModel, '_self');
+    window.open(this.publishName ? this.backend.exportPublishedModel(this.publishName) : this.backend.exportModel(), '_self');
   }
 
   exportPMML() {
-    window.open(this.backend.exportPMML, '_self');
+    window.open(this.publishName ? this.backend.exportPublishedPMML(this.publishName) : this.backend.exportPMML(), '_self');
   }
 }

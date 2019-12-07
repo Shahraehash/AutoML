@@ -220,7 +220,7 @@ def list_jobs(userid):
     for job in os.listdir(folder):
         if not os.path.isdir(folder + '/' + job):
             continue
-        
+
         has_results = os.path.exists(folder + '/' + job + '/report.csv')
         label = open(folder + '/' + job + '/label.txt', 'r')
         label_column = label.read()
@@ -265,6 +265,27 @@ def export_pmml(userid, jobid):
 
     return send_file(folder + '/pipeline.pmml', as_attachment=True)
 
+@APP.route('/export-pmml/<string:model>', methods=['GET'])
+def export_published_pmml(model):
+    """Export the published model's PMML"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if model not in published:
+        abort(404)
+        return
+
+    if not os.path.exists(published[model]['path'] + '.pmml'):
+        abort(404)
+        return
+
+    return send_file(published[model]['path'] + '.pmml', as_attachment=True)
+
 @APP.route('/export-model/<uuid:userid>/<uuid:jobid>', methods=['GET'])
 def export_model(userid, jobid):
     """Export the selected model"""
@@ -276,6 +297,27 @@ def export_model(userid, jobid):
         return
 
     return send_file(folder + '/pipeline.joblib', as_attachment=True)
+
+@APP.route('/export-model/<string:model>', methods=['GET'])
+def export_published_model(model):
+    """Export the published model"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if model not in published:
+        abort(404)
+        return
+
+    if not os.path.exists(published[model]['path'] + '.joblib'):
+        abort(404)
+        return
+
+    return send_file(published[model]['path'] + '.joblib', as_attachment=True)
 
 @APP.route('/<path:path>')
 def get_static_file(path):

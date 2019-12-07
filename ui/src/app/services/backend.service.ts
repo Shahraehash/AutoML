@@ -62,16 +62,24 @@ export class BackendService {
     return this.http.post(this.SERVER_URL + '/test/' + this.userData.id + '/' + this.currentJobId, formData);
   }
 
-  get exportCSV() {
+  exportCSV() {
     return this.SERVER_URL + '/export/' + this.userData.id + '/' + this.currentJobId;
   }
 
-  get exportModel() {
+  exportModel() {
     return this.SERVER_URL + '/export-model/' + this.userData.id + '/' + this.currentJobId;
   }
 
-  get exportPMML() {
+  exportPMML() {
     return this.SERVER_URL + '/export-pmml/' + this.userData.id + '/' + this.currentJobId;
+  }
+
+  exportPublishedModel(publishName) {
+    return this.SERVER_URL + '/export-model/' + publishName;
+  }
+
+  exportPublishedPMML(publishName) {
+    return this.SERVER_URL + '/export-pmml/' + publishName;
   }
 
   updatePreviousJobs() {
