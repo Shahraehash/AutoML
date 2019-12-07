@@ -189,6 +189,7 @@ export class ResultsPage implements OnChanges {
     const model = this.sortedData[index];
 
     const alert = await this.alertController.create({
+      cssClass: 'wide-alert',
       header: 'Publish Model',
       subHeader: 'Publish your model for standalone use',
       message: `Once published, the model will be available at ${location.origin}/&lt;name&gt;.`,
