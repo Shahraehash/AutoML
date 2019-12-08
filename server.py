@@ -232,6 +232,29 @@ def upload_files(userid, jobid):
 
     return jsonify({'error': 'unknown'})
 
+@APP.route('/clone/<uuid:userid>/<uuid:jobid>/<uuid:newjobid>', methods=['POST'])
+def clone_job(userid, jobid, newjobid):
+    """Copies the data source to a new job ID"""
+
+    src_folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    dest_folder = 'data/' + userid.urn[9:] + '/' + newjobid.urn[9:]
+
+    if not os.path.exists(src_folder) or\
+        not os.path.exists(src_folder + '/train.csv') or\
+        not os.path.exists(src_folder + '/test.csv') or\
+        not os.path.exists(src_folder + '/label.txt'):
+        abort(404)
+        return
+
+    if not os.path.exists(dest_folder):
+        os.makedirs(dest_folder)
+
+    copyfile(src_folder + '/train.csv', dest_folder + '/train.csv')
+    copyfile(src_folder + '/test.csv', dest_folder + '/test.csv')
+    copyfile(src_folder + '/label.txt', dest_folder + '/label.txt')
+
+    return jsonify({'success': True})
+
 @APP.route('/list-pending/<uuid:userid>', methods=['GET'])
 def list_pending(userid):
     """Get all pending tasks for a given user ID"""
@@ -278,7 +301,10 @@ def list_jobs(userid):
 
     jobs = []
     for job in os.listdir(folder):
-        if not os.path.isdir(folder + '/' + job):
+        if not os.path.isdir(folder + '/' + job) or\
+            not os.path.exists(folder + '/' + job + '/train.csv') or\
+            not os.path.exists(folder + '/' + job + '/test.csv') or\
+            not os.path.exists(folder + '/' + job + '/label.txt'):
             continue
 
         has_results = os.path.exists(folder + '/' + job + '/report.csv')

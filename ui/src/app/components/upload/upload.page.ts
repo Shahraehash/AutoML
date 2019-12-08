@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { parse } from 'papaparse';
 
 import { BackendService } from '../../services/backend.service';
@@ -18,7 +18,8 @@ export class UploadPage implements OnInit {
   constructor(
     public backend: BackendService,
     private alertController: AlertController,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private loadingController: LoadingController
   ) {
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],
@@ -69,8 +70,14 @@ export class UploadPage implements OnInit {
     }
   }
 
-  trainPrior(id) {
-    this.backend.currentJobId = id;
+  async trainPrior(id) {
+    const loading = await this.loadingController.create({
+      message: 'Creating New Job'
+    });
+
+    await loading.present();
+    await this.backend.cloneJob(id).toPromise();
+    await loading.dismiss();
     this.stepFinished('upload');
   }
 

@@ -38,6 +38,11 @@ export class BackendService {
     return this.http.post<any>(this.SERVER_URL + '/upload/' + this.userData.id + '/' + this.currentJobId, formData);
   }
 
+  cloneJob(job) {
+    this.currentJobId = uuid();
+    return this.http.post(this.SERVER_URL + '/clone/' + this.userData.id + '/' + job + '/' + this.currentJobId, undefined);
+  }
+
   startTraining(formData) {
     return this.http.post(this.SERVER_URL + '/train/' + this.userData.id + '/' + this.currentJobId, formData);
   }
