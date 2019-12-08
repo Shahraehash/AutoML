@@ -284,7 +284,17 @@ def list_pending(userid):
     for worker in list(i.active().values()):
         for task in worker:
             if '.queue_training' in task['type'] and str(userid) in task['args']:
+                try:
+                    args = ast.literal_eval(task['args'])
+                except:
+                    continue
+
                 status = get_task_status(task['id'])
+                status.update({
+                    'jobid': args[1],
+                    'label': args[2],
+                    'parameters': args[3]
+                })
                 active.append(status)
 
     return jsonify({
