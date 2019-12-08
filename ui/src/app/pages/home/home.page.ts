@@ -1,9 +1,12 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatStepper } from '@angular/material';
-import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
+import { Observable, timer } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { BackendService } from '../../services/backend.service';
+import { TaskStatus } from '../../interfaces';
 
 @Component({
   selector: 'app-home',
@@ -13,9 +16,10 @@ import { BackendService } from '../../services/backend.service';
     provide: STEPPER_GLOBAL_OPTIONS, useValue: {showError: true}
   }]
 })
-export class HomePage {
+export class HomePage implements OnInit {
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
+  pendingTasks$: Observable<TaskStatus[]>;
   uploadForm: FormGroup;
   trainForm: FormGroup;
   featureCount: number;
@@ -46,7 +50,17 @@ export class HomePage {
     });
   }
 
+  ngOnInit() {
+    this.pendingTasks$ = timer(0, 10000).pipe(
+      switchMap(() => this.backend.getPendingTasks())
+    );
+  }
+
   exportCSV() {
     window.open(this.backend.exportCSV(), '_self');
+  }
+
+  openPendingTasks() {
+
   }
 }

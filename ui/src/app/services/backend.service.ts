@@ -66,6 +66,10 @@ export class BackendService {
     return this.http.post(this.SERVER_URL + '/test/' + this.userData.id + '/' + this.currentJobId, formData);
   }
 
+  getPendingTasks() {
+    return this.http.get<TaskStatus[]>(this.SERVER_URL + '/list-pending/' + this.userData.id);
+  }
+
   exportCSV() {
     return this.SERVER_URL + '/export/' + this.userData.id + '/' + this.currentJobId;
   }

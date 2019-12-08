@@ -2,6 +2,9 @@
   <ion-toolbar>
     <ion-title>MILO: Machine Intelligence Learning Optimizer</ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
+      <ion-button fill='solid' color='primary' (click)='openPendingTasks()' *ngIf='(pendingTasks$ | async)?.length'>
+        <ion-spinner name='dots' slot='icon-only'></ion-spinner>
+      </ion-button>
       <ion-button fill='solid' color='primary' (click)='stepper.reset()' *ngIf='uploadForm.valid && trainForm.valid'>
         <ion-icon slot='start' name='add'></ion-icon>
         Start New Search
