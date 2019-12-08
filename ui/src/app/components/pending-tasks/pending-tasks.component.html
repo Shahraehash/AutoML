@@ -3,7 +3,7 @@
     <ion-label>Active Tasks</ion-label>
   </ion-list-header>
   <ion-item *ngFor='let task of pendingTasks.active; let i = index'>
-    Pending {{i + 1}}: {{task.label}} {{task.current / task.total}}% Completed
+    Running {{i + 1}}: {{task.label}} {{task.current / task.total}}% Completed
   </ion-item>
   <ion-item *ngIf='!pendingTasks.active.length'>
     No active tasks
