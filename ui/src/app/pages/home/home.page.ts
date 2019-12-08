@@ -2,11 +2,13 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatStepper } from '@angular/material';
+import { PopoverController } from '@ionic/angular';
 import { Observable, timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
+import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { BackendService } from '../../services/backend.service';
-import { TaskStatus } from '../../interfaces';
+import { PendingTasks } from '../../interfaces';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +21,7 @@ import { TaskStatus } from '../../interfaces';
 export class HomePage implements OnInit {
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
-  pendingTasks$: Observable<TaskStatus[]>;
+  pendingTasks$: Observable<PendingTasks>;
   uploadForm: FormGroup;
   trainForm: FormGroup;
   featureCount: number;
@@ -39,7 +41,8 @@ export class HomePage implements OnInit {
 
   constructor(
     private backend: BackendService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private popoverController: PopoverController
   ) {
     this.uploadForm = this.formBuilder.group({
       upload: ['', Validators.required]
@@ -60,7 +63,14 @@ export class HomePage implements OnInit {
     window.open(this.backend.exportCSV(), '_self');
   }
 
-  openPendingTasks() {
+  async openPendingTasks(event, pendingTasks) {
+    const popover = await this.popoverController.create({
+      component: PendingTasksComponent,
+      componentProps: {pendingTasks},
+      event,
+      translucent: true
+    });
 
+    await popover.present();
   }
 }

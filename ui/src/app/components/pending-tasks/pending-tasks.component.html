@@ -1,3 +1,15 @@
-<p>
-  pending-tasks works!
-</p>
+<ion-list>
+  <ion-list-header>
+    <ion-label>Active Tasks</ion-label>
+  </ion-list-header>
+  <ion-item *ngFor='let task of pendingTasks.active'>
+    {{task.current / task.total}}% Completed
+  </ion-item>
+
+  <ion-list-header>
+    <ion-label>Scheduled Tasks</ion-label>
+  </ion-list-header>
+  <ion-item *ngFor='let task of pendingTasks.scheduled'>
+    {{task.current / task.total}}% Completed
+  </ion-item>
+</ion-list>

@@ -17,10 +17,13 @@ import pandas as pd
 
 from api import api, create_model, predict
 
+PUBLISHED_MODELS = 'data/published-models.json'
+
 APP = Flask(__name__, static_url_path='')
 CORS(APP)
-PUBLISHED_MODELS = 'data/published-models.json'
+
 CELERY = Celery(APP.name, backend='rpc://', broker='pyamqp://guest@localhost//')
+CELERY.conf.update(task_track_started=True)
 
 @CELERY.task()
 def queue_training(userid, jobid, form):
@@ -223,12 +226,13 @@ def upload_files(userid, jobid):
 def list_pending(userid):
     """Get all pending tasks for a given user ID"""
 
-    tasks = []
+    active = []
+    scheduled = []
     i = CELERY.control.inspect()
 
     for worker in list(i.scheduled().values()):
         for task in worker:
-            tasks.append({
+            scheduled.append({
                 'state': 'PENDING',
                 'status': 'Task is scheduled to begin on ' + task['eta'] 
             })
@@ -237,9 +241,12 @@ def list_pending(userid):
         for task in worker:
             if '.queue_training' in task['type'] and str(userid) in task['args']:
                 status = get_task_status(task['id'])
-                tasks.append(status)
+                active.append(status)
 
-    return jsonify(tasks)
+    return jsonify({
+        'active': active,
+        'scheduled': scheduled
+    })
 
 @APP.route('/list-jobs/<uuid:userid>', methods=['GET'])
 def list_jobs(userid):

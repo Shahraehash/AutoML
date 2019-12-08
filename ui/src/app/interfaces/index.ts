@@ -62,3 +62,8 @@ export class TaskStatus {
     total: number;
     status: string;
 }
+
+export class PendingTasks {
+    active: TaskStatus[];
+    scheduled: TaskStatus[];
+}
