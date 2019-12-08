@@ -1,8 +1,11 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
+import { timer } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
+import { TaskAdded } from '../../interfaces/index.js';
 import { BackendService } from '../../services/backend.service';
 import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one-checked.validator';
 
@@ -66,9 +69,8 @@ export class TrainPage implements OnChanges {
     }
 
     this.backend.startTraining(formData).subscribe(
-      () => {
-        this.training = false;
-        this.stepFinished('train');
+      (task: TaskAdded) => {
+        this.checkStatus(task);
       },
       async () => {
         const alert = await this.alertController.create({
@@ -120,6 +122,20 @@ export class TrainPage implements OnChanges {
 
       /** Manually add this since it's required for the UI */
       this.getChecked('scorers').concat('ROC_AUC'),
+    );
+  }
+
+  private checkStatus(task) {
+    const status$ = timer(1000, 5000).pipe(
+      switchMap(() => this.backend.getTaskStatus(task.id))
+    ).subscribe(
+      (status) => {
+        if (status.state === 'SUCCESS') {
+          status$.unsubscribe();
+          this.training = false;
+          this.stepFinished('train');
+        }
+      }
     );
   }
 }

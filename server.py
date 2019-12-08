@@ -38,7 +38,8 @@ def queue_training(self, folder, form):
     if form.get('ignore_shuffle'):
         os.environ['IGNORE_SHUFFLE'] = form.get('ignore_shuffle')
 
-    return api.find_best_model(folder + '/train.csv', folder + '/test.csv', labels, label_column, folder)
+    api.find_best_model(folder + '/train.csv', folder + '/test.csv', labels, label_column, folder)
+    return {}
 
 @APP.route('/')
 def load_ui():
@@ -162,9 +163,10 @@ def find_best_model(userid, jobid):
     folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
 
     task = queue_training.delay(folder, request.form.to_dict())
-    return jsonify({}), 202, {
-        'Location': url_for('task_status', task_id=task.id)
-    }
+    return jsonify({
+        "id": task.id,
+        "href": url_for('task_status', task_id=task.id)
+    }), 202
 
 @APP.route('/status/<task_id>')
 def task_status(task_id):

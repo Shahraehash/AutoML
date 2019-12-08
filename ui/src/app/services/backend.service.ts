@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
-import { Results } from '../interfaces';
+import { Results, TaskStatus } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +40,10 @@ export class BackendService {
 
   startTraining(formData) {
     return this.http.post(this.SERVER_URL + '/train/' + this.userData.id + '/' + this.currentJobId, formData);
+  }
+
+  getTaskStatus(id: number) {
+    return this.http.get<TaskStatus>(this.SERVER_URL + '/status/' + id);
   }
 
   getResults() {

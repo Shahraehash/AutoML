@@ -50,3 +50,15 @@ export class GeneralizationResult {
     fop: string;
     mpv: string;
 }
+
+export class TaskAdded {
+    id: number;
+    href: string;
+}
+
+export class TaskStatus {
+    state: 'PENDING' | 'RECEIVED' | 'STARTED' | 'REVOKED' | 'RETRY' | 'FAILURE' | 'SUCCESS';
+    current: number;
+    total: number;
+    status: string;
+}
