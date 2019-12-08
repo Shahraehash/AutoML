@@ -2,14 +2,20 @@
   <ion-list-header>
     <ion-label>Active Tasks</ion-label>
   </ion-list-header>
-  <ion-item *ngFor='let task of pendingTasks.active'>
-    {{task.current / task.total}}% Completed
+  <ion-item *ngFor='let task of pendingTasks.active; let i = index'>
+    Pending {{i + 1}}: {{task.label}} {{task.current / task.total}}% Completed
+  </ion-item>
+  <ion-item *ngIf='!pendingTasks.active.length'>
+    No active tasks
   </ion-item>
 
   <ion-list-header>
     <ion-label>Scheduled Tasks</ion-label>
   </ion-list-header>
-  <ion-item *ngFor='let task of pendingTasks.scheduled'>
-    {{task.eta | date : 'medium'}}
+  <ion-item *ngFor='let task of pendingTasks.scheduled; let i = index'>
+      Pending {{i + 1}}: {{task.label}} ETA: {{task.eta | date : 'medium'}}
+  </ion-item>
+  <ion-item *ngIf='!pendingTasks.scheduled.length'>
+    No scheduled tasks
   </ion-item>
 </ion-list>

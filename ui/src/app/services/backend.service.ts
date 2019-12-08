@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
-import { Results, PendingTasks, ActiveTaskStatus } from '../interfaces';
+import { Results, PendingTasks, PriorJobs, ActiveTaskStatus } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BackendService {
   currentJobId;
-  previousJobs;
+  previousJobs: PriorJobs[];
   userData;
   SERVER_URL = 'http://localhost:5000';
 
@@ -96,7 +96,7 @@ export class BackendService {
   }
 
   updatePreviousJobs() {
-    this.http.get(this.SERVER_URL + '/list-jobs/' + this.userData.id).subscribe(result => {
+    this.http.get<PriorJobs[]>(this.SERVER_URL + '/list-jobs/' + this.userData.id).subscribe(result => {
       this.previousJobs = result;
     });
   }

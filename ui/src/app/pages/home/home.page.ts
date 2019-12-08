@@ -65,6 +65,7 @@ export class HomePage implements OnInit {
 
   async openPendingTasks(event, pendingTasks) {
     const popover = await this.popoverController.create({
+      cssClass: 'wide-popover',
       component: PendingTasksComponent,
       componentProps: {pendingTasks},
       event,

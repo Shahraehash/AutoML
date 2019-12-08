@@ -71,6 +71,14 @@ export class UploadPage implements OnInit {
   }
 
   async trainPrior(id) {
+    const priorJob = this.backend.previousJobs.filter(job => job.id === id);
+
+    if (!priorJob[0].results) {
+      this.backend.currentJobId = id;
+      this.stepFinished('upload');
+      return;
+    }
+
     const loading = await this.loadingController.create({
       message: 'Creating New Job'
     });

@@ -26,13 +26,8 @@ CELERY = Celery(APP.name, backend='rpc://', broker='pyamqp://guest@localhost//')
 CELERY.conf.update(task_track_started=True)
 
 @CELERY.task()
-def queue_training(userid, jobid, parameters):
+def queue_training(userid, jobid, label_column, parameters):
     folder = 'data/' + userid + '/' + jobid
-
-    label = open(folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
-
     labels = ['No ' + label_column, label_column]
 
     os.environ['IGNORE_ESTIMATOR'] = parameters['ignore_estimator']
@@ -175,7 +170,14 @@ def test_model(userid, jobid):
 def find_best_model(userid, jobid):
     """Finds the best model for the selected parameters/data"""
 
-    task = queue_training.s(userid.urn[9:], jobid.urn[9:], request.form.to_dict()).apply_async()
+    label = open('data/' + userid.urn[9:] + '/' + jobid.urn[9:] + '/label.txt', 'r')
+    label_column = label.read()
+    label.close()
+
+    task = queue_training.s(
+        userid.urn[9:], jobid.urn[9:], label_column, request.form.to_dict()
+    ).apply_async()
+
     return jsonify({
         "id": task.id,
         "href": url_for('task_status', task_id=task.id)
@@ -274,7 +276,8 @@ def list_pending(userid):
                 scheduled.append({
                     'eta': task['eta'],
                     'jobid': args[1],
-                    'parameters': args[2],
+                    'label': args[2],
+                    'parameters': args[3],
                     'state': 'PENDING'
                 })
 
