@@ -7,7 +7,7 @@
           <ion-spinner name='dots' slot='icon-only'></ion-spinner>
         </ion-button>
       </ng-container>
-      <ion-button fill='solid' color='primary' (click)='stepper.reset()' *ngIf='uploadForm.valid && trainForm.valid'>
+      <ion-button fill='solid' color='primary' (click)='stepper.reset()' *ngIf='uploadForm.valid'>
         <ion-icon slot='start' name='add'></ion-icon>
         Start New Search
       </ion-button>
