@@ -129,11 +129,22 @@ export class TrainPage implements OnChanges {
     const status$ = timer(1000, 5000).pipe(
       switchMap(() => this.backend.getTaskStatus(task.id))
     ).subscribe(
-      (status) => {
+      async (status) => {
         if (status.state === 'SUCCESS') {
           status$.unsubscribe();
           this.training = false;
           this.stepFinished('train');
+        } else if (status.state === 'FAILURE') {
+          status$.unsubscribe();
+
+          const alert = await this.alertController.create({
+            cssClass: 'wide-alert',
+            header: 'Unable to Complete Training',
+            message: `The following error was returned: <code>${status.status}</code>`,
+            buttons: ['Dismiss']
+          });
+
+          await alert.present();
         }
       }
     );

@@ -22,8 +22,10 @@ CORS(APP)
 PUBLISHED_MODELS = 'data/published-models.json'
 CELERY = Celery(APP.name, backend='rpc://', broker='pyamqp://guest@localhost//')
 
-@CELERY.task(bind=True)
-def queue_training(self, folder, form):
+@CELERY.task()
+def queue_training(userid, jobid, form):
+    folder = 'data/' + userid + '/' + jobid
+
     label = open(folder + '/label.txt', 'r')
     label_column = label.read()
     label.close()
@@ -160,9 +162,7 @@ def test_model(userid, jobid):
 def find_best_model(userid, jobid):
     """Finds the best model for the selected parameters/data"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
-
-    task = queue_training.delay(folder, request.form.to_dict())
+    task = queue_training.s(userid.urn[9:], jobid.urn[9:], request.form.to_dict()).apply_async()
     return jsonify({
         "id": task.id,
         "href": url_for('task_status', task_id=task.id)
@@ -170,32 +170,7 @@ def find_best_model(userid, jobid):
 
 @APP.route('/status/<task_id>')
 def task_status(task_id):
-    task = queue_training.AsyncResult(task_id)
-    if task.state == 'PENDING':
-        response = {
-            'state': task.state,
-            'current': 0,
-            'total': 1,
-            'status': 'Pending...'
-        }
-    elif task.state != 'FAILURE':
-        response = {
-            'state': task.state,
-            'current': task.info.get('current', 0),
-            'total': task.info.get('total', 1),
-            'status': task.info.get('status', '')
-        }
-        if 'result' in task.info:
-            response['result'] = task.info['result']
-    else:
-        # something went wrong in the background job
-        response = {
-            'state': task.state,
-            'current': 1,
-            'total': 1,
-            'status': str(task.info),  # this is the exception raised
-        }
-    return jsonify(response)
+    return jsonify(get_task_status(task_id))
 
 @APP.route('/results/<uuid:userid>/<uuid:jobid>', methods=['GET'])
 def get_results(userid, jobid):
@@ -243,6 +218,28 @@ def upload_files(userid, jobid):
         return jsonify({'success': 'true'})
 
     return jsonify({'error': 'unknown'})
+
+@APP.route('/list-pending/<uuid:userid>', methods=['GET'])
+def list_pending(userid):
+    """Get all pending tasks for a given user ID"""
+
+    tasks = []
+    i = CELERY.control.inspect()
+
+    for worker in list(i.scheduled().values()):
+        for task in worker:
+            tasks.append({
+                'state': 'PENDING',
+                'status': 'Task is scheduled to begin on ' + task['eta'] 
+            })
+
+    for worker in list(i.active().values()):
+        for task in worker:
+            if '.queue_training' in task['type'] and str(userid) in task['args']:
+                status = get_task_status(task['id'])
+                tasks.append(status)
+
+    return jsonify(tasks)
 
 @APP.route('/list-jobs/<uuid:userid>', methods=['GET'])
 def list_jobs(userid):
@@ -365,6 +362,37 @@ def get_static_file(path):
         path = os.path.join(path, 'index.html')
 
     return send_from_directory('static', path)
+
+def get_task_status(task_id):
+    """Get's a given's task and returns a summary in JSON format"""
+
+    task = queue_training.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # something went wrong in the background job
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+
+    return response
 
 if __name__ == "__main__":
     APP.run()
