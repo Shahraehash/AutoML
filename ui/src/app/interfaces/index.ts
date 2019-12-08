@@ -56,14 +56,19 @@ export class TaskAdded {
     href: string;
 }
 
-export class TaskStatus {
+export class ActiveTaskStatus {
     state: 'PENDING' | 'RECEIVED' | 'STARTED' | 'REVOKED' | 'RETRY' | 'FAILURE' | 'SUCCESS';
     current: number;
     total: number;
     status: string;
 }
 
+export class ScheduledTaskStatus {
+    state: 'PENDING';
+    eta: string;
+}
+
 export class PendingTasks {
-    active: TaskStatus[];
-    scheduled: TaskStatus[];
+    active: ActiveTaskStatus[];
+    scheduled: ScheduledTaskStatus[];
 }

@@ -232,10 +232,18 @@ def list_pending(userid):
 
     for worker in list(i.scheduled().values()):
         for task in worker:
-            scheduled.append({
-                'state': 'PENDING',
-                'status': 'Task is scheduled to begin on ' + task['eta'] 
-            })
+            if str(userid) in task['request']['args']:
+                try:
+                    args = ast.literal_eval(task['request']['args'])
+                except:
+                    continue
+
+                scheduled.append({
+                    'eta': task['eta'],
+                    'jobid': args[1],
+                    'parameters': args[2],
+                    'state': 'PENDING'
+                })
 
     for worker in list(i.active().values()):
         for task in worker:

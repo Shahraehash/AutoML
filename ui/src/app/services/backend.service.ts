@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
-import { Results, PendingTasks, TaskStatus } from '../interfaces';
+import { Results, PendingTasks, ActiveTaskStatus } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +43,7 @@ export class BackendService {
   }
 
   getTaskStatus(id: number) {
-    return this.http.get<TaskStatus>(this.SERVER_URL + '/status/' + id);
+    return this.http.get<ActiveTaskStatus>(this.SERVER_URL + '/status/' + id);
   }
 
   getResults() {

@@ -10,6 +10,6 @@
     <ion-label>Scheduled Tasks</ion-label>
   </ion-list-header>
   <ion-item *ngFor='let task of pendingTasks.scheduled'>
-    {{task.current / task.total}}% Completed
+    {{task.eta | date : 'medium'}}
   </ion-item>
 </ion-list>
