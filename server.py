@@ -10,17 +10,35 @@ import os
 import json
 from shutil import copyfile
 
-import pandas as pd
-from flask import abort, Flask, jsonify, request, send_file, send_from_directory
+from celery import Celery
+from flask import abort, Flask, jsonify, request, send_file, send_from_directory, url_for
 from flask_cors import CORS
+import pandas as pd
 
-from api import api
-from api import create_model
-from api import predict
+from api import api, create_model, predict
 
 APP = Flask(__name__, static_url_path='')
 CORS(APP)
 PUBLISHED_MODELS = 'data/published-models.json'
+CELERY = Celery(APP.name, backend='rpc://', broker='pyamqp://guest@localhost//')
+
+@CELERY.task(bind=True)
+def queue_training(self, folder, form):
+    label = open(folder + '/label.txt', 'r')
+    label_column = label.read()
+    label.close()
+
+    labels = ['No ' + label_column, label_column]
+
+    os.environ['IGNORE_ESTIMATOR'] = form['ignore_estimator']
+    os.environ['IGNORE_FEATURE_SELECTOR'] = form['ignore_feature_selector']
+    os.environ['IGNORE_SCALER'] = form['ignore_scaler']
+    os.environ['IGNORE_SEARCHER'] = form['ignore_searcher']
+    os.environ['IGNORE_SCORER'] = form['ignore_scorer']
+    if form.get('ignore_shuffle'):
+        os.environ['IGNORE_SHUFFLE'] = form.get('ignore_shuffle')
+
+    return api.find_best_model(folder + '/train.csv', folder + '/test.csv', labels, label_column, folder)
 
 @APP.route('/')
 def load_ui():
@@ -143,22 +161,39 @@ def find_best_model(userid, jobid):
 
     folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
 
-    label = open(folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
+    task = queue_training.delay(folder, request.form.to_dict())
+    return jsonify({}), 202, {
+        'Location': url_for('task_status', task_id=task.id)
+    }
 
-    labels = ['No ' + label_column, label_column]
-
-    os.environ['IGNORE_ESTIMATOR'] = request.form['ignore_estimator']
-    os.environ['IGNORE_FEATURE_SELECTOR'] = request.form['ignore_feature_selector']
-    os.environ['IGNORE_SCALER'] = request.form['ignore_scaler']
-    os.environ['IGNORE_SEARCHER'] = request.form['ignore_searcher']
-    os.environ['IGNORE_SCORER'] = request.form['ignore_scorer']
-    if request.form.get('ignore_shuffle'):
-        os.environ['IGNORE_SHUFFLE'] = request.form.get('ignore_shuffle')
-
-    api.find_best_model(folder + '/train.csv', folder + '/test.csv', labels, label_column, folder)
-    return jsonify({'success': True})
+@APP.route('/status/<task_id>')
+def task_status(task_id):
+    task = queue_training.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # something went wrong in the background job
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+    return jsonify(response)
 
 @APP.route('/results/<uuid:userid>/<uuid:jobid>', methods=['GET'])
 def get_results(userid, jobid):
