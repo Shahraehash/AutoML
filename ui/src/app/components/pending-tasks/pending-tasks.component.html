@@ -20,7 +20,12 @@
   </ion-list-header>
   <ion-item *ngFor='let task of pendingTasks.scheduled'>
     {{task.label}}: Pending 
-    <span slot='end'>ETA: {{task.eta | date : 'medium'}}</span>
+    <div slot='end'>
+      <span class='status-text ion-padding-end'>ETA: {{task.eta | date : 'medium'}}</span>
+      <ion-button color='danger' fill='solid' size='small' (click)='cancelTask(task.id)'>
+        <ion-icon slot='icon-only' name='close'></ion-icon>
+      </ion-button>
+    </div>
   </ion-item>
   <ion-item *ngIf='!pendingTasks.scheduled.length'>
     No scheduled tasks
