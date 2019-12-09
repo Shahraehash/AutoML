@@ -6,7 +6,7 @@ from celery import Celery
 from api import api
 
 CELERY = Celery(__name__, backend='rpc://', broker='pyamqp://guest@localhost//')
-CELERY.conf.update(task_track_started=True)
+CELERY.conf.update(task_track_started=True, worker_redirect_stdouts_level='ERROR')
 
 @CELERY.task()
 def queue_training(userid, jobid, label_column, parameters):
