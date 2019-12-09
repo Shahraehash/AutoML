@@ -252,7 +252,7 @@ def list_pending(userid):
                     'state': 'PENDING'
                 })
 
-    for worker in list(i.active().values()):
+    for worker in list(i.active().values()) + list(i.reserved().values()):
         for task in worker:
             if '.queue_training' in task['type'] and str(userid) in task['args']:
                 try:
@@ -264,7 +264,8 @@ def list_pending(userid):
                 status.update({
                     'jobid': args[1],
                     'label': args[2],
-                    'parameters': args[3]
+                    'parameters': args[3],
+                    'time': task['time_start']
                 })
                 active.append(status)
 
