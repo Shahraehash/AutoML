@@ -25,7 +25,7 @@
       <app-upload [stepFinished]='stepFinished'></app-upload>
     </mat-step>
     <mat-step label='Train' [stepControl]='trainForm' [editable]='!trainForm.valid' errorMessage='Pipeline elements need selection.'>
-      <app-train [stepFinished]='stepFinished' [featureCount]='featureCount'></app-train>
+      <app-train #train [stepFinished]='stepFinished' [featureCount]='featureCount'></app-train>
     </mat-step>
     <mat-step label='View Results'>
       <app-results [isActive]='stepper?.selectedIndex === 2'></app-results>
