@@ -2,8 +2,11 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { parse } from 'papaparse';
+import { Observable, timer } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { BackendService } from '../../services/backend.service';
+import { PriorJobs } from '../../interfaces';
 
 @Component({
   selector: 'app-upload',
@@ -12,6 +15,8 @@ import { BackendService } from '../../services/backend.service';
 })
 export class UploadPage implements OnInit {
   @Input() stepFinished;
+
+  priorJobs$: Observable<PriorJobs[]>;
   labels = [];
   uploadForm: FormGroup;
 
@@ -29,7 +34,9 @@ export class UploadPage implements OnInit {
   }
 
   ngOnInit() {
-    this.backend.updatePreviousJobs();
+    this.priorJobs$ = timer(0, 10000).pipe(
+      switchMap(() => this.backend.getPriorJobs())
+    );
   }
 
   onSubmit() {
@@ -87,11 +94,9 @@ export class UploadPage implements OnInit {
     }
   }
 
-  async trainPrior(id) {
-    const priorJob = this.backend.previousJobs.filter(job => job.id === id);
-
-    if (!priorJob[0].results) {
-      this.backend.currentJobId = id;
+  async trainPrior(job) {
+    if (!job.results) {
+      this.backend.currentJobId = job.id;
       this.stepFinished('upload');
       return;
     }
@@ -101,7 +106,7 @@ export class UploadPage implements OnInit {
     });
 
     await loading.present();
-    await this.backend.cloneJob(id).toPromise();
+    await this.backend.cloneJob(job.id).toPromise();
     await loading.dismiss();
     this.stepFinished('upload');
   }

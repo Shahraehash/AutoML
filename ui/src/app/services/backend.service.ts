@@ -9,7 +9,6 @@ import { Results, PendingTasks, PriorJobs, ActiveTaskStatus } from '../interface
 })
 export class BackendService {
   currentJobId;
-  previousJobs: PriorJobs[];
   userData;
   SERVER_URL = 'http://localhost:5000';
 
@@ -79,6 +78,10 @@ export class BackendService {
     return this.http.get<PendingTasks>(this.SERVER_URL + '/list-pending/' + this.userData.id);
   }
 
+  getPriorJobs() {
+    return this.http.get<PriorJobs[]>(this.SERVER_URL + '/list-jobs/' + this.userData.id);
+  }
+
   exportCSV() {
     return this.SERVER_URL + '/export/' + this.userData.id + '/' + this.currentJobId;
   }
@@ -97,11 +100,5 @@ export class BackendService {
 
   exportPublishedPMML(publishName) {
     return this.SERVER_URL + '/export-pmml/' + publishName;
-  }
-
-  updatePreviousJobs() {
-    this.http.get<PriorJobs[]>(this.SERVER_URL + '/list-jobs/' + this.userData.id).subscribe(result => {
-      this.previousJobs = result;
-    });
   }
 }
