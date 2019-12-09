@@ -22,7 +22,7 @@ export class PendingTasksComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.pendingTasks$ = timer(0, 150000000).pipe(
+    this.pendingTasks$ = timer(0, 5000).pipe(
       switchMap(() => this.backend.getPendingTasks())
     );
   }
