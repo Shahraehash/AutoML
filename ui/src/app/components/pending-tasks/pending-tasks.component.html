@@ -1,4 +1,4 @@
-<ion-list>
+<ion-list *ngIf='(pendingTasks$ | async) || firstViewData; let pendingTasks'>
   <ion-list-header>
     <ion-label>Active Tasks</ion-label>
   </ion-list-header>
