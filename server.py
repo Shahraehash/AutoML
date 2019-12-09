@@ -15,7 +15,7 @@ from flask_cors import CORS
 import pandas as pd
 
 from api import create_model, predict
-from worker import CELERY, get_task_status, queue_training
+from worker import CELERY, get_task_status, queue_training, revoke_task
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
@@ -262,6 +262,7 @@ def list_pending(userid):
 
                 status = get_task_status(task['id'])
                 status.update({
+                    'id': task['id'],
                     'jobid': args[1],
                     'label': args[2],
                     'parameters': args[3],
@@ -273,6 +274,12 @@ def list_pending(userid):
         'active': active,
         'scheduled': scheduled
     })
+
+@APP.route('/cancel/<uuid:task_id>', methods=['DELETE'])
+def cancel_task(task_id):
+    """Cancels the provided task"""
+    revoke_task(task_id)
+    return jsonify({'success': True})
 
 @APP.route('/list-jobs/<uuid:userid>', methods=['GET'])
 def list_jobs(userid):

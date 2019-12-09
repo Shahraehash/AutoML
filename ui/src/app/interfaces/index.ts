@@ -79,6 +79,7 @@ export class ActiveTaskStatus {
     total: number;
     status: string;
     time: number;
+    id: string;
     state: 'PENDING' | 'RECEIVED' | 'STARTED' | 'REVOKED' | 'RETRY' | 'FAILURE' | 'SUCCESS';
     jobid: string;
     label: string;

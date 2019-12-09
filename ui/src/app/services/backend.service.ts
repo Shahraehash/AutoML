@@ -51,6 +51,10 @@ export class BackendService {
     return this.http.get<ActiveTaskStatus>(this.SERVER_URL + '/status/' + id);
   }
 
+  cancelTask(id: number) {
+    return this.http.delete(this.SERVER_URL + '/cancel/' + id);
+  }
+
   getResults() {
     return this.http.get<Results>(this.SERVER_URL + '/results/' + this.userData.id + '/' + this.currentJobId);
   }
