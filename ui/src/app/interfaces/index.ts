@@ -25,7 +25,7 @@ export class MetaData {
     test_negative_count: number;
     test_positive_count: number;
     parameters: SearchParameters;
-    date: Date;
+    date: number;
 }
 
 export class GeneralizationResult {

@@ -60,11 +60,27 @@ export class UploadPage implements OnInit {
     if (event.target.files.length === 1) {
       const file = event.target.files[0];
 
-      if (event.target.name === 'train') {
-        parse(file, {
-          complete: reply => this.labels = reply.data[0]
-        });
-      }
+      parse(file, {
+        complete: async reply => {
+          if (event.target.name === 'train') {
+            this.labels = reply.data[0];
+            this.uploadForm.get('test').reset();
+          } else {
+            if (this.labels.length !== reply.data[0].length) {
+              const alert = await this.alertController.create({
+                header: 'Data Does Not Match',
+                message: 'The columns from the training data does not match the number of columns in the test data.'
+              });
+              await alert.present();
+              this.uploadForm.get(event.target.name).setErrors({
+                invalidColumns: true
+              });
+
+              return;
+            }
+          }
+        }
+      });
 
       this.uploadForm.get(event.target.name).setValue(file);
     }

@@ -7,12 +7,12 @@
   <label class='file-input'>
     <ion-icon *ngIf='uploadForm.get("train").valid' name='checkmark-circle' color='success'></ion-icon>
     Select Training Data
-    <input type='file' name='train' (change)="onFileSelect($event)">
+    <input type='file' name='train' (change)='onFileSelect($event)'>
   </label>
   <label class='file-input'>
     <ion-icon *ngIf='uploadForm.get("test").valid' name='checkmark-circle' color='success'></ion-icon>
     Select Testing Data (Generalization)
-    <input type='file' name='test' (change)="onFileSelect($event)">
+    <input type='file' name='test' (change)='onFileSelect($event)' [disabled]='!uploadForm.get("train").valid'>
   </label>
   <ion-select placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column'>
     <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
@@ -23,7 +23,7 @@
 
 <ion-card class='ion-padding ion-text-center previous-jobs' *ngIf='backend.previousJobs && backend.previousJobs.length'>
   <ion-card-header>
-    <ion-card-subtitle>Alternatively, you may select previously uploaded data sets.</ion-card-subtitle>
+    <ion-card-subtitle>Alternatively, you may select previously uploaded data sets.<br>Jobs are listed by target along with either a unique ID or the job completion time.</ion-card-subtitle>
     <ion-card-title>Previous Data Set</ion-card-title>
   </ion-card-header>
 
