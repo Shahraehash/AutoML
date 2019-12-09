@@ -147,7 +147,7 @@ def find_best_model(userid, jobid):
 
     task = queue_training.s(
         userid.urn[9:], jobid.urn[9:], label_column, request.form.to_dict()
-    ).apply_async(countdown=100)
+    ).apply_async()
 
     return jsonify({
         "id": task.id,

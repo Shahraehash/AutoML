@@ -9,7 +9,7 @@ from api import api
 CELERY = Celery(__name__, backend='rpc://', broker='pyamqp://guest@localhost//')
 CELERY.conf.update(task_track_started=True)
 
-@CELERY.task(bind=True)
+@CELERY.task(bind=True, autoretry_for=(Exception,), retry_kwargs={'max_retries': 5, 'countdown': 10})
 def queue_training(self, userid, jobid, label_column, parameters):
     folder = 'data/' + userid + '/' + jobid
     labels = ['No ' + label_column, label_column]
