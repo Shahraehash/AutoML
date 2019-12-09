@@ -4,7 +4,7 @@ import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatStepper } from '@angular/material';
 import { PopoverController } from '@ionic/angular';
 import { Observable, timer } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { filter, switchMap } from 'rxjs/operators';
 
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { BackendService } from '../../services/backend.service';
@@ -22,6 +22,7 @@ export class HomePage implements OnInit {
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
   pendingTasks$: Observable<PendingTasks>;
+  pauseUpdates = false;
   uploadForm: FormGroup;
   trainForm: FormGroup;
   featureCount: number;
@@ -55,6 +56,7 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.pendingTasks$ = timer(0, 10000).pipe(
+      filter(() => !this.pauseUpdates),
       switchMap(() => this.backend.getPendingTasks())
     );
   }
@@ -64,6 +66,7 @@ export class HomePage implements OnInit {
   }
 
   async openPendingTasks(event, pendingTasks) {
+    this.pauseUpdates = true;
     const popover = await this.popoverController.create({
       cssClass: 'wide-popover',
       component: PendingTasksComponent,
@@ -73,5 +76,7 @@ export class HomePage implements OnInit {
     });
 
     await popover.present();
+    await popover.onDidDismiss();
+    this.pauseUpdates = false;
   }
 }
