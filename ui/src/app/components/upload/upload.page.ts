@@ -68,6 +68,7 @@ export class UploadPage implements OnInit {
           } else {
             if (this.labels.length !== reply.data[0].length) {
               const alert = await this.alertController.create({
+                buttons: ['Dismiss'],
                 header: 'Data Does Not Match',
                 message: 'The columns from the training data does not match the number of columns in the test data.'
               });
