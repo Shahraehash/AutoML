@@ -8,8 +8,8 @@ from api import api
 CELERY = Celery(__name__, backend='rpc://', broker='pyamqp://guest@localhost//')
 CELERY.conf.update(task_track_started=True)
 
-@CELERY.task()
-def queue_training(userid, jobid, label_column, parameters):
+@CELERY.task(bind=True)
+def queue_training(self, userid, jobid, label_column, parameters):
     folder = 'data/' + userid + '/' + jobid
     labels = ['No ' + label_column, label_column]
 
@@ -31,7 +31,14 @@ def queue_training(userid, jobid, label_column, parameters):
     with open(folder + '/metadata.json', 'w') as metafile:
         json.dump(metadata, metafile)
 
-    api.find_best_model(folder + '/train.csv', folder + '/test.csv', labels, label_column, folder)
+    api.find_best_model(
+        folder + '/train.csv',
+        folder + '/test.csv',
+        labels,
+        label_column,
+        folder,
+        lambda x, y: self.update_state(state='PROGRESS', meta={'current': x, 'total': y})
+    )
     return {}
 
 def get_task_status(task_id):
