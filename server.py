@@ -15,7 +15,7 @@ from flask_cors import CORS
 import pandas as pd
 
 from api import create_model, predict
-from worker import CELERY, queue_training
+from worker import CELERY, get_task_status, queue_training
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
@@ -397,37 +397,6 @@ def get_static_file(path):
         path = os.path.join(path, 'index.html')
 
     return send_from_directory('static', path)
-
-def get_task_status(task_id):
-    """Get's a given's task and returns a summary in JSON format"""
-
-    task = queue_training.AsyncResult(task_id)
-    if task.state == 'PENDING':
-        response = {
-            'state': task.state,
-            'current': 0,
-            'total': 1,
-            'status': 'Pending...'
-        }
-    elif task.state != 'FAILURE':
-        response = {
-            'state': task.state,
-            'current': task.info.get('current', 0),
-            'total': task.info.get('total', 1),
-            'status': task.info.get('status', '')
-        }
-        if 'result' in task.info:
-            response['result'] = task.info['result']
-    else:
-        # something went wrong in the background job
-        response = {
-            'state': task.state,
-            'current': 1,
-            'total': 1,
-            'status': str(task.info),  # this is the exception raised
-        }
-
-    return response
 
 if __name__ == "__main__":
     APP.run()
