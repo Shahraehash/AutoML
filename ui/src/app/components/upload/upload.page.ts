@@ -1,9 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { parse } from 'papaparse';
+import { Observable, timer } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { BackendService } from '../../services/backend.service';
+import { PriorJobs } from '../../interfaces';
 
 @Component({
   selector: 'app-upload',
@@ -12,13 +15,16 @@ import { BackendService } from '../../services/backend.service';
 })
 export class UploadPage implements OnInit {
   @Input() stepFinished;
+
+  priorJobs$: Observable<PriorJobs[]>;
   labels = [];
   uploadForm: FormGroup;
 
   constructor(
     public backend: BackendService,
     private alertController: AlertController,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private loadingController: LoadingController
   ) {
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],
@@ -28,7 +34,9 @@ export class UploadPage implements OnInit {
   }
 
   ngOnInit() {
-    this.backend.updatePreviousJobs();
+    this.priorJobs$ = timer(0, 10000).pipe(
+      switchMap(() => this.backend.getPriorJobs())
+    );
   }
 
   onSubmit() {
@@ -59,18 +67,47 @@ export class UploadPage implements OnInit {
     if (event.target.files.length === 1) {
       const file = event.target.files[0];
 
-      if (event.target.name === 'train') {
-        parse(file, {
-          complete: reply => this.labels = reply.data[0]
-        });
-      }
+      parse(file, {
+        complete: async reply => {
+          if (event.target.name === 'train') {
+            this.labels = reply.data[0];
+            this.uploadForm.get('test').reset();
+          } else {
+            if (this.labels.length !== reply.data[0].length) {
+              const alert = await this.alertController.create({
+                buttons: ['Dismiss'],
+                header: 'Data Does Not Match',
+                message: 'The columns from the training data does not match the number of columns in the test data.'
+              });
+              await alert.present();
+              this.uploadForm.get(event.target.name).setErrors({
+                invalidColumns: true
+              });
+
+              return;
+            }
+          }
+        }
+      });
 
       this.uploadForm.get(event.target.name).setValue(file);
     }
   }
 
-  trainPrior(id) {
-    this.backend.currentJobId = id;
+  async trainPrior(job) {
+    if (!job.results) {
+      this.backend.currentJobId = job.id;
+      this.stepFinished('upload');
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: 'Creating New Job'
+    });
+
+    await loading.present();
+    await this.backend.cloneJob(job.id).toPromise();
+    await loading.dismiss();
     this.stepFinished('upload');
   }
 

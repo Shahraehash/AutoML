@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
-import { Results } from '../interfaces';
+import { Results, PendingTasks, PriorJobs, ActiveTaskStatus } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BackendService {
   currentJobId;
-  previousJobs;
   userData;
   SERVER_URL = 'http://localhost:5000';
 
@@ -38,8 +37,21 @@ export class BackendService {
     return this.http.post<any>(this.SERVER_URL + '/upload/' + this.userData.id + '/' + this.currentJobId, formData);
   }
 
+  cloneJob(job) {
+    this.currentJobId = uuid();
+    return this.http.post(this.SERVER_URL + '/clone/' + this.userData.id + '/' + job + '/' + this.currentJobId, undefined);
+  }
+
   startTraining(formData) {
     return this.http.post(this.SERVER_URL + '/train/' + this.userData.id + '/' + this.currentJobId, formData);
+  }
+
+  getTaskStatus(id: number) {
+    return this.http.get<ActiveTaskStatus>(this.SERVER_URL + '/status/' + id);
+  }
+
+  cancelTask(id: number) {
+    return this.http.delete(this.SERVER_URL + '/cancel/' + id);
   }
 
   getResults() {
@@ -62,6 +74,14 @@ export class BackendService {
     return this.http.post(this.SERVER_URL + '/test/' + this.userData.id + '/' + this.currentJobId, formData);
   }
 
+  getPendingTasks() {
+    return this.http.get<PendingTasks>(this.SERVER_URL + '/list-pending/' + this.userData.id);
+  }
+
+  getPriorJobs() {
+    return this.http.get<PriorJobs[]>(this.SERVER_URL + '/list-jobs/' + this.userData.id);
+  }
+
   exportCSV() {
     return this.SERVER_URL + '/export/' + this.userData.id + '/' + this.currentJobId;
   }
@@ -80,11 +100,5 @@ export class BackendService {
 
   exportPublishedPMML(publishName) {
     return this.SERVER_URL + '/export-pmml/' + publishName;
-  }
-
-  updatePreviousJobs() {
-    this.http.get(this.SERVER_URL + '/list-jobs/' + this.userData.id).subscribe(result => {
-      this.previousJobs = result;
-    });
   }
 }

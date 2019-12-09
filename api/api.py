@@ -33,7 +33,7 @@ from .utils import model_key_to_name
 # Load environment variables
 load_dotenv()
 
-def find_best_model(train_set=None, test_set=None, labels=None, label_column=None, output_path='.'):
+def find_best_model(train_set=None, test_set=None, labels=None, label_column=None, output_path='.', updateFunction=lambda x, y: None):
     """Generates all possible models and outputs the generalization results"""
 
     ignore_estimator = [x.strip() for x in os.getenv('IGNORE_ESTIMATOR', '').split(',')]
@@ -69,7 +69,10 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
     report = open(output_path + '/report.csv', 'w+')
     reportWriter = csv.writer(report)
 
-    for estimator, feature_selector, scaler, searcher in all_pipelines:
+    for index, (estimator, feature_selector, scaler, searcher) in enumerate(all_pipelines):
+
+        # Trigger a callback for task monitoring purposes
+        updateFunction(index, len(all_pipelines))
 
         # SVM without scaling can loop consuming infinite CPU time so
         # we prevent that combination here.

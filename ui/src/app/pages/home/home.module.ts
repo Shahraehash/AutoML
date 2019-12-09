@@ -16,6 +16,7 @@ import { HomePage } from './home.page';
 import { ResultsPage } from '../../components/results/results.page';
 import { TrainPage } from '../../components/train/train.page';
 import { UploadPage } from '../../components/upload/upload.page';
+import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { RadialDendrogramComponent } from '../../components/radial-dendrogram/radial-dendrogram.component';
 import { RocChartComponent } from '../../components/roc-chart/roc-chart.component';
 import { UseModelComponent } from '../../components/use-model/use-model.component';
@@ -28,7 +29,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  entryComponents: [UseModelComponent],
+  entryComponents: [PendingTasksComponent, UseModelComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -41,6 +42,15 @@ const routes: Routes = [
     MatSortModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [HomePage, UploadPage, ResultsPage, TrainPage, RadialDendrogramComponent, RocChartComponent, UseModelComponent]
+  declarations: [
+    HomePage,
+    UploadPage,
+    PendingTasksComponent,
+    ResultsPage,
+    TrainPage,
+    RadialDendrogramComponent,
+    RocChartComponent,
+    UseModelComponent
+  ]
 })
 export class HomePageModule {}

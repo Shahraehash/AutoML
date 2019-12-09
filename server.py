@@ -10,17 +10,17 @@ import os
 import json
 from shutil import copyfile
 
-import pandas as pd
-from flask import abort, Flask, jsonify, request, send_file, send_from_directory
+from flask import abort, Flask, jsonify, request, send_file, send_from_directory, url_for
 from flask_cors import CORS
+import pandas as pd
 
-from api import api
-from api import create_model
-from api import predict
+from api import create_model, predict
+from worker import CELERY, get_task_status, queue_training, revoke_task
+
+PUBLISHED_MODELS = 'data/published-models.json'
 
 APP = Flask(__name__, static_url_path='')
 CORS(APP)
-PUBLISHED_MODELS = 'data/published-models.json'
 
 @APP.route('/')
 def load_ui():
@@ -141,24 +141,22 @@ def test_model(userid, jobid):
 def find_best_model(userid, jobid):
     """Finds the best model for the selected parameters/data"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
-
-    label = open(folder + '/label.txt', 'r')
+    label = open('data/' + userid.urn[9:] + '/' + jobid.urn[9:] + '/label.txt', 'r')
     label_column = label.read()
     label.close()
 
-    labels = ['No ' + label_column, label_column]
+    task = queue_training.s(
+        userid.urn[9:], jobid.urn[9:], label_column, request.form.to_dict()
+    ).apply_async()
 
-    os.environ['IGNORE_ESTIMATOR'] = request.form['ignore_estimator']
-    os.environ['IGNORE_FEATURE_SELECTOR'] = request.form['ignore_feature_selector']
-    os.environ['IGNORE_SCALER'] = request.form['ignore_scaler']
-    os.environ['IGNORE_SEARCHER'] = request.form['ignore_searcher']
-    os.environ['IGNORE_SCORER'] = request.form['ignore_scorer']
-    if request.form.get('ignore_shuffle'):
-        os.environ['IGNORE_SHUFFLE'] = request.form.get('ignore_shuffle')
+    return jsonify({
+        "id": task.id,
+        "href": url_for('task_status', task_id=task.id)
+    }), 202
 
-    api.find_best_model(folder + '/train.csv', folder + '/test.csv', labels, label_column, folder)
-    return jsonify({'success': True})
+@APP.route('/status/<task_id>')
+def task_status(task_id):
+    return jsonify(get_task_status(task_id))
 
 @APP.route('/results/<uuid:userid>/<uuid:jobid>', methods=['GET'])
 def get_results(userid, jobid):
@@ -207,6 +205,83 @@ def upload_files(userid, jobid):
 
     return jsonify({'error': 'unknown'})
 
+@APP.route('/clone/<uuid:userid>/<uuid:jobid>/<uuid:newjobid>', methods=['POST'])
+def clone_job(userid, jobid, newjobid):
+    """Copies the data source to a new job ID"""
+
+    src_folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    dest_folder = 'data/' + userid.urn[9:] + '/' + newjobid.urn[9:]
+
+    if not os.path.exists(src_folder) or\
+        not os.path.exists(src_folder + '/train.csv') or\
+        not os.path.exists(src_folder + '/test.csv') or\
+        not os.path.exists(src_folder + '/label.txt'):
+        abort(404)
+        return
+
+    if not os.path.exists(dest_folder):
+        os.makedirs(dest_folder)
+
+    copyfile(src_folder + '/train.csv', dest_folder + '/train.csv')
+    copyfile(src_folder + '/test.csv', dest_folder + '/test.csv')
+    copyfile(src_folder + '/label.txt', dest_folder + '/label.txt')
+
+    return jsonify({'success': True})
+
+@APP.route('/list-pending/<uuid:userid>', methods=['GET'])
+def list_pending(userid):
+    """Get all pending tasks for a given user ID"""
+
+    active = []
+    scheduled = []
+    i = CELERY.control.inspect()
+
+    for worker in list(i.scheduled().values()):
+        for task in worker:
+            if str(userid) in task['request']['args']:
+                try:
+                    args = ast.literal_eval(task['request']['args'])
+                except:
+                    continue
+
+                scheduled.append({
+                    'id': task['request']['id'],
+                    'eta': task['eta'],
+                    'jobid': args[1],
+                    'label': args[2],
+                    'parameters': args[3],
+                    'state': 'PENDING'
+                })
+
+    for worker in list(i.active().values()) + list(i.reserved().values()):
+        for task in worker:
+            if '.queue_training' in task['type'] and str(userid) in task['args']:
+                try:
+                    args = ast.literal_eval(task['args'])
+                except:
+                    continue
+
+                status = get_task_status(task['id'])
+                status.update({
+                    'id': task['id'],
+                    'jobid': args[1],
+                    'label': args[2],
+                    'parameters': args[3],
+                    'time': task['time_start']
+                })
+                active.append(status)
+
+    return jsonify({
+        'active': active,
+        'scheduled': scheduled
+    })
+
+@APP.route('/cancel/<uuid:task_id>', methods=['DELETE'])
+def cancel_task(task_id):
+    """Cancels the provided task"""
+    revoke_task(task_id)
+    return jsonify({'success': True})
+
 @APP.route('/list-jobs/<uuid:userid>', methods=['GET'])
 def list_jobs(userid):
     """Get all the jobs for a given user ID"""
@@ -219,7 +294,10 @@ def list_jobs(userid):
 
     jobs = []
     for job in os.listdir(folder):
-        if not os.path.isdir(folder + '/' + job):
+        if not os.path.isdir(folder + '/' + job) or\
+            not os.path.exists(folder + '/' + job + '/train.csv') or\
+            not os.path.exists(folder + '/' + job + '/test.csv') or\
+            not os.path.exists(folder + '/' + job + '/label.txt'):
             continue
 
         has_results = os.path.exists(folder + '/' + job + '/report.csv')

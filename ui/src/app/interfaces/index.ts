@@ -3,6 +3,13 @@ export class Results {
     results: GeneralizationResult[];
 }
 
+export class PriorJobs {
+    metadata: MetaData;
+    id: string;
+    label: string;
+    results: boolean;
+}
+
 export class MetaData {
     fits: {
         knn: number;
@@ -17,6 +24,8 @@ export class MetaData {
     train_positive_count: number;
     test_negative_count: number;
     test_positive_count: number;
+    parameters: SearchParameters;
+    date: number;
 }
 
 export class GeneralizationResult {
@@ -49,4 +58,43 @@ export class GeneralizationResult {
     brier_score: string;
     fop: string;
     mpv: string;
+}
+
+export class SearchParameters {
+    ignore_estimator: string;
+    ignore_feature_selector: string;
+    ignore_scaler: string;
+    ignore_scorer: string;
+    ignore_searcher: string;
+    ignore_shuffle: boolean;
+}
+
+export class TaskAdded {
+    id: number;
+    href: string;
+}
+
+export class ActiveTaskStatus {
+    current: number;
+    total: number;
+    status: string;
+    time: number;
+    id: string;
+    state: 'PENDING' | 'RECEIVED' | 'STARTED' | 'REVOKED' | 'RETRY' | 'FAILURE' | 'SUCCESS';
+    jobid: string;
+    label: string;
+    parameters: SearchParameters;
+}
+
+export class ScheduledTaskStatus {
+    eta: string;
+    state: 'PENDING';
+    jobid: string;
+    label: string;
+    parameters: SearchParameters;
+}
+
+export class PendingTasks {
+    active: ActiveTaskStatus[];
+    scheduled: ScheduledTaskStatus[];
 }
