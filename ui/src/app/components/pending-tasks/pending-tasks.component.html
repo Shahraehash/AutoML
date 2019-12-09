@@ -1,23 +1,16 @@
 <ion-list *ngIf='(pendingTasks$ | async) || firstViewData; let pendingTasks'>
   <ion-list-header>
-    <ion-label>Active Tasks</ion-label>
+    <ion-label>Tasks</ion-label>
   </ion-list-header>
   <ion-item *ngFor='let task of pendingTasks.active'>
     {{task.label}}: {{task.time ? 'Running' : 'Waiting'}} 
-    <div slot='end' *ngIf='task.time'>
-      <span class='status-text ion-padding-end'>{{((task.current / task.total) * 100) | number:'1.0-0'}}% Completed</span>
+    <div slot='end'>
+      <span *ngIf='task.time' class='status-text ion-padding-end'>{{((task.current / task.total) * 100) | number:'1.0-0'}}% Completed</span>
       <ion-button color='danger' fill='solid' size='small' (click)='cancelTask(task.id)'>
         <ion-icon slot='icon-only' name='close'></ion-icon>
       </ion-button>
     </div>
   </ion-item>
-  <ion-item *ngIf='!pendingTasks.active.length'>
-    No active tasks
-  </ion-item>
-
-  <ion-list-header>
-    <ion-label>Scheduled Tasks</ion-label>
-  </ion-list-header>
   <ion-item *ngFor='let task of pendingTasks.scheduled'>
     {{task.label}}: Pending 
     <div slot='end'>
@@ -27,7 +20,7 @@
       </ion-button>
     </div>
   </ion-item>
-  <ion-item *ngIf='!pendingTasks.scheduled.length'>
-    No scheduled tasks
+  <ion-item *ngIf='!pendingTasks.scheduled.length && !pendingTasks.active.length'>
+    No active tasks
   </ion-item>
 </ion-list>
