@@ -49,7 +49,6 @@ HYPER_PARAMETER_RANGE = {
             'max_depth': [50, 80, 110],
             'max_features': ['auto'],
             'min_samples_leaf': [3, 4, 5],
-            'min_samples_split': [2, 3, 4],
             'n_estimators': [10, 100, 200, 300, 1000]
         },
         'svm': {
