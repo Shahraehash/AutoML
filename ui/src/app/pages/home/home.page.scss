@@ -5,9 +5,12 @@
 
 ::ng-deep {
     mat-horizontal-stepper,
-    .mat-horizontal-content-container,
     .mat-horizontal-stepper-content {
         height: 100%;
+    }
+
+    .mat-horizontal-content-container {
+        height: calc(100% - 10px);
     }
 
     .mat-horizontal-stepper-content {
