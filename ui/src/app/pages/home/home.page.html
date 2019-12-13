@@ -7,7 +7,7 @@
           <ion-spinner name='dots' slot='icon-only'></ion-spinner>
         </ion-button>
       </ng-container>
-      <ion-button fill='solid' color='primary' (click)='stepper.reset()' *ngIf='uploadForm.valid'>
+      <ion-button fill='solid' color='primary' (click)='reset()' *ngIf='uploadForm.valid'>
         <ion-icon slot='start' name='add'></ion-icon>
         Start New Search
       </ion-button>
@@ -22,7 +22,7 @@
 <div class='container'>
   <mat-horizontal-stepper #stepper linear>
     <mat-step label='Select Data' [stepControl]='uploadForm' [editable]='!uploadForm.valid' errorMessage='Data upload is required.'>
-      <app-upload [stepFinished]='stepFinished'></app-upload>
+      <app-upload #upload [stepFinished]='stepFinished'></app-upload>
     </mat-step>
     <mat-step label='Train' [stepControl]='trainForm' [editable]='!trainForm.valid' errorMessage='Pipeline elements need selection.'>
       <app-train #train [stepFinished]='stepFinished' [featureCount]='featureCount'></app-train>

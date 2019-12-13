@@ -10,6 +10,7 @@ import { PendingTasksComponent } from '../../components/pending-tasks/pending-ta
 import { TrainPage } from '../../components/train/train.page';
 import { BackendService } from '../../services/backend.service';
 import { PendingTasks } from '../../interfaces';
+import { UploadPage } from '../../components/upload/upload.page';
 
 @Component({
   selector: 'app-home',
@@ -20,6 +21,7 @@ import { PendingTasks } from '../../interfaces';
   }]
 })
 export class HomePage implements OnInit {
+  @ViewChild('upload', {static: false}) upload: UploadPage;
   @ViewChild('train', {static: false}) train: TrainPage;
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
@@ -66,6 +68,12 @@ export class HomePage implements OnInit {
 
   exportCSV() {
     window.open(this.backend.exportCSV(), '_self');
+  }
+
+  reset() {
+    this.stepper.reset();
+    this.uploadForm.reset();
+    this.upload.reset();
   }
 
   async openPendingTasks(event, pendingTasks) {

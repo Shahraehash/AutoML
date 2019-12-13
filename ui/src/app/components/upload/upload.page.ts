@@ -116,4 +116,8 @@ export class UploadPage implements OnInit {
     this.stepFinished('upload');
     this.stepFinished('train');
   }
+
+  reset() {
+    this.uploadForm.reset();
+  }
 }
