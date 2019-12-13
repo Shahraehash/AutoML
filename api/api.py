@@ -41,6 +41,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         [x.strip() for x in os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')]
     ignore_scaler = [x.strip() for x in os.getenv('IGNORE_SCALER', '').split(',')]
     ignore_searcher = [x.strip() for x in os.getenv('IGNORE_SEARCHER', '').split(',')]
+    shuffle = False if os.getenv('IGNORE_SHUFFLE', '') != '' else True
     scorers = [x for x in SCORER_NAMES if x not in \
         [x.strip() for x in os.getenv('IGNORE_SCORER', '').split(',')]]
 
@@ -91,7 +92,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
 
         # Generate the pipeline
         pipeline = \
-            generate_pipeline(scaler, feature_selector, estimator, y_train, scorers, searcher)
+            generate_pipeline(scaler, feature_selector, estimator, y_train, scorers, searcher, shuffle)
 
         if not estimator in total_fits:
             total_fits[estimator] = 0

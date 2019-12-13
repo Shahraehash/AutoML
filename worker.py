@@ -57,12 +57,15 @@ def get_task_status(task_id):
             'status': 'Pending...'
         }
     elif task.state != 'FAILURE':
-        response = {
-            'state': task.state,
-            'current': task.info.get('current', 0),
-            'total': task.info.get('total', 1),
-            'status': task.info.get('status', '')
-        }
+        response = {'state': task.state}
+
+        if task.info:
+            response.update({
+                'current': task.info.get('current', 0),
+                'total': task.info.get('total', 1),
+                'status': task.info.get('status', '')
+            })
+
         if 'result' in task.info:
             response['result'] = task.info['result']
     else:
