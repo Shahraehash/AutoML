@@ -88,6 +88,10 @@ export class TrainPage implements OnChanges {
     this.generatePipelines();
   }
 
+  adjustEstimator(event, estimator) {
+    event.preventDefault();
+  }
+
   private getValues(key) {
     return this.trainForm.get(key).value.flatMap((value, index) => {
       return value ? [] : this.pipelineProcessors[key][index].value;
