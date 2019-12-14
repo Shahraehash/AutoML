@@ -36,7 +36,8 @@ export class TrainComponent implements OnChanges {
       featureSelectors: this.formBuilder.array(this.pipelineProcessors.featureSelectors, requireAtLeastOneCheckedValidator()),
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
       scorers: this.formBuilder.array(this.pipelineProcessors.scorers),
-      shuffle: [true]
+      shuffle: [true],
+      hyperParameters: {grid: {}}
     });
 
     try {
@@ -102,7 +103,11 @@ export class TrainComponent implements OnChanges {
           {
             name: 'Submit',
             handler: (data) => {
-              console.log(data);
+              const hyperParameters = this.trainForm.get('hyperParameters');
+              const current = hyperParameters.value;
+
+              current.grid[estimator.value] = data.grid;
+              hyperParameters.setValue(current);
             }
           }
         ],
