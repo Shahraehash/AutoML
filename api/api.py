@@ -146,7 +146,18 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         'date': time.time(),
         'fits': total_fits
     })
-    with open(output_path + '/metadata.json', 'w') as metafile:
-        json.dump(metadata, metafile)
+
+    with open(output_path + '/metadata.json', 'a+') as metafile:
+        metafile.seek(0)
+
+        # Load the existing metadata
+        existing_metadata = json.load(metafile)
+
+        # Empty the file
+        metafile.seek(0)
+        metafile.truncate()
+        
+        existing_metadata.update(metadata)
+        json.dump(existing_metadata, metafile)
 
     return results
