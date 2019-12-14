@@ -101,8 +101,8 @@ export class TrainComponent implements OnChanges {
           {name: 'Dismiss'},
           {
             name: 'Submit',
-            handler: () => {
-
+            handler: (data) => {
+              console.log(data);
             }
           }
         ],
@@ -110,7 +110,7 @@ export class TrainComponent implements OnChanges {
         subHeader: `Adjust hyperparameter range for ${estimator.label}`,
         message: 'Please enter your hyperparameter range in JSON format below:',
         inputs: [
-          {name: 'grid-parameters', placeholder: 'Enter the hyperparameter range for grid search...'}
+          {name: 'grid', placeholder: 'Enter the hyperparameter range for grid search...'}
         ]
       }
     });

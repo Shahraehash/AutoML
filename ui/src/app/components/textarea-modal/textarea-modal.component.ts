@@ -20,8 +20,14 @@ export class TextareaModalComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.parsedInputs = this.formBuilder.group({
-      inputs: this.formBuilder.array(Array(this.inputs.length).fill(''))
-    });
+    this.parsedInputs = this.formBuilder.group(
+      this.inputs.reduce(
+        (obj, item) => {
+          obj[item.name] = '';
+          return obj;
+        },
+        {}
+      )
+    );
   }
 }

@@ -3,13 +3,11 @@
   <h2 *ngIf='subHeader' class='alert-sub-title'>{{subHeader}}</h2>
 </div>
 <div class='alert-message' *ngIf='message' [innerHTML]='message'></div>
-<ng-container [formGroup]='parsedInputs'>
-  <div class='alert-input-group' *ngIf='inputs.length' formArrayName='inputs'>
-    <textarea *ngFor='let input of inputs; let i = index' [formControlName]='i' [placeholder]='input.placeholder' [name]='input.name' class='alert-input'></textarea>
-  </div>
-</ng-container>
+<div class='alert-input-group' *ngIf='inputs.length' [formGroup]='parsedInputs'>
+  <textarea *ngFor='let input of inputs; let i = index' [formControlName]='input.name' [placeholder]='input.placeholder' [name]='input.name' class='alert-input'></textarea>
+</div>
 <div class='alert-button-group'>
-  <ion-button *ngFor='let button of buttons' class='alert-button' (click)='button.handler()'>
+  <ion-button *ngFor='let button of buttons' class='alert-button' (click)='button.handler(parsedInputs.value)'>
       {{button.name}}
   </ion-button>
 </div>
