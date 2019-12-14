@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   MatCheckboxModule,
   MatInputModule,
+  MatSelectModule,
   MatStepperModule,
   MatTableModule,
   MatSortModule
@@ -38,6 +39,7 @@ const routes: Routes = [
     MatCheckboxModule,
     MatInputModule,
     MatTableModule,
+    MatSelectModule,
     MatStepperModule,
     MatSortModule,
     RouterModule.forChild(routes)

@@ -1,6 +1,6 @@
 <div class='container'>
   <div *ngIf='results; else noResults' class='results-viewer'>
-    <div class='roc-graphs'>
+    <div class='roc-graphs' *ngIf='sortedData.length'>
       <ion-card class='ion-padding ion-text-center roc-curve'>
         <ion-card-header>
           <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (prevalence dependent test)</ion-card-subtitle>
@@ -34,9 +34,16 @@
       </ion-card>
     </div>
 
-    <div class='table-wrapper'>
+    <div class='table-wrapper' [formGroup]='filterForm'>
+      <mat-form-field color='accent' class='filter-section'>
+        <mat-select formControlName='group' (selectionChange)='applyFilter()'>
+          <mat-option value='all'>All</mat-option>
+          <mat-option *ngFor='let column of getFilterColumns()' [value]='column.key'>{{column.name}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <mat-form-field color='accent'>
-        <input matInput (keyup)='applyFilter($event.target.value)' placeholder='Filter results...'>
+        <input matInput  formControlName='query' (keyup)='applyFilter()' placeholder='Filter results...'>
       </mat-form-field>
 
       <ion-button size='small' class='details-button' (click)='showDetails()'>

@@ -1,4 +1,5 @@
 import { Component, Input, ViewChild, OnChanges } from '@angular/core';
+import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
@@ -17,6 +18,7 @@ export class ResultsPage implements OnChanges {
   @Input() isActive: boolean;
   activeRow = 0;
   data: GeneralizationResult[];
+  filterForm: FormGroup;
   loading: HTMLIonLoadingElement;
   rocData;
   metadata: MetaData;
@@ -95,10 +97,16 @@ export class ResultsPage implements OnChanges {
   constructor(
     private alertController: AlertController,
     private backend: BackendService,
+    private formBuilder: FormBuilder,
     private loadingController: LoadingController,
     private modalController: ModalController,
     private toastController: ToastController,
-  ) {}
+  ) {
+    this.filterForm = this.formBuilder.group({
+      query: new FormControl(''),
+      group: new FormControl('all')
+    });
+  }
 
   ngOnChanges() {
     if (!this.isActive) {
@@ -112,6 +120,7 @@ export class ResultsPage implements OnChanges {
         this.results = new MatTableDataSource(data.results);
         setTimeout(() => {
           this.results.sort = this.sort;
+          this.results.filterPredicate = this.filter.bind(this);
         }, 1);
 
         this.results.connect().subscribe(d => {
@@ -135,8 +144,28 @@ export class ResultsPage implements OnChanges {
     return isMobile ? this.columns.filter(c => !c.hideMobile).map(c => c.key) : this.columns.map(c => c.key);
   }
 
-  applyFilter(filterValue: string) {
-    this.results.filter = filterValue.trim().toLowerCase();
+  getFilterColumns() {
+    return this.columns.filter(i => i.name);
+  }
+
+  filter(value, filter) {
+    const group = this.filterForm.get('group').value;
+    let dataStr;
+
+    if (group === 'all') {
+      dataStr = Object.keys(value).reduce((currentTerm: string, key: string) => {
+        return currentTerm + (value as {[key: string]: any})[key] + '◬';
+      }, '').toLowerCase();
+    } else {
+      dataStr = value[group].toLowerCase();
+    }
+    const transformedFilter = filter.trim().toLowerCase();
+
+    return dataStr.indexOf(transformedFilter) !== -1;
+  }
+
+  applyFilter() {
+    this.results.filter = this.filterForm.get('query').value;
   }
 
   parse(object, mode) {
