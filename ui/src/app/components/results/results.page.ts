@@ -345,6 +345,10 @@ export class ResultsPage implements OnChanges {
             <ion-label>Testing (Generalization) Negative Cases</ion-label>
             <ion-note slot='end'>${this.metadata.test_negative_count}</ion-note>
           </ion-item>
+          <ion-item>
+            <ion-label>Cross Validation Count</ion-label>
+            <ion-note slot='end'>10</ion-note>
+          </ion-item>
         </ion-list>
       `;
 
