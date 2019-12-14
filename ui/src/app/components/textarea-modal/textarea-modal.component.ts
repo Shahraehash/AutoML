@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-textarea-modal',
@@ -6,9 +6,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./textarea-modal.component.scss'],
 })
 export class TextareaModalComponent implements OnInit {
+  @Input() header: string;
+  @Input() subHeader: string;
+  @Input() message: string;
+  @Input() buttons: {name: string}[];
+  @Input() inputs: {name: string; placeholder: string}[];
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() {}
-
+  ngOnInit() {
+  }
 }

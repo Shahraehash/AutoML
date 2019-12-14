@@ -1,18 +1,13 @@
-<div class="alert-head">
-  <h2 class="alert-title">Are you sure you want to unpublish?</h2>
-  <h2 class="alert-sub-title">This cannot be undone.</h2>
+<div class='alert-head'>
+  <h2 *ngIf='header' class='alert-title'>{{header}}</h2>
+  <h2 *ngIf='subHeader' class='alert-sub-title'>{{subHeader}}</h2>
 </div>
-<div class="alert-message">
-  Are you sure you want to delete the published model: 'AKI'?<br><br>Type the model name below to confirm.
+<div class='alert-message' *ngIf='message' [innerHTML]='message'></div>
+<div class='alert-input-group' *ngIf='inputs.length'>
+    <textarea *ngFor='let input of inputs' [placeholder]='input.placeholder' [name]='input.name' class='alert-input'></textarea>
 </div>
-<div class="alert-input-group">
-    <textarea placeholder="Enter the hyperparameter JSON" class="alert-input"></textarea>
-</div>
-<div class="alert-button-group">
-  <ion-button class="alert-button">
-      Dismiss
-  </ion-button>
-  <ion-button class="alert-button">
-      Unpublish
+<div class='alert-button-group'>
+  <ion-button *ngFor='let button of buttons' class='alert-button'>
+      {{button.name}}
   </ion-button>
 </div>

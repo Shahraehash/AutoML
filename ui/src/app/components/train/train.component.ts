@@ -96,7 +96,18 @@ export class TrainComponent implements OnChanges {
 
     const modal = await this.modalController.create({
       component: TextareaModalComponent,
-      componentProps: {estimator}
+      componentProps: {
+        buttons: [
+          {name: 'Dismiss'},
+          {name: 'Submit'}
+        ],
+        header: 'Adjust Hyperparameter Range',
+        subHeader: `Adjust hyperparameter range for ${estimator.label}`,
+        message: 'Please enter your hyperparameter range in JSON format below:',
+        inputs: [
+          {name: 'grid-parameters', placeholder: 'Enter the hyperparameter range for grid search...'}
+        ]
+      }
     });
 
     await modal.present();
