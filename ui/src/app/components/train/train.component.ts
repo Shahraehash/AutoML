@@ -19,6 +19,7 @@ export class TrainComponent implements OnChanges {
   @Input() featureCount;
   @Output() reset = new EventEmitter();
   @Output() stepFinished = new EventEmitter();
+
   allPipelines;
   training = false;
   trainForm: FormGroup;
@@ -37,7 +38,7 @@ export class TrainComponent implements OnChanges {
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
       scorers: this.formBuilder.array(this.pipelineProcessors.scorers),
       shuffle: [true],
-      hyperParameters: {grid: {}}
+      hyperParameters: {grid: {}, random: {}}
     });
 
     try {
@@ -107,15 +108,16 @@ export class TrainComponent implements OnChanges {
               const current = hyperParameters.value;
 
               current.grid[estimator.value] = data.grid;
+              current.random[estimator.value] = data.random;
               hyperParameters.setValue(current);
             }
           }
         ],
         header: 'Adjust Hyperparameter Range',
-        subHeader: `Adjust hyperparameter range for ${estimator.label}`,
-        message: 'Please enter your hyperparameter range in JSON format below:',
+        message: `Please enter the hyperparameter range for '${estimator.label}' in JSON format:`,
         inputs: [
-          {name: 'grid', placeholder: 'Enter the hyperparameter range for grid search...'}
+          {name: 'grid', placeholder: 'Enter the hyperparameter range for grid search...'},
+          {name: 'random', placeholder: 'Enter the hyperparameter range for random search...'}
         ]
       }
     });

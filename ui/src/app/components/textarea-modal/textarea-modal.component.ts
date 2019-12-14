@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, HostBinding, OnInit } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
@@ -16,8 +17,14 @@ export class TextareaModalComponent implements OnInit {
   parsedInputs: FormGroup;
 
   constructor(
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private sanitizer: DomSanitizer
   ) {}
+
+  @HostBinding('attr.style')
+  get textAreaHeight() {
+    return this.sanitizer.bypassSecurityTrustStyle(`--textarea-height: calc(${100 / this.inputs.length}% - ${25 * this.inputs.length}px)`);
+  }
 
   ngOnInit() {
     this.parsedInputs = this.formBuilder.group(
@@ -29,5 +36,13 @@ export class TextareaModalComponent implements OnInit {
         {}
       )
     );
+  }
+
+  buttonHandler(handler) {
+    if (!handler) {
+      return;
+    }
+
+    handler(this.parsedInputs.value);
   }
 }
