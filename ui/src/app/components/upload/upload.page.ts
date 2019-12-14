@@ -70,7 +70,7 @@ export class UploadPage implements OnInit {
       parse(file, {
         complete: async reply => {
           if (event.target.name === 'train') {
-            this.labels = reply.data[0];
+            this.labels = reply.data[0].reverse();
             this.uploadForm.get('test').reset();
           } else {
             if (this.labels.length !== reply.data[0].length) {
