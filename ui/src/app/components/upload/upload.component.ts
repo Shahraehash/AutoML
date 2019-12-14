@@ -124,6 +124,10 @@ export class UploadComponent implements OnInit {
     this.stepFinished.emit({state: 'train'});
   }
 
+  launchModel(id) {
+    window.open('/model/' + id, '_blank');
+  }
+
   reset() {
     this.uploadForm.reset();
   }
