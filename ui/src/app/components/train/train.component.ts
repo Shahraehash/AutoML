@@ -1,11 +1,12 @@
 import { Component, Input, EventEmitter, Output, OnChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
+import { TaskAdded } from '../../interfaces';
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
-import { TaskAdded } from '../../interfaces/index.js';
+import { TextareaModalComponent } from '../../components/textarea-modal/textarea-modal.component';
 import { BackendService } from '../../services/backend.service';
 import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one-checked.validator';
 
@@ -26,7 +27,8 @@ export class TrainComponent implements OnChanges {
   constructor(
     private alertController: AlertController,
     private backend: BackendService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private modalController: ModalController
   ) {
     this.trainForm = this.formBuilder.group({
       estimators: this.formBuilder.array(this.pipelineProcessors.estimators, requireAtLeastOneCheckedValidator()),
@@ -89,8 +91,15 @@ export class TrainComponent implements OnChanges {
     this.generatePipelines();
   }
 
-  adjustEstimator(event, estimator) {
+  async adjustEstimator(event, estimator) {
     event.preventDefault();
+
+    const modal = await this.modalController.create({
+      component: TextareaModalComponent,
+      componentProps: {estimator}
+    });
+
+    await modal.present();
   }
 
   private getValues(key) {

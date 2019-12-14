@@ -8,9 +8,9 @@ import { filter, switchMap } from 'rxjs/operators';
 
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { TrainComponent } from '../../components/train/train.component';
+import { UploadComponent } from '../../components/upload/upload.component';
 import { BackendService } from '../../services/backend.service';
 import { PendingTasks } from '../../interfaces';
-import { UploadComponent } from '../../components/upload/upload.component';
 
 @Component({
   selector: 'app-home',

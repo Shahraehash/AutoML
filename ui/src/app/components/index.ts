@@ -55,3 +55,4 @@ import { UseModelComponent } from './use-model/use-model.component';
 export class ComponentsModule {}
 export * from './pending-tasks/pending-tasks.component';
 export * from './use-model/use-model.component';
+export * from './textarea-modal/textarea-modal.component';
