@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { parse } from 'papaparse';
@@ -14,7 +14,7 @@ import { PriorJobs, PublishedModels } from '../../interfaces';
   styleUrls: ['upload.component.scss'],
 })
 export class UploadComponent implements OnInit {
-  @Input() stepFinished;
+  @Output() stepFinished = new EventEmitter();
 
   priorJobs$: Observable<PriorJobs[]>;
   publishedModels$: Observable<PublishedModels>;
@@ -54,7 +54,7 @@ export class UploadComponent implements OnInit {
 
     this.backend.submitData(formData).subscribe(
       () => {
-        this.stepFinished('upload', this.labels.length);
+        this.stepFinished.emit({state: 'upload', data: this.labels.length});
       },
       async () => {
         const alert = await this.alertController.create({
@@ -104,7 +104,7 @@ export class UploadComponent implements OnInit {
   async trainPrior(job) {
     if (!job.results) {
       this.backend.currentJobId = job.id;
-      this.stepFinished('upload');
+      this.stepFinished.emit({state: 'upload'});
       return;
     }
 
@@ -115,13 +115,13 @@ export class UploadComponent implements OnInit {
     await loading.present();
     await this.backend.cloneJob(job.id).toPromise();
     await loading.dismiss();
-    this.stepFinished('upload');
+    this.stepFinished.emit({state: 'upload'});
   }
 
   viewPrior(id) {
     this.backend.currentJobId = id;
-    this.stepFinished('upload');
-    this.stepFinished('train');
+    this.stepFinished.emit({state: 'upload'});
+    this.stepFinished.emit({state: 'train'});
   }
 
   reset() {

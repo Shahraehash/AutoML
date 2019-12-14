@@ -31,20 +31,6 @@ export class HomePage implements OnInit {
   trainForm: FormGroup;
   featureCount: number;
 
-  stepFinished = (step, extra) => {
-    switch (step) {
-      case 'upload':
-        this.featureCount = extra;
-        this.train.training = false;
-        this.uploadForm.get('upload').setValue('true');
-        break;
-      case 'train':
-        this.trainForm.get('train').setValue('true');
-    }
-
-    this.stepper.next();
-  }
-
   constructor(
     private backend: BackendService,
     private formBuilder: FormBuilder,
@@ -89,5 +75,19 @@ export class HomePage implements OnInit {
     await popover.present();
     await popover.onDidDismiss();
     this.pauseUpdates = false;
+  }
+
+  stepFinished(event) {
+    switch (event.state) {
+      case 'upload':
+        this.featureCount = event.data;
+        this.train.training = false;
+        this.uploadForm.get('upload').setValue('true');
+        break;
+      case 'train':
+        this.trainForm.get('train').setValue('true');
+    }
+
+    this.stepper.next();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { timer } from 'rxjs';
@@ -15,8 +15,9 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
   styleUrls: ['train.component.scss']
 })
 export class TrainComponent implements OnChanges {
-  @Input() stepFinished;
   @Input() featureCount;
+  @Output() reset = new EventEmitter();
+  @Output() stepFinished = new EventEmitter();
   allPipelines;
   training = false;
   trainForm: FormGroup;
@@ -137,7 +138,7 @@ export class TrainComponent implements OnChanges {
         if (status.state === 'SUCCESS') {
           status$.unsubscribe();
           this.training = false;
-          this.stepFinished('train');
+          this.stepFinished.emit({state: 'train'});
         } else if (status.state === 'FAILURE') {
           status$.unsubscribe();
 
@@ -149,6 +150,11 @@ export class TrainComponent implements OnChanges {
           });
 
           await alert.present();
+          this.reset.emit();
+        } else if (status.state === 'REVOKED') {
+          status$.unsubscribe();
+
+          this.reset.emit();
         }
       }
     );
