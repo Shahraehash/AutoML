@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-textarea-modal',
@@ -9,11 +10,18 @@ export class TextareaModalComponent implements OnInit {
   @Input() header: string;
   @Input() subHeader: string;
   @Input() message: string;
-  @Input() buttons: {name: string}[];
+  @Input() buttons: {name: string, handler?: () => void}[];
   @Input() inputs: {name: string; placeholder: string}[];
 
-  constructor() {}
+  parsedInputs: FormGroup;
+
+  constructor(
+    private formBuilder: FormBuilder
+  ) {}
 
   ngOnInit() {
+    this.parsedInputs = this.formBuilder.group({
+      inputs: this.formBuilder.array(Array(this.inputs.length).fill(''))
+    });
   }
 }

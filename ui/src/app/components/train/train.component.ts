@@ -99,7 +99,12 @@ export class TrainComponent implements OnChanges {
       componentProps: {
         buttons: [
           {name: 'Dismiss'},
-          {name: 'Submit'}
+          {
+            name: 'Submit',
+            handler: () => {
+
+            }
+          }
         ],
         header: 'Adjust Hyperparameter Range',
         subHeader: `Adjust hyperparameter range for ${estimator.label}`,
