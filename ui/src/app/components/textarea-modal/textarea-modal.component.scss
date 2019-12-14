@@ -9,6 +9,11 @@
 }
 
 textarea {
+    background: var(--background);
     height: var(--textarea-height);
     width: 100%;
+
+    &::placeholder {
+        color: var(--color);
+    }
 }

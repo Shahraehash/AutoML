@@ -1,6 +1,6 @@
 import { Component, Input, EventEmitter, Output, OnChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, ModalController, ToastController } from '@ionic/angular';
 import { timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -29,7 +29,8 @@ export class TrainComponent implements OnChanges {
     private alertController: AlertController,
     private backend: BackendService,
     private formBuilder: FormBuilder,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private toastController: ToastController
   ) {
     this.trainForm = this.formBuilder.group({
       estimators: this.formBuilder.array(this.pipelineProcessors.estimators, requireAtLeastOneCheckedValidator()),
@@ -107,8 +108,24 @@ export class TrainComponent implements OnChanges {
               const hyperParameters = this.trainForm.get('hyperParameters');
               const current = hyperParameters.value;
 
-              current.grid[estimator.value] = data.grid;
-              current.random[estimator.value] = data.random;
+              if (data.grid) {
+                try {
+                  current.grid[estimator.value] = JSON.parse(data.grid);
+                } catch (err) {
+                  this.showError('Unable to parse the grid parameters');
+                  return false;
+                }
+              }
+
+              if (data.random) {
+                try {
+                  current.random[estimator.value] = JSON.parse(data.random);
+                } catch (err) {
+                  this.showError('Unable to parse the random parameters');
+                  return false;
+                }
+              }
+
               hyperParameters.setValue(current);
             }
           }
@@ -190,5 +207,10 @@ export class TrainComponent implements OnChanges {
         }
       }
     );
+  }
+
+  private async showError(message) {
+    const toast = await this.toastController.create({message, duration: 2000});
+    await toast.present();
   }
 }

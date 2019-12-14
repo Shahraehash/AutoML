@@ -8,7 +8,7 @@
   </h6>
 </ion-header>
 
-<ion-content padding [formGroup]='parsedInputs'>
+<ion-content class='ion-padding' [formGroup]='parsedInputs'>
   <div *ngIf='message' [innerHTML]='message' class='message'></div>
   <textarea *ngFor='let input of inputs; let i = index' [formControlName]='input.name' [placeholder]='input.placeholder' [name]='input.name'></textarea>
 </ion-content>

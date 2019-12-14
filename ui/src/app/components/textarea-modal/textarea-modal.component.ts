@@ -1,6 +1,7 @@
 import { Component, Input, HostBinding, OnInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-textarea-modal',
@@ -18,6 +19,7 @@ export class TextareaModalComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
+    private modalController: ModalController,
     private sanitizer: DomSanitizer
   ) {}
 
@@ -38,11 +40,14 @@ export class TextareaModalComponent implements OnInit {
     );
   }
 
-  buttonHandler(handler) {
+  async buttonHandler(handler) {
     if (!handler) {
+      await this.modalController.dismiss();
       return;
     }
 
-    handler(this.parsedInputs.value);
+    if (handler(this.parsedInputs.value) !== false) {
+      await this.modalController.dismiss();
+    }
   }
 }
