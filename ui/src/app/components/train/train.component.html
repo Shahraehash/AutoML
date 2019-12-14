@@ -10,7 +10,13 @@
         <h6>Estimators</h6>
         <mat-checkbox *ngFor='let estimator of pipelineProcessors.estimators; let i=index' [formControlName]='i'>
           {{estimator.label}}
-          <ion-icon name='settings' size='small' class='hyperparameter-settings' (click)='adjustEstimator($event, estimator)'></ion-icon>
+          <ion-icon
+            name='settings'
+            size='small'
+            class='hyperparameter-settings'
+            (click)='adjustEstimator($event, estimator)'
+            [color]='areHyperParametersSet(estimator.value) ? "success" : ""'
+          ></ion-icon>
         </mat-checkbox>
       </div>
       <div formArrayName='scalers'>

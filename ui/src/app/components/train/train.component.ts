@@ -142,6 +142,11 @@ export class TrainComponent implements OnChanges {
     await modal.present();
   }
 
+  areHyperParametersSet(estimator) {
+    const current = this.trainForm.get('hyperParameters').value;
+    return Object.keys(current.grid[estimator] || {}).length || Object.keys(current.random[estimator] || {}).length;
+  }
+
   private getValues(key) {
     return this.trainForm.get(key).value.flatMap((value, index) => {
       return value ? [] : this.pipelineProcessors[key][index].value;
