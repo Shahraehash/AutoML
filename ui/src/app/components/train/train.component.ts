@@ -11,10 +11,10 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
 
 @Component({
   selector: 'app-train',
-  templateUrl: 'train.page.html',
-  styleUrls: ['train.page.scss']
+  templateUrl: 'train.component.html',
+  styleUrls: ['train.component.scss']
 })
-export class TrainPage implements OnChanges {
+export class TrainComponent implements OnChanges {
   @Input() stepFinished;
   @Input() featureCount;
   allPipelines;

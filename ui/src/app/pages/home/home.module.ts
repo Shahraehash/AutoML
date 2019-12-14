@@ -14,9 +14,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { HomePage } from './home.page';
-import { ResultsPage } from '../../components/results/results.page';
-import { TrainPage } from '../../components/train/train.page';
-import { UploadPage } from '../../components/upload/upload.page';
+import { ResultsComponent } from '../../components/results/results.component';
+import { TrainComponent } from '../../components/train/train.component';
+import { UploadComponent } from '../../components/upload/upload.component';
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { RadialDendrogramComponent } from '../../components/radial-dendrogram/radial-dendrogram.component';
 import { RocChartComponent } from '../../components/roc-chart/roc-chart.component';
@@ -46,10 +46,10 @@ const routes: Routes = [
   ],
   declarations: [
     HomePage,
-    UploadPage,
+    UploadComponent,
     PendingTasksComponent,
-    ResultsPage,
-    TrainPage,
+    ResultsComponent,
+    TrainComponent,
     RadialDendrogramComponent,
     RocChartComponent,
     UseModelComponent

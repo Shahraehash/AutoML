@@ -7,10 +7,10 @@ import { Observable, timer } from 'rxjs';
 import { filter, switchMap } from 'rxjs/operators';
 
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
-import { TrainPage } from '../../components/train/train.page';
+import { TrainComponent } from '../../components/train/train.component';
 import { BackendService } from '../../services/backend.service';
 import { PendingTasks } from '../../interfaces';
-import { UploadPage } from '../../components/upload/upload.page';
+import { UploadComponent } from '../../components/upload/upload.component';
 
 @Component({
   selector: 'app-home',
@@ -21,8 +21,8 @@ import { UploadPage } from '../../components/upload/upload.page';
   }]
 })
 export class HomePage implements OnInit {
-  @ViewChild('upload', {static: false}) upload: UploadPage;
-  @ViewChild('train', {static: false}) train: TrainPage;
+  @ViewChild('upload', {static: false}) upload: UploadComponent;
+  @ViewChild('train', {static: false}) train: TrainComponent;
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
   pendingTasks$: Observable<PendingTasks>;

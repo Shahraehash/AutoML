@@ -1,16 +1,16 @@
-export class Results {
+export interface Results {
     metadata: MetaData;
     results: GeneralizationResult[];
 }
 
-export class PriorJobs {
+export interface PriorJobs {
     metadata: MetaData;
     id: string;
     label: string;
     results: boolean;
 }
 
-export class MetaData {
+export interface MetaData {
     fits: {
         knn: number;
         nb: number;
@@ -28,7 +28,7 @@ export class MetaData {
     date: number;
 }
 
-export class GeneralizationResult {
+export interface GeneralizationResult {
     key: string;
     scaler: string;
     feature_selector: string;
@@ -60,7 +60,7 @@ export class GeneralizationResult {
     mpv: string;
 }
 
-export class SearchParameters {
+export interface SearchParameters {
     ignore_estimator: string;
     ignore_feature_selector: string;
     ignore_scaler: string;
@@ -69,12 +69,12 @@ export class SearchParameters {
     ignore_shuffle: boolean;
 }
 
-export class TaskAdded {
+export interface TaskAdded {
     id: number;
     href: string;
 }
 
-export class ActiveTaskStatus {
+export interface ActiveTaskStatus {
     current: number;
     total: number;
     status: string;
@@ -86,7 +86,7 @@ export class ActiveTaskStatus {
     parameters: SearchParameters;
 }
 
-export class ScheduledTaskStatus {
+export interface ScheduledTaskStatus {
     eta: string;
     state: 'PENDING';
     jobid: string;
@@ -94,7 +94,7 @@ export class ScheduledTaskStatus {
     parameters: SearchParameters;
 }
 
-export class PendingTasks {
+export interface PendingTasks {
     active: ActiveTaskStatus[];
     scheduled: ScheduledTaskStatus[];
 }

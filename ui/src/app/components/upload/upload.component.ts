@@ -10,10 +10,10 @@ import { PriorJobs, PublishedModels } from '../../interfaces';
 
 @Component({
   selector: 'app-upload',
-  templateUrl: 'upload.html',
-  styleUrls: ['upload.scss'],
+  templateUrl: 'upload.component.html',
+  styleUrls: ['upload.component.scss'],
 })
-export class UploadPage implements OnInit {
+export class UploadComponent implements OnInit {
   @Input() stepFinished;
 
   priorJobs$: Observable<PriorJobs[]>;

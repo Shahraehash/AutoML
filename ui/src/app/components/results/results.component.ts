@@ -11,10 +11,10 @@ import { UseModelComponent } from '../use-model/use-model.component';
 
 @Component({
   selector: 'app-results',
-  templateUrl: './results.page.html',
-  styleUrls: ['./results.page.scss'],
+  templateUrl: './results.component.html',
+  styleUrls: ['./results.component.scss'],
 })
-export class ResultsPage implements OnChanges {
+export class ResultsComponent implements OnChanges {
   @Input() isActive: boolean;
   activeRow = 0;
   data: GeneralizationResult[];
