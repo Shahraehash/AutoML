@@ -27,12 +27,6 @@
 
 @import '@angular/material/prebuilt-themes/purple-green.css';
 
-@media(min-width: 768px) {
-  .test-model {
-    --height: 45%;
-  }  
-}
-
 .bold {
   font-weight: 700;
 }

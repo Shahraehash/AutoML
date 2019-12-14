@@ -7,7 +7,7 @@ import { AlertController, LoadingController, ModalController, ToastController } 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { BackendService } from '../../services/backend.service';
 import { GeneralizationResult, MetaData } from '../../interfaces';
-import { UseModelComponent } from '../../components/use-model/use-model.component';
+import { UseModelComponent } from '../use-model/use-model.component';
 
 @Component({
   selector: 'app-results',
