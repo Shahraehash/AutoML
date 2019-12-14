@@ -59,15 +59,15 @@ def get_task_status(task_id):
     elif task.state != 'FAILURE':
         response = {'state': task.state}
 
-        if task.info:
+        if isinstance(task.info, dict):
             response.update({
                 'current': task.info.get('current', 0),
                 'total': task.info.get('total', 1),
                 'status': task.info.get('status', '')
             })
 
-        if 'result' in task.info:
-            response['result'] = task.info['result']
+            if 'result' in task.info:
+                response['result'] = task.info['result']
     else:
         # something went wrong in the background job
         response = {
