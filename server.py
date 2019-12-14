@@ -72,6 +72,28 @@ def create(userid, jobid):
 
     return jsonify({'success': True})
 
+@APP.route('/unpublish/<string:model>', methods=['DELETE'])
+def unpublish_model(model):
+    """Unpublish a published model"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if model not in published:
+        abort(404)
+        return
+
+    published.pop(model, None)
+
+    with open(PUBLISHED_MODELS, 'w') as published_file:
+        json.dump(published, published_file)
+
+    return jsonify({'success': True})
+
 @APP.route('/features/<string:model>', methods=['GET'])
 def get_model_features(model):
     """Returns the features for a published model"""
@@ -319,6 +341,22 @@ def list_jobs(userid):
         })
 
     return jsonify(jobs)
+
+@APP.route('/list-published/<uuid:userid>', methods=['GET'])
+def list_published(userid):
+    """Get all published models for a given user ID"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(404)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    user = userid.urn[9:]
+    published = {k:ast.literal_eval(v['features']) for (k,v) in published.items() if user in v['path']}
+
+    return jsonify(published)
 
 @APP.route('/export/<uuid:userid>/<uuid:jobid>', methods=['GET'])
 def export_results(userid, jobid):

@@ -268,11 +268,7 @@ export class ResultsPage implements OnChanges {
         this.loading.dismiss();
       },
       async () => {
-        const toast = await this.toastController.create({
-          message: 'Unable to publish the model.',
-          duration: 2000
-        });
-        toast.present();
+        await this.showError('Unable to publish the model.');
         this.loading.dismiss();
       }
     );
@@ -389,6 +385,6 @@ export class ResultsPage implements OnChanges {
 
   private async showError(message: string) {
     const toast = await this.toastController.create({message, duration: 2000});
-    toast.present();
+    return toast.present();
   }
 }

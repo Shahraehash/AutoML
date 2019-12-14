@@ -1,12 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AlertController, LoadingController } from '@ionic/angular';
+import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { parse } from 'papaparse';
 import { Observable, timer } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, finalize } from 'rxjs/operators';
 
 import { BackendService } from '../../services/backend.service';
-import { PriorJobs } from '../../interfaces';
+import { PriorJobs, PublishedModels } from '../../interfaces';
 
 @Component({
   selector: 'app-upload',
@@ -17,6 +17,8 @@ export class UploadPage implements OnInit {
   @Input() stepFinished;
 
   priorJobs$: Observable<PriorJobs[]>;
+  publishedModels$: Observable<PublishedModels>;
+
   labels = [];
   uploadForm: FormGroup;
 
@@ -24,7 +26,8 @@ export class UploadPage implements OnInit {
     public backend: BackendService,
     private alertController: AlertController,
     private formBuilder: FormBuilder,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private toastController: ToastController
   ) {
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],
@@ -36,6 +39,10 @@ export class UploadPage implements OnInit {
   ngOnInit() {
     this.priorJobs$ = timer(0, 10000).pipe(
       switchMap(() => this.backend.getPriorJobs())
+    );
+
+    this.publishedModels$ = timer(0, 10000).pipe(
+      switchMap(() => this.backend.getPublishedModels())
     );
   }
 
@@ -119,5 +126,50 @@ export class UploadPage implements OnInit {
 
   reset() {
     this.uploadForm.reset();
+  }
+
+  async deletePublished(id: string) {
+    const alert = await this.alertController.create({
+      buttons: [
+        'Dismiss',
+        {
+          text: 'Unpublish',
+          handler: (data) => {
+            if (!data || data.name !== id) {
+              this.showError('The entered name does not match.');
+              return false;
+            }
+
+            this.unpublishModel(id);
+          }
+        }
+      ],
+      inputs: [{
+        name: 'name',
+        type: 'text',
+        placeholder: 'Enter the model name'
+      }],
+      header: 'Are you sure you want to unpublish?',
+      subHeader: 'This cannot be undone.',
+      message: `Are you sure you want to delete the published model: '${id}'?<br><br>Type the model name below to confirm.`
+    });
+
+    await alert.present();
+  }
+
+  private async showError(message: string) {
+    const toast = await this.toastController.create({message, duration: 2000});
+    toast.present();
+  }
+
+  private async unpublishModel(id: string) {
+    const loading = await this.loadingController.create({message: 'Unpublishing model...'});
+    await loading.present();
+    this.backend.unpublishModel(id).pipe(
+      finalize(() => loading.dismiss())
+    ).subscribe(
+      () => this.showError(`The model labeled '${id}' has been successfully unpublished.`),
+      () => this.showError('An error occurred unpublishing the selected model.')
+    );
   }
 }

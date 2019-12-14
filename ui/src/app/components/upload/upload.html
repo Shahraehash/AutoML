@@ -21,6 +21,28 @@
   <ion-button expand='block' class='ion-padding' (click)='onSubmit()' [disabled]='!uploadForm.valid'>Next</ion-button>
 </ion-card>
 
+<ng-container *ngIf='(publishedModels$ | async) | keyvalue; let publishedModels'>
+  <ion-card class='ion-padding ion-text-center previous-jobs' *ngIf='publishedModels?.length'>
+    <ion-card-header>
+      <ion-card-subtitle>Listed are models you have already published. You may manage your published models below.</ion-card-subtitle>
+      <ion-card-title>Published Models</ion-card-title>
+    </ion-card-header>
+  
+    <table>
+      <tr *ngFor='let model of publishedModels'>
+        <td>
+          <a [href]='"/model/" + model.key' target='_blank'>{{model.key}}</a>
+        </td>
+        <td>
+          <ion-button color='danger' size='small' (click)='deletePublished(model.key)'>
+            <ion-icon name='close' slot='icon-only'></ion-icon>
+          </ion-button>
+        </td>
+      </tr>
+    </table>
+  </ion-card>
+</ng-container>
+
 <ng-container *ngIf='(priorJobs$ | async) as previousJobs'>
   <ion-card class='ion-padding ion-text-center previous-jobs' *ngIf='previousJobs.length'>
     <ion-card-header>

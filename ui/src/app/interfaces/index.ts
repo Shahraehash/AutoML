@@ -98,3 +98,7 @@ export class PendingTasks {
     active: ActiveTaskStatus[];
     scheduled: ScheduledTaskStatus[];
 }
+
+export interface PublishedModels {
+    [key: string]: string[];
+}

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
-import { Results, PendingTasks, PriorJobs, ActiveTaskStatus } from '../interfaces';
+import { ActiveTaskStatus, Results, PendingTasks, PriorJobs, PublishedModels } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -66,6 +66,10 @@ export class BackendService {
     return this.http.post(this.SERVER_URL + '/create/' + this.userData.id + '/' + this.currentJobId, formData);
   }
 
+  unpublishModel(id: string) {
+    return this.http.delete(this.SERVER_URL + '/unpublish/' + id);
+  }
+
   testPublishedModel(formData, publishName) {
     return this.http.post(this.SERVER_URL + '/test/' + publishName, formData);
   }
@@ -80,6 +84,10 @@ export class BackendService {
 
   getPriorJobs() {
     return this.http.get<PriorJobs[]>(this.SERVER_URL + '/list-jobs/' + this.userData.id);
+  }
+
+  getPublishedModels() {
+    return this.http.get<PublishedModels>(this.SERVER_URL + '/list-published/' + this.userData.id);
   }
 
   exportCSV() {
