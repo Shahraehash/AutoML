@@ -35,14 +35,14 @@
     </div>
 
     <div class='table-wrapper' [formGroup]='filterForm'>
-      <mat-form-field color='accent' class='filter-section'>
+      <mat-form-field class='filter-section'>
         <mat-select formControlName='group' (selectionChange)='applyFilter()'>
           <mat-option value='all'>All</mat-option>
           <mat-option *ngFor='let column of getFilterColumns()' [value]='column.key'>{{column.name}}</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field color='accent'>
+      <mat-form-field>
         <input matInput  formControlName='query' (keyup)='applyFilter()' placeholder='Filter results...'>
       </mat-form-field>
 

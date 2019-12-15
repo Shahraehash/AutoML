@@ -93,6 +93,18 @@
   }  
 }
 
+.mat-option.mat-selected:not(.mat-option-disabled) {
+  color: var(--ion-color-primary) !important;
+}
+
+.mat-form-field.mat-focused .mat-form-field-ripple {
+  background-color: var(--ion-color-primary) !important;
+}
+
+.mat-input-element {
+  caret-color: var(--ion-color-primary) !important;
+}
+
 .roc {
   .axis {
     fill: var(--ion-color-dark);

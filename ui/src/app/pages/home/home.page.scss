@@ -3,6 +3,10 @@
     width: 100%;
 }
 
+ion-spinner {
+    color: var(--ion-text-color);
+}
+
 ::ng-deep {
     mat-horizontal-stepper,
     .mat-horizontal-stepper-content {
