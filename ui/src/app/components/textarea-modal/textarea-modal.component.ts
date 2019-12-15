@@ -13,7 +13,12 @@ export class TextareaModalComponent implements OnInit {
   @Input() subHeader: string;
   @Input() message: string;
   @Input() buttons: {name: string, handler?: () => void}[];
-  @Input() inputs: {name: string; placeholder: string; value?: string}[];
+  @Input() inputs: {
+    name: string;
+    placeholder: string;
+    disabled?: boolean;
+    value?: string
+  }[];
 
   parsedInputs: FormGroup;
 

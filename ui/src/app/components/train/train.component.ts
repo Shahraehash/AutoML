@@ -55,7 +55,9 @@ export class TrainComponent implements OnChanges, OnInit {
       this.trainForm.get('shuffle').setValue(!this.parameters.ignore_shuffle);
 
       try {
-        this.trainForm.get('hyperParameters').setValue(this.parameters.hyper_parameters || {...this.defaultHyperParameters});
+        this.trainForm.get('hyperParameters').setValue(
+          JSON.parse(this.parameters.hyper_parameters) || {...this.defaultHyperParameters}
+        );
       } catch (err) {}
 
       this.trainForm.disable();
@@ -122,7 +124,7 @@ export class TrainComponent implements OnChanges, OnInit {
       componentProps: {
         buttons: [
           {name: 'Dismiss'},
-          {
+          (!this.parameters ? {
             name: 'Submit',
             handler: (data) => {
               const hyperParameters = this.trainForm.get('hyperParameters');
@@ -148,18 +150,20 @@ export class TrainComponent implements OnChanges, OnInit {
 
               hyperParameters.setValue(current);
             }
-          }
+          } : {})
         ],
         header: 'Adjust Hyperparameter Range',
         message: `Please enter the hyperparameter range for '${estimator.label}' in JSON format:`,
         inputs: [
           {
             name: 'grid',
+            disabled: !!this.parameters,
             placeholder: 'Enter the hyperparameter range for grid search...',
             value: JSON.stringify(this.trainForm.get('hyperParameters').value.grid[estimator.value], undefined, 2)
           },
           {
             name: 'random',
+            disabled: !!this.parameters,
             placeholder: 'Enter the hyperparameter range for random search...',
             value: JSON.stringify(this.trainForm.get('hyperParameters').value.random[estimator.value], undefined, 2)
           }
