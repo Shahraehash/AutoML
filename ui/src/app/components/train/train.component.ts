@@ -137,12 +137,12 @@ export class TrainComponent implements OnChanges {
           {
             name: 'grid',
             placeholder: 'Enter the hyperparameter range for grid search...',
-            value: JSON.stringify(this.trainForm.get('hyperParameters').value.grid, undefined, 2)
+            value: JSON.stringify(this.trainForm.get('hyperParameters').value.grid[estimator.value], undefined, 2)
           },
           {
             name: 'random',
             placeholder: 'Enter the hyperparameter range for random search...',
-            value: JSON.stringify(this.trainForm.get('hyperParameters').value.random, undefined, 2)
+            value: JSON.stringify(this.trainForm.get('hyperParameters').value.random[estimator.value], undefined, 2)
           }
         ]
       }
