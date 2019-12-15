@@ -253,6 +253,10 @@
     border-top-color: rgba(255,255,255,.12) !important;
   }  
   
+  .mat-form-field-type-mat-native-select:not(.mat-form-field-invalid) .mat-form-field-infix::after {
+    color: var(--ion-color-light) !important;
+  }
+  
   .roc{
     .axis {
       fill: var(--ion-color-light);
