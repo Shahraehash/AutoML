@@ -132,7 +132,7 @@ def test_published_model(model):
     label.close()
 
     reply = predict.predict(
-        [float(x) for x in request.form['data'].split(',')],
+        [[float(x) for x in request.form['data'].split(',')]],
         published[model]['path']
     )
 
@@ -151,7 +151,7 @@ def test_model(userid, jobid):
     label.close()
 
     reply = predict.predict(
-        [float(x) for x in request.form['data'].split(',')],
+        [[float(x) for x in request.form['data'].split(',')]],
         folder + '/pipeline'
     )
 
