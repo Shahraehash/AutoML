@@ -33,7 +33,15 @@ from .utils import model_key_to_name
 # Load environment variables
 load_dotenv()
 
-def find_best_model(train_set=None, test_set=None, labels=None, label_column=None, output_path='.', updateFunction=lambda x, y: None):
+def find_best_model(
+        train_set=None,
+        test_set=None,
+        labels=None,
+        label_column=None,
+        output_path='.',
+        updateFunction=lambda x, y: None,
+        custom_hyper_parameters=None
+    ):
     """Generates all possible models and outputs the generalization results"""
 
     ignore_estimator = [x.strip() for x in os.getenv('IGNORE_ESTIMATOR', '').split(',')]
@@ -56,6 +64,9 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
     if label_column is None:
         print('Missing column name for classifier target')
         return {}
+
+    if custom_hyper_parameters is not None:
+        custom_hyper_parameters = json.loads(custom_hyper_parameters)
 
     # Import data
     (x_train, x_test, y_train, y_test, x2, y2, feature_names, metadata) = \
@@ -92,7 +103,14 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
 
         # Generate the pipeline
         pipeline = generate_pipeline(
-            scaler, feature_selector, estimator, y_train, scorers, searcher, shuffle
+            scaler,
+            feature_selector,
+            estimator,
+            y_train,
+            scorers,
+            searcher,
+            shuffle,
+            custom_hyper_parameters
         )
 
         if not estimator in total_fits:

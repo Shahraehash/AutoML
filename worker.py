@@ -38,7 +38,8 @@ def queue_training(self, userid, jobid, label_column, parameters):
         labels,
         label_column,
         folder,
-        lambda x, y: self.update_state(state='PROGRESS', meta={'current': x, 'total': y})
+        lambda x, y: self.update_state(state='PROGRESS', meta={'current': x, 'total': y}),
+        parameters['hyper_parameters'] if 'hyper_parameters' in parameters else None
     )
     return {}
 
