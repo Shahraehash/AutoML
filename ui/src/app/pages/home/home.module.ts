@@ -10,6 +10,7 @@ import {
   ComponentsModule,
   PendingTasksComponent,
   TextareaModalComponent,
+  TrainComponent,
   UseModelComponent
 } from '../../components';
 
@@ -24,6 +25,7 @@ const routes: Routes = [
   entryComponents: [
     PendingTasksComponent,
     TextareaModalComponent,
+    TrainComponent,
     UseModelComponent
   ],
   imports: [

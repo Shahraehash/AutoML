@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output, OnChanges } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnChanges, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
 import { timer } from 'rxjs';
@@ -15,8 +15,9 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
   templateUrl: 'train.component.html',
   styleUrls: ['train.component.scss']
 })
-export class TrainComponent implements OnChanges {
+export class TrainComponent implements OnChanges, OnInit {
   @Input() featureCount;
+  @Input() parameters;
   @Output() reset = new EventEmitter();
   @Output() stepFinished = new EventEmitter();
 
@@ -41,11 +42,23 @@ export class TrainComponent implements OnChanges {
       shuffle: [true],
       hyperParameters: {grid: {}, random: {}}
     });
+  }
 
-    try {
-      const options = JSON.parse(localStorage.getItem('training-options'));
-      this.trainForm.setValue(options);
-    } catch (err) {}
+  ngOnInit() {
+    if (this.parameters) {
+      console.log(this.parameters.ignore_estimator.split(','))
+      this.trainForm.get('estimators').setValue(this.parameters.ignore_estimator.split(','));
+
+
+
+//      this.trainForm.setValue(this.parameters);
+      this.trainForm.disable();
+    } else {
+      try {
+        const options = JSON.parse(localStorage.getItem('training-options'));
+        this.trainForm.setValue(options);
+      } catch (err) {}
+    }
   }
 
   ngOnChanges() {

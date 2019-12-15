@@ -7,6 +7,7 @@ import { AlertController, LoadingController, ModalController, ToastController } 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { BackendService } from '../../services/backend.service';
 import { GeneralizationResult, MetaData } from '../../interfaces';
+import { TrainComponent } from '../train/train.component';
 import { UseModelComponent } from '../use-model/use-model.component';
 
 @Component({
@@ -368,6 +369,18 @@ export class ResultsComponent implements OnChanges {
     }
 
     await alert.present();
+  }
+
+  async showParameters() {
+    const modal = await this.modalController.create({
+      cssClass: 'wide-modal',
+      component: TrainComponent,
+      componentProps: {
+        parameters: this.metadata.parameters
+      }
+    });
+
+    await modal.present();
   }
 
   private calculateArea(tpr, fpr) {

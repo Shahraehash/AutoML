@@ -52,6 +52,11 @@
         Details
       </ion-button>
 
+      <ion-button size='small' class='details-button' (click)='showParameters()'>
+        <ion-icon slot='start' name='settings'></ion-icon>
+        Parameters
+      </ion-button>
+
       <table mat-table [dataSource]='results' matSort matSortActive='roc_auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
         <ng-container [matColumnDef]='column.key' *ngFor='let column of columns'>
