@@ -22,7 +22,7 @@
 </ion-card>
 
 <ng-container *ngIf='(publishedModels$ | async) | keyvalue; let publishedModels'>
-  <ion-card class='ion-padding ion-text-center previous-jobs' *ngIf='publishedModels?.length'>
+  <ion-card class='ion-padding ion-text-center previous-jobs' *ngIf='publishedModels.length'>
     <ion-card-header>
       <ion-card-subtitle>Listed are models you have already published. You may manage your published models below.</ion-card-subtitle>
       <ion-card-title>Published Models</ion-card-title>
@@ -31,7 +31,7 @@
     <table>
       <tr *ngFor='let model of publishedModels'>
         <td>
-          <a [href]='"/model/" + model.key' target='_blank'>{{model.key}}</a>
+          <ion-chip (click)='launchModel(model.key)'>{{model.key}}</ion-chip>
         </td>
         <td>
           <ion-button color='danger' size='small' (click)='deletePublished(model.key)'>

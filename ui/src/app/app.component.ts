@@ -1,8 +1,4 @@
-import { Component, ElementRef, HostListener } from '@angular/core';
-
-import { Platform } from '@ionic/angular';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { Component, HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -10,27 +6,11 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
-  constructor(
-    private element: ElementRef,
-    private platform: Platform,
-    private splashScreen: SplashScreen,
-    private statusBar: StatusBar
-  ) {
-    this.initializeApp();
-  }
-
   @HostListener('click', ['$event'])
   public handleExternalLinks(event) {
     if (event.target.classList.contains('external-link')) {
       event.preventDefault();
       window.open(event.target.href, '_blank');
     }
-  }
-
-  initializeApp() {
-    this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
-    });
   }
 }

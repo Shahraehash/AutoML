@@ -35,20 +35,26 @@
     </div>
 
     <div class='table-wrapper' [formGroup]='filterForm'>
-      <mat-form-field color='accent' class='filter-section'>
-        <mat-select formControlName='group' (selectionChange)='applyFilter()'>
-          <mat-option value='all'>All</mat-option>
-          <mat-option *ngFor='let column of getFilterColumns()' [value]='column.key'>{{column.name}}</mat-option>
-        </mat-select>
+      <mat-form-field class='filter-section'>
+        <mat-label></mat-label>
+        <select matNativeControl formControlName='group' (change)='applyFilter()'>
+          <option value='all'>All</option>
+          <option *ngFor='let column of getFilterColumns()' [value]='column.key'>{{column.name}}</option>
+        </select>
       </mat-form-field>
 
-      <mat-form-field color='accent'>
+      <mat-form-field>
         <input matInput  formControlName='query' (keyup)='applyFilter()' placeholder='Filter results...'>
       </mat-form-field>
 
       <ion-button size='small' class='details-button' (click)='showDetails()'>
         <ion-icon slot='start' name='information-circle-outline'></ion-icon>
         Details
+      </ion-button>
+
+      <ion-button size='small' class='details-button' (click)='showParameters()'>
+        <ion-icon slot='start' name='settings'></ion-icon>
+        Parameters
       </ion-button>
 
       <table mat-table [dataSource]='results' matSort matSortActive='roc_auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>

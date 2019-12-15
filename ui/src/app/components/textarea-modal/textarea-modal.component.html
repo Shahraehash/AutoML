@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{header}}</ion-title>
+  </ion-toolbar>
+
+  <h6 padding class='sub-header' *ngIf='subHeader'>
+    {{subHeader}}
+  </h6>
+</ion-header>
+
+<ion-content class='ion-padding' [formGroup]='parsedInputs'>
+  <div *ngIf='message' [innerHTML]='message' class='message'></div>
+  <textarea
+    *ngFor='let input of inputs; let i = index'
+    [formControlName]='input.name'
+    [placeholder]='input.placeholder'
+    [name]='input.name'
+  ></textarea>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='end'>
+      <ion-button *ngFor='let button of buttons' class='alert-button' (click)='buttonHandler(button.handler)'>
+        {{button.name}}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

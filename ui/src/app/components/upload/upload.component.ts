@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { parse } from 'papaparse';
@@ -10,11 +10,11 @@ import { PriorJobs, PublishedModels } from '../../interfaces';
 
 @Component({
   selector: 'app-upload',
-  templateUrl: 'upload.html',
-  styleUrls: ['upload.scss'],
+  templateUrl: 'upload.component.html',
+  styleUrls: ['upload.component.scss'],
 })
-export class UploadPage implements OnInit {
-  @Input() stepFinished;
+export class UploadComponent implements OnInit {
+  @Output() stepFinished = new EventEmitter();
 
   priorJobs$: Observable<PriorJobs[]>;
   publishedModels$: Observable<PublishedModels>;
@@ -37,11 +37,11 @@ export class UploadPage implements OnInit {
   }
 
   ngOnInit() {
-    this.priorJobs$ = timer(0, 10000).pipe(
+    this.priorJobs$ = timer(0, 5000).pipe(
       switchMap(() => this.backend.getPriorJobs())
     );
 
-    this.publishedModels$ = timer(0, 10000).pipe(
+    this.publishedModels$ = timer(0, 5000).pipe(
       switchMap(() => this.backend.getPublishedModels())
     );
   }
@@ -54,7 +54,7 @@ export class UploadPage implements OnInit {
 
     this.backend.submitData(formData).subscribe(
       () => {
-        this.stepFinished('upload', this.labels.length);
+        this.stepFinished.emit({state: 'upload', data: this.labels.length});
       },
       async () => {
         const alert = await this.alertController.create({
@@ -104,7 +104,7 @@ export class UploadPage implements OnInit {
   async trainPrior(job) {
     if (!job.results) {
       this.backend.currentJobId = job.id;
-      this.stepFinished('upload');
+      this.stepFinished.emit({state: 'upload'});
       return;
     }
 
@@ -115,13 +115,17 @@ export class UploadPage implements OnInit {
     await loading.present();
     await this.backend.cloneJob(job.id).toPromise();
     await loading.dismiss();
-    this.stepFinished('upload');
+    this.stepFinished.emit({state: 'upload'});
   }
 
   viewPrior(id) {
     this.backend.currentJobId = id;
-    this.stepFinished('upload');
-    this.stepFinished('train');
+    this.stepFinished.emit({state: 'upload'});
+    this.stepFinished.emit({state: 'train'});
+  }
+
+  launchModel(id) {
+    window.open('/model/' + id, '_blank');
   }
 
   reset() {

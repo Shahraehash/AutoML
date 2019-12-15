@@ -7,14 +7,15 @@ import { AlertController, LoadingController, ModalController, ToastController } 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { BackendService } from '../../services/backend.service';
 import { GeneralizationResult, MetaData } from '../../interfaces';
+import { TrainComponent } from '../train/train.component';
 import { UseModelComponent } from '../use-model/use-model.component';
 
 @Component({
   selector: 'app-results',
-  templateUrl: './results.page.html',
-  styleUrls: ['./results.page.scss'],
+  templateUrl: './results.component.html',
+  styleUrls: ['./results.component.scss'],
 })
-export class ResultsPage implements OnChanges {
+export class ResultsComponent implements OnChanges {
   @Input() isActive: boolean;
   activeRow = 0;
   data: GeneralizationResult[];
@@ -307,7 +308,7 @@ export class ResultsPage implements OnChanges {
   async showDetails() {
     let alert;
 
-    if (this.metadata) {
+    if (this.metadata && this.metadata.fits) {
       const fitDetails = pipelineOptions.estimators.map(estimator => {
         if (!this.metadata.fits[estimator.value]) {
           return '';
@@ -363,11 +364,23 @@ export class ResultsPage implements OnChanges {
       alert = await this.alertController.create({
         buttons: ['Dismiss'],
         header: 'Analysis Details',
-        message: 'This run does not contain the metadata needed to display analysis details.'
+        message: 'This run does not contain the metadata needed to display analysis details. This is likely due to an incomplete run.'
       });
     }
 
     await alert.present();
+  }
+
+  async showParameters() {
+    const modal = await this.modalController.create({
+      cssClass: 'wide-modal',
+      component: TrainComponent,
+      componentProps: {
+        parameters: this.metadata.parameters
+      }
+    });
+
+    await modal.present();
   }
 
   private calculateArea(tpr, fpr) {

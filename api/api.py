@@ -33,7 +33,15 @@ from .utils import model_key_to_name
 # Load environment variables
 load_dotenv()
 
-def find_best_model(train_set=None, test_set=None, labels=None, label_column=None, output_path='.', updateFunction=lambda x, y: None):
+def find_best_model(
+        train_set=None,
+        test_set=None,
+        labels=None,
+        label_column=None,
+        output_path='.',
+        updateFunction=lambda x, y: None,
+        custom_hyper_parameters=None
+    ):
     """Generates all possible models and outputs the generalization results"""
 
     ignore_estimator = [x.strip() for x in os.getenv('IGNORE_ESTIMATOR', '').split(',')]
@@ -57,6 +65,9 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         print('Missing column name for classifier target')
         return {}
 
+    if custom_hyper_parameters is not None:
+        custom_hyper_parameters = json.loads(custom_hyper_parameters)
+
     # Import data
     (x_train, x_test, y_train, y_test, x2, y2, feature_names, metadata) = \
         import_data(train_set, test_set, label_column)
@@ -68,7 +79,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         *[ESTIMATOR_NAMES, FEATURE_SELECTOR_NAMES, SCALER_NAMES, SEARCHER_NAMES]))
 
     report = open(output_path + '/report.csv', 'w+')
-    reportWriter = csv.writer(report)
+    report_writer = csv.writer(report)
 
     for index, (estimator, feature_selector, scaler, searcher) in enumerate(all_pipelines):
 
@@ -91,8 +102,16 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         print('Generating ' + model_key_to_name(key))
 
         # Generate the pipeline
-        pipeline = \
-            generate_pipeline(scaler, feature_selector, estimator, y_train, scorers, searcher, shuffle)
+        pipeline = generate_pipeline(
+            scaler,
+            feature_selector,
+            estimator,
+            y_train,
+            scorers,
+            searcher,
+            shuffle,
+            custom_hyper_parameters
+        )
 
         if not estimator in total_fits:
             total_fits[estimator] = 0
@@ -132,9 +151,9 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
             result.update(reliability(pipeline[0], model, x2, y2))
 
             if not results:
-                reportWriter.writerow(result.keys())
+                report_writer.writerow(result.keys())
 
-            reportWriter.writerow(list([str(i) for i in result.values()]))
+            report_writer.writerow(list([str(i) for i in result.values()]))
             results.append(result)
 
     report.close()
@@ -156,7 +175,7 @@ def find_best_model(train_set=None, test_set=None, labels=None, label_column=Non
         # Empty the file
         metafile.seek(0)
         metafile.truncate()
-        
+
         existing_metadata.update(metadata)
         json.dump(existing_metadata, metafile)
 

@@ -21,15 +21,20 @@ MAX_RANDOM_ITERATIONS = 100
 # Define the number of splits for the cross validator
 N_SPLITS = 10
 
-def make_grid_search(estimator, scoring, shuffle, _):
+def make_grid_search(estimator, scoring, shuffle, custom_hyper_parameters, _):
     """Generate grid search with 10 fold cross validator"""
 
     # Define the cross validator (shuffle the data between each fold)
     # This reduces correlation between outcome and train data order.
     cv = StratifiedKFold(n_splits=N_SPLITS, shuffle=shuffle)
 
-    parameter_range = HYPER_PARAMETER_RANGE['grid'][estimator]\
-        if estimator in HYPER_PARAMETER_RANGE['grid'] else {}
+    if custom_hyper_parameters is not None and\
+        'grid' in custom_hyper_parameters and\
+        estimator in custom_hyper_parameters['grid']:
+        parameter_range = custom_hyper_parameters['grid'][estimator]
+    else:
+        parameter_range = HYPER_PARAMETER_RANGE['grid'][estimator]\
+            if estimator in HYPER_PARAMETER_RANGE['grid'] else {}
 
     return (
         GridSearchCV(
@@ -46,15 +51,20 @@ def make_grid_search(estimator, scoring, shuffle, _):
             cv.get_n_splits()
     )
 
-def make_random_search(estimator, scoring, shuffle, y_train):
+def make_random_search(estimator, scoring, shuffle, custom_hyper_parameters, y_train):
     """Generate random search with defined max iterations"""
 
     # Define the cross validator (shuffle the data between each fold)
     # This reduces correlation between outcome and train data order.
     cv = StratifiedKFold(n_splits=N_SPLITS, shuffle=shuffle)
 
-    parameter_range = HYPER_PARAMETER_RANGE['random'][estimator]\
-        if estimator in HYPER_PARAMETER_RANGE['random'] else {}
+    if custom_hyper_parameters is not None and\
+        'random' in custom_hyper_parameters and\
+        estimator in custom_hyper_parameters['random']:
+        parameter_range = custom_hyper_parameters['random'][estimator]
+    else:
+        parameter_range = HYPER_PARAMETER_RANGE['random'][estimator]\
+            if estimator in HYPER_PARAMETER_RANGE['random'] else {}
 
     if callable(parameter_range):
         parameter_range = parameter_range(pd.Series(y_train).value_counts().min())

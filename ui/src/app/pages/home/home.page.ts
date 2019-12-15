@@ -7,10 +7,10 @@ import { Observable, timer } from 'rxjs';
 import { filter, switchMap } from 'rxjs/operators';
 
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
-import { TrainPage } from '../../components/train/train.page';
+import { TrainComponent } from '../../components/train/train.component';
+import { UploadComponent } from '../../components/upload/upload.component';
 import { BackendService } from '../../services/backend.service';
 import { PendingTasks } from '../../interfaces';
-import { UploadPage } from '../../components/upload/upload.page';
 
 @Component({
   selector: 'app-home',
@@ -21,8 +21,8 @@ import { UploadPage } from '../../components/upload/upload.page';
   }]
 })
 export class HomePage implements OnInit {
-  @ViewChild('upload', {static: false}) upload: UploadPage;
-  @ViewChild('train', {static: false}) train: TrainPage;
+  @ViewChild('upload', {static: false}) upload: UploadComponent;
+  @ViewChild('train', {static: false}) train: TrainComponent;
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
   pendingTasks$: Observable<PendingTasks>;
@@ -30,20 +30,6 @@ export class HomePage implements OnInit {
   uploadForm: FormGroup;
   trainForm: FormGroup;
   featureCount: number;
-
-  stepFinished = (step, extra) => {
-    switch (step) {
-      case 'upload':
-        this.featureCount = extra;
-        this.train.training = false;
-        this.uploadForm.get('upload').setValue('true');
-        break;
-      case 'train':
-        this.trainForm.get('train').setValue('true');
-    }
-
-    this.stepper.next();
-  }
 
   constructor(
     private backend: BackendService,
@@ -60,7 +46,7 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
-    this.pendingTasks$ = timer(0, 10000).pipe(
+    this.pendingTasks$ = timer(0, 5000).pipe(
       filter(() => !this.pauseUpdates),
       switchMap(() => this.backend.getPendingTasks())
     );
@@ -89,5 +75,19 @@ export class HomePage implements OnInit {
     await popover.present();
     await popover.onDidDismiss();
     this.pauseUpdates = false;
+  }
+
+  stepFinished(event) {
+    switch (event.state) {
+      case 'upload':
+        this.featureCount = event.data;
+        this.train.training = false;
+        this.uploadForm.get('upload').setValue('true');
+        break;
+      case 'train':
+        this.trainForm.get('train').setValue('true');
+    }
+
+    this.stepper.next();
   }
 }

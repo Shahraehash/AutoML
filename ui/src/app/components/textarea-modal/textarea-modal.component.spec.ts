@@ -1,22 +1,22 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ResultsPage } from './results.page';
+import { TextareaModalComponent } from './textarea-modal.component';
 
-describe('ResultsPage', () => {
-  let component: ResultsPage;
-  let fixture: ComponentFixture<ResultsPage>;
+describe('TextareaModalComponent', () => {
+  let component: TextareaModalComponent;
+  let fixture: ComponentFixture<TextareaModalComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ResultsPage ],
+      declarations: [ TextareaModalComponent ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ResultsPage);
+    fixture = TestBed.createComponent(TextareaModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

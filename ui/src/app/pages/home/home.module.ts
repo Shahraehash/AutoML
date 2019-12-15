@@ -1,26 +1,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {
-  MatCheckboxModule,
-  MatInputModule,
-  MatSelectModule,
-  MatStepperModule,
-  MatTableModule,
-  MatSortModule
-} from '@angular/material';
+import { MatStepperModule } from '@angular/material';
 import { Routes, RouterModule } from '@angular/router';
-
 import { IonicModule } from '@ionic/angular';
 
 import { HomePage } from './home.page';
-import { ResultsPage } from '../../components/results/results.page';
-import { TrainPage } from '../../components/train/train.page';
-import { UploadPage } from '../../components/upload/upload.page';
-import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
-import { RadialDendrogramComponent } from '../../components/radial-dendrogram/radial-dendrogram.component';
-import { RocChartComponent } from '../../components/roc-chart/roc-chart.component';
-import { UseModelComponent } from '../../components/use-model/use-model.component';
+import {
+  ComponentsModule,
+  PendingTasksComponent,
+  TextareaModalComponent,
+  TrainComponent,
+  UseModelComponent
+} from '../../components';
 
 const routes: Routes = [
   {
@@ -30,29 +22,23 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  entryComponents: [PendingTasksComponent, UseModelComponent],
+  entryComponents: [
+    PendingTasksComponent,
+    TextareaModalComponent,
+    TrainComponent,
+    UseModelComponent
+  ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    MatCheckboxModule,
-    MatInputModule,
-    MatTableModule,
-    MatSelectModule,
     MatStepperModule,
-    MatSortModule,
+    ComponentsModule,
     RouterModule.forChild(routes)
   ],
   declarations: [
-    HomePage,
-    UploadPage,
-    PendingTasksComponent,
-    ResultsPage,
-    TrainPage,
-    RadialDendrogramComponent,
-    RocChartComponent,
-    UseModelComponent
+    HomePage
   ]
 })
 export class HomePageModule {}
