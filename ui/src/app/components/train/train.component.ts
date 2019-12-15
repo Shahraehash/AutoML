@@ -4,6 +4,7 @@ import { AlertController, ModalController, ToastController } from '@ionic/angula
 import { timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
+import { environment } from '../../../environments/environment';
 import { TaskAdded } from '../../interfaces';
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { TextareaModalComponent } from '../../components/textarea-modal/textarea-modal.component';
@@ -22,6 +23,7 @@ export class TrainComponent implements OnChanges, OnInit {
   @Output() stepFinished = new EventEmitter();
 
   allPipelines;
+  showAdvanced = !environment.production;
   defaultHyperParameters = {grid: {}, random: {}};
   training = false;
   trainForm: FormGroup;
@@ -90,7 +92,10 @@ export class TrainComponent implements OnChanges, OnInit {
     formData.append('ignore_feature_selector', this.getValues('featureSelectors').join(','));
     formData.append('ignore_searcher', this.getValues('searchers').join(','));
     formData.append('ignore_scorer', this.getValues('scorers').join(','));
-    formData.append('hyper_parameters', JSON.stringify(this.trainForm.get('hyperParameters').value));
+
+    if (this.showAdvanced) {
+      formData.append('hyper_parameters', JSON.stringify(this.trainForm.get('hyperParameters').value));
+    }
 
     if (!this.trainForm.get('shuffle').value) {
       formData.append('ignore_shuffle', 'true');
