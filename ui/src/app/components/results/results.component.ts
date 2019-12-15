@@ -308,7 +308,7 @@ export class ResultsComponent implements OnChanges {
   async showDetails() {
     let alert;
 
-    if (this.metadata) {
+    if (this.metadata && this.metadata.fits) {
       const fitDetails = pipelineOptions.estimators.map(estimator => {
         if (!this.metadata.fits[estimator.value]) {
           return '';
@@ -364,7 +364,7 @@ export class ResultsComponent implements OnChanges {
       alert = await this.alertController.create({
         buttons: ['Dismiss'],
         header: 'Analysis Details',
-        message: 'This run does not contain the metadata needed to display analysis details.'
+        message: 'This run does not contain the metadata needed to display analysis details. This is likely due to an incomplete run.'
       });
     }
 
