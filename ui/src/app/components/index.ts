@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   MatCheckboxModule,
   MatInputModule,
-  MatSelectModule,
   MatTableModule,
   MatSortModule
 } from '@angular/material';
@@ -47,7 +46,6 @@ import { UseModelComponent } from './use-model/use-model.component';
       ReactiveFormsModule,
       MatCheckboxModule,
       MatInputModule,
-      MatSelectModule,
       MatTableModule,
       MatSortModule
   ],
