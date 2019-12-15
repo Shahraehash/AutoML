@@ -87,6 +87,12 @@
   border-color: #ccc;
 }
 
+.mat-checkbox-checked:not(.mat-checkbox-disabled) {
+  .mat-checkbox-background {
+    background-color: var(--ion-color-success) !important;
+  }  
+}
+
 .roc {
   .axis {
     fill: var(--ion-color-dark);
