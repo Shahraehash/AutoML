@@ -22,6 +22,7 @@ export class TrainComponent implements OnChanges, OnInit {
   @Output() stepFinished = new EventEmitter();
 
   allPipelines;
+  defaultHyperParameters = {grid: {}, random: {}};
   training = false;
   trainForm: FormGroup;
   pipelineProcessors = (pipelineOptions as any).default;
@@ -40,18 +41,23 @@ export class TrainComponent implements OnChanges, OnInit {
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
       scorers: this.formBuilder.array(this.pipelineProcessors.scorers),
       shuffle: [true],
-      hyperParameters: {grid: {}, random: {}}
+      hyperParameters: {...this.defaultHyperParameters}
     });
   }
 
   ngOnInit() {
     if (this.parameters) {
-      console.log(this.parameters.ignore_estimator.split(','))
-      this.trainForm.get('estimators').setValue(this.parameters.ignore_estimator.split(','));
+      this.setValues('estimators', this.parameters.ignore_estimator.split(','));
+      this.setValues('scalers', this.parameters.ignore_scaler.split(','));
+      this.setValues('featureSelectors', this.parameters.ignore_feature_selector.split(','));
+      this.setValues('searchers', this.parameters.ignore_searcher.split(','));
+      this.setValues('scorers', this.parameters.ignore_scorer.split(','));
+      this.trainForm.get('shuffle').setValue(!this.parameters.ignore_shuffle);
 
+      try {
+        this.trainForm.get('hyperParameters').setValue(this.parameters.hyper_parameters || {...this.defaultHyperParameters});
+      } catch (err) {}
 
-
-//      this.trainForm.setValue(this.parameters);
       this.trainForm.disable();
     } else {
       try {
@@ -82,7 +88,7 @@ export class TrainComponent implements OnChanges, OnInit {
     formData.append('ignore_feature_selector', this.getValues('featureSelectors').join(','));
     formData.append('ignore_searcher', this.getValues('searchers').join(','));
     formData.append('ignore_scorer', this.getValues('scorers').join(','));
-    formData.append('hyper_parameters', JSON.stringify(this.trainForm.get('hyperParameters').value) );
+    formData.append('hyper_parameters', JSON.stringify(this.trainForm.get('hyperParameters').value));
 
     if (!this.trainForm.get('shuffle').value) {
       formData.append('ignore_shuffle', 'true');
@@ -173,6 +179,12 @@ export class TrainComponent implements OnChanges, OnInit {
     return this.trainForm.get(key).value.flatMap((value, index) => {
       return value ? [] : this.pipelineProcessors[key][index].value;
     });
+  }
+
+  private setValues(key, array) {
+    this.trainForm.get(key).setValue(
+      this.pipelineProcessors[key].map(i => !array.includes(i.value))
+    );
   }
 
   private getChecked(key): any[] {

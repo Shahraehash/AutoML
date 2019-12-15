@@ -1,7 +1,7 @@
 <div class='ion-padding ion-text-center' [formGroup]='trainForm'>
   <ion-card class='ion-padding' [hidden]='training'>
     <ion-card-header>
-      <ion-card-subtitle>Select pipeline processors that you would like to enable</ion-card-subtitle>
+      <ion-card-subtitle *ngIf='!parameters'>Select pipeline processors that you would like to enable</ion-card-subtitle>
       <ion-card-title>Pipeline Elements</ion-card-title>
     </ion-card-header>
 
@@ -42,12 +42,12 @@
   </ion-card>
   <ion-card class='cross-val-options' [hidden]='training'>
     <ion-card-header>
-      <ion-card-subtitle>Toggle whether to shuffle each class's samples before splitting into batches</ion-card-subtitle>
+      <ion-card-subtitle *ngIf='!parameters'>Toggle whether to shuffle each class's samples before splitting into batches</ion-card-subtitle>
       <ion-card-title>Cross Validation Options</ion-card-title>
     </ion-card-header>
 
     <mat-checkbox formControlName='shuffle'><h6>Shuffle per Fold</h6></mat-checkbox>
   </ion-card>
-  <ion-button expand='block' (click)='startTraining()' [hidden]='training' [disabled]='!trainForm.valid'>Start Training</ion-button>
+  <ion-button *ngIf='!parameters' expand='block' (click)='startTraining()' [hidden]='training' [disabled]='!trainForm.valid'>Start Training</ion-button>
   <app-radial-dendrogram [data]='allPipelines' [training]='training' [hidden]='!training'></app-radial-dendrogram>
 </div>
