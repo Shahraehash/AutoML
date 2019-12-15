@@ -69,6 +69,7 @@ export class TrainComponent implements OnChanges {
     formData.append('ignore_feature_selector', this.getValues('featureSelectors').join(','));
     formData.append('ignore_searcher', this.getValues('searchers').join(','));
     formData.append('ignore_scorer', this.getValues('scorers').join(','));
+    formData.append('hyper_parameters', JSON.stringify(this.trainForm.get('hyperParameters').value) );
 
     if (!this.trainForm.get('shuffle').value) {
       formData.append('ignore_shuffle', 'true');
@@ -133,8 +134,16 @@ export class TrainComponent implements OnChanges {
         header: 'Adjust Hyperparameter Range',
         message: `Please enter the hyperparameter range for '${estimator.label}' in JSON format:`,
         inputs: [
-          {name: 'grid', placeholder: 'Enter the hyperparameter range for grid search...'},
-          {name: 'random', placeholder: 'Enter the hyperparameter range for random search...'}
+          {
+            name: 'grid',
+            placeholder: 'Enter the hyperparameter range for grid search...',
+            value: JSON.stringify(this.trainForm.get('hyperParameters').value.grid, undefined, 2)
+          },
+          {
+            name: 'random',
+            placeholder: 'Enter the hyperparameter range for random search...',
+            value: JSON.stringify(this.trainForm.get('hyperParameters').value.random, undefined, 2)
+          }
         ]
       }
     });
