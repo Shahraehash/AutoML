@@ -16,7 +16,7 @@ import { RocChartComponent } from './roc-chart/roc-chart.component';
 import { TextareaModalComponent } from './textarea-modal/textarea-modal.component';
 import { TrainComponent } from './train/train.component';
 import { UploadComponent } from './upload/upload.component';
-import { UseModelComponent } from './use-model/use-model.component';
+import { UseModelModule } from './use-model/use-model.module';
 
 @NgModule( {
   declarations: [
@@ -26,8 +26,7 @@ import { UseModelComponent } from './use-model/use-model.component';
     RocChartComponent,
     TextareaModalComponent,
     TrainComponent,
-    UploadComponent,
-    UseModelComponent
+    UploadComponent
   ],
   exports: [
     PendingTasksComponent,
@@ -36,8 +35,7 @@ import { UseModelComponent } from './use-model/use-model.component';
     RocChartComponent,
     TextareaModalComponent,
     TrainComponent,
-    UploadComponent,
-    UseModelComponent
+    UploadComponent
   ],
   imports: [
       CommonModule,
@@ -47,7 +45,8 @@ import { UseModelComponent } from './use-model/use-model.component';
       MatCheckboxModule,
       MatInputModule,
       MatTableModule,
-      MatSortModule
+      MatSortModule,
+      UseModelModule
   ],
 } )
 export class ComponentsModule {}
