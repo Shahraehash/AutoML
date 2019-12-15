@@ -111,7 +111,7 @@ export class TrainComponent implements OnChanges {
 
               if (data.grid) {
                 try {
-                  current.grid[estimator.value] = JSON.parse(data.grid);
+                  current.grid[estimator.value] = data.grid && data.grid !== '{}' ? JSON.parse(data.grid) : undefined;
                 } catch (err) {
                   this.showError('Unable to parse the grid parameters');
                   return false;
@@ -120,7 +120,7 @@ export class TrainComponent implements OnChanges {
 
               if (data.random) {
                 try {
-                  current.random[estimator.value] = JSON.parse(data.random);
+                  current.random[estimator.value] = data.random && data.random !== '{}' ? JSON.parse(data.random) : undefined;
                 } catch (err) {
                   this.showError('Unable to parse the random parameters');
                   return false;
