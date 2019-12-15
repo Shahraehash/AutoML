@@ -5,11 +5,11 @@
     </ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
       <ion-button fill='solid' color='primary' (click)='exportPMML()'>
-        <ion-icon name='code-download'></ion-icon>
+        <ion-icon name='code-download' slot='start'></ion-icon>
         PMML
       </ion-button>
       <ion-button fill='solid' color='primary' (click)='exportModel()'>
-        <ion-icon name='download'></ion-icon>
+        <ion-icon name='download' slot='start'></ion-icon>
         Download
       </ion-button>
     </ion-buttons>
@@ -54,5 +54,12 @@
       </div>
     </div>
   </div>
-  <ion-button expand='block' (click)='testModel()' class='submit' [disabled]='!testForm.valid'>Predict</ion-button>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='end' class='ion-padding-end'>
+      <ion-button (click)='testModel()' color='primary' fill='solid' class='submit' [disabled]='!testForm.valid'>Predict</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
