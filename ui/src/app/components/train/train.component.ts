@@ -130,22 +130,18 @@ export class TrainComponent implements OnChanges, OnInit {
               const hyperParameters = this.trainForm.get('hyperParameters');
               const current = hyperParameters.value;
 
-              if (data.grid) {
-                try {
-                  current.grid[estimator.value] = data.grid && data.grid !== '{}' ? JSON.parse(data.grid) : undefined;
-                } catch (err) {
-                  this.showError('Unable to parse the grid parameters');
-                  return false;
-                }
+              try {
+                current.grid[estimator.value] = data.grid && data.grid !== '{}' ? JSON.parse(data.grid) : undefined;
+              } catch (err) {
+                this.showError('Unable to parse the grid parameters');
+                return false;
               }
 
-              if (data.random) {
-                try {
-                  current.random[estimator.value] = data.random && data.random !== '{}' ? JSON.parse(data.random) : undefined;
-                } catch (err) {
-                  this.showError('Unable to parse the random parameters');
-                  return false;
-                }
+              try {
+                current.random[estimator.value] = data.random && data.random !== '{}' ? JSON.parse(data.random) : undefined;
+              } catch (err) {
+                this.showError('Unable to parse the random parameters');
+                return false;
               }
 
               hyperParameters.setValue(current);

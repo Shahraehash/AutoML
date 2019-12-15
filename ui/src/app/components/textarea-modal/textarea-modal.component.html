@@ -13,10 +13,8 @@
   <textarea
     *ngFor='let input of inputs; let i = index'
     [formControlName]='input.name'
-    [attr.disabled]='input.disabled ? "true" : null'
     [placeholder]='input.placeholder'
     [name]='input.name'
-    [value]='input.value ? input.value : ""'
   ></textarea>
 </ion-content>
 

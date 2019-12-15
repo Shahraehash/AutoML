@@ -37,7 +37,7 @@ export class TextareaModalComponent implements OnInit {
     this.parsedInputs = this.formBuilder.group(
       this.inputs.reduce(
         (obj, item) => {
-          obj[item.name] = '';
+          obj[item.name] = [{value: item.value, disabled: item.disabled}];
           return obj;
         },
         {}
