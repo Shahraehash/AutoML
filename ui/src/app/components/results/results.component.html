@@ -36,10 +36,11 @@
 
     <div class='table-wrapper' [formGroup]='filterForm'>
       <mat-form-field class='filter-section'>
-        <mat-select formControlName='group' (selectionChange)='applyFilter()'>
-          <mat-option value='all'>All</mat-option>
-          <mat-option *ngFor='let column of getFilterColumns()' [value]='column.key'>{{column.name}}</mat-option>
-        </mat-select>
+        <mat-label></mat-label>
+        <select matNativeControl formControlName='group' (change)='applyFilter()'>
+          <option value='all'>All</option>
+          <option *ngFor='let column of getFilterColumns()' [value]='column.key'>{{column.name}}</option>
+        </select>
       </mat-form-field>
 
       <mat-form-field>
