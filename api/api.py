@@ -118,7 +118,7 @@ def find_best_model(
         total_fits[estimator] += pipeline[1]
 
         # Fit the pipeline
-        with parallel_backend('multiprocessing'):
+        with parallel_backend('threading'):
             model = generate_model(pipeline[0], feature_names, x_train, y_train)
 
         if pipeline[2]:
