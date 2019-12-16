@@ -47,7 +47,7 @@
           [color]='result.predicted[0] === 1 ? "danger" : "success"'
           [name]='result.predicted[0] === 1 ? "add-circle" : "remove-circle"'></ion-icon>
         <br><br>
-        <span class='label'>Probability</span>: {{(result.probability[0][0] * 100) | number}}%
+        <span class='label'>Probability</span>: {{(result.probability[0] * 100) | number}}%
 
         <p>
           The predications confidence is indicated by the probability above. Higher indicates a stronger confidence in the prediction.
