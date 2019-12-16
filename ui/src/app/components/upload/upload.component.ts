@@ -75,6 +75,7 @@ export class UploadComponent implements OnInit {
       const file = event.target.files[0];
 
       parse(file, {
+        worker: true,
         complete: async reply => {
           if (event.target.name === 'train') {
             this.labels = reply.data[0].reverse();

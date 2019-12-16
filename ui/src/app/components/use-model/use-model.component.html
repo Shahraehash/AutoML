@@ -29,13 +29,14 @@
     <div class='results ion-padding'>
       <div *ngIf='!result' class='ion-padding-top ion-margin-top'>
         <div *ngIf='publishName; else testDetail'>
-          This model has been published here to test the {{publishName}} model.
+          This page has been published to test the '{{publishName}}' model.
           <br><br>
-          Please enter your values and press predict to test the model against your sample data.
+          Please enter your values and press predict to test the model against your sample data. You may also
+          batch test multiple values by uploading an excel sheet by using the 'Batch Test' button below.
           <br><br>
           If you wish you may download a copy of the model or it's PMML representation from the header buttons above.
         </div>
-        <ng-template #testDetail>Please enter the values you wish to test</ng-template>
+        <ng-template #testDetail>Please enter the values you wish to test or use the batch test to upload a CSV of values to test.</ng-template>
       </div>
       <div *ngIf='result'>
         <span class='label'>Predicted Outcome</span>:
@@ -54,11 +55,16 @@
       </div>
     </div>
   </div>
+  <input #fileInput type='file' class='hidden' (change)='batchTest($event)'>
 </ion-content>
 
 <ion-footer>
   <ion-toolbar>
     <ion-buttons slot='end' class='ion-padding-end'>
+      <ion-button color='medium' fill='solid' (click)='fileInput.click()'>
+        <ion-icon name='copy' slot='start'></ion-icon>
+        Batch Test
+      </ion-button>    
       <ion-button (click)='testModel()' color='primary' fill='solid' class='submit' [disabled]='!testForm.valid'>Predict</ion-button>
     </ion-buttons>
   </ion-toolbar>

@@ -10,10 +10,10 @@ def predict(data, path='.'):
     # Load the pipeline
     pipeline = load(path + '.joblib')
 
-    predicted = pipeline.predict(data)
-    probability = pipeline.predict_proba(data)[:, predicted]
+    predicted = pipeline.predict(data).tolist()
+    probability = pipeline.predict_proba(data).tolist()
 
     return {
-        'predicted': predicted.tolist(),
-        'probability': probability.tolist()
+        'predicted': predicted,
+        'probability': [sublist[predicted[index]] for index, sublist in enumerate(probability)]
     }

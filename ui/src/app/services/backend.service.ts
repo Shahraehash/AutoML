@@ -70,12 +70,12 @@ export class BackendService {
     return this.http.delete(this.SERVER_URL + '/unpublish/' + id);
   }
 
-  testPublishedModel(formData, publishName) {
-    return this.http.post(this.SERVER_URL + '/test/' + publishName, formData);
+  testPublishedModel(data, publishName) {
+    return this.http.post(this.SERVER_URL + '/test/' + publishName, data);
   }
 
-  testModel(formData) {
-    return this.http.post(this.SERVER_URL + '/test/' + this.userData.id + '/' + this.currentJobId, formData);
+  testModel(data) {
+    return this.http.post(this.SERVER_URL + '/test/' + this.userData.id + '/' + this.currentJobId, data);
   }
 
   getPendingTasks() {
