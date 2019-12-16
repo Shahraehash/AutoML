@@ -39,7 +39,7 @@ def find_best_model(
         labels=None,
         label_column=None,
         output_path='.',
-        updateFunction=lambda x, y: None,
+        update_function=lambda x, y: None,
         custom_hyper_parameters=None
     ):
     """Generates all possible models and outputs the generalization results"""
@@ -84,7 +84,7 @@ def find_best_model(
     for index, (estimator, feature_selector, scaler, searcher) in enumerate(all_pipelines):
 
         # Trigger a callback for task monitoring purposes
-        updateFunction(index, len(all_pipelines))
+        update_function(index, len(all_pipelines))
 
         # SVM without scaling can loop consuming infinite CPU time so
         # we prevent that combination here.
