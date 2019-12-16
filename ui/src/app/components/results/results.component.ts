@@ -347,7 +347,7 @@ export class ResultsComponent implements OnChanges {
             <ion-note slot='end'>${this.metadata.test_negative_count}</ion-note>
           </ion-item>
           <ion-item>
-            <ion-label>Cross Validation Count</ion-label>
+            <ion-label>Cross Validation k-Fold</ion-label>
             <ion-note slot='end'>10</ion-note>
           </ion-item>
         </ion-list>
