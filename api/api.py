@@ -166,17 +166,18 @@ def find_best_model(
         'fits': total_fits
     })
 
-    with open(output_path + '/metadata.json', 'a+') as metafile:
-        metafile.seek(0)
+    if output_path != '.':
+        with open(output_path + '/metadata.json', 'a+') as metafile:
+            metafile.seek(0)
 
-        # Load the existing metadata
-        existing_metadata = json.load(metafile)
+            # Load the existing metadata
+            existing_metadata = json.load(metafile)
 
-        # Empty the file
-        metafile.seek(0)
-        metafile.truncate()
+            # Empty the file
+            metafile.seek(0)
+            metafile.truncate()
 
-        existing_metadata.update(metadata)
-        json.dump(existing_metadata, metafile)
+            existing_metadata.update(metadata)
+            json.dump(existing_metadata, metafile)
 
     return results
