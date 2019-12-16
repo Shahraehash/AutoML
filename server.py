@@ -436,14 +436,9 @@ def export_published_model(model):
 
     return send_file(published[model]['path'] + '.joblib', as_attachment=True)
 
-@APP.route('/<path:path>')
-def get_static_file(path):
-    """Retrieve static files from the UI path"""
-
-    if not os.path.isfile(os.path.join('static', path)):
-        path = os.path.join(path, 'index.html')
-
-    return send_from_directory('static', path)
+@APP.errorhandler(404)
+def page_not_found(e):
+    return load_ui()
 
 if __name__ == "__main__":
     APP.run()
