@@ -20,4 +20,6 @@ def model_key_to_name(key):
         SCALER_NAMES[scaler] + ' and with ' + FEATURE_SELECTOR_NAMES[feature_selector]
 
 def explode_key(key):
+    """Split apart a key into it's separate components"""
+
     return (key.split('__') + [None])[:5]
