@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { parse } from 'papaparse';
@@ -25,6 +25,7 @@ export class UploadComponent implements OnInit {
   constructor(
     public backend: BackendService,
     private alertController: AlertController,
+    private element: ElementRef,
     private formBuilder: FormBuilder,
     private loadingController: LoadingController,
     private toastController: ToastController
@@ -130,6 +131,7 @@ export class UploadComponent implements OnInit {
   }
 
   reset() {
+    this.element.nativeElement.querySelectorAll('input[type="file"]').forEach(node => node.value = '');
     this.uploadForm.reset();
   }
 
