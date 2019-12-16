@@ -6,7 +6,7 @@
   "scripts": {
     "build-ui": "cd ui && npm run build",
     "postinstall": "pip install -r requirements.txt && cd ui && npm install",
-    "serve": "concurrently 'FLASK_APP=server.py FLASK_DEBUG=1 python -u -m flask run' 'cd ui && npm run start' 'rabbitmq-server' 'celery -E -A worker -c 1 worker' 'sleep 15s && open http://localhost:4200'",
+    "serve": "concurrently 'FLASK_APP=server.py FLASK_DEBUG=1 python -u -m flask run' 'cd ui && npm run start' 'rabbitmq-server' 'celery -E -A worker --pool=solo worker' 'sleep 15s && open http://localhost:4200'",
     "start": "npm run serve",
     "test": "pytest api/unit_test.py",
     "update": "git pull && npm install"
