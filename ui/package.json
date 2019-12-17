@@ -6,6 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "serve": "ng serve",
     "build": "ng build --outputPath ../static --prod",
     "test": "ng test",
     "lint": "ng lint",

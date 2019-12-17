@@ -258,7 +258,9 @@ def list_pending(userid):
     scheduled = []
     i = CELERY.control.inspect()
 
-    for worker in list(i.scheduled().values()):
+    scheduled_tasks = i.scheduled()
+    scheduled_tasks = list(scheduled_tasks.values()) if scheduled_tasks else []
+    for worker in scheduled_tasks:
         for task in worker:
             if str(userid) in task['request']['args']:
                 try:
@@ -275,7 +277,11 @@ def list_pending(userid):
                     'state': 'PENDING'
                 })
 
-    for worker in list(i.active().values()) + list(i.reserved().values()):
+    active_tasks = i.active()
+    reserved_tasks = i.reserved()
+    active_tasks = list(active_tasks.values()) if active_tasks else []
+    reserved_tasks = list(reserved_tasks.values()) if reserved_tasks else []
+    for worker in active_tasks + reserved_tasks:
         for task in worker:
             if '.queue_training' in task['type'] and str(userid) in task['args']:
                 try:
