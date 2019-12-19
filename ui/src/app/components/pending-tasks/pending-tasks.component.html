@@ -6,6 +6,9 @@
     {{task.value.args[2]}}: {{task.value.time ? 'Running' : 'Waiting'}} 
     <div slot='end'>
       <span *ngIf='task.value.time' class='status-text ion-padding-end'>{{((task.value.status.current / task.value.status.total) * 100) | number:'1.0-0'}}% Completed</span>
+      <ion-button color='medium' fill='solid' size='small' (click)='showDetails(task.value.args[3])'>
+        <ion-icon size='small' slot='icon-only' name='settings'></ion-icon>
+      </ion-button>
       <ion-button color='danger' fill='solid' size='small' (click)='cancelTask(task.key)'>
         <ion-icon slot='icon-only' name='close'></ion-icon>
       </ion-button>
