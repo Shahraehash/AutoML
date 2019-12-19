@@ -1,7 +1,10 @@
 import os
+import ast
 import json
+import time
 
 from celery import Celery
+from celery.signals import after_task_publish, task_prerun, task_postrun
 from celery.task.control import revoke
 
 from api import api
@@ -46,16 +49,23 @@ def queue_training(self, userid, jobid, label_column, parameters):
 def revoke_task(task_id):
     revoke(task_id, terminate=True)
 
+def get_pending_tasks():
+    with open('.tasks.json') as tasks_file:
+        try:
+            tasks = json.load(tasks_file)
+        except:
+            tasks = {}
+    return tasks
+
 def get_task_status(task_id):
-    """Get's a given's task and returns a summary in JSON format"""
+    """Gets a given's task and returns a summary in JSON format"""
 
     task = queue_training.AsyncResult(task_id)
     if task.state == 'PENDING':
         response = {
             'state': task.state,
             'current': 0,
-            'total': 1,
-            'status': 'Pending...'
+            'total': 1
         }
     elif task.state != 'FAILURE':
         response = {'state': task.state}
@@ -79,3 +89,56 @@ def get_task_status(task_id):
         }
 
     return response
+
+@after_task_publish.connect
+def after_task_publish_handler(sender=None, headers=None, body=None, **kwargs):
+    info = headers if 'task' in headers else body
+
+    with open('.tasks.json', 'a+') as tasks_file:
+        tasks_file.seek(0)
+
+        try:
+            tasks = json.load(tasks_file)
+        except:
+            tasks = {}
+
+        tasks[info['id']] = {
+            'args': ast.literal_eval(info['argsrepr']),
+            'status': {'state': 'PENDING'}
+        }
+        tasks_file.seek(0)
+        tasks_file.truncate()
+        json.dump(tasks, tasks_file)
+
+@task_prerun.connect
+def task_prerun_handler(sender=None, task_id=None, task=None, args=None, kwargs=None, **kwds):
+    with open('.tasks.json', 'a+') as tasks_file:
+        tasks_file.seek(0)
+
+        try:
+            tasks = json.load(tasks_file)
+        except:
+            tasks = {}
+
+        tasks[task_id] = {
+            'args': args,
+            'status': {'state': 'PENDING', 'time': time.time()}
+        }
+        tasks_file.seek(0)
+        tasks_file.truncate()
+        json.dump(tasks, tasks_file)
+
+@task_postrun.connect
+def task_postrun_handler(sender=None, task_id=None, task=None, args=None, kwargs=None, **kwds):
+    with open('.tasks.json', 'a+') as tasks_file:
+        tasks_file.seek(0)
+
+        try:
+            tasks = json.load(tasks_file)
+        except:
+            tasks = {}
+
+        del tasks[task_id]
+        tasks_file.seek(0)
+        tasks_file.truncate()
+        json.dump(tasks, tasks_file)

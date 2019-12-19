@@ -16,6 +16,7 @@ pip-delete-this-directory.txt
 # Data
 data/*
 !data/.gitkeep
+.tasks.json
 
 # UI build
 static/
