@@ -3,8 +3,7 @@
     <ion-title>MILO: Machine Intelligence Learning Optimizer</ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
       <ng-container *ngIf='pendingTasks$ | async as pendingTasks'>
-        <!-- pendingTasks.active.length || pendingTasks.scheduled.length -->
-        <ion-button fill='solid' color='primary' (click)='openPendingTasks($event, pendingTasks)' *ngIf='false'>
+        <ion-button fill='solid' color='primary' (click)='openPendingTasks($event)' *ngIf='keys(pendingTasks).length'>
           <ion-spinner name='dots' slot='icon-only'></ion-spinner>
         </ion-button>
       </ng-container>

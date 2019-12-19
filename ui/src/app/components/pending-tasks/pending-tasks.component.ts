@@ -1,9 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { Observable, timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
-import { PendingTasks } from '../../interfaces';
+import { TaskDetails } from '../../interfaces';
 import { BackendService } from 'src/app/services/backend.service';
 
 @Component({
@@ -12,8 +12,8 @@ import { BackendService } from 'src/app/services/backend.service';
   styleUrls: ['./pending-tasks.component.scss'],
 })
 export class PendingTasksComponent implements OnInit {
-  @Input() firstViewData: PendingTasks;
-  pendingTasks$: Observable<PendingTasks>;
+  pendingTasks$: Observable<TaskDetails>;
+  keys = Object.keys;
 
   constructor(
     private alertController: AlertController,

@@ -122,7 +122,8 @@ def task_prerun_handler(sender=None, task_id=None, task=None, args=None, kwargs=
 
         tasks[task_id] = {
             'args': args,
-            'status': {'state': 'PENDING', 'time': time.time()}
+            'time': time.time(),
+            'status': {'state': 'PENDING'}
         }
         tasks_file.seek(0)
         tasks_file.truncate()
