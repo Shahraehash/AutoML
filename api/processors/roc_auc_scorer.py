@@ -4,6 +4,8 @@ FPR/TPR per fold and returns the mean and
 standard deviation
 """
 
+from multiprocessing import Manager
+
 import numpy as np
 from scipy import interp
 from sklearn.preprocessing import label_binarize
@@ -18,8 +20,9 @@ class ROCAUCScorer:
     def __init__(self):
         """Initializes the class"""
 
-        self.tprs = []
-        self.aucs = []
+        manager = Manager()
+        self.tprs = manager.list()
+        self.aucs = manager.list()
         self.mean_fpr = np.linspace(0, 1, 100)
 
     def get_scorer(self):
@@ -52,9 +55,10 @@ class ROCAUCScorer:
 
             fpr, tpr, _ = roc_curve(y_true, y_score,
                                     sample_weight=sample_weight)
-            self.tprs.append(interp(self.mean_fpr, fpr, tpr))
-            self.tprs[-1][0] = 0.0
+            tprs = interp(self.mean_fpr, fpr, tpr)
+            tprs[0] = 0.0
             roc_auc = auc(fpr, tpr)
+            self.tprs.append(tprs)
             self.aucs.append(roc_auc)
             return roc_auc
 

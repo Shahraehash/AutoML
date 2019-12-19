@@ -67,6 +67,7 @@ export interface SearchParameters {
     ignore_scorer: string;
     ignore_searcher: string;
     ignore_shuffle: boolean;
+    hyper_parameters: string;
 }
 
 export interface TaskAdded {
@@ -74,29 +75,21 @@ export interface TaskAdded {
     href: string;
 }
 
-export interface ActiveTaskStatus {
+export interface TaskDetails {
+    [key: string]: {
+        time?: number;
+        args: [
+            string, string, string, SearchParameters
+        ];
+        status: TaskStatus;
+    };
+}
+
+export interface TaskStatus {
     current: number;
     total: number;
     status: string;
-    time: number;
-    id: string;
     state: 'PENDING' | 'RECEIVED' | 'STARTED' | 'REVOKED' | 'RETRY' | 'FAILURE' | 'SUCCESS';
-    jobid: string;
-    label: string;
-    parameters: SearchParameters;
-}
-
-export interface ScheduledTaskStatus {
-    eta: string;
-    state: 'PENDING';
-    jobid: string;
-    label: string;
-    parameters: SearchParameters;
-}
-
-export interface PendingTasks {
-    active: ActiveTaskStatus[];
-    scheduled: ScheduledTaskStatus[];
 }
 
 export interface PublishedModels {

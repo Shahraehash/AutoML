@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { AlertController, LoadingController } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { AlertController, ModalController, LoadingController } from '@ionic/angular';
 import { Observable, timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
-import { PendingTasks } from '../../interfaces';
-import { BackendService } from 'src/app/services/backend.service';
+import { BackendService } from '../../services/backend.service';
+import { TaskDetails } from '../../interfaces';
+import { TrainComponent } from '../train/train.component';
 
 @Component({
   selector: 'app-pending-tasks',
@@ -12,13 +13,14 @@ import { BackendService } from 'src/app/services/backend.service';
   styleUrls: ['./pending-tasks.component.scss'],
 })
 export class PendingTasksComponent implements OnInit {
-  @Input() firstViewData: PendingTasks;
-  pendingTasks$: Observable<PendingTasks>;
+  pendingTasks$: Observable<TaskDetails>;
+  keys = Object.keys;
 
   constructor(
     private alertController: AlertController,
     private backend: BackendService,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private modalController: ModalController
   ) {}
 
   ngOnInit() {
@@ -50,5 +52,15 @@ export class PendingTasksComponent implements OnInit {
     });
 
     await alert.present();
+  }
+
+  async showDetails(parameters) {
+    const modal = await this.modalController.create({
+      cssClass: 'wide-modal',
+      component: TrainComponent,
+      componentProps: {parameters}
+    });
+
+    await modal.present();
   }
 }

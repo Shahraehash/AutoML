@@ -10,7 +10,7 @@ import { PendingTasksComponent } from '../../components/pending-tasks/pending-ta
 import { TrainComponent } from '../../components/train/train.component';
 import { UploadComponent } from '../../components/upload/upload.component';
 import { BackendService } from '../../services/backend.service';
-import { PendingTasks } from '../../interfaces';
+import { TaskDetails } from '../../interfaces';
 
 @Component({
   selector: 'app-home',
@@ -25,11 +25,12 @@ export class HomePage implements OnInit {
   @ViewChild('train', {static: false}) train: TrainComponent;
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
-  pendingTasks$: Observable<PendingTasks>;
+  pendingTasks$: Observable<TaskDetails>;
   pauseUpdates = false;
   uploadForm: FormGroup;
   trainForm: FormGroup;
   featureCount: number;
+  keys = Object.keys;
 
   constructor(
     private backend: BackendService,
@@ -62,12 +63,11 @@ export class HomePage implements OnInit {
     this.upload.reset();
   }
 
-  async openPendingTasks(event, pendingTasks) {
+  async openPendingTasks(event) {
     this.pauseUpdates = true;
     const popover = await this.popoverController.create({
       cssClass: 'wide-popover',
       component: PendingTasksComponent,
-      componentProps: {firstViewData: pendingTasks},
       event,
       translucent: true
     });

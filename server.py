@@ -15,7 +15,7 @@ from flask_cors import CORS
 import pandas as pd
 
 from api import create_model, predict
-from worker import CELERY, get_task_status, queue_training, revoke_task
+from worker import CELERY, get_task_status, queue_training, revoke_task, get_pending_tasks
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
@@ -254,49 +254,12 @@ def clone_job(userid, jobid, newjobid):
 def list_pending(userid):
     """Get all pending tasks for a given user ID"""
 
-    active = []
-    scheduled = []
-    i = CELERY.control.inspect()
+    tasks = get_pending_tasks()
 
-    for worker in list(i.scheduled().values()):
-        for task in worker:
-            if str(userid) in task['request']['args']:
-                try:
-                    args = ast.literal_eval(task['request']['args'])
-                except:
-                    continue
+    for task in tasks:
+        tasks[task]['status'] = get_task_status(task)
 
-                scheduled.append({
-                    'id': task['request']['id'],
-                    'eta': task['eta'],
-                    'jobid': args[1],
-                    'label': args[2],
-                    'parameters': args[3],
-                    'state': 'PENDING'
-                })
-
-    for worker in list(i.active().values()) + list(i.reserved().values()):
-        for task in worker:
-            if '.queue_training' in task['type'] and str(userid) in task['args']:
-                try:
-                    args = ast.literal_eval(task['args'])
-                except:
-                    continue
-
-                status = get_task_status(task['id'])
-                status.update({
-                    'id': task['id'],
-                    'jobid': args[1],
-                    'label': args[2],
-                    'parameters': args[3],
-                    'time': task['time_start']
-                })
-                active.append(status)
-
-    return jsonify({
-        'active': active,
-        'scheduled': scheduled
-    })
+    return jsonify(tasks)
 
 @APP.route('/cancel/<uuid:task_id>', methods=['DELETE'])
 def cancel_task(task_id):
