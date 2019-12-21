@@ -257,6 +257,10 @@ def list_pending(userid):
     tasks = get_pending_tasks()
 
     for task in tasks:
+        if tasks[task]['args'][0] != userid.urn[9:]:
+            del tasks[task]
+            continue
+
         tasks[task]['status'] = get_task_status(task)
 
     return jsonify(tasks)
@@ -400,7 +404,9 @@ def export_published_model(model):
     return send_file(published[model]['path'] + '.joblib', as_attachment=True)
 
 @APP.errorhandler(404)
-def page_not_found(e):
+def page_not_found():
+    """Redirect all invalid pages back to the root index"""
+
     return load_ui()
 
 if __name__ == "__main__":
