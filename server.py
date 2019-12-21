@@ -14,7 +14,7 @@ from flask import abort, Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
 import pandas as pd
 
-from api import create_model, predict
+from ml import create_model, predict
 from worker import CELERY, get_task_status, queue_training, revoke_task, get_pending_tasks
 
 PUBLISHED_MODELS = 'data/published-models.json'
