@@ -15,7 +15,7 @@ from flask_cors import CORS
 import pandas as pd
 
 from ml import create_model, predict
-from worker import CELERY, get_task_status, queue_training, revoke_task, get_pending_tasks
+from worker import CELERY, get_task_status, queue_training, revoke_task
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
@@ -259,16 +259,51 @@ def clone_job(userid, jobid, newjobid):
 def list_pending(userid):
     """Get all pending tasks for a given user ID"""
 
-    tasks = get_pending_tasks()
+    active = []
+    scheduled = []
+    i = CELERY.control.inspect()
+    scheduled_tasks = i.scheduled()
+    scheduled_tasks = list(scheduled_tasks.values()) if scheduled_tasks else []
+    for worker in scheduled_tasks:
+        for task in worker:
+            if str(userid) in task['request']['args']:
+                try:
+                    args = ast.literal_eval(task['request']['args'])
+                except:
+                    continue
+                scheduled.append({
+                    'id': task['request']['id'],
+                    'eta': task['eta'],
+                    'jobid': args[1],
+                    'label': args[2],
+                    'parameters': args[3],
+                    'state': 'PENDING'
+                })
 
-    for task in tasks:
-        if tasks[task]['args'][0] != userid.urn[9:]:
-            del tasks[task]
-            continue
-
-        tasks[task]['status'] = get_task_status(task)
-
-    return jsonify(tasks)
+    active_tasks = i.active()
+    active_tasks = list(active_tasks.values()) if active_tasks else []
+    reserved_tasks = i.reserved()
+    reserved_tasks = list(reserved_tasks.values()) if reserved_tasks else []
+    for worker in active_tasks + reserved_tasks:
+        for task in worker:
+            if '.queue_training' in task['type'] and str(userid) in task['args']:
+                try:
+                    args = ast.literal_eval(task['args'])
+                except:
+                    continue
+                status = get_task_status(task['id'])
+                status.update({
+                    'id': task['id'],
+                    'jobid': args[1],
+                    'label': args[2],
+                    'parameters': args[3],
+                    'time': task['time_start']
+                })
+                active.append(status)
+    return jsonify({
+        'active': active,
+        'scheduled': scheduled
+    })
 
 @APP.route('/cancel/<uuid:task_id>', methods=['DELETE'])
 def cancel_task(task_id):
