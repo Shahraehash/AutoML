@@ -60,6 +60,7 @@ export class HomePage implements OnInit {
     this.stepper.reset();
     this.uploadForm.reset();
     this.upload.reset();
+    this.train.resetPoller();
   }
 
   async openPendingTasks(event, pendingTasks) {
