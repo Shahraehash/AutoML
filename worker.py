@@ -86,8 +86,7 @@ def get_task_status(task_id):
             response.update({
                 'current': task.info.get('current', 0),
                 'total': task.info.get('total', 1),
-                'status': task.info.get('status', ''),
-                'result': task.info.get('result', '')
+                'status': task.info.get('status', '')
             })
     else:
         # something went wrong in the background job
