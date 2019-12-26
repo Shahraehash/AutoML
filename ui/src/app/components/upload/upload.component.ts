@@ -85,7 +85,10 @@ export class UploadComponent implements OnInit {
             this.labels = reply.data[0].reverse();
             this.uploadForm.get('test').reset();
           } else {
-            if (this.labels.length !== reply.data[0].length) {
+            if (
+              this.labels.length !== reply.data[0].length ||
+              `${this.labels}` !== `${reply.data[0].reverse()}`
+            ) {
               const alert = await this.alertController.create({
                 buttons: ['Dismiss'],
                 header: 'Data Does Not Match',
