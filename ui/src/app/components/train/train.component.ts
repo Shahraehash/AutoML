@@ -226,7 +226,7 @@ export class TrainComponent implements OnChanges, OnInit {
       this.getChecked('searchers'),
 
       /** Manually add this since it's required for the UI */
-      this.getChecked('scorers').concat('ROC_AUC'),
+      this.getChecked('scorers').concat('ROC AUC'),
     );
   }
 
