@@ -73,6 +73,7 @@ def find_best_model(
         import_data(train_set, test_set, label_column)
 
     total_fits = {}
+    csv_header_written = False
 
     all_pipelines = list(itertools.product(*[
         filter(lambda x: False if x in ignore_estimator else True, ESTIMATOR_NAMES),
@@ -142,8 +143,9 @@ def find_best_model(
             result.update(roc(pipeline[0], model, x2, y2, 'generalization'))
             result.update(reliability(pipeline[0], model, x2, y2))
 
-            if index == 0:
+            if not csv_header_written:
                 report_writer.writerow(result.keys())
+                csv_header_written = True
 
             report_writer.writerow(list([str(i) for i in result.values()]))
 
