@@ -72,7 +72,6 @@ def find_best_model(
     (x_train, x_test, y_train, y_test, x2, y2, feature_names, metadata) = \
         import_data(train_set, test_set, label_column)
 
-    results = []
     total_fits = {}
 
     all_pipelines = list(itertools.product(*[
@@ -89,11 +88,6 @@ def find_best_model(
 
         # Trigger a callback for task monitoring purposes
         update_function(index, len(all_pipelines))
-
-        # SVM without scaling can loop consuming infinite CPU time so
-        # we prevent that combination here.
-        if (estimator == 'svm' and scaler == 'none'):
-            continue
 
         key = '__'.join([scaler, feature_selector, estimator, searcher])
         roc_curves = {}
@@ -148,15 +142,14 @@ def find_best_model(
             result.update(roc(pipeline[0], model, x2, y2, 'generalization'))
             result.update(reliability(pipeline[0], model, x2, y2))
 
-            if not results:
+            if index == 0:
                 report_writer.writerow(result.keys())
 
             report_writer.writerow(list([str(i) for i in result.values()]))
-            results.append(result)
 
     report.close()
     print('Total fits generated', sum(total_fits.values()))
-    print_summary(results)
+    print_summary(output_path + '/report.csv')
 
     # Update the metadata and write it out
     metadata.update({
@@ -178,4 +171,4 @@ def find_best_model(
             existing_metadata.update(metadata)
             json.dump(existing_metadata, metafile)
 
-    return results
+    return True

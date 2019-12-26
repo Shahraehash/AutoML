@@ -2,6 +2,9 @@
 Generate final summary
 """
 
+import os
+import csv
+
 import pandas as pd
 
 from .utils import model_key_to_name
@@ -12,10 +15,11 @@ pd.set_option('display.max_columns', None)
 def print_summary(results):
     """Prints the final summary"""
 
-    if not results:
+    if not os.path.exists(results):
         return
 
-    results = sorted(results,
-                     key=lambda x: (x['auc'], x['sensitivity'], x['f1']), reverse=True)
-
-    print('Best model:', model_key_to_name(results[0]['key']), '\n')
+    print('Best model:', model_key_to_name(
+        pd.read_csv(results).sort_values(
+            by=['auc', 'sensitivity', 'f1'], ascending=False
+        ).iloc[0]['key']
+    ), '\n')
