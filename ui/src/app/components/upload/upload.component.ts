@@ -75,6 +75,8 @@ export class UploadComponent implements OnInit {
   }
 
   onFileSelect(event) {
+    delete this.uploadForm.get(event.target.name).errors.invalidColumn;
+
     if (event.target.files.length === 1) {
       const file = event.target.files[0];
 
