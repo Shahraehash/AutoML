@@ -90,6 +90,11 @@ def find_best_model(
         # Trigger a callback for task monitoring purposes
         update_function(index, len(all_pipelines))
 
+        # SVM without scaling can loop consuming infinite CPU time so
+        # we prevent that combination here.
+        if (estimator == 'svm' and scaler == 'none'):
+            continue
+
         key = '__'.join([scaler, feature_selector, estimator, searcher])
         roc_curves = {}
         print('Generating ' + model_key_to_name(key))
