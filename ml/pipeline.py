@@ -6,7 +6,6 @@ from sklearn.pipeline import Pipeline
 
 from .processors.debug import Debug
 from .processors.feature_selection import FEATURE_SELECTORS
-from .processors.roc_auc_scorer import ROCAUCScorer
 from .processors.scalers import SCALERS
 from .processors.searchers import SEARCHERS
 
@@ -24,7 +23,6 @@ def generate_pipeline(
     """Generate the pipeline based on incoming arguments"""
 
     steps = []
-    auc_scorer = None
 
     if scaler and SCALERS[scaler]:
         steps.append(('scaler', SCALERS[scaler]))
@@ -39,14 +37,10 @@ def generate_pipeline(
 
     scorers = {}
     for scorer in scoring:
-        if scorer == 'roc_auc':
-            auc_scorer = ROCAUCScorer()
-            scorers[scorer] = auc_scorer.get_scorer()
-        else:
-            scorers[scorer] = scorer
+        scorers[scorer] = scorer
 
     search_step = SEARCHERS[searcher](estimator, scorers, shuffle, custom_hyper_parameters, y_train)
 
     steps.append(('estimator', search_step[0]))
 
-    return (Pipeline(steps), search_step[1], auc_scorer)
+    return (Pipeline(steps), search_step[1])

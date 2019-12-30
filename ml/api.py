@@ -96,7 +96,6 @@ def find_best_model(
             continue
 
         key = '__'.join([scaler, feature_selector, estimator, searcher])
-        roc_curves = {}
         print('Generating ' + model_key_to_name(key))
 
         # Generate the pipeline
@@ -116,11 +115,7 @@ def find_best_model(
         total_fits[estimator] += pipeline[1]
 
         # Fit the pipeline
-        with parallel_backend('multiprocessing'):
-            model = generate_model(pipeline[0], feature_names, x_train, y_train)
-
-        if pipeline[2]:
-            roc_curves = pipeline[2].get_mean()
+        model = generate_model(pipeline[0], feature_names, x_train, y_train)
 
         for scorer in scorers:
             key += '__' + scorer
@@ -143,7 +138,6 @@ def find_best_model(
                 'selected_features': list(model['selected_features']),
                 'best_params': model['best_params']
             })
-            result.update(roc_curves)
             result.update(roc(pipeline[0], model, x_test, y_test, 'test'))
             result.update(roc(pipeline[0], model, x2, y2, 'generalization'))
             result.update(reliability(pipeline[0], model, x2, y2))
