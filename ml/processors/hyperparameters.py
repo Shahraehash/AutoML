@@ -26,24 +26,13 @@ HYPER_PARAMETER_RANGE = {
             'solver': ['lbfgs'],
             'max_iter': [100, 200, 500]
         },
-        'mlp': [
-            {
-                'max_iter': [300, 400],
-                'activation': ['tanh'],
-                'learning_rate': ['constant', 'adaptive'],
-                'alpha': [.0001, .0005],
-                'tol': [.005, .0001],
-                'hidden_layer_sizes': [(10,), (20,), (50,), (100,), (200,), (10, 10, 10)]
-            },
-            {
-                'max_iter': [300, 400],
-                'activation': ['relu'],
-                'learning_rate': ['constant', 'adaptive'],
-                'alpha': [.0001, .0005],
-                'tol': [.005, .0001],
-                'hidden_layer_sizes': [(10,), (20,), (50,), (100,), (200,), (10, 10, 10)]
-            }
-        ],
+        'mlp': {
+            'activation': ['tanh', 'relu'],
+            'learning_rate': ['constant', 'adaptive'],
+            'alpha': [.01, .1, 1], 
+            'tol': [.001, .005, .01],
+            'hidden_layer_sizes': [(50,), (100,)]
+        },
         'rf': {
             'bootstrap': [True],
             'max_depth': [50, 80, 110],
