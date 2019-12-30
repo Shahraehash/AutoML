@@ -128,11 +128,11 @@ def test_support_vector_machine_with_standard_scaler_and_roc_auc():
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     model.update(refit_model(pipeline[0], model['features'], 'svm', 'roc_auc', X_TRAIN, Y_TRAIN))
     generalization = generalize(model, pipeline[0], X2, Y2)
-    assert generalization['accuracy'] == 0.4117647058823529
-    assert generalization['auc'] == 0.625
-    assert generalization['f1'] == 0.4115384615384615
-    assert generalization['sensitivity'] == 1.0
-    assert generalization['specificity'] == 0.25
+    assert generalization['accuracy'] == 0.7058823529411765
+    assert generalization['auc'] == 0.6806818181818182
+    assert generalization['f1'] == 0.6386395843174303
+    assert generalization['sensitivity'] == 0.6363636363636364
+    assert generalization['specificity'] == 0.725
 
 def test_support_vector_machine_with_standard_scaler_with_select_75():
     """Test SVM with standard scaler and select percentile 75%"""
