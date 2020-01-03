@@ -75,12 +75,16 @@ def find_best_model(
     total_fits = {}
     csv_header_written = False
 
-    all_pipelines = list(itertools.product(*[
+    all_pipelines = list(filter(filter_invalid_svm_pipelines, itertools.product(*[
         filter(lambda x: False if x in ignore_estimator else True, ESTIMATOR_NAMES),
         filter(lambda x: False if x in ignore_feature_selector else True, FEATURE_SELECTOR_NAMES),
         filter(lambda x: False if x in ignore_scaler else True, SCALER_NAMES),
         filter(lambda x: False if x in ignore_searcher else True, SEARCHER_NAMES),
-    ]))
+    ])))
+
+    if not len(all_pipelines):
+        print('No pipelines to run with the current configuration')
+        return False
 
     report = open(output_path + '/report.csv', 'w+')
     report_writer = csv.writer(report)
@@ -89,11 +93,6 @@ def find_best_model(
 
         # Trigger a callback for task monitoring purposes
         update_function(index, len(all_pipelines))
-
-        # SVM without scaling can loop consuming infinite CPU time so
-        # we prevent that combination here.
-        if (estimator == 'svm' and scaler == 'none'):
-            continue
 
         key = '__'.join([scaler, feature_selector, estimator, searcher])
         print('Generating ' + model_key_to_name(key))
@@ -172,4 +171,16 @@ def find_best_model(
             existing_metadata.update(metadata)
             json.dump(existing_metadata, metafile)
 
+    return True
+
+def filter_invalid_svm_pipelines(pipeline):
+
+    # SVM without robust scaling can loop consuming infinite CPU
+    # time so we prevent any other combination here.
+    if pipeline[0] == 'svm' and\
+        (
+            pipeline[2] == 'none' or\
+            pipeline[2] == 'std' and pipeline[3] == 'random'
+        ):
+        return False
     return True
