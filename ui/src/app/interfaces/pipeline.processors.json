@@ -35,6 +35,10 @@
         "value": "none"
       },
       {
+        "label": "Robust",
+        "value": "robust"
+      },
+      {
         "label": "Standard",
         "value": "std"
       },
