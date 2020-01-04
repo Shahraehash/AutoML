@@ -2,8 +2,6 @@
 Unit Tests
 """
 
-import os
-
 from .import_data import import_data
 from .generalization import generalize
 from .model import generate_model

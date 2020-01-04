@@ -3,6 +3,7 @@ AutoML
 
 Interact with the trainer using the CLI
 """
+import os
 import sys
 
 from ml import api
@@ -19,4 +20,13 @@ else:
 
 LABELS = ['No ' + LABEL_COLUMN, LABEL_COLUMN]
 
-api.find_best_model(TRAIN_SET, TEST_SET, LABELS, LABEL_COLUMN)
+PARAMETERS = dict(
+    ignore_estimator=os.getenv('IGNORE_ESTIMATOR', ''),
+    ignore_feature_selector=os.getenv('IGNORE_FEATURE_SELECTOR', ''),
+    ignore_scaler=os.getenv('IGNORE_SCALER', ''),
+    ignore_searcher=os.getenv('IGNORE_SEARCHER', ''),
+    ignore_shuffle=os.getenv('IGNORE_SHUFFLE', ''),
+    ignore_scorer=os.getenv('IGNORE_SCORER', '')
+)
+
+api.find_best_model(TRAIN_SET, TEST_SET, LABELS, LABEL_COLUMN, PARAMETERS)

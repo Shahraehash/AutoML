@@ -22,6 +22,7 @@ from .processors.scorers import SCORER_NAMES
 from .generalization import generalize
 from .model import generate_model
 from .import_data import import_data
+from .list_pipelines import filter_invalid_svm_pipelines
 from .pipeline import generate_pipeline
 from .reliability import reliability
 from .refit import refit_model
@@ -37,20 +38,20 @@ def find_best_model(
         test_set=None,
         labels=None,
         label_column=None,
+        parameters=None,
         output_path='.',
-        update_function=lambda x, y: None,
-        custom_hyper_parameters=None
+        update_function=lambda x, y: None
     ):
     """Generates all possible models and outputs the generalization results"""
 
-    ignore_estimator = [x.strip() for x in os.getenv('IGNORE_ESTIMATOR', '').split(',')]
+    ignore_estimator = [x.strip() for x in parameters.get('ignore_estimator', '').split(',')]
     ignore_feature_selector = \
-        [x.strip() for x in os.getenv('IGNORE_FEATURE_SELECTOR', '').split(',')]
-    ignore_scaler = [x.strip() for x in os.getenv('IGNORE_SCALER', '').split(',')]
-    ignore_searcher = [x.strip() for x in os.getenv('IGNORE_SEARCHER', '').split(',')]
-    shuffle = False if os.getenv('IGNORE_SHUFFLE', '') != '' else True
+        [x.strip() for x in parameters.get('ignore_feature_selector', '').split(',')]
+    ignore_scaler = [x.strip() for x in parameters.get('ignore_scaler', '').split(',')]
+    ignore_searcher = [x.strip() for x in parameters.get('ignore_searcher', '').split(',')]
+    shuffle = False if parameters.get('ignore_shuffle', '') != '' else True
     scorers = [x for x in SCORER_NAMES if x not in \
-        [x.strip() for x in os.getenv('IGNORE_SCORER', '').split(',')]]
+        [x.strip() for x in parameters.get('ignore_scorer', '').split(',')]]
 
     if train_set is None:
         print('Missing training data')
@@ -64,8 +65,8 @@ def find_best_model(
         print('Missing column name for classifier target')
         return {}
 
-    if custom_hyper_parameters is not None:
-        custom_hyper_parameters = json.loads(custom_hyper_parameters)
+    custom_hyper_parameters = json.loads(parameters['hyper_parameters'])\
+        if 'hyper_parameters' in parameters else None
 
     # Import data
     (x_train, x_test, y_train, y_test, x2, y2, feature_names, metadata) = \
@@ -76,8 +77,8 @@ def find_best_model(
 
     all_pipelines = list(filter(filter_invalid_svm_pipelines, itertools.product(*[
         filter(lambda x: False if x in ignore_estimator else True, ESTIMATOR_NAMES),
-        filter(lambda x: False if x in ignore_feature_selector else True, FEATURE_SELECTOR_NAMES),
         filter(lambda x: False if x in ignore_scaler else True, SCALER_NAMES),
+        filter(lambda x: False if x in ignore_feature_selector else True, FEATURE_SELECTOR_NAMES),
         filter(lambda x: False if x in ignore_searcher else True, SEARCHER_NAMES),
     ])))
 
@@ -88,7 +89,7 @@ def find_best_model(
     report = open(output_path + '/report.csv', 'w+')
     report_writer = csv.writer(report)
 
-    for index, (estimator, feature_selector, scaler, searcher) in enumerate(all_pipelines):
+    for index, (estimator, scaler, feature_selector, searcher) in enumerate(all_pipelines):
 
         # Trigger a callback for task monitoring purposes
         update_function(index, len(all_pipelines))
@@ -170,18 +171,4 @@ def find_best_model(
             existing_metadata.update(metadata)
             json.dump(existing_metadata, metafile)
 
-    return True
-
-def filter_invalid_svm_pipelines(pipeline):
-    """
-    SVM without robust scaling can loop consuming infinite CPU
-    time so we prevent any other combination here.
-    """
-
-    if pipeline[0] == 'svm' and\
-        (
-            pipeline[2] == 'none' or\
-            pipeline[2] == 'std' and pipeline[3] == 'random'
-        ):
-        return False
     return True

@@ -14,7 +14,7 @@ from flask import abort, Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
 import pandas as pd
 
-from ml import create_model, predict
+from ml import create_model, list_pipelines, predict
 from worker import CELERY, get_task_status, queue_training, revoke_task
 
 PUBLISHED_MODELS = 'data/published-models.json'
@@ -167,13 +167,17 @@ def find_best_model(userid, jobid):
     label_column = label.read()
     label.close()
 
+    parameters = request.form.to_dict()
+    pipelines = list_pipelines.list_pipelines(parameters)
+
     task = queue_training.s(
-        userid.urn[9:], jobid.urn[9:], label_column, request.form.to_dict()
+        userid.urn[9:], jobid.urn[9:], label_column, parameters
     ).apply_async()
 
     return jsonify({
         "id": task.id,
-        "href": url_for('task_status', task_id=task.id)
+        "href": url_for('task_status', task_id=task.id),
+        "pipelines": pipelines
     }), 202
 
 @APP.route('/status/<task_id>')

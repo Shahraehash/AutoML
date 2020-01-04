@@ -37,14 +37,6 @@ def queue_training(self, userid, jobid, label_column, parameters):
     folder = 'data/' + userid + '/' + jobid
     labels = ['No ' + label_column, label_column]
 
-    os.environ['IGNORE_ESTIMATOR'] = parameters['ignore_estimator']
-    os.environ['IGNORE_FEATURE_SELECTOR'] = parameters['ignore_feature_selector']
-    os.environ['IGNORE_SCALER'] = parameters['ignore_scaler']
-    os.environ['IGNORE_SEARCHER'] = parameters['ignore_searcher']
-    os.environ['IGNORE_SCORER'] = parameters['ignore_scorer']
-    if 'ignore_shuffle' in parameters:
-        os.environ['IGNORE_SHUFFLE'] = parameters['ignore_shuffle']
-
     metadata = {}
     if os.path.exists(folder + '/metadata.json'):
         with open(folder + '/metadata.json') as metafile:
@@ -60,9 +52,9 @@ def queue_training(self, userid, jobid, label_column, parameters):
         folder + '/test.csv',
         labels,
         label_column,
+        parameters,
         folder,
-        lambda x, y: self.update_state(state='PROGRESS', meta={'current': x, 'total': y}),
-        parameters['hyper_parameters'] if 'hyper_parameters' in parameters else None
+        lambda x, y: self.update_state(state='PROGRESS', meta={'current': x, 'total': y})
     )
     return {}
 
