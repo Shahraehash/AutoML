@@ -13,7 +13,6 @@ import time
 import itertools
 
 from dotenv import load_dotenv
-from sklearn.utils import parallel_backend
 
 from .processors.estimators import ESTIMATOR_NAMES
 from .processors.feature_selection import FEATURE_SELECTOR_NAMES
