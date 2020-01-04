@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 @Component({
   selector: 'app-radial-dendrogram',
-  template: '<svg class="radial" width="1664" height="1664" [ngClass]="{\'training\': training}"></svg>'
+  template: '<svg class="radial" viewBox="0 0 1664 1664" height="100%" [ngClass]="{\'training\': training}"></svg>'
 })
 export class RadialDendrogramComponent implements OnInit, OnChanges {
   @Input() data;
@@ -44,8 +44,8 @@ export class RadialDendrogramComponent implements OnInit, OnChanges {
     data.push(...parents);
     const svg = d3.select(this.element.nativeElement).select('svg');
     svg.selectAll('*').remove();
-    const width = parseInt(svg.attr('width'), 10);
-    const height = parseInt(svg.attr('height'), 10);
+    const width = 1664;
+    const height = 1664;
     const g = svg.append('g')
       .attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')');
 
