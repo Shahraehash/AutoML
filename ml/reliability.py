@@ -2,6 +2,8 @@
 Compute reliability curve and Briar score
 """
 
+import numpy as np
+
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import brier_score_loss
 
@@ -15,8 +17,10 @@ def reliability(pipeline, model, x_test, y_test):
 
     if hasattr(model['best_estimator'], 'decision_function'):
         probabilities = model['best_estimator'].decision_function(x_test)
-        probabilities = (probabilities - probabilities.min()) / \
-            (probabilities.max() - probabilities.min())
+        
+        if np.count_nonzero(probabilities):
+            probabilities = (probabilities - probabilities.min()) / \
+                (probabilities.max() - probabilities.min())
     else:
         probabilities = model['best_estimator'].predict_proba(x_test)[:, 1]
 
