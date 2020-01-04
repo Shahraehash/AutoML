@@ -49,10 +49,13 @@ def filter_invalid_svm_pipelines(pipeline):
     time so we prevent any other combination here.
     """
 
-    if pipeline[0] == 'svm' and\
+    if (pipeline[0] == 'svm' or pipeline[0] == 'support vector machine') and\
         (
-            pipeline[1] == 'none' or\
-            pipeline[1] == 'std' and pipeline[3] == 'random'
+            (pipeline[1] == 'none' or pipeline[1] == 'no scaling') or\
+            (
+                (pipeline[1] == 'std' or pipeline[1] == 'standard scaler') and\
+                (pipeline[3] == 'random' or pipeline[3] == 'random search')
+            )
         ):
         return False
     return True

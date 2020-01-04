@@ -104,6 +104,7 @@ export class TrainComponent implements OnChanges, OnInit {
 
     this.backend.startTraining(formData).subscribe(
       (task: TaskAdded) => {
+        this.allPipelines = task.pipelines;
         this.checkStatus(task);
       },
       async () => {
@@ -118,8 +119,6 @@ export class TrainComponent implements OnChanges, OnInit {
     );
 
     localStorage.setItem('training-options', JSON.stringify(this.trainForm.value));
-
-    this.generatePipelines();
   }
 
   async adjustEstimator(event, estimator) {
@@ -196,37 +195,6 @@ export class TrainComponent implements OnChanges, OnInit {
   private setValues(key, array) {
     this.trainForm.get(key).setValue(
       this.pipelineProcessors[key].map(i => !array.includes(i.value))
-    );
-  }
-
-  private getChecked(key): any[] {
-    return this.trainForm.get(key).value.flatMap((value, index) => {
-      return !value ? [] : this.pipelineProcessors[key][index].label;
-    });
-  }
-
-  private product(..._) {
-    const args = Array.prototype.slice.call(arguments);
-    return args.reduce((accumulator, value) => {
-      const tmp = [];
-      accumulator.forEach((a0) => {
-        value.forEach((a1) => {
-          tmp.push(a0.concat(a1));
-        });
-      });
-      return tmp;
-    }, [[]]);
-  }
-
-  private generatePipelines() {
-    this.allPipelines = this.product(
-      this.getChecked('estimators'),
-      this.getChecked('scalers'),
-      this.getChecked('featureSelectors'),
-      this.getChecked('searchers'),
-
-      /** Manually add this since it's required for the UI */
-      this.getChecked('scorers').concat('ROC AUC'),
     );
   }
 

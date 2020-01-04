@@ -73,6 +73,7 @@ export interface SearchParameters {
 export interface TaskAdded {
     id: number;
     href: string;
+    pipelines: string[][];
 }
 
 export interface ActiveTaskStatus {

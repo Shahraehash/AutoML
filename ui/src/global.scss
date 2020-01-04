@@ -161,7 +161,8 @@
 
 .radial {
   fill: black;
-
+  text-transform: capitalize;
+  
   .node circle {
     fill: #999;
   }
