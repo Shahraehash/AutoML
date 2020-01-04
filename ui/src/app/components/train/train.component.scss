@@ -2,6 +2,12 @@
   overflow-x: auto;
 }
 
+.training-page {
+  height: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
 .pipeline-selection {
   display: flex;
   justify-content: space-between;
