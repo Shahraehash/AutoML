@@ -18,15 +18,29 @@ def list_pipelines(parameters):
         [x.strip() for x in parameters.get('ignore_feature_selector', '').split(',')]
     ignore_scaler = [x.strip() for x in parameters.get('ignore_scaler', '').split(',')]
     ignore_searcher = [x.strip() for x in parameters.get('ignore_searcher', '').split(',')]
-    scorers = [x for x in SCORER_NAMES if x not in \
-        [x.strip() for x in parameters.get('ignore_scorer', '').split(',')]]
+    ignore_scorer = [x.strip() for x in parameters.get('ignore_scorer', '').split(',')]
 
     return list(filter(filter_invalid_svm_pipelines, itertools.product(*[
-        filter(lambda x: False if x in ignore_estimator else True, ESTIMATOR_NAMES),
-        filter(lambda x: False if x in ignore_scaler else True, SCALER_NAMES),
-        filter(lambda x: False if x in ignore_feature_selector else True, FEATURE_SELECTOR_NAMES),
-        filter(lambda x: False if x in ignore_searcher else True, SEARCHER_NAMES),
-        scorers
+        dict(filter(
+            lambda x: False if x[0] in ignore_estimator else True,
+            ESTIMATOR_NAMES.items()
+        )).values(),
+        dict(filter(
+            lambda x: False if x[0] in ignore_scaler else True,
+            SCALER_NAMES.items()
+        )).values(),
+        dict(filter(
+            lambda x: False if x[0] in ignore_feature_selector else True,
+            FEATURE_SELECTOR_NAMES.items()
+        )).values(),
+        dict(filter(
+            lambda x: False if x[0] in ignore_searcher else True,
+            SEARCHER_NAMES.items()
+        )).values(),
+        dict(filter(
+            lambda x: False if x[0] in ignore_scorer else True,
+            SCORER_NAMES.items()
+        )).values(),
     ])))
 
 def filter_invalid_svm_pipelines(pipeline):
