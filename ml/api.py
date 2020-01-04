@@ -173,9 +173,11 @@ def find_best_model(
     return True
 
 def filter_invalid_svm_pipelines(pipeline):
+    """
+    SVM without robust scaling can loop consuming infinite CPU
+    time so we prevent any other combination here.
+    """
 
-    # SVM without robust scaling can loop consuming infinite CPU
-    # time so we prevent any other combination here.
     if pipeline[0] == 'svm' and\
         (
             pipeline[2] == 'none' or\
