@@ -1,8 +1,8 @@
 import { Component, Input, EventEmitter, Output, OnChanges, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
-import { timer, Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { timer, Subscription, of } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { TaskAdded } from '../../interfaces';
@@ -200,9 +200,15 @@ export class TrainComponent implements OnChanges, OnInit {
 
   private checkStatus(task) {
     this.statusPoller$ = timer(1000, 5000).pipe(
-      switchMap(() => this.backend.getTaskStatus(task.id))
+      switchMap(() => this.backend.getTaskStatus(task.id).pipe(
+        catchError(() => of(false))
+      ))
     ).subscribe(
       async (status) => {
+        if (typeof status === 'boolean') {
+          return;
+        }
+
         if (status.state === 'SUCCESS') {
           this.resetPoller();
           this.training = false;
