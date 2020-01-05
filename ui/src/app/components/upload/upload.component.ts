@@ -134,6 +134,31 @@ export class UploadComponent implements OnInit {
     this.stepFinished.emit({state: 'train'});
   }
 
+  async deletePrior(id) {
+    const alert = await this.alertController.create({
+      buttons: [
+        'Dismiss',
+        {
+          text: 'Delete',
+          handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Deleting Job'
+            });
+
+            await loading.present();
+            await this.backend.deleteJob(id).toPromise();
+            await loading.dismiss();
+          }
+        }
+      ],
+      header: 'Are you sure you want to delete?',
+      subHeader: 'This cannot be undone.',
+      message: 'Are you sure you want to delete the selected data and results'
+    });
+
+    await alert.present();
+  }
+
   launchModel(id) {
     window.open('/model/' + id, '_blank');
   }

@@ -8,7 +8,7 @@ using an Angular SPA.
 import ast
 import os
 import json
-from shutil import copyfile
+from shutil import copyfile, rmtree
 
 from flask import abort, Flask, jsonify, request, send_file, send_from_directory, url_for
 from flask_cors import CORS
@@ -91,6 +91,20 @@ def unpublish_model(model):
 
     with open(PUBLISHED_MODELS, 'w') as published_file:
         json.dump(published, published_file)
+
+    return jsonify({'success': True})
+
+@APP.route('/delete/<uuid:userid>/<uuid:jobid>', methods=['DELETE'])
+def delete_job(userid, jobid):
+    """Deletes a previous job"""
+
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder):
+        abort(400)
+        return
+
+    rmtree(folder)
 
     return jsonify({'success': True})
 

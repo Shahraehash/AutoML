@@ -34,8 +34,8 @@
           <ion-chip (click)='launchModel(model.key)'>{{model.key}}</ion-chip>
         </td>
         <td>
-          <ion-button color='danger' size='small' (click)='deletePublished(model.key)'>
-            <ion-icon name='close' slot='icon-only'></ion-icon>
+          <ion-button fill='none' size='small' (click)='deletePublished(model.key)'>
+            <ion-icon name='close' color='danger' slot='icon-only'></ion-icon>
           </ion-button>
         </td>
       </tr>
@@ -58,8 +58,13 @@
           <span *ngIf='job.metadata && job.metadata.date; else noDate'>{{job.metadata.date * 1000 | date : 'medium'}}</span>
           <ng-template #noDate>{{job.id}}</ng-template>
         </td>
-        <td><ion-button size='small' (click)='trainPrior(job)'>Train</ion-button></td>
-        <td><ion-button size='small' (click)='viewPrior(job.id)' [disabled]='!job.results'>View Results</ion-button></td>
+        <td>
+          <ion-button fill='none' size='small' (click)='trainPrior(job)'>Train</ion-button>
+          <ion-button fill='none' size='small' (click)='viewPrior(job.id)' [disabled]='!job.results'>View Results</ion-button>
+          <ion-button fill='none' size='small' (click)='deletePrior(job.id)'>
+            <ion-icon name='close' color='danger' slot='icon-only'></ion-icon>
+          </ion-button>
+        </td>
       </tr>
     </table>
   </ion-card>

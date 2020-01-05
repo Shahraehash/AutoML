@@ -42,6 +42,10 @@ export class BackendService {
     return this.http.post(environment.apiUrl + '/clone/' + this.userData.id + '/' + job + '/' + this.currentJobId, undefined);
   }
 
+  deleteJob(id) {
+    return this.http.delete(environment.apiUrl + '/delete/' + this.userData.id + '/' + id);
+  }
+
   startTraining(formData) {
     return this.http.post(environment.apiUrl + '/train/' + this.userData.id + '/' + this.currentJobId, formData);
   }
