@@ -2,8 +2,8 @@ import { Component, ElementRef, EventEmitter, Input, Output, OnInit } from '@ang
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { parse } from 'papaparse';
-import { Observable, timer } from 'rxjs';
-import { switchMap, filter, finalize } from 'rxjs/operators';
+import { Observable, timer, of } from 'rxjs';
+import { switchMap, filter, finalize, catchError } from 'rxjs/operators';
 
 import { BackendService } from '../../services/backend.service';
 import { PriorJobs, PublishedModels } from '../../interfaces';
@@ -41,12 +41,16 @@ export class UploadComponent implements OnInit {
   ngOnInit() {
     this.priorJobs$ = timer(0, 5000).pipe(
       filter(() => this.isActive),
-      switchMap(() => this.backend.getPriorJobs())
+      switchMap(() => this.backend.getPriorJobs().pipe(
+        catchError(() => of([]))
+      ))
     );
 
     this.publishedModels$ = timer(0, 5000).pipe(
       filter(() => this.isActive),
-      switchMap(() => this.backend.getPublishedModels())
+      switchMap(() => this.backend.getPublishedModels().pipe(
+        catchError(() => of({}))
+      ))
     );
   }
 

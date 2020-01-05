@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AlertController, ModalController, LoadingController } from '@ionic/angular';
-import { Observable, timer } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, timer, of } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
 
 import { BackendService } from '../../services/backend.service';
 import { PendingTasks } from '../../interfaces';
@@ -25,7 +25,9 @@ export class PendingTasksComponent implements OnInit {
 
   ngOnInit() {
     this.pendingTasks$ = timer(0, 5000).pipe(
-      switchMap(() => this.backend.getPendingTasks())
+      switchMap(() => this.backend.getPendingTasks().pipe(
+        catchError(() => of({active: [], scheduled: []}))
+      ))
     );
   }
 

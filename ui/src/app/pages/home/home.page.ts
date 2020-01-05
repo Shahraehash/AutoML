@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatStepper } from '@angular/material';
 import { PopoverController } from '@ionic/angular';
-import { Observable, timer } from 'rxjs';
-import { filter, switchMap } from 'rxjs/operators';
+import { Observable, timer, of } from 'rxjs';
+import { filter, switchMap, catchError } from 'rxjs/operators';
 
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { TrainComponent } from '../../components/train/train.component';
@@ -48,7 +48,9 @@ export class HomePage implements OnInit {
   ngOnInit() {
     this.pendingTasks$ = timer(0, 5000).pipe(
       filter(() => !this.pauseUpdates),
-      switchMap(() => this.backend.getPendingTasks())
+      switchMap(() => this.backend.getPendingTasks().pipe(
+        catchError(() => of({active: [], scheduled: []}))
+      ))
     );
   }
 
