@@ -110,6 +110,8 @@
 }
 
 .roc {
+  height: calc(100% - 100px);
+
   .axis {
     fill: var(--ion-color-dark);
 
