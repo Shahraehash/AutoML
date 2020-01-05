@@ -1,5 +1,8 @@
 .container {
   overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .training-page {
