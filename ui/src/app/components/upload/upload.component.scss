@@ -1,3 +1,8 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
 .file-input {
   padding: 10px;
   background: var(--ion-color-medium); 
@@ -21,13 +26,8 @@ ion-select {
   height: 36px;
 }
 
-.upload-new, .previous-jobs {
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
 .previous-jobs {
-  padding-bottom: 40px;
+  margin-bottom: 40px;
 
   table {
     width: 100%;
