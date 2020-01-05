@@ -31,7 +31,7 @@
     
       <table>
         <tr *ngFor='let model of publishedModels'>
-          <td>
+          <td class='model-name'>
             <ion-chip (click)='launchModel(model.key)'>{{model.key}}</ion-chip>
           </td>
           <td>
