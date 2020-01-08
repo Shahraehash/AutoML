@@ -95,10 +95,12 @@ def make_random_search(estimator, scoring, shuffle, custom_hyper_parameters, y_t
 
 SEARCHERS = {
     'grid': make_grid_search,
-    'random': make_random_search
+    'random': make_random_search,
+    'random2': make_random_search
 }
 
 SEARCHER_NAMES = {
     'grid': 'grid search',
-    'random': 'random search'
+    'random': 'random search',
+    'random2': '2nd random search'
 }

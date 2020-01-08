@@ -89,6 +89,10 @@
       {
         "label": "Random",
         "value": "random"
+      },
+      {
+        "label": "Random 2",
+        "value": "random2"
       }
     ],
     "scorers": [
