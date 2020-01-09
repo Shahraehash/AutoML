@@ -59,7 +59,7 @@
             <span *ngIf='job.metadata && job.metadata.date; else noDate'>{{job.metadata.date * 1000 | date : 'medium'}}</span>
             <ng-template #noDate>{{job.id}}</ng-template>
           </td>
-          <td>
+          <td class='actions'>
             <ion-button fill='none' size='small' (click)='trainPrior(job)'>Train</ion-button>
             <ion-button fill='none' size='small' (click)='viewPrior(job.id)' [disabled]='!job.results'>View Results</ion-button>
             <ion-button fill='none' size='small' (click)='deletePrior(job.id)'>
