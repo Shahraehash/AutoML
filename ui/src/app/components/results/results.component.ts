@@ -387,7 +387,7 @@ export class ResultsComponent implements OnChanges {
   saveCurves() {
     document.querySelectorAll('app-roc-chart').forEach(ele => {
       const name = ele.getAttribute('mode');
-      saveSvgAsPng.saveSvgAsPng(ele.querySelector('.roc'), name);
+      saveSvgAsPng.saveSvgAsPng(ele.querySelector('.roc'), name, {backgroundColor: 'white'});
     });
   }
 
