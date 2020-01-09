@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
+import * as saveSvgAsPng from 'save-svg-as-png';
 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { BackendService } from '../../services/backend.service';
@@ -384,36 +385,10 @@ export class ResultsComponent implements OnChanges {
   }
 
   saveCurves() {
-    let rocCurves = `
-    <style>
-      .roc {width: 100%}
-      .roc .axis {fill: #222428}
-      .roc .axis path, .roc .axis line {
-        fill: none;
-        stroke: grey;
-        stroke-width: 2;
-        shape-rendering: crispEdges;
-        opacity: 1
-      }
-      .roc .guess {stroke: #f04141}
-      .roc .ideal {stroke: #10dc60}
-      .roc path {
-        stroke-width: 3;
-        fill: none;
-        opacity: .7;
-      }
-      .roc text {text-transform: capitalize}
-    </style>
-    `;
-    document.querySelectorAll('.roc').forEach(ele => rocCurves += ele.outerHTML);
-    const ifr = document.createElement('iframe');
-    ifr.style.height = '0';
-    ifr.style.width = '0'
-    ifr.style.position = 'absolute';
-    document.body.appendChild(ifr);
-    ifr.contentDocument.body.innerHTML = rocCurves;
-    ifr.contentWindow.print();
-    setTimeout(() => ifr.parentElement.removeChild(ifr), 100);
+    document.querySelectorAll('app-roc-chart').forEach(ele => {
+      const name = ele.getAttribute('mode');
+      saveSvgAsPng.saveSvgAsPng(ele.querySelector('.roc'), name);
+    });
   }
 
   private calculateArea(tpr, fpr) {
