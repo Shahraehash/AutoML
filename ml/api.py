@@ -22,7 +22,6 @@ from .processors.scorers import SCORER_NAMES
 from .generalization import generalize
 from .model import generate_model
 from .import_data import import_data
-from .list_pipelines import filter_invalid_svm_pipelines
 from .pipeline import generate_pipeline
 from .reliability import reliability
 from .refit import refit_model
@@ -75,12 +74,12 @@ def find_best_model(
     total_fits = {}
     csv_header_written = False
 
-    all_pipelines = list(filter(filter_invalid_svm_pipelines, itertools.product(*[
+    all_pipelines = list(itertools.product(*[
         filter(lambda x: False if x in ignore_estimator else True, ESTIMATOR_NAMES),
         filter(lambda x: False if x in ignore_scaler else True, SCALER_NAMES),
         filter(lambda x: False if x in ignore_feature_selector else True, FEATURE_SELECTOR_NAMES),
         filter(lambda x: False if x in ignore_searcher else True, SEARCHER_NAMES),
-    ])))
+    ]))
 
     if not len(all_pipelines):
         print('No pipelines to run with the current configuration')

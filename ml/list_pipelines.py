@@ -20,7 +20,7 @@ def list_pipelines(parameters):
     ignore_searcher = [x.strip() for x in parameters.get('ignore_searcher', '').split(',')]
     ignore_scorer = [x.strip() for x in parameters.get('ignore_scorer', '').split(',')]
 
-    return list(filter(filter_invalid_svm_pipelines, itertools.product(*[
+    return list(itertools.product(*[
         dict(filter(
             lambda x: False if x[0] in ignore_estimator else True,
             ESTIMATOR_NAMES.items()
@@ -41,15 +41,4 @@ def list_pipelines(parameters):
             lambda x: False if x[0] in ignore_scorer else True,
             SCORER_NAMES.items()
         )).values(),
-    ])))
-
-def filter_invalid_svm_pipelines(pipeline):
-    """
-    SVM without robust scaling can loop consuming infinite CPU
-    time so we prevent any other combination here.
-    """
-
-    if (pipeline[0] == 'svm' or pipeline[0] == 'support vector machine') and\
-        (pipeline[1] == 'none' or pipeline[1] == 'no scaling'):
-        return False
-    return True
+    ]))
