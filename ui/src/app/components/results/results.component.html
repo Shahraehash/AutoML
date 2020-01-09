@@ -1,5 +1,6 @@
 <div class='container'>
   <div *ngIf='results; else noResults' class='results-viewer'>
+    <ion-icon name='save' size='small' slot='icon-only' color='medium' class='save-rocs' (click)='saveCurves()'></ion-icon>
     <div class='roc-graphs' *ngIf='sortedData.length'>
       <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.mean_fpr'>
         <ion-card-header>

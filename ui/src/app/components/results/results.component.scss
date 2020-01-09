@@ -10,6 +10,12 @@
     height: 100%;
 }
 
+.save-rocs {
+    float: right;
+    cursor: pointer;
+    padding-bottom: 2px;
+}
+
 .table-wrapper {
     overflow-y: auto;
     height: 100%;
@@ -105,5 +111,9 @@
 @media(max-width: 600px) {
     .roc-graphs {
         display: initial;
+
+        .roc-curve {
+            max-width: initial;
+        }
     }
 }
