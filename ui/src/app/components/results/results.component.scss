@@ -65,19 +65,16 @@
 .roc-curve {
     padding: 0;
     margin: 2px 0;
-    height: 100%;
-    max-width: 31%;
 }
 
 .roc-graphs {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow-y: auto;
     width: 100%;
     height: 50%;
+    padding-bottom: 10px;
+    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, 32%);
+    grid-gap: 10px;
 }
 
 .details-button {
