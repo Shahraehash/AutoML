@@ -44,7 +44,11 @@
   }
 }
 
-@media(max-width: 870px) {
+@media(max-width: 950px) {
+  .training-page {
+    height: initial;
+  }
+
   .pipeline-selection {
     display: block;
   }
