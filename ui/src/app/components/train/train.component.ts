@@ -109,7 +109,7 @@ export class TrainComponent implements OnDestroy, OnInit {
     this.backend.startTraining(formData).subscribe(
       (task: TaskAdded) => {
         this.allPipelines = task.pipelines;
-        this.checkStatus(task);
+        this.checkStatus(task.id);
         window.history.pushState('', '', `/search/status/${this.backend.currentJobId}/${task.id}`);
       },
       async () => {
