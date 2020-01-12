@@ -55,10 +55,16 @@ export class SearchPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    const exploreId = this.activatedRoute.snapshot.params.exploreId;
+    if (exploreId) {
+      this.backend.currentJobId = exploreId;
+      this.stepFinished({state: 'upload'});
+    }
+
     const trainId = this.activatedRoute.snapshot.params.trainId;
     if (trainId) {
       this.backend.currentJobId = trainId;
-      this.stepFinished({state: 'upload'});
+      this.stepFinished({state: 'explore'});
     }
 
     const statusId = this.activatedRoute.snapshot.params.statusId;
@@ -73,7 +79,6 @@ export class SearchPage implements OnInit, AfterViewInit {
     const resultId = this.activatedRoute.snapshot.params.resultId;
     if (resultId) {
       this.backend.currentJobId = resultId;
-      this.stepFinished({state: 'upload'});
       this.stepFinished({state: 'train'});
     }
   }
@@ -108,13 +113,17 @@ export class SearchPage implements OnInit, AfterViewInit {
       case 'upload':
         this.featureCount = event.data;
         this.uploadForm.get('upload').setValue('true');
+        this.stepper.selectedIndex = 1;
+        window.history.pushState('', '', `/search/explore/${this.backend.currentJobId}`);
+        break;
+      case 'explore':
+        this.stepper.selectedIndex = 2;
         window.history.pushState('', '', `/search/train/${this.backend.currentJobId}`);
         break;
       case 'train':
         this.trainForm.get('train').setValue('true');
+        this.stepper.selectedIndex = 3;
         window.history.pushState('', '', `/search/result/${this.backend.currentJobId}`);
     }
-
-    this.stepper.next();
   }
 }

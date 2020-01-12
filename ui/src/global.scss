@@ -58,6 +58,10 @@
   color: var(--ion-color-dark) !important;
 }
 
+.mat-step-optional {
+  color: var(--ion-color-dark-tint) !important;
+}
+
 .mat-step-icon:not(.mat-step-icon-state-error) {
   background-color: var(--ion-color-medium) !important;
 }
@@ -256,6 +260,10 @@
 
   .mat-step-label {
     color: var(--ion-color-light) !important;
+  }
+
+  .mat-step-optional {
+    color: var(--ion-color-light-tint) !important;
   }
 
   .mat-stepper-horizontal-line {
