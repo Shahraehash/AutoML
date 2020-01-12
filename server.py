@@ -194,6 +194,21 @@ def find_best_model(userid, jobid):
         "pipelines": pipelines
     }), 202
 
+@APP.route('/pipelines/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def get_pipelines(userid, jobid):
+    """Returns the pipelines for a job"""
+
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/' + '/metadata.json'):
+        abort(400)
+        return
+    
+    with open(folder + '/' + '/metadata.json') as json_file:
+        metadata = json.load(json_file)
+
+    return jsonify({"pipelines": list_pipelines.list_pipelines(metadata['parameters'])})
+
 @APP.route('/status/<task_id>')
 def task_status(task_id):
     return jsonify(get_task_status(task_id))
