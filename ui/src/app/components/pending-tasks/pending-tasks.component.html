@@ -2,7 +2,7 @@
   <ion-list-header>
     <ion-label>Tasks</ion-label>
   </ion-list-header>
-  <ion-item *ngFor='let task of pendingTasks.active'>
+  <ion-item *ngFor='let task of pendingTasks.active' [routerLink]='"search/status/" + task.jobid + "/" + task.id'>
     {{task.label}}: {{task.state === "REVOKED" ? 'Cancelling...' : (task.time ? 'Running' : 'Waiting')}}
     <div slot='end'>
       <span *ngIf='task.time && task.state !== "REVOKED"' class='status-text ion-padding-end'>

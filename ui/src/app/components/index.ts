@@ -7,6 +7,7 @@ import {
   MatTableModule,
   MatSortModule
 } from '@angular/material';
+import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { PendingTasksComponent } from './pending-tasks/pending-tasks.component';
@@ -41,6 +42,7 @@ import { UseModelModule } from './use-model/use-model.module';
       CommonModule,
       IonicModule,
       FormsModule,
+      RouterModule,
       ReactiveFormsModule,
       MatCheckboxModule,
       MatInputModule,
