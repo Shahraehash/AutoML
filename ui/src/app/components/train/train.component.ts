@@ -1,7 +1,7 @@
 import { Component, Input, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
-import { timer, Subscription, of, Subject } from 'rxjs';
+import { timer, Subscription, of, ReplaySubject } from 'rxjs';
 import { switchMap, catchError, takeUntil } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
@@ -22,7 +22,7 @@ export class TrainComponent implements OnDestroy, OnInit {
   @Output() reset = new EventEmitter();
   @Output() stepFinished = new EventEmitter();
 
-  destroy$: Subject<boolean> = new Subject<boolean>();
+  destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   statusPoller$: Subscription;
   allPipelines;
   showAdvanced = !environment.production;

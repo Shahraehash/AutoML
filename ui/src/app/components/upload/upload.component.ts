@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, Output, OnInit, OnDestroy }
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { parse } from 'papaparse';
-import { Observable, timer, of, Subject } from 'rxjs';
+import { Observable, timer, of, ReplaySubject } from 'rxjs';
 import { switchMap, takeUntil, finalize, catchError } from 'rxjs/operators';
 
 import { BackendService } from '../../services/backend.service';
@@ -17,7 +17,7 @@ export class UploadComponent implements OnInit, OnDestroy {
   @Input() isActive: boolean;
   @Output() stepFinished = new EventEmitter();
 
-  destroy$: Subject<boolean> = new Subject<boolean>();
+  destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   priorJobs$: Observable<PriorJobs[]>;
   publishedModels$: Observable<PublishedModels>;
 
