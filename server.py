@@ -207,7 +207,7 @@ def get_pipelines(userid, jobid):
     with open(folder + '/' + '/metadata.json') as json_file:
         metadata = json.load(json_file)
 
-    return jsonify({"pipelines": list_pipelines.list_pipelines(metadata['parameters'])})
+    return jsonify(list_pipelines.list_pipelines(metadata['parameters']))
 
 @APP.route('/status/<task_id>')
 def task_status(task_id):

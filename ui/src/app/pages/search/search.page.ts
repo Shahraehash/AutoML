@@ -8,6 +8,7 @@ import { Observable, timer, of } from 'rxjs';
 import { filter, switchMap, catchError } from 'rxjs/operators';
 
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
+import { TrainComponent } from '../../components/train/train.component';
 import { BackendService } from '../../services/backend.service';
 import { PendingTasks } from '../../interfaces';
 
@@ -21,6 +22,7 @@ import { PendingTasks } from '../../interfaces';
 })
 export class SearchPage implements OnInit, AfterViewInit {
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
+  @ViewChild('train', {static: false}) train: TrainComponent;
 
   pendingTasks$: Observable<PendingTasks>;
   pauseUpdates = false;
@@ -57,6 +59,15 @@ export class SearchPage implements OnInit, AfterViewInit {
     if (trainId) {
       this.backend.currentJobId = trainId;
       this.stepFinished({state: 'upload'});
+    }
+
+    const statusId = this.activatedRoute.snapshot.params.statusId;
+    const taskId = this.activatedRoute.snapshot.params.taskId;
+    if (statusId && taskId) {
+      this.backend.currentJobId = statusId;
+      this.stepFinished({state: 'upload'});
+      window.history.pushState('', '', `/search/status/${statusId}/${taskId}`);
+      setTimeout(() => this.train.startMonitor(taskId), 1);
     }
 
     const resultId = this.activatedRoute.snapshot.params.resultId;

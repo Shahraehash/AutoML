@@ -110,6 +110,7 @@ export class TrainComponent implements OnDestroy, OnInit {
       (task: TaskAdded) => {
         this.allPipelines = task.pipelines;
         this.checkStatus(task);
+        window.history.pushState('', '', `/search/status/${this.backend.currentJobId}/${task.id}`);
       },
       async () => {
         const alert = await this.alertController.create({
@@ -123,6 +124,17 @@ export class TrainComponent implements OnDestroy, OnInit {
     );
 
     localStorage.setItem('training-options', JSON.stringify(this.trainForm.value));
+  }
+
+  startMonitor(taskId) {
+    this.training = true;
+
+    this.backend.getPipelines().subscribe(
+      (pipelines) => {
+        this.allPipelines = pipelines;
+        this.checkStatus(taskId);
+      }
+    );
   }
 
   async adjustEstimator(event, estimator) {
@@ -196,10 +208,10 @@ export class TrainComponent implements OnDestroy, OnInit {
     );
   }
 
-  private checkStatus(task) {
+  private checkStatus(taskId) {
     this.statusPoller$ = timer(1000, 5000).pipe(
       takeUntil(this.destroy$),
-      switchMap(() => this.backend.getTaskStatus(task.id).pipe(
+      switchMap(() => this.backend.getTaskStatus(taskId).pipe(
         catchError(() => of(false))
       ))
     ).subscribe(
