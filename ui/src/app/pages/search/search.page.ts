@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatStepper } from '@angular/material';
+import { ActivatedRoute } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { Observable, timer, of } from 'rxjs';
 import { filter, switchMap, catchError } from 'rxjs/operators';
@@ -18,7 +19,7 @@ import { PendingTasks } from '../../interfaces';
     provide: STEPPER_GLOBAL_OPTIONS, useValue: {showError: true}
   }]
 })
-export class SearchPage implements OnInit {
+export class SearchPage implements OnInit, AfterViewInit {
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
   pendingTasks$: Observable<PendingTasks>;
@@ -28,6 +29,7 @@ export class SearchPage implements OnInit {
   featureCount: number;
 
   constructor(
+    private activatedRoute: ActivatedRoute,
     private backend: BackendService,
     private formBuilder: FormBuilder,
     private popoverController: PopoverController
@@ -50,6 +52,21 @@ export class SearchPage implements OnInit {
     );
   }
 
+  ngAfterViewInit() {
+    const trainId = this.activatedRoute.snapshot.params.trainId;
+    if (trainId) {
+      this.backend.currentJobId = trainId;
+      this.stepFinished({state: 'upload'});
+    }
+
+    const resultId = this.activatedRoute.snapshot.params.resultId;
+    if (resultId) {
+      this.backend.currentJobId = resultId;
+      this.stepFinished({state: 'upload'});
+      this.stepFinished({state: 'train'});
+    }
+  }
+
   exportCSV() {
     window.open(this.backend.exportCSV(), '_self');
   }
@@ -57,6 +74,7 @@ export class SearchPage implements OnInit {
   reset() {
     this.stepper.reset();
     this.uploadForm.reset();
+    window.history.pushState('', '', `/search`);
   }
 
   async openPendingTasks(event, pendingTasks) {
@@ -79,9 +97,11 @@ export class SearchPage implements OnInit {
       case 'upload':
         this.featureCount = event.data;
         this.uploadForm.get('upload').setValue('true');
+        window.history.pushState('', '', `/search/train/${this.backend.currentJobId}`);
         break;
       case 'train':
         this.trainForm.get('train').setValue('true');
+        window.history.pushState('', '', `/search/result/${this.backend.currentJobId}`);
     }
 
     this.stepper.next();
