@@ -1,8 +1,8 @@
-import { Component, Input, EventEmitter, Output, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
-import { timer, Subscription, of } from 'rxjs';
-import { switchMap, catchError } from 'rxjs/operators';
+import { timer, Subscription, of, Subject } from 'rxjs';
+import { switchMap, catchError, takeUntil } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { TaskAdded } from '../../interfaces';
@@ -16,12 +16,13 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
   templateUrl: 'train.component.html',
   styleUrls: ['train.component.scss']
 })
-export class TrainComponent implements OnChanges, OnInit {
+export class TrainComponent implements OnDestroy, OnInit {
   @Input() featureCount;
   @Input() parameters;
   @Output() reset = new EventEmitter();
   @Output() stepFinished = new EventEmitter();
 
+  destroy$: Subject<boolean> = new Subject<boolean>();
   statusPoller$: Subscription;
   allPipelines;
   showAdvanced = !environment.production;
@@ -70,9 +71,7 @@ export class TrainComponent implements OnChanges, OnInit {
         this.trainForm.setValue(options);
       } catch (err) {}
     }
-  }
 
-  ngOnChanges() {
     if (this.featureCount && this.featureCount < 3) {
       const features = this.trainForm.get('featureSelectors');
       const disabledValues = new Array(features.value.length).fill(0);
@@ -82,6 +81,11 @@ export class TrainComponent implements OnChanges, OnInit {
       features.setValue(disabledValues);
       features.disable();
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 
   startTraining() {
@@ -180,12 +184,6 @@ export class TrainComponent implements OnChanges, OnInit {
     return Object.keys(current.grid[estimator] || {}).length || Object.keys(current.random[estimator] || {}).length;
   }
 
-  resetPoller() {
-    if (this.statusPoller$) {
-      this.statusPoller$.unsubscribe();
-    }
-  }
-
   private getValues(key) {
     return this.trainForm.get(key).value.flatMap((value, index) => {
       return value ? [] : this.pipelineProcessors[key][index].value;
@@ -200,6 +198,7 @@ export class TrainComponent implements OnChanges, OnInit {
 
   private checkStatus(task) {
     this.statusPoller$ = timer(1000, 5000).pipe(
+      takeUntil(this.destroy$),
       switchMap(() => this.backend.getTaskStatus(task.id).pipe(
         catchError(() => of(false))
       ))
@@ -210,12 +209,9 @@ export class TrainComponent implements OnChanges, OnInit {
         }
 
         if (status.state === 'SUCCESS') {
-          this.resetPoller();
           this.training = false;
           this.stepFinished.emit({state: 'train'});
         } else if (status.state === 'FAILURE') {
-          this.resetPoller();
-
           const alert = await this.alertController.create({
             cssClass: 'wide-alert',
             header: 'Unable to Complete Training',
@@ -226,8 +222,6 @@ export class TrainComponent implements OnChanges, OnInit {
           await alert.present();
           this.reset.emit();
         } else if (status.state === 'REVOKED') {
-          this.resetPoller();
-
           this.reset.emit();
         }
       }

@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, OnChanges } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -16,8 +16,7 @@ import { UseModelComponent } from '../use-model/use-model.component';
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.scss'],
 })
-export class ResultsComponent implements OnChanges {
-  @Input() isActive: boolean;
+export class ResultsComponent implements OnInit {
   activeRow = 0;
   data: GeneralizationResult[];
   filterForm: FormGroup;
@@ -110,11 +109,7 @@ export class ResultsComponent implements OnChanges {
     });
   }
 
-  ngOnChanges() {
-    if (!this.isActive) {
-      return;
-    }
-
+  ngOnInit() {
     this.backend.getResults().subscribe(
       data => {
         this.data = data.results;

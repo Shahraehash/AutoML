@@ -7,8 +7,6 @@ import { Observable, timer, of } from 'rxjs';
 import { filter, switchMap, catchError } from 'rxjs/operators';
 
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
-import { TrainComponent } from '../../components/train/train.component';
-import { UploadComponent } from '../../components/upload/upload.component';
 import { BackendService } from '../../services/backend.service';
 import { PendingTasks } from '../../interfaces';
 
@@ -21,8 +19,6 @@ import { PendingTasks } from '../../interfaces';
   }]
 })
 export class HomePage implements OnInit {
-  @ViewChild('upload', {static: false}) upload: UploadComponent;
-  @ViewChild('train', {static: false}) train: TrainComponent;
   @ViewChild('stepper', {static: false}) stepper: MatStepper;
 
   pendingTasks$: Observable<PendingTasks>;
@@ -61,8 +57,6 @@ export class HomePage implements OnInit {
   reset() {
     this.stepper.reset();
     this.uploadForm.reset();
-    this.upload.reset();
-    this.train.resetPoller();
   }
 
   async openPendingTasks(event, pendingTasks) {
@@ -84,7 +78,6 @@ export class HomePage implements OnInit {
     switch (event.state) {
       case 'upload':
         this.featureCount = event.data;
-        this.train.training = false;
         this.uploadForm.get('upload').setValue('true');
         break;
       case 'train':
