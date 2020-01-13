@@ -115,7 +115,7 @@ export interface DataAnalysis {
     null: {[key: string]: number};
     median: {[key: string]: number};
     mode: {[key: string]: number};
-    summary: {[key: string]: DataAnalysisSummary}
+    summary: {[key: string]: DataAnalysisSummary};
 }
 
 export interface DataAnalysisSummary {
