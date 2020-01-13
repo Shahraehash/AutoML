@@ -92,14 +92,14 @@ export class UploadComponent implements OnInit, OnDestroy {
 
       parse(file, {
         worker: true,
-        complete: async reply => {
+        step: async (reply, parser) => {
           if (event.target.name === 'train') {
-            this.labels = reply.data[0].reverse();
+            this.labels = reply.data.reverse();
             this.uploadForm.get('test').reset();
           } else {
             if (
-              this.labels.length !== reply.data[0].length ||
-              `${this.labels}` !== `${reply.data[0].reverse()}`
+              this.labels.length !== reply.data.length ||
+              `${this.labels}` !== `${reply.data.reverse()}`
             ) {
               const alert = await this.alertController.create({
                 buttons: ['Dismiss'],
@@ -114,6 +114,8 @@ export class UploadComponent implements OnInit, OnDestroy {
               return;
             }
           }
+
+          parser.abort();
         }
       });
 
