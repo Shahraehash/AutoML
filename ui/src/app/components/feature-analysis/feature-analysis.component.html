@@ -1,61 +1,60 @@
-<ion-grid>
+<ion-grid class='card'>
   <ion-row>
-    <ion-col>
-      {{name}} {{isInvalid ? ' - contains non-numerical data' : ''}}
-      <br><br>
+    <ion-col size='5'>
+      <h5>{{name}}</h5>
       <app-histogram [data]='histogram'></app-histogram>
     </ion-col>
     <ion-col>
       <ion-grid class='summary-table'>
         <ion-row>
-          <ion-col>Valid</ion-col>
+          <ion-col size='6'>Valid</ion-col>
           <ion-col>{{summary.count}}</ion-col>
-          <ion-col>100%</ion-col>
+          <ion-col class='shade'>100%</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col>Missing</ion-col>
+          <ion-col size='6'>Missing</ion-col>
           <ion-col>{{nullCount}}</ion-col>
-          <ion-col>{{((nullCount / summary.count)) * 100 | number:'1.0-0'}}%</ion-col>
+          <ion-col class='shade'>{{((nullCount / summary.count)) * 100 | number:'1.0-0'}}%</ion-col>
         </ion-row>
-        <ion-row>
-          <ion-col>Mean</ion-col>
+        <ion-row class='ion-margin-top'>
+          <ion-col size='6'>Mean</ion-col>
           <ion-col>{{summary.mean | number}}</ion-col>
           <ion-col></ion-col>
         </ion-row>
         <ion-row>
-          <ion-col>Std</ion-col>
+          <ion-col size='6'>Std</ion-col>
           <ion-col>{{summary.std | number}}</ion-col>
           <ion-col></ion-col>
         </ion-row>
         <ion-row>
-          <ion-col>Median</ion-col>
+          <ion-col size='6'>Median</ion-col>
           <ion-col>{{median | number}}</ion-col>
           <ion-col></ion-col>
         </ion-row>
-        <ion-row>
-          <ion-col>Quantiles</ion-col>
+        <ion-row class='ion-margin-top'>
+          <ion-col size='6'>Quantiles</ion-col>
           <ion-col>{{summary.min | number}}</ion-col>
-          <ion-col>Min</ion-col>
+          <ion-col class='shade'>Min</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col></ion-col>
+          <ion-col size='6'></ion-col>
           <ion-col>{{summary['25%'] | number}}</ion-col>
-          <ion-col>25%</ion-col>
+          <ion-col class='shade'>25%</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col></ion-col>
+          <ion-col size='6'></ion-col>
           <ion-col>{{summary['50%'] | number}}</ion-col>
-          <ion-col>50%</ion-col>
+          <ion-col class='shade'>50%</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col></ion-col>
+          <ion-col size='6'></ion-col>
           <ion-col>{{summary['75%'] | number}}</ion-col>
-          <ion-col>75%</ion-col>
+          <ion-col class='shade'>75%</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col></ion-col>
+          <ion-col size='6'></ion-col>
           <ion-col>{{summary.max | number}}</ion-col>
-          <ion-col>Max</ion-col>
+          <ion-col class='shade'>Max</ion-col>
         </ion-row>
       </ion-grid>
     </ion-col>
