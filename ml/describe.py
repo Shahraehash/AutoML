@@ -25,5 +25,6 @@ def parse_csv(csv_file):
         'invalid': csv.loc[:, (csv.dtypes != np.int64) & (csv.dtypes != np.float64)].columns.values.tolist(),
         'mode': csv_clean.mode().iloc[0].to_dict(),
         'median': csv_clean.median().to_dict(),
-        'summary': csv_clean.describe().to_dict()
+        'summary': csv_clean.describe().to_dict(),
+        'histogram': {key:[i.tolist() for i in np.histogram(list(value.values()), bins='fd')] for (key,value) in csv_clean.to_dict().items()}
     }
