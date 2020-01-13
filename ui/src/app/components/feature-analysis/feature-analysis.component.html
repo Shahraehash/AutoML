@@ -1,3 +1,56 @@
-<ion-card>
-  Feature Analysis
-</ion-card>
+<ion-grid [ngClass]='{"invalid": isValid}'>
+  <ion-row>
+    <ion-col>{{name}}</ion-col>
+    <ion-col>
+      <ion-grid>
+        <ion-row>
+          <ion-col>Valid</ion-col>
+          <ion-col>{{summary.count}}</ion-col>
+          <ion-col>100%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>Missing</ion-col>
+          <ion-col>{{nullCount}}</ion-col>
+          <ion-col>{{((nullCount / summary.count)) * 100 | number:'1.0-0'}}%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>Mean</ion-col>
+          <ion-col>{{summary.mean | number}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>Standard Deviation</ion-col>
+          <ion-col>{{summary.std | number}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>Median</ion-col>
+          <ion-col>{{median | number}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>Quantiles</ion-col>
+          <ion-col>{{summary.min | number}}</ion-col>
+          <ion-col>Min</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col></ion-col>
+          <ion-col>{{summary['25%'] | number}}</ion-col>
+          <ion-col>25%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col></ion-col>
+          <ion-col>{{summary['50%'] | number}}</ion-col>
+          <ion-col>50%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col></ion-col>
+          <ion-col>{{summary['75%'] | number}}</ion-col>
+          <ion-col>75%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col></ion-col>
+          <ion-col>{{summary.max | number}}</ion-col>
+          <ion-col>Max</ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-col>
+  </ion-row>
+</ion-grid>

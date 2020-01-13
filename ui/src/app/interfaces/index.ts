@@ -125,5 +125,6 @@ export interface DataAnalysisSummary {
     count: number;
     max: number;
     min: number;
+    mean: number;
     std: number;
 }

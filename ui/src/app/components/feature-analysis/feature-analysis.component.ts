@@ -11,7 +11,8 @@ export class FeatureAnalysisComponent {
   @Input() mode: number;
   @Input() median: number;
   @Input() nullCount: number;
-  @Input() isValid: boolean;
+  @Input() isInvalid: boolean;
+  @Input() name: string;
 
   constructor() {}
 }

@@ -4,5 +4,6 @@
   [mode]='data.mode[feature.key]'
   [median]='data.median[feature.key]'
   [nullCount]='data.null[feature.key]'
-  [isValid]='data.invalid.includes(feature.key)'
+  [isInvalid]='data.invalid.includes(feature.key)'
+  [name]='feature.key'
 ></app-feature-analysis>
