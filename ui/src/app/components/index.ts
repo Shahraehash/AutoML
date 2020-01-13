@@ -10,6 +10,8 @@ import {
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
+import { ExploreComponent } from './explore/explore.component';
+import { FeatureDetailsComponent } from './feature-details/feature-details.component';
 import { PendingTasksComponent } from './pending-tasks/pending-tasks.component';
 import { RadialDendrogramComponent } from './radial-dendrogram/radial-dendrogram.component';
 import { ResultsComponent } from './results/results.component';
@@ -21,6 +23,8 @@ import { UseModelModule } from './use-model/use-model.module';
 
 @NgModule( {
   declarations: [
+    ExploreComponent,
+    FeatureDetailsComponent,
     PendingTasksComponent,
     RadialDendrogramComponent,
     ResultsComponent,
@@ -30,6 +34,8 @@ import { UseModelModule } from './use-model/use-model.module';
     UploadComponent
   ],
   exports: [
+    ExploreComponent,
+    FeatureDetailsComponent,
     PendingTasksComponent,
     RadialDendrogramComponent,
     ResultsComponent,
