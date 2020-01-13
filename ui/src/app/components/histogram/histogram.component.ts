@@ -7,59 +7,56 @@ import * as d3 from 'd3';
   styleUrls: ['./histogram.component.scss'],
 })
 export class HistogramComponent implements OnInit {
-  @Input() data;
+  @Input() data: [number[], number[]];
   private svg;
 
   constructor(
     private element: ElementRef
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.svg = d3.select(this.element.nativeElement).select('svg');
-
-    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-    const width = 960 - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
-
-    const x = d3.scaleBand()
-      .range([0, width])
-      .padding(0.1);
-    const y = d3.scaleLinear()
-      .range([height, 0]);
-
+    const margin = { top: 10, right: 30, bottom: 30, left: 40 };
+    const width = 300 - margin.left - margin.right;
+    const height = 200 - margin.top - margin.bottom;
     this.svg
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
-      .attr('transform',
-        'translate(' + margin.left + ',' + margin.top + ')');
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    x.domain(this.data.map(d => d[0]));
-    y.domain([0, d3.max(this.data, d => d[1])]);
+    let point;
+    const data = [];
 
-    // append the rectangles for the bar chart
-    svg.selectAll(".bar")
+    this.data[0].push(0);
+
+    for (let i = 0; i < this.data[1].length; i++) {
+      point = [this.data[1][i], this.data[0][i]];
+      data.push(point);
+    }
+    const w = (this.data[1][this.data[1].length - 1] - this.data[1][0]) / 10;
+
+    const x = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d[0])])
+      .range([0, width]);
+
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d[1])])
+      .range([height, 0]);
+
+    const bar = this.svg.selectAll('.bar')
       .data(data)
-      .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function (d) { return x(d.salesperson); })
-      .attr("width", x.bandwidth())
-      .attr("y", function (d) { return y(d.sales); })
-      .attr("height", function (d) { return height - y(d.sales); });
+      .enter().append('g')
+      .attr('class', 'bar')
+      .attr('transform', d => 'translate(' + x(d[0]) + ',' + y(d[1]) + ')');
 
-    // add the x Axis
-    svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
+    bar.append('rect')
+      .attr('x', 1)
+      .attr('width', x(w) - 1)
+      .attr('height', d => height - y(d[1]));
+
+    this.svg.append('g')
+      .attr('transform', 'translate(0,' + height + ')')
       .call(d3.axisBottom(x));
-
-    // add the y Axis
-    svg.append("g")
-      .call(d3.axisLeft(y));
-
-
-
-
-
-
   }
 }

@@ -116,6 +116,7 @@ export interface DataAnalysis {
     median: {[key: string]: number};
     mode: {[key: string]: number};
     summary: {[key: string]: DataAnalysisSummary};
+    histogram: {[key: string]: [number[], number[]]};
 }
 
 export interface DataAnalysisSummary {

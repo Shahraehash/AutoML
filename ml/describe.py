@@ -26,5 +26,5 @@ def parse_csv(csv_file):
         'mode': csv_clean.mode().iloc[0].to_dict(),
         'median': csv_clean.median().to_dict(),
         'summary': csv_clean.describe().to_dict(),
-        'histogram': {key:[i.tolist() for i in np.histogram(list(value.values()), bins='fd')] for (key,value) in csv_clean.to_dict().items()}
+        'histogram': {key:[i.tolist() for i in np.histogram(list(value.values()), bins='auto')] for (key,value) in csv_clean.to_dict().items()}
     }

@@ -1,11 +1,12 @@
-<ion-grid [ngClass]='{"invalid": isValid}'>
+<ion-grid>
   <ion-row>
     <ion-col>
-      {{name}}
-      <app-histogram></app-histogram>
+      {{name}} {{isInvalid ? ' - contains non-numerical data' : ''}}
+      <br><br>
+      <app-histogram [data]='histogram'></app-histogram>
     </ion-col>
     <ion-col>
-      <ion-grid>
+      <ion-grid class='summary-table'>
         <ion-row>
           <ion-col>Valid</ion-col>
           <ion-col>{{summary.count}}</ion-col>
@@ -19,14 +20,17 @@
         <ion-row>
           <ion-col>Mean</ion-col>
           <ion-col>{{summary.mean | number}}</ion-col>
+          <ion-col></ion-col>
         </ion-row>
         <ion-row>
-          <ion-col>Standard Deviation</ion-col>
+          <ion-col>Std</ion-col>
           <ion-col>{{summary.std | number}}</ion-col>
+          <ion-col></ion-col>
         </ion-row>
         <ion-row>
           <ion-col>Median</ion-col>
           <ion-col>{{median | number}}</ion-col>
+          <ion-col></ion-col>
         </ion-row>
         <ion-row>
           <ion-col>Quantiles</ion-col>

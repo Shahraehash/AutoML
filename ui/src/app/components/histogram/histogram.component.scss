@@ -1,0 +1,14 @@
+::ng-deep {
+  .bar rect {
+    fill: var(--ion-color-primary-shade);
+    shape-rendering: crispEdges;
+    stroke: var(--ion-color-primary-tint);
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+}
