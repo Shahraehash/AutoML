@@ -1,4 +1,4 @@
-<ion-grid>
+<ion-grid *ngIf='data'>
   <ion-row>
     <ion-col class='ion-text-center'>
       <h4>Training Data</h4>
@@ -9,10 +9,10 @@
   </ion-row>
   <ion-row>
     <ion-col>
-      <app-feature-details></app-feature-details>
+      <app-feature-details [data]='data.analysis.train'></app-feature-details>
     </ion-col>
     <ion-col>
-      <app-feature-details></app-feature-details>
+      <app-feature-details [data]='data.analysis.test'></app-feature-details>
     </ion-col>
   </ion-row>
 </ion-grid>

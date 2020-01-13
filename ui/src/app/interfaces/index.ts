@@ -101,3 +101,29 @@ export interface PendingTasks {
 export interface PublishedModels {
     [key: string]: string[];
 }
+
+export interface DataAnalysisReply {
+    analysis: {
+        train: DataAnalysis;
+        test: DataAnalysis;
+    };
+    label: string;
+}
+
+export interface DataAnalysis {
+    invalid: string[];
+    null: {[key: string]: number};
+    median: {[key: string]: number};
+    mode: {[key: string]: number};
+    summary: {[key: string]: DataAnalysisSummary}
+}
+
+export interface DataAnalysisSummary {
+    '25%': number;
+    '50%': number;
+    '75%': number;
+    count: number;
+    max: number;
+    min: number;
+    std: number;
+}

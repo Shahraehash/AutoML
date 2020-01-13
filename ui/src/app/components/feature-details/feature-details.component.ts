@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'app-feature-details',
@@ -6,6 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./feature-details.component.scss'],
 })
 export class FeatureDetailsComponent implements OnInit {
+  @Input() data;
 
   constructor() { }
 
