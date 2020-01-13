@@ -54,6 +54,10 @@ export class BackendService {
     return this.http.get(environment.apiUrl + '/pipelines/' + this.userData.id + '/' + this.currentJobId);
   }
 
+  getDataAnalysis() {
+    return this.http.get(environment.apiUrl + '/describe/' + this.userData.id + '/' + this.currentJobId);
+  }
+
   getTaskStatus(id: number) {
     return this.http.get<ActiveTaskStatus>(environment.apiUrl + '/status/' + id);
   }
