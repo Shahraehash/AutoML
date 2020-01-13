@@ -26,7 +26,7 @@ def import_data(train_path, test_path, label_column):
 def import_train(train_path, label_column):
     """Import training data using the passed path"""
 
-    x, y, feature_names, negative_count, positive_count = import_csv(train_path, label_column, True)
+    x, y, feature_names, _, _ = import_csv(train_path, label_column, True)
     return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + [feature_names]
 
 def import_csv(path, label_column, show_warning=False):
@@ -41,7 +41,7 @@ def import_csv(path, label_column, show_warning=False):
     # Save the label colum values
     y = data[label_column]
 
-    # Remove rows which contain data that is not an integer or float value
+    # Remove columns which contain data that is not an integer or float value
     x = x.loc[:, (x.dtypes == np.int64) | (x.dtypes == np.float64)].dropna()
 
     # Grab the feature names

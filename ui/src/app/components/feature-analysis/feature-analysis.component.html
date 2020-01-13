@@ -1,0 +1,67 @@
+<ion-grid class='card'>
+  <ion-row>
+    <ion-col size='5'>
+      <h5>{{name}}</h5>
+      <app-histogram [data]='histogram'></app-histogram>
+    </ion-col>
+    <ion-col>
+      <ion-grid class='summary-table'>
+        <ion-row>
+          <ion-col size='6'>Valid</ion-col>
+          <ion-col>{{summary.count}}</ion-col>
+          <ion-col class='shade'>100%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size='6'>Missing</ion-col>
+          <ion-col>{{nullCount}}</ion-col>
+          <ion-col class='shade'>{{((nullCount / summary.count)) * 100 | number:'1.0-0'}}%</ion-col>
+        </ion-row>
+        <ion-row class='ion-margin-top'>
+          <ion-col size='6'>Mean</ion-col>
+          <ion-col>{{summary.mean | number}}</ion-col>
+          <ion-col></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size='6'>Std</ion-col>
+          <ion-col>{{summary.std | number}}</ion-col>
+          <ion-col></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size='6'>Median</ion-col>
+          <ion-col>{{median | number}}</ion-col>
+          <ion-col></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size='6'>Mode</ion-col>
+          <ion-col>{{mode | number}}</ion-col>
+          <ion-col></ion-col>
+        </ion-row>
+        <ion-row class='ion-margin-top'>
+          <ion-col size='6'>Quantiles</ion-col>
+          <ion-col>{{summary.min | number}}</ion-col>
+          <ion-col class='shade'>Min</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size='6'></ion-col>
+          <ion-col>{{summary['25%'] | number}}</ion-col>
+          <ion-col class='shade'>25%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size='6'></ion-col>
+          <ion-col>{{summary['50%'] | number}}</ion-col>
+          <ion-col class='shade'>50%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size='6'></ion-col>
+          <ion-col>{{summary['75%'] | number}}</ion-col>
+          <ion-col class='shade'>75%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size='6'></ion-col>
+          <ion-col>{{summary.max | number}}</ion-col>
+          <ion-col class='shade'>Max</ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-col>
+  </ion-row>
+</ion-grid>

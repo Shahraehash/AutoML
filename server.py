@@ -14,7 +14,7 @@ from flask import abort, Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
 import pandas as pd
 
-from ml import create_model, list_pipelines, predict
+from ml import create_model, describe, list_pipelines, predict
 from worker import CELERY, get_task_status, queue_training, revoke_task
 
 PUBLISHED_MODELS = 'data/published-models.json'
@@ -107,6 +107,25 @@ def delete_job(userid, jobid):
     rmtree(folder)
 
     return jsonify({'success': True})
+
+@APP.route('/describe/<uuid:userid>/<uuid:jobid>', methods=['GET'])
+def describe_data(userid, jobid):
+    """Generate descriptive statistics for training/testing datasets"""
+
+    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+
+    if not os.path.exists(folder):
+        abort(400)
+        return
+
+    label = open(folder + '/label.txt', 'r')
+    label_column = label.read()
+    label.close()
+
+    return {
+        'analysis': describe.describe(folder),
+        'label': label_column
+    }
 
 @APP.route('/features/<string:model>', methods=['GET'])
 def get_model_features(model):

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
-import { ActiveTaskStatus, Results, PendingTasks, PriorJobs, PublishedModels } from '../interfaces';
+import { ActiveTaskStatus, Results, PendingTasks, PriorJobs, PublishedModels, DataAnalysisReply } from '../interfaces';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -52,6 +52,10 @@ export class BackendService {
 
   getPipelines() {
     return this.http.get(environment.apiUrl + '/pipelines/' + this.userData.id + '/' + this.currentJobId);
+  }
+
+  getDataAnalysis() {
+    return this.http.get<DataAnalysisReply>(environment.apiUrl + '/describe/' + this.userData.id + '/' + this.currentJobId);
   }
 
   getTaskStatus(id: number) {

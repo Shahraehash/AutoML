@@ -1,0 +1,10 @@
+<app-feature-analysis
+  *ngFor='let feature of data.summary | keyvalue'
+  [summary]='feature.value'
+  [mode]='data.mode[feature.key]'
+  [median]='data.median[feature.key]'
+  [nullCount]='data.null[feature.key]'
+  [isInvalid]='data.invalid.includes(feature.key)'
+  [histogram]='data.histogram[feature.key]'
+  [name]='feature.key'
+></app-feature-analysis>
