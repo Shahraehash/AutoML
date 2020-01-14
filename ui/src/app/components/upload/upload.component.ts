@@ -93,6 +93,8 @@ export class UploadComponent implements OnInit, OnDestroy {
       parse(file, {
         worker: true,
         step: async (reply, parser) => {
+          parser.abort();
+
           if (event.target.name === 'train') {
             this.labels = reply.data.reverse();
             this.uploadForm.get('test').reset();
@@ -110,12 +112,8 @@ export class UploadComponent implements OnInit, OnDestroy {
               this.uploadForm.get(event.target.name).setErrors({
                 invalidColumns: true
               });
-
-              return;
             }
           }
-
-          parser.abort();
         }
       });
 
