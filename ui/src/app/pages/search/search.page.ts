@@ -71,7 +71,7 @@ export class SearchPage implements OnInit, AfterViewInit {
     const taskId = this.activatedRoute.snapshot.params.taskId;
     if (statusId && taskId) {
       this.backend.currentJobId = statusId;
-      this.stepFinished({state: 'upload'});
+      this.stepFinished({state: 'explore'});
       window.history.pushState('', '', `/search/status/${statusId}/${taskId}`);
       setTimeout(() => this.train.startMonitor(taskId), 1);
     }

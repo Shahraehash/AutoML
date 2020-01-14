@@ -31,7 +31,10 @@ export class PendingTasksComponent implements OnInit {
     );
   }
 
-  async cancelTask(id) {
+  async cancelTask(event: Event, id) {
+    event.stopImmediatePropagation();
+    event.preventDefault();
+
     const alert = await this.alertController.create({
       buttons: [
         'Back',
@@ -56,7 +59,10 @@ export class PendingTasksComponent implements OnInit {
     await alert.present();
   }
 
-  async showDetails(parameters) {
+  async showDetails(event: Event, parameters) {
+    event.stopImmediatePropagation();
+    event.preventDefault();
+
     const modal = await this.modalController.create({
       cssClass: 'wide-modal',
       component: TrainComponent,
