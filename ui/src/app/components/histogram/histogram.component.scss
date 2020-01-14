@@ -1,4 +1,8 @@
 ::ng-deep {
+  .histogram {
+    width: 100%;
+  }
+
   .bar rect {
     fill: var(--ion-color-primary-shade);
     shape-rendering: crispEdges;
