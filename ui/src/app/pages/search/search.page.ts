@@ -72,7 +72,6 @@ export class SearchPage implements OnInit, AfterViewInit {
     if (statusId && taskId) {
       this.backend.currentJobId = statusId;
       this.stepFinished({state: 'explore'});
-      window.history.pushState('', '', `/search/status/${statusId}/${taskId}`);
       setTimeout(() => this.train.startMonitor(taskId), 1);
     }
 
@@ -81,6 +80,23 @@ export class SearchPage implements OnInit, AfterViewInit {
       this.backend.currentJobId = resultId;
       this.stepFinished({state: 'train'});
     }
+
+    this.stepper.selectionChange.subscribe(event => {
+      switch (event.selectedIndex) {
+        case 3:
+          window.history.pushState('', '', `/search/result/${this.backend.currentJobId}`);
+          break;
+        case 2:
+          window.history.pushState('', '', `/search/train/${this.backend.currentJobId}`);
+          break;
+        case 1:
+          window.history.pushState('', '', `/search/explore/${this.backend.currentJobId}`);
+          break;
+        case 0:
+        default:
+          window.history.pushState('', '', `/search`);
+      }
+    });
   }
 
   exportCSV() {
@@ -114,19 +130,16 @@ export class SearchPage implements OnInit, AfterViewInit {
         this.featureCount = event.data;
         this.uploadForm.get('upload').setValue('true');
         this.stepper.selectedIndex = 1;
-        window.history.pushState('', '', `/search/explore/${this.backend.currentJobId}`);
         break;
       case 'explore':
         this.uploadForm.get('upload').setValue('true');
         this.stepper.selectedIndex = 2;
-        window.history.pushState('', '', `/search/train/${this.backend.currentJobId}`);
         break;
       case 'train':
         this.uploadForm.get('upload').setValue('true');
         this.trainForm.get('train').setValue('true');
         this.stepper.selectedIndex = 2;
         setTimeout(() => this.stepper.selectedIndex = 3, 1);
-        window.history.pushState('', '', `/search/result/${this.backend.currentJobId}`);
     }
   }
 }

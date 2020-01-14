@@ -127,6 +127,7 @@ export class TrainComponent implements OnDestroy, OnInit {
   }
 
   startMonitor(taskId) {
+    window.history.pushState('', '', `/search/status/${this.backend.currentJobId}/${taskId}`);
     this.training = true;
 
     this.backend.getPipelines().subscribe(
