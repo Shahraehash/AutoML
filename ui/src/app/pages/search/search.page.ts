@@ -117,12 +117,15 @@ export class SearchPage implements OnInit, AfterViewInit {
         window.history.pushState('', '', `/search/explore/${this.backend.currentJobId}`);
         break;
       case 'explore':
+        this.uploadForm.get('upload').setValue('true');
         this.stepper.selectedIndex = 2;
         window.history.pushState('', '', `/search/train/${this.backend.currentJobId}`);
         break;
       case 'train':
+        this.uploadForm.get('upload').setValue('true');
         this.trainForm.get('train').setValue('true');
-        this.stepper.selectedIndex = 3;
+        this.stepper.selectedIndex = 2;
+        setTimeout(() => this.stepper.selectedIndex = 3, 1);
         window.history.pushState('', '', `/search/result/${this.backend.currentJobId}`);
     }
   }

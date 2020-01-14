@@ -140,7 +140,6 @@ export class UploadComponent implements OnInit, OnDestroy {
 
   viewPrior(id) {
     this.backend.currentJobId = id;
-    this.stepFinished.emit({state: 'upload'});
     this.stepFinished.emit({state: 'train'});
   }
 

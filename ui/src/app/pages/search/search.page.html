@@ -28,7 +28,7 @@
     <mat-step label='Select Data' [stepControl]='uploadForm' [editable]='!uploadForm.valid' errorMessage='Data upload is required'>
       <app-upload #upload (stepFinished)='stepFinished($event)' *ngIf='stepper?.selectedIndex === 0'></app-upload>
     </mat-step>
-    <mat-step label='Explore' optional='true'>
+    <mat-step label='Explore' [stepControl]='uploadForm' optional='true'>
       <app-explore #explore (stepFinished)='stepFinished($event)' *ngIf='stepper?.selectedIndex === 1'></app-explore>
     </mat-step>
     <mat-step label='Train' [stepControl]='trainForm' [editable]='!trainForm.valid' errorMessage='Pipeline elements need selection'>
