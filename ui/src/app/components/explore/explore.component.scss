@@ -4,3 +4,9 @@
         margin: 10px auto;
     }
 }
+
+@media (prefers-color-scheme: dark) {
+    :host {
+        color: white;
+    }
+}
