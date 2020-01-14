@@ -1,0 +1,12 @@
+:host {
+    display: flex;
+    flex-direction: column;
+
+    app-feature-analysis {
+        order: 1;
+
+        &.active {
+            order: 0;
+        }
+    }
+}

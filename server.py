@@ -20,6 +20,7 @@ from worker import CELERY, get_task_status, queue_training, revoke_task
 PUBLISHED_MODELS = 'data/published-models.json'
 
 APP = Flask(__name__, static_url_path='')
+APP.config['JSON_SORT_KEYS'] = False
 CORS(APP)
 
 @APP.route('/')

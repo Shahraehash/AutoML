@@ -1,5 +1,5 @@
 <app-feature-analysis
-  *ngFor='let feature of data.summary | keyvalue'
+  *ngFor='let feature of data.summary | keyvalue:preventSort'
   [summary]='feature.value'
   [mode]='data.mode[feature.key]'
   [median]='data.median[feature.key]'
@@ -7,4 +7,5 @@
   [isInvalid]='data.invalid.includes(feature.key)'
   [histogram]='data.histogram[feature.key]'
   [name]='feature.key'
+  [class.active]='feature.key === label'
 ></app-feature-analysis>

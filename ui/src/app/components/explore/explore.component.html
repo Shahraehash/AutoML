@@ -9,10 +9,10 @@
   </ion-row>
   <ion-row>
     <ion-col>
-      <app-feature-details [data]='data.analysis.train'></app-feature-details>
+      <app-feature-details [label]='data.label' [data]='data.analysis.train'></app-feature-details>
     </ion-col>
     <ion-col>
-      <app-feature-details [data]='data.analysis.test'></app-feature-details>
+      <app-feature-details [label]='data.label' [data]='data.analysis.test'></app-feature-details>
     </ion-col>
   </ion-row>
 </ion-grid>
