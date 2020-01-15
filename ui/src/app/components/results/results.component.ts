@@ -171,7 +171,7 @@ export class ResultsComponent implements OnInit {
     let upper;
     let lower;
     const textElements = [
-      'Estimator: ' + object.estimator,
+      'Algorithm: ' + object.estimator,
       'Scaler: ' + object.scaler,
       'Selector: ' + object.feature_selector,
       'Scorer: ' + object.scorer,
