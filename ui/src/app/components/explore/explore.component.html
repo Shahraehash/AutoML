@@ -1,19 +1,11 @@
 <ion-button class='continue' expand='block' (click)='continue()'>Continue</ion-button>
 <ion-grid *ngIf='data'>
   <ion-row>
-    <ion-col class='ion-text-center'>
-      <h4>Training Data</h4>
+    <ion-col size-xs='12' size-md='6'>
+      <app-feature-details [label]='data.label' [data]='data.analysis.train' type='Training'></app-feature-details>
     </ion-col>
-    <ion-col class='ion-text-center'>
-      <h4>Generalization Data</h4>
-    </ion-col>
-  </ion-row>
-  <ion-row>
-    <ion-col>
-      <app-feature-details [label]='data.label' [data]='data.analysis.train'></app-feature-details>
-    </ion-col>
-    <ion-col>
-      <app-feature-details [label]='data.label' [data]='data.analysis.test'></app-feature-details>
+    <ion-col size-xs='12' size-md='6'>
+      <app-feature-details [label]='data.label' [data]='data.analysis.test' type='Generalization'></app-feature-details>
     </ion-col>
   </ion-row>
 </ion-grid>

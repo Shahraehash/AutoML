@@ -10,6 +10,7 @@ import { DataAnalysis } from '../../interfaces';
 export class FeatureDetailsComponent {
   @Input() data: DataAnalysis;
   @Input() label: string;
+  @Input() type: string;
 
   constructor() {}
 
