@@ -8,14 +8,20 @@ using an Angular SPA.
 import ast
 import os
 import json
-from shutil import copyfile, rmtree
+from shutil import copyfile
 
-from flask import abort, Flask, jsonify, request, send_file, send_from_directory, url_for
+from flask import abort, Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
-import pandas as pd
 
-from ml import create_model, describe, list_pipelines, predict
-from worker import CELERY, get_task_status, queue_training, revoke_task
+from api.create import create
+from api.delete import delete
+from api.describe import describe_data
+from api.features import features
+from api.results import results
+import api.test as test
+import api.train as train
+from api.unpublish import unpublish
+from worker import CELERY, get_task_status, revoke_task
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
@@ -29,234 +35,17 @@ def load_ui():
 
     return send_from_directory('static', 'index.html')
 
-@APP.route('/create/<uuid:userid>/<uuid:jobid>', methods=['POST'])
-def create(userid, jobid):
-    """Create a static copy of the selected model"""
-
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
-
-    label = open(folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
-
-    create_model.create_model(
-        request.form['key'],
-        ast.literal_eval(request.form['parameters']),
-        ast.literal_eval(request.form['features']),
-        folder + '/train.csv',
-        label_column,
-        folder
-    )
-
-    if 'publishName' in request.form:
-        model_path = folder + '/' + request.form['publishName']
-        copyfile(folder + '/pipeline.joblib', model_path + '.joblib')
-        copyfile(folder + '/pipeline.pmml', model_path + '.pmml')
-
-        if os.path.exists(PUBLISHED_MODELS):
-            with open(PUBLISHED_MODELS) as published_file:
-                published = json.load(published_file)
-        else:
-            published = {}
-
-        if request.form['publishName'] in published:
-            abort(409)
-            return
-
-        published[request.form['publishName']] = {
-            'features': request.form['features'],
-            'path': model_path
-        }
-
-        with open(PUBLISHED_MODELS, 'w') as published_file:
-            json.dump(published, published_file)
-
-    return jsonify({'success': True})
-
-@APP.route('/unpublish/<string:model>', methods=['DELETE'])
-def unpublish_model(model):
-    """Unpublish a published model"""
-
-    if not os.path.exists(PUBLISHED_MODELS):
-        abort(400)
-        return
-
-    with open(PUBLISHED_MODELS) as published_file:
-        published = json.load(published_file)
-
-    if model not in published:
-        abort(400)
-        return
-
-    published.pop(model, None)
-
-    with open(PUBLISHED_MODELS, 'w') as published_file:
-        json.dump(published, published_file)
-
-    return jsonify({'success': True})
-
-@APP.route('/delete/<uuid:userid>/<uuid:jobid>', methods=['DELETE'])
-def delete_job(userid, jobid):
-    """Deletes a previous job"""
-
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
-
-    if not os.path.exists(folder):
-        abort(400)
-        return
-
-    rmtree(folder)
-
-    return jsonify({'success': True})
-
-@APP.route('/describe/<uuid:userid>/<uuid:jobid>', methods=['GET'])
-def describe_data(userid, jobid):
-    """Generate descriptive statistics for training/testing datasets"""
-
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
-
-    if not os.path.exists(folder):
-        abort(400)
-        return
-
-    label = open(folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
-
-    return {
-        'analysis': describe.describe(folder),
-        'label': label_column
-    }
-
-@APP.route('/features/<string:model>', methods=['GET'])
-def get_model_features(model):
-    """Returns the features for a published model"""
-
-    if not os.path.exists(PUBLISHED_MODELS):
-        abort(400)
-        return
-
-    with open(PUBLISHED_MODELS) as published_file:
-        published = json.load(published_file)
-
-    if model not in published:
-        abort(400)
-        return
-
-    return jsonify(published[model]['features'])
-
-@APP.route('/test/<string:model>', methods=['POST'])
-def test_published_model(model):
-    """Tests the published model against the provided data"""
-
-    if not os.path.exists(PUBLISHED_MODELS):
-        abort(400)
-        return
-
-    with open(PUBLISHED_MODELS) as published_file:
-        published = json.load(published_file)
-
-    if model not in published:
-        abort(400)
-        return
-
-    folder = published[model]['path'][:published[model]['path'].rfind('/')]
-    label = open(folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
-
-    reply = predict.predict(
-        json.loads(request.data),
-        published[model]['path']
-    )
-
-    reply['target'] = label_column
-
-    return jsonify(reply)
-
-@APP.route('/test/<uuid:userid>/<uuid:jobid>', methods=['POST'])
-def test_model(userid, jobid):
-    """Tests the selected model against the provided data"""
-
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
-
-    label = open(folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
-
-    reply = predict.predict(
-        json.loads(request.data),
-        folder + '/pipeline'
-    )
-
-    reply['target'] = label_column
-
-    return jsonify(reply)
-
-@APP.route('/train/<uuid:userid>/<uuid:jobid>', methods=['POST'])
-def find_best_model(userid, jobid):
-    """Finds the best model for the selected parameters/data"""
-
-    label = open('data/' + userid.urn[9:] + '/' + jobid.urn[9:] + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
-
-    parameters = request.form.to_dict()
-    pipelines = list_pipelines.list_pipelines(parameters)
-
-    task = queue_training.s(
-        userid.urn[9:], jobid.urn[9:], label_column, parameters
-    ).apply_async()
-
-    return jsonify({
-        "id": task.id,
-        "href": url_for('task_status', task_id=task.id),
-        "pipelines": pipelines
-    }), 202
-
-@APP.route('/pipelines/<uuid:userid>/<uuid:jobid>', methods=['GET'])
-def get_pipelines(userid, jobid):
-    """Returns the pipelines for a job"""
-
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
-
-    if not os.path.exists(folder + '/' + '/metadata.json'):
-        abort(400)
-        return
-    
-    with open(folder + '/' + '/metadata.json') as json_file:
-        metadata = json.load(json_file)
-
-    return jsonify(list_pipelines.list_pipelines(metadata['parameters']))
-
-@APP.route('/status/<task_id>')
-def task_status(task_id):
-    return jsonify(get_task_status(task_id))
-
-@APP.route('/results/<uuid:userid>/<uuid:jobid>', methods=['GET'])
-def get_results(userid, jobid):
-    """Retrieve the training results"""
-
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
-    metadata = None
-
-    if not os.path.exists(folder + '/report.csv'):
-        abort(400)
-        return
-
-    try:
-        results = json.loads(pd.read_csv(folder + '/report.csv').to_json(orient='records'))
-    except:
-        abort(400)
-
-    if os.path.exists(folder + '/metadata.json'):
-        with open(folder + '/metadata.json') as metafile:
-            metadata = json.load(metafile)
-
-    return jsonify({
-        'results': results,
-        'metadata': metadata
-    })
+APP.add_url_rule('/create/<uuid:userid>/<uuid:jobid>', 'create', create, methods=['POST'])
+APP.add_url_rule('/unpublish/<string:model>', 'unpublish', unpublish, methods=['DELETE'])
+APP.add_url_rule('/delete/<uuid:userid>/<uuid:jobid>', 'delete', delete, methods=['DELETE'])
+APP.add_url_rule('/describe/<uuid:userid>/<uuid:jobid>', 'describe', describe_data, methods=['GET'])
+APP.add_url_rule('/features/<string:model>', 'features', features, methods=['GET'])
+APP.add_url_rule('/test/<string:model>', 'test_published', test.test_published_model, methods=['POST'])
+APP.add_url_rule('/test/<uuid:userid>/<uuid:jobid>', 'test_model', test.test_model, methods=['POST'])
+APP.add_url_rule('/train/<uuid:userid>/<uuid:jobid>', 'train', train.train, methods=['POST'])
+APP.add_url_rule('/pipelines/<uuid:userid>/<uuid:jobid>', 'pipelines', train.get_pipelines, methods=['GET'])
+APP.add_url_rule('/status/<task_id>', 'status', train.status)
+APP.add_url_rule('/results/<uuid:userid>/<uuid:jobid>', 'results', results, methods=['GET'])
 
 @APP.route('/upload/<uuid:userid>/<uuid:jobid>', methods=['POST'])
 def upload_files(userid, jobid):
