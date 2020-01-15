@@ -7,7 +7,7 @@
 
     <div class='pipeline-selection'>
       <div formArrayName='estimators'>
-        <h6>Estimators</h6>
+        <h6>Algorithms</h6>
         <mat-checkbox *ngFor='let estimator of pipelineProcessors.estimators; let i=index' [formControlName]='i'>
           {{estimator.label}}
           <ion-icon

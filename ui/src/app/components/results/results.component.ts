@@ -29,7 +29,7 @@ export class ResultsComponent implements OnInit {
   columns: {key: string; class?: string, name: string; number?: boolean, hideMobile?: boolean}[] = [
     {
       key: 'estimator',
-      name: 'Estimator'
+      name: 'Algorithm'
     },
     {
       key: 'auc',
