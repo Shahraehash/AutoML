@@ -32,6 +32,12 @@ def load_ui():
 
     return send_from_directory('static', 'index.html')
 
+@APP.errorhandler(404)
+def page_not_found(_):
+    """Redirect all invalid pages back to the root index"""
+
+    return load_ui()
+
 APP.add_url_rule('/create/<uuid:userid>/<uuid:jobid>', 'create', create, methods=['POST'])
 APP.add_url_rule('/unpublish/<string:model>', 'unpublish', unpublish, methods=['DELETE'])
 APP.add_url_rule('/delete/<uuid:userid>/<uuid:jobid>', 'delete', delete, methods=['DELETE'])
@@ -54,12 +60,6 @@ APP.add_url_rule('/export-pmml/<uuid:userid>/<uuid:jobid>', 'export-pmml', expor
 APP.add_url_rule('/export-pmml/<string:model>', 'export-published-pmml', export.published_pmml, methods=['GET'])
 APP.add_url_rule('/export-model/<uuid:userid>/<uuid:jobid>', 'export-model', export.model, methods=['GET'])
 APP.add_url_rule('/export-model/<string:model>', 'export-published-model', export.published_model, methods=['GET'])
-
-@APP.errorhandler(404)
-def page_not_found(_):
-    """Redirect all invalid pages back to the root index"""
-
-    return load_ui()
 
 if __name__ == "__main__":
     APP.run()
