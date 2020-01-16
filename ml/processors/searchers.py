@@ -69,7 +69,7 @@ def make_random_search(estimator, scoring, shuffle, custom_hyper_parameters, y_t
     try:
         total_range = len(list(ParameterGrid(parameter_range)))
         iterations = total_range if MAX_RANDOM_ITERATIONS >= total_range else MAX_RANDOM_ITERATIONS
-    except:
+    except Exception:
         iterations = MAX_RANDOM_ITERATIONS
 
     return (

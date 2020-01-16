@@ -20,7 +20,7 @@ def results(userid, jobid):
 
     try:
         data = json.loads(pd.read_csv(folder + '/report.csv').to_json(orient='records'))
-    except:
+    except ValueError:
         abort(400)
 
     if os.path.exists(folder + '/metadata.json'):

@@ -62,10 +62,10 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
             xgboost_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
         else:
             skl_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
-    except:
+    except Exception:
         try:
             os.remove(output_path + '/pipeline.pmml')
-        except:
+        except OSError:
             pass
 
     return pipeline

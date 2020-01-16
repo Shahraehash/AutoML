@@ -62,7 +62,7 @@ def pending(userid):
             if str(userid) in task['request']['args']:
                 try:
                     args = ast.literal_eval(task['request']['args'])
-                except:
+                except ValueError:
                     continue
                 scheduled.append({
                     'id': task['request']['id'],
@@ -82,7 +82,7 @@ def pending(userid):
             if '.queue_training' in task['type'] and str(userid) in task['args']:
                 try:
                     args = ast.literal_eval(task['args'])
-                except:
+                except ValueError:
                     continue
                 task_status = get_task_status(task['id'])
                 task_status.update({

@@ -25,7 +25,7 @@ def fix_celery_solo(userid, jobid):
         with open(folder + '/metadata.json') as metafile:
             try:
                 metadata = json.load(metafile)
-            except:
+            except ValueError:
                 return False
 
         if 'date' in metadata:
