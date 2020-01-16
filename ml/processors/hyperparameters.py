@@ -58,7 +58,7 @@ HYPER_PARAMETER_RANGE = {
             'activation': ['tanh', 'relu'],
             'learning_rate': ['constant', 'adaptive'],
             'alpha': uniform(loc=0, scale=4),
-            'tol': uniform(0.0001,0.005),
+            'tol': uniform(0.0001, 0.005),
             'hidden_layer_sizes': [(50,), (100,), (5, 5), (7, 7), (3, 3, 3), (5, 5, 5)],
             'n_iter_no_change': (3, 5, 10)
         },

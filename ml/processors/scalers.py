@@ -2,7 +2,7 @@
 All scalers used
 """
 
-from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 SCALERS = {
     'none': '',

@@ -2,18 +2,12 @@
 All hyper-parameter search methods
 """
 
-import os
-
 import pandas as pd
-from dotenv import load_dotenv
 
 from sklearn.model_selection import GridSearchCV, ParameterGrid, RandomizedSearchCV, StratifiedKFold
 
 from .estimators import ESTIMATORS
 from .hyperparameters import HYPER_PARAMETER_RANGE
-
-load_dotenv()
-SHUFFLE = False if os.getenv('IGNORE_SHUFFLE', '') != '' else True
 
 # Define the max iterations for random
 MAX_RANDOM_ITERATIONS = 100

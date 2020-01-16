@@ -17,7 +17,7 @@ def reliability(pipeline, model, x_test, y_test):
 
     if hasattr(model['best_estimator'], 'decision_function'):
         probabilities = model['best_estimator'].decision_function(x_test)
-        
+
         if np.count_nonzero(probabilities):
             probabilities = (probabilities - probabilities.min()) / \
                 (probabilities.max() - probabilities.min())

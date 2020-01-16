@@ -1,3 +1,7 @@
+"""
+Celery worker for machine learning jobs
+"""
+
 import os
 import json
 
@@ -92,6 +96,11 @@ def get_task_status(task_id):
     return response
 
 @worker_process_init.connect
-def fix_multiprocessing(**kwargs):
+def fix_multiprocessing(**_):
+    """
+    This turns off daemon mode for celery processes.
+    https://stackoverflow.com/questions/46443541/process-is-not-spawning-with-multiprocessing-module-in-celery
+    """
+
     from multiprocessing import current_process
     current_process().daemon = False

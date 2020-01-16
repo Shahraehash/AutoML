@@ -2,6 +2,7 @@
 Search for the best model for a given dataset
 """
 
+import ast
 import os
 import json
 
