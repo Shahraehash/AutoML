@@ -3,8 +3,8 @@ import * as d3 from 'd3';
 
 @Component({
   selector: 'app-histogram',
-  templateUrl: './histogram.component.html',
   styleUrls: ['./histogram.component.scss'],
+  template: '<svg class="histogram" viewBox="0 0 300 240"></svg>'
 })
 export class HistogramComponent implements OnInit {
   @Input() data: [number[], number[]];
