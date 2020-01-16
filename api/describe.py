@@ -4,6 +4,8 @@ Generate descriptive statistics
 
 import os
 
+from flask import abort
+
 from ml.describe import describe
 
 def describe_data(userid, jobid):

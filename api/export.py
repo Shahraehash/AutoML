@@ -62,7 +62,7 @@ def model(userid, jobid):
 
     return send_file(folder + '/pipeline.joblib', as_attachment=True)
 
-def published_model(model):
+def published_model(name):
     """Export the published model"""
 
     if not os.path.exists(PUBLISHED_MODELS):
@@ -72,12 +72,12 @@ def published_model(model):
     with open(PUBLISHED_MODELS) as published_file:
         published = json.load(published_file)
 
-    if model not in published:
+    if name not in published:
         abort(400)
         return
 
-    if not os.path.exists(published[model]['path'] + '.joblib'):
+    if not os.path.exists(published[name]['path'] + '.joblib'):
         abort(400)
         return
 
-    return send_file(published[model]['path'] + '.joblib', as_attachment=True)
+    return send_file(published[name]['path'] + '.joblib', as_attachment=True)

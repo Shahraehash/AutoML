@@ -19,7 +19,7 @@ def results(userid, jobid):
         return
 
     try:
-        results = json.loads(pd.read_csv(folder + '/report.csv').to_json(orient='records'))
+        data = json.loads(pd.read_csv(folder + '/report.csv').to_json(orient='records'))
     except:
         abort(400)
 
@@ -28,6 +28,6 @@ def results(userid, jobid):
             metadata = json.load(metafile)
 
     return jsonify({
-        'results': results,
+        'results': data,
         'metadata': metadata
     })
