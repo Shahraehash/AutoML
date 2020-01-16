@@ -1,0 +1,62 @@
+::ng-deep {
+  .radial {
+    fill: black;
+    text-transform: capitalize;
+
+    .node circle {
+      fill: #999;
+    }
+
+    .node text {
+      font: 10px sans-serif;
+    }
+
+    .node--internal circle {
+      fill: #555;
+    }
+
+    .node--internal text {
+      text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+    }
+
+    .link {
+      fill: none;
+      stroke: #555;
+      stroke-opacity: 0.4;
+      stroke-width: 1.5px;
+    }
+
+    &.training {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      animation: load8 80s infinite linear;
+    }
+
+    @-webkit-keyframes load8 {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+    @keyframes load8 {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .radial {
+      fill: white;
+    }
+  }
+}

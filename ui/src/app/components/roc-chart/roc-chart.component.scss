@@ -1,0 +1,51 @@
+::ng-deep {
+  .roc {
+    height: calc(100% - 100px);
+    width: 100%;
+
+    .axis {
+      fill: var(--ion-color-dark);
+
+      path,
+      line {
+        fill: none;
+        stroke: grey;
+        stroke-width: 2;
+        shape-rendering: crispEdges;
+        opacity: 1;
+      }
+    }
+
+    .guess {
+      stroke: var(--ion-color-danger);
+    }
+
+    .ideal {
+      stroke: var(--ion-color-success);
+    }
+
+    path {
+      stroke-width: 3;
+      fill: none;
+      opacity: 0.7;
+    }
+
+    text {
+      text-transform: capitalize;
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  ::ng-deep {
+    .roc {
+      .axis {
+        fill: var(--ion-color-light);
+      }
+
+      .auc-text {
+        fill: white;
+      }
+    }
+  }
+}

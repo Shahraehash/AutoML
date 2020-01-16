@@ -6,6 +6,7 @@ import * as d3Axis from 'd3-axis';
 
 @Component({
     selector: 'app-roc-chart',
+    styleUrls: ['roc-chart.component.scss'],
     template: '<svg class="roc"></svg>'
 })
 export class RocChartComponent implements OnInit, OnChanges {
