@@ -9,7 +9,7 @@ from celery import Celery
 from celery.signals import worker_process_init
 from celery.task.control import revoke
 
-from ml import api
+from ml import search
 
 CELERY = Celery(__name__, backend='rpc://', broker='pyamqp://guest@localhost//')
 CELERY.conf.update(task_track_started=True)
@@ -51,7 +51,7 @@ def queue_training(self, userid, jobid, label_column, parameters):
     with open(folder + '/metadata.json', 'w') as metafile:
         json.dump(metadata, metafile)
 
-    api.find_best_model(
+    search.find_best_model(
         folder + '/train.csv',
         folder + '/test.csv',
         labels,

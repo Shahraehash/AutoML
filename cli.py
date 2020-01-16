@@ -6,7 +6,7 @@ Interact with the trainer using the CLI
 import os
 import sys
 
-from ml import api
+from ml import search
 
 # Parse input or load sample data
 if len(sys.argv) < 4:
@@ -29,4 +29,4 @@ PARAMETERS = dict(
     ignore_scorer=os.getenv('IGNORE_SCORER', '')
 )
 
-api.find_best_model(TRAIN_SET, TEST_SET, LABELS, LABEL_COLUMN, PARAMETERS)
+search.find_best_model(TRAIN_SET, TEST_SET, LABELS, LABEL_COLUMN, PARAMETERS)
