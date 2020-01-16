@@ -21,8 +21,8 @@ import { PendingTasks } from '../../interfaces';
   }]
 })
 export class SearchPage implements OnInit, AfterViewInit {
-  @ViewChild('stepper', {static: false}) stepper: MatStepper;
-  @ViewChild('train', {static: false}) train: TrainComponent;
+  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('train') train: TrainComponent;
 
   pendingTasks$: Observable<PendingTasks>;
   pauseUpdates = false;

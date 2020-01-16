@@ -93,7 +93,7 @@ export class ResultsComponent implements OnInit {
     }
   ];
 
-  @ViewChild(MatSort, {static: false}) sort: MatSort;
+  @ViewChild(MatSort) sort: MatSort;
 
   constructor(
     private alertController: AlertController,
