@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatTableDataSource } from '@angular/material';
+import { LoadingController } from '@ionic/angular';
 
 import { BackendService } from '../../services/backend.service';
 import { DataAnalysisReply, Jobs } from '../../interfaces';
@@ -18,7 +19,8 @@ export class ExploreComponent implements OnInit {
   columns = ['Date', 'Status', 'actions'];
   constructor(
     public backend: BackendService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private loadingController: LoadingController
   ) {}
 
   ngOnInit() {
@@ -43,14 +45,20 @@ export class ExploreComponent implements OnInit {
     }
   }
 
-  viewResult(id) {
+  useJob(id, step) {
     this.backend.currentJobId = id;
-    this.stepFinished.emit({nextStep: 'result'});
+    this.stepFinished.emit({nextStep: step});
   }
 
-  continue() {
-    this.backend.createJob().then(_ => {
-      this.stepFinished.emit({nextStep: 'train'});
-    });
+  deleteJob(id) {
+    console.log(id);
+  }
+
+  async newJob() {
+    const loading = await this.loadingController.create({message: 'Creating new job...'});
+    await loading.present();
+    await this.backend.createJob();
+    this.stepFinished.emit({nextStep: 'train'});
+    await loading.dismiss();
   }
 }

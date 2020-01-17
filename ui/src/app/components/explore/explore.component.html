@@ -16,10 +16,11 @@
     <ion-col size-xs='12' size-lg='3'>
       <h4 class='ion-text-center'>Runs</h4>
 
-      <ion-button size='small'>
+      <ion-button size='small' (click)='newJob()'>
         <ion-icon slot='start' name='add'></ion-icon>
         New
       </ion-button>
+
       <table mat-table [dataSource]='jobs' matSort matSortDirection='desc'>
         <ng-container [matColumnDef]='column' *ngFor='let column of columns'>
           <th mat-header-cell *matHeaderCellDef mat-sort-header [class.ion-hide]='column === "actions"'>{{column}}</th>
@@ -30,15 +31,15 @@
             <span *ngIf='column === "actions"' class='actions'>
               <ion-icon
                 name='search' color='primary' size='small'
-                (click)='viewResult(element.id)'
+                (click)='useJob(element.id, "train")'
                 [class.ion-hide]='element.hasResults'></ion-icon>
               <ion-icon
                 name='document' color='primary' size='small'
-                (click)='viewResult(element.id)'
+                (click)='useJob(element.id, "result")'
                 [class.ion-hide]='!element.hasResults'></ion-icon>
               <ion-icon
                 name='trash' color='danger' size='small'
-                (click)='viewResult(element.id)'></ion-icon>
+                (click)='deleteJob(element.id)'></ion-icon>
             </span>
           </td>
         </ng-container>
