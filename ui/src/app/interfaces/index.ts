@@ -3,11 +3,9 @@ export interface Results {
     results: GeneralizationResult[];
 }
 
-export interface PriorJobs {
-    metadata: MetaData;
+export interface DataSets {
     id: string;
     label: string;
-    results: boolean;
 }
 
 export interface MetaData {

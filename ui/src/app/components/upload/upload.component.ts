@@ -6,7 +6,7 @@ import { Observable, timer, of, ReplaySubject } from 'rxjs';
 import { switchMap, takeUntil, finalize, catchError } from 'rxjs/operators';
 
 import { BackendService } from '../../services/backend.service';
-import { PriorJobs, PublishedModels } from '../../interfaces';
+import { DataSets, PublishedModels } from '../../interfaces';
 
 @Component({
   selector: 'app-upload',
@@ -18,7 +18,7 @@ export class UploadComponent implements OnInit, OnDestroy {
   @Output() stepFinished = new EventEmitter();
 
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
-  priorJobs$: Observable<PriorJobs[]>;
+  dataSets$: Observable<DataSets[]>;
   publishedModels$: Observable<PublishedModels>;
 
   labels = [];
@@ -40,11 +40,8 @@ export class UploadComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.priorJobs$ = timer(0, 5000).pipe(
-      takeUntil(this.destroy$),
-      switchMap(() => this.backend.getPriorJobs().pipe(
-        catchError(() => of([]))
-      ))
+    this.dataSets$ = this.backend.getDataSets().pipe(
+      takeUntil(this.destroy$)
     );
 
     this.publishedModels$ = timer(0, 5000).pipe(
@@ -124,34 +121,9 @@ export class UploadComponent implements OnInit, OnDestroy {
     }
   }
 
-  viewPrior(id) {
-    this.backend.currentJobId = id;
-    this.stepFinished.emit({state: 'train'});
-  }
-
-  async deletePrior(id) {
-    const alert = await this.alertController.create({
-      buttons: [
-        'Dismiss',
-        {
-          text: 'Delete',
-          handler: async () => {
-            const loading = await this.loadingController.create({
-              message: 'Deleting Job'
-            });
-
-            await loading.present();
-            await this.backend.deleteJob(id).toPromise();
-            await loading.dismiss();
-          }
-        }
-      ],
-      header: 'Are you sure you want to delete?',
-      subHeader: 'This cannot be undone.',
-      message: 'Are you sure you want to delete the selected data and results'
-    });
-
-    await alert.present();
+  exploreDataSet(id) {
+    this.backend.currentDatasetId = id;
+    this.stepFinished.emit({state: 'upload'});
   }
 
   launchModel(id) {

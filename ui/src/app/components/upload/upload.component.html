@@ -44,29 +44,15 @@
     </ion-card>
   </ng-container>
 
-  <ng-container *ngIf='(priorJobs$ | async) as previousJobs'>
-    <ion-card class='ion-padding ion-text-center previous-jobs' *ngIf='previousJobs.length'>
+  <ng-container *ngIf='(dataSets$ | async) as dataSets'>
+    <ion-card class='ion-padding ion-text-center previous-jobs' *ngIf='dataSets.length'>
       <ion-card-header>
-        <ion-card-subtitle>Alternatively, you may select previously uploaded data sets.<br>Jobs are listed by target along with either a unique ID or the job completion time.</ion-card-subtitle>
+        <ion-card-subtitle>Alternatively, you may select previously uploaded data sets.</ion-card-subtitle>
         <ion-card-title>Previous Data Set</ion-card-title>
       </ion-card-header>
-    
-      <table>
-        <tr *ngFor='let job of previousJobs'>
-          <td>
-            <span class='bold'>{{job.label}}</span>
-            - 
-            <span *ngIf='job.metadata && job.metadata.date; else noDate'>{{job.metadata.date * 1000 | date : 'medium'}}</span>
-            <ng-template #noDate>{{job.id}}</ng-template>
-          </td>
-          <td class='actions'>
-            <ion-button fill='none' size='small' (click)='viewPrior(job.id)' [disabled]='!job.results'>View Results</ion-button>
-            <ion-button fill='none' size='small' (click)='deletePrior(job.id)'>
-              <ion-icon name='close' color='danger' slot='icon-only'></ion-icon>
-            </ion-button>
-          </td>
-        </tr>
-      </table>
+      <ion-card-content>
+      <ion-chip *ngFor='let dataSet of dataSets' (click)='exploreDataSet(dataSet.id)'>{{dataSet.label}}</ion-chip>
+      </ion-card-content>
     </ion-card>
   </ng-container>
 </div>
