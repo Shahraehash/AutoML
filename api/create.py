@@ -16,9 +16,14 @@ PUBLISHED_MODELS = 'data/published-models.json'
 def create(userid, jobid):
     """Create a static copy of the selected model"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    job_folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
 
-    label = open(folder + '/label.txt', 'r')
+    with open(job_folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    dataset_folder = 'data/' + userid.urn[9:] + '/datasets/' + metadata['datasetid']
+
+    label = open(dataset_folder + '/label.txt', 'r')
     label_column = label.read()
     label.close()
 
@@ -26,15 +31,15 @@ def create(userid, jobid):
         request.form['key'],
         ast.literal_eval(request.form['parameters']),
         ast.literal_eval(request.form['features']),
-        folder + '/train.csv',
+        dataset_folder + '/train.csv',
         label_column,
-        folder
+        job_folder
     )
 
     if 'publishName' in request.form:
-        model_path = folder + '/' + request.form['publishName']
-        copyfile(folder + '/pipeline.joblib', model_path + '.joblib')
-        copyfile(folder + '/pipeline.pmml', model_path + '.pmml')
+        model_path = job_folder + '/' + request.form['publishName']
+        copyfile(job_folder + '/pipeline.joblib', model_path + '.joblib')
+        copyfile(job_folder + '/pipeline.pmml', model_path + '.pmml')
 
         if os.path.exists(PUBLISHED_MODELS):
             with open(PUBLISHED_MODELS) as published_file:

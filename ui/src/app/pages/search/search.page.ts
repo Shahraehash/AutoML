@@ -57,7 +57,7 @@ export class SearchPage implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     const exploreId = this.activatedRoute.snapshot.params.exploreId;
     if (exploreId) {
-      this.backend.currentJobId = exploreId;
+      this.backend.currentDatasetId = exploreId;
       this.stepFinished({state: 'upload'});
     }
 
@@ -90,7 +90,7 @@ export class SearchPage implements OnInit, AfterViewInit {
           window.history.pushState('', '', `/search/train/${this.backend.currentJobId}`);
           break;
         case 1:
-          window.history.pushState('', '', `/search/explore/${this.backend.currentJobId}`);
+          window.history.pushState('', '', `/search/explore/${this.backend.currentDatasetId}`);
           break;
         case 0:
         default:

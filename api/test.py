@@ -42,17 +42,16 @@ def test_published_model(model):
 def test_model(userid, jobid):
     """Tests the selected model against the provided data"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
 
-    label = open(folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
+    with open(folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
 
     reply = predict(
         json.loads(request.data),
         folder + '/pipeline'
     )
 
-    reply['target'] = label_column
+    reply['target'] = metadata['label']
 
     return jsonify(reply)

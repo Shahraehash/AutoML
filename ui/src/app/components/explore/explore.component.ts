@@ -21,6 +21,8 @@ export class ExploreComponent implements OnInit {
   }
 
   continue() {
-    this.stepFinished.emit({state: 'explore'});
+    this.backend.createJob().then(_ => {
+      this.stepFinished.emit({state: 'explore'});
+    });
   }
 }

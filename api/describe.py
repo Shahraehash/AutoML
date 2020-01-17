@@ -8,10 +8,10 @@ from flask import abort
 
 from ml.describe import describe
 
-def describe_data(userid, jobid):
+def describe_data(userid, datasetid):
     """Generate descriptive statistics for training/testing datasets"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    folder = 'data/' + userid.urn[9:] + '/datasets/' + datasetid.urn[9:]
 
     if not os.path.exists(folder):
         abort(400)

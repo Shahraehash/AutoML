@@ -11,7 +11,7 @@ import pandas as pd
 def results(userid, jobid):
     """Retrieve the training results"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
     metadata = None
 
     if not os.path.exists(folder + '/report.csv'):

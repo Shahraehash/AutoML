@@ -3,19 +3,22 @@ Upload dataset
 """
 
 import os
+import uuid
 
-from flask import jsonify, request
+from flask import abort, jsonify, request
 
-def upload(userid, jobid):
+def upload(userid):
     """Upload files to the server"""
 
     if 'train' not in request.files or 'test' not in request.files:
-        return jsonify({'error': 'Missing files'})
+        return abort(400)
 
     train = request.files['train']
     test = request.files['test']
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    datasetid = uuid.uuid4().urn[9:]
+
+    folder = 'data/' + userid.urn[9:] + '/datasets/' + datasetid
 
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -28,7 +31,7 @@ def upload(userid, jobid):
         label.write(request.form['label_column'])
         label.close()
 
-        return jsonify({'success': 'true'})
+        return jsonify({'id': datasetid})
 
-    return jsonify({'error': 'unknown'})
+    return abort(400)
 

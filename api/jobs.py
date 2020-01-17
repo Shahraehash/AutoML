@@ -5,24 +5,50 @@ Search for the best model for a given dataset
 import ast
 import os
 import json
+import uuid
 
 from flask import abort, jsonify, request, url_for
 
 from ml.list_pipelines import list_pipelines
 from worker import CELERY, get_task_status, queue_training, revoke_task
 
+def create(userid):
+    """Creates a new job"""
+
+    try:
+        datasetid = request.get_json()['datasetid']
+    except KeyError:
+        abort(400)
+        return
+    
+    jobid = uuid.uuid4().urn[9:]
+
+    folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid
+
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    metadata = {}
+    if os.path.exists(folder + '/metadata.json'):
+        with open(folder + '/metadata.json') as metafile:
+            metadata = json.load(metafile)
+
+    metadata['datasetid'] = datasetid
+
+    with open(folder + '/metadata.json', 'w') as metafile:
+        json.dump(metadata, metafile)
+
+    return jsonify({'id': jobid})
+
+
 def train(userid, jobid):
     """Finds the best model for the selected parameters/data"""
-
-    label = open('data/' + userid.urn[9:] + '/' + jobid.urn[9:] + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
 
     parameters = request.form.to_dict()
     pipelines = list_pipelines(parameters)
 
     task = queue_training.s(
-        userid.urn[9:], jobid.urn[9:], label_column, parameters
+        userid.urn[9:], jobid.urn[9:], parameters
     ).apply_async()
 
     return jsonify({
@@ -68,8 +94,7 @@ def pending(userid):
                     'id': task['request']['id'],
                     'eta': task['eta'],
                     'jobid': args[1],
-                    'label': args[2],
-                    'parameters': args[3],
+                    'parameters': args[2],
                     'state': 'PENDING'
                 })
 
@@ -88,8 +113,7 @@ def pending(userid):
                 task_status.update({
                     'id': task['id'],
                     'jobid': args[1],
-                    'label': args[2],
-                    'parameters': args[3],
+                    'parameters': args[2],
                     'time': task['time_start']
                 })
                 active.append(task_status)

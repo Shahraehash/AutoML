@@ -60,7 +60,6 @@
             <ng-template #noDate>{{job.id}}</ng-template>
           </td>
           <td class='actions'>
-            <ion-button fill='none' size='small' (click)='trainPrior(job)'>Train</ion-button>
             <ion-button fill='none' size='small' (click)='viewPrior(job.id)' [disabled]='!job.results'>View Results</ion-button>
             <ion-button fill='none' size='small' (click)='deletePrior(job.id)'>
               <ion-icon name='close' color='danger' slot='icon-only'></ion-icon>

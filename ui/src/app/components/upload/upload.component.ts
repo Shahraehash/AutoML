@@ -66,7 +66,7 @@ export class UploadComponent implements OnInit, OnDestroy {
     formData.append('test', this.uploadForm.get('test').value);
     formData.append('label_column', this.uploadForm.get('label_column').value);
 
-    this.backend.submitData(formData).subscribe(
+    this.backend.submitData(formData).then(
       () => {
         this.stepFinished.emit({state: 'upload', data: this.labels.length});
       },
@@ -122,23 +122,6 @@ export class UploadComponent implements OnInit, OnDestroy {
 
       this.uploadForm.get(event.target.name).setValue(file);
     }
-  }
-
-  async trainPrior(job) {
-    if (!job.results) {
-      this.backend.currentJobId = job.id;
-      this.stepFinished.emit({state: 'upload'});
-      return;
-    }
-
-    const loading = await this.loadingController.create({
-      message: 'Creating New Job'
-    });
-
-    await loading.present();
-    await this.backend.cloneJob(job.id).toPromise();
-    await loading.dismiss();
-    this.stepFinished.emit({state: 'upload'});
   }
 
   viewPrior(id) {

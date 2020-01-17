@@ -8,7 +8,6 @@ using an Angular SPA.
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 
-from api.clone import clone
 from api.create import create
 from api.delete import delete
 from api.describe import describe_data
@@ -38,19 +37,21 @@ def page_not_found(_):
 
     return load_ui()
 
-APP.add_url_rule('/create/<uuid:userid>/<uuid:jobid>', 'create', create, methods=['POST'])
+APP.add_url_rule('/user/<uuid:userid>/datasets', 'upload', upload, methods=['POST'])
+APP.add_url_rule('/user/<uuid:userid>/datasets/<uuid:datasetid>/describe', 'describe', describe_data)
+APP.add_url_rule('/user/<uuid:userid>/jobs', 'create-job', jobs.create, methods=['POST'])
+APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/train', 'train', jobs.train, methods=['POST'])
+APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/result', 'results', results)
+APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/refit', 'refit', create, methods=['POST'])
+APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/test', 'test-model', test.test_model, methods=['POST'])
+
+
 APP.add_url_rule('/unpublish/<string:model>', 'unpublish', unpublish, methods=['DELETE'])
 APP.add_url_rule('/delete/<uuid:userid>/<uuid:jobid>', 'delete', delete, methods=['DELETE'])
-APP.add_url_rule('/describe/<uuid:userid>/<uuid:jobid>', 'describe', describe_data, methods=['GET'])
 APP.add_url_rule('/features/<string:model>', 'features', features, methods=['GET'])
 APP.add_url_rule('/test/<string:model>', 'test-published', test.test_published_model, methods=['POST'])
-APP.add_url_rule('/test/<uuid:userid>/<uuid:jobid>', 'test-model', test.test_model, methods=['POST'])
-APP.add_url_rule('/train/<uuid:userid>/<uuid:jobid>', 'train', jobs.train, methods=['POST'])
 APP.add_url_rule('/pipelines/<uuid:userid>/<uuid:jobid>', 'pipelines', jobs.get_pipelines, methods=['GET'])
 APP.add_url_rule('/status/<task_id>', 'status', jobs.status)
-APP.add_url_rule('/results/<uuid:userid>/<uuid:jobid>', 'results', results, methods=['GET'])
-APP.add_url_rule('/upload/<uuid:userid>/<uuid:jobid>', 'upload', upload, methods=['POST'])
-APP.add_url_rule('/clone/<uuid:userid>/<uuid:jobid>/<uuid:newjobid>', 'clone', clone, methods=['POST'])
 APP.add_url_rule('/list-pending/<uuid:userid>', 'pending', jobs.pending, methods=['GET'])
 APP.add_url_rule('/cancel/<uuid:task_id>', 'cancel', jobs.cancel, methods=['DELETE'])
 APP.add_url_rule('/list-jobs/<uuid:userid>', 'list-jobs', list_jobs, methods=['GET'])

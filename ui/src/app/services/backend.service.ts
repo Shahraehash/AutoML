@@ -9,7 +9,8 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class BackendService {
-  currentJobId;
+  currentJobId: string;
+  currentDatasetId: string;
   userData;
 
   constructor(
@@ -32,14 +33,27 @@ export class BackendService {
     this.userData = userData;
   }
 
-  submitData(formData) {
-    this.currentJobId = uuid();
-    return this.http.post<any>(environment.apiUrl + '/upload/' + this.userData.id + '/' + this.currentJobId, formData);
+  submitData(formData: FormData) {
+    return this.http.post<{id: string}>(
+      `${environment.apiUrl}/user/${this.userData.id}/datasets`, formData
+    ).toPromise().then(reply => {
+      this.currentDatasetId = reply.id;
+    });
   }
 
-  cloneJob(job) {
-    this.currentJobId = uuid();
-    return this.http.post(environment.apiUrl + '/clone/' + this.userData.id + '/' + job + '/' + this.currentJobId, undefined);
+  getDataAnalysis() {
+    return this.http.get<DataAnalysisReply>(
+      `${environment.apiUrl}/user/${this.userData.id}/datasets/${this.currentDatasetId}/describe`
+    );
+  }
+
+  createJob() {
+    return this.http.post<any>(
+      `${environment.apiUrl}/user/${this.userData.id}/jobs`,
+      {datasetid: this.currentDatasetId}
+    ).toPromise().then(reply => {
+      this.currentJobId = reply.id;
+    });
   }
 
   deleteJob(id) {
@@ -47,15 +61,11 @@ export class BackendService {
   }
 
   startTraining(formData) {
-    return this.http.post(environment.apiUrl + '/train/' + this.userData.id + '/' + this.currentJobId, formData);
+    return this.http.post(`${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/train`, formData);
   }
 
   getPipelines() {
     return this.http.get(environment.apiUrl + '/pipelines/' + this.userData.id + '/' + this.currentJobId);
-  }
-
-  getDataAnalysis() {
-    return this.http.get<DataAnalysisReply>(environment.apiUrl + '/describe/' + this.userData.id + '/' + this.currentJobId);
   }
 
   getTaskStatus(id: number) {
@@ -67,7 +77,9 @@ export class BackendService {
   }
 
   getResults() {
-    return this.http.get<Results>(environment.apiUrl + '/results/' + this.userData.id + '/' + this.currentJobId);
+    return this.http.get<Results>(
+      `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/result`
+    );
   }
 
   getModelFeatures(model: string) {
@@ -75,7 +87,10 @@ export class BackendService {
   }
 
   createModel(formData) {
-    return this.http.post(environment.apiUrl + '/create/' + this.userData.id + '/' + this.currentJobId, formData);
+    return this.http.post(
+      `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/refit`,
+      formData
+    );
   }
 
   unpublishModel(id: string) {
@@ -87,7 +102,10 @@ export class BackendService {
   }
 
   testModel(data) {
-    return this.http.post(environment.apiUrl + '/test/' + this.userData.id + '/' + this.currentJobId, data);
+    return this.http.post(
+      `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/test`,
+      data
+    );
   }
 
   getPendingTasks() {
