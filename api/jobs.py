@@ -20,7 +20,7 @@ def create(userid):
     except KeyError:
         abort(400)
         return
-    
+
     jobid = uuid.uuid4().urn[9:]
 
     folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid
@@ -47,8 +47,19 @@ def train(userid, jobid):
     parameters = request.form.to_dict()
     pipelines = list_pipelines(parameters)
 
+    job_folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+
+    with open(job_folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    dataset_folder = 'data/' + userid.urn[9:] + '/datasets/' + metadata['datasetid']
+
+    label = open(dataset_folder + '/label.txt', 'r')
+    label_column = label.read()
+    label.close()
+
     task = queue_training.s(
-        userid.urn[9:], jobid.urn[9:], parameters
+        userid.urn[9:], jobid.urn[9:], label_column, parameters
     ).apply_async()
 
     return jsonify({
@@ -94,7 +105,8 @@ def pending(userid):
                     'id': task['request']['id'],
                     'eta': task['eta'],
                     'jobid': args[1],
-                    'parameters': args[2],
+                    'label': args[2],
+                    'parameters': args[3],
                     'state': 'PENDING'
                 })
 
@@ -113,7 +125,8 @@ def pending(userid):
                 task_status.update({
                     'id': task['id'],
                     'jobid': args[1],
-                    'parameters': args[2],
+                    'label': args[2],
+                    'parameters': args[3],
                     'time': task['time_start']
                 })
                 active.append(task_status)

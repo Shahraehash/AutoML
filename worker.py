@@ -34,7 +34,7 @@ def fix_celery_solo(userid, jobid):
     return False
 
 @CELERY.task(bind=True)
-def queue_training(self, userid, jobid, parameters):
+def queue_training(self, userid, jobid, label_column, parameters):
     if fix_celery_solo(userid, jobid):
         return 0
 
@@ -44,11 +44,6 @@ def queue_training(self, userid, jobid, parameters):
         metadata = json.load(metafile)
 
     dataset_folder = 'data/' + userid + '/datasets/' + metadata['datasetid']
-
-    label = open(dataset_folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
-
     labels = ['No ' + label_column, label_column]
 
     metadata['parameters'] = parameters
