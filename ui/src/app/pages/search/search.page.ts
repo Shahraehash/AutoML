@@ -25,7 +25,7 @@ export class SearchPage implements OnInit, AfterViewInit {
 
   pendingTasks$: Observable<PendingTasks>;
   pauseUpdates = false;
-  featureCount: number;
+  trainCompleted = false;
 
   constructor(
     public activatedRoute: ActivatedRoute,
@@ -76,6 +76,7 @@ export class SearchPage implements OnInit, AfterViewInit {
   reset() {
     this.backend.currentJobId = undefined;
     this.backend.currentDatasetId = undefined;
+    this.trainCompleted = false;
     this.stepper.reset();
     window.history.pushState('', '', `/search`);
   }
@@ -104,6 +105,7 @@ export class SearchPage implements OnInit, AfterViewInit {
         setTimeout(() => this.stepper.selectedIndex = 2, 1);
         break;
       case 'result':
+        this.trainCompleted = true;
         setTimeout(() => this.stepper.selectedIndex = 3, 1);
     }
   }

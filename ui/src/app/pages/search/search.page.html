@@ -31,7 +31,7 @@
     <mat-step label='Explore' [completed]='!!backend.currentJobId' [editable]='!backend.currentJobId'>
       <app-explore #explore (stepFinished)='stepFinished($event)' *ngIf='stepper?.selectedIndex === 1'></app-explore>
     </mat-step>
-    <mat-step label='Train' [completed]='activatedRoute.snapshot.params.step === "result"' [editable]='activatedRoute.snapshot.params.step !== "result"'>
+    <mat-step label='Train' [completed]='trainCompleted' [editable]='!trainCompleted'>
       <app-train #train *ngIf='stepper?.selectedIndex === 2' (stepFinished)='stepFinished($event)' (reset)='reset()'></app-train>
     </mat-step>
     <mat-step label='Results'>

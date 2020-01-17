@@ -22,7 +22,17 @@
               {{getValue(element, column)}}
             </span>
             <span *ngIf='column === "actions"' class='actions'>
-              <!-- <ion-icon name='cloud-upload' color='primary' size='large' (click)='beginPublish(i)'></ion-icon> -->
+              <ion-icon
+                name='search' color='primary' size='small'
+                (click)='viewResult(element.id)'
+                [class.ion-hide]='element.hasResults'></ion-icon>
+              <ion-icon
+                name='document' color='primary' size='small'
+                (click)='viewResult(element.id)'
+                [class.ion-hide]='!element.hasResults'></ion-icon>
+              <ion-icon
+                name='trash' color='danger' size='small'
+                (click)='viewResult(element.id)'></ion-icon>
             </span>
           </td>
         </ng-container>

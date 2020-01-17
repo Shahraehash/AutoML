@@ -15,7 +15,7 @@ export class ExploreComponent implements OnInit {
 
   analysis: DataAnalysisReply;
   jobs: MatTableDataSource<Jobs>;
-  columns = ['Date', 'Completed', 'actions'];
+  columns = ['Date', 'Status', 'actions'];
   constructor(
     public backend: BackendService,
     private datePipe: DatePipe
@@ -38,9 +38,14 @@ export class ExploreComponent implements OnInit {
     switch (column) {
       case 'Date':
         return this.datePipe.transform(job.date, 'shortDate');
-      case 'Completed':
-        return this.datePipe.transform(job.metadata.date, 'shortTime');
+      case 'Status':
+        return job.metadata.date ? 'Completed' : 'Pending';
     }
+  }
+
+  viewResult(id) {
+    this.backend.currentJobId = id;
+    this.stepFinished.emit({nextStep: 'result'});
   }
 
   continue() {
