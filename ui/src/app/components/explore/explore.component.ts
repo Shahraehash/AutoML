@@ -17,12 +17,14 @@ export class ExploreComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.backend.getDataAnalysis().subscribe(data => this.data = data);
+    if (this.backend.currentDatasetId) {
+      this.backend.getDataAnalysis().subscribe(data => this.data = data);
+    }
   }
 
   continue() {
     this.backend.createJob().then(_ => {
-      this.stepFinished.emit({state: 'explore'});
+      this.stepFinished.emit({nextStep: 'train'});
     });
   }
 }

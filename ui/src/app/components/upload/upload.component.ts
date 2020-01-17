@@ -60,7 +60,7 @@ export class UploadComponent implements OnInit, OnDestroy {
 
     this.backend.submitData(formData).then(
       () => {
-        this.stepFinished.emit({state: 'upload', data: this.labels.length});
+        this.stepFinished.emit({nextStep: 'explore'});
       },
       async () => {
         const alert = await this.alertController.create({
@@ -118,7 +118,7 @@ export class UploadComponent implements OnInit, OnDestroy {
 
   exploreDataSet(id) {
     this.backend.currentDatasetId = id;
-    this.stepFinished.emit({state: 'upload'});
+    this.stepFinished.emit({nextStep: 'explore'});
   }
 
   launchModel(id) {

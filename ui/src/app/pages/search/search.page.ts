@@ -1,5 +1,4 @@
 import { Component, AfterViewInit, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatStepper } from '@angular/material';
 import { ActivatedRoute } from '@angular/router';
@@ -26,24 +25,13 @@ export class SearchPage implements OnInit, AfterViewInit {
 
   pendingTasks$: Observable<PendingTasks>;
   pauseUpdates = false;
-  uploadForm: FormGroup;
-  trainForm: FormGroup;
   featureCount: number;
 
   constructor(
+    public backend: BackendService,
     private activatedRoute: ActivatedRoute,
-    private backend: BackendService,
-    private formBuilder: FormBuilder,
     private popoverController: PopoverController
-  ) {
-    this.uploadForm = this.formBuilder.group({
-      upload: ['', Validators.required]
-    });
-
-    this.trainForm = this.formBuilder.group({
-      train: ['', Validators.required]
-    });
-  }
+  ) {}
 
   ngOnInit() {
     this.pendingTasks$ = timer(0, 5000).pipe(
@@ -55,42 +43,24 @@ export class SearchPage implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    const exploreId = this.activatedRoute.snapshot.params.exploreId;
-    if (exploreId) {
-      this.backend.currentDatasetId = exploreId;
-      this.stepFinished({state: 'upload'});
-    }
-
-    const trainId = this.activatedRoute.snapshot.params.trainId;
-    if (trainId) {
-      this.backend.currentJobId = trainId;
-      this.stepFinished({state: 'explore'});
-    }
-
-    const statusId = this.activatedRoute.snapshot.params.statusId;
+    this.backend.currentDatasetId = this.activatedRoute.snapshot.params.dataId;
+    this.backend.currentJobId = this.activatedRoute.snapshot.params.jobId;
+    this.stepFinished({nextStep: this.activatedRoute.snapshot.params.step});
     const taskId = this.activatedRoute.snapshot.params.taskId;
-    if (statusId && taskId) {
-      this.backend.currentJobId = statusId;
-      this.stepFinished({state: 'explore'});
+    if (taskId) {
       setTimeout(() => this.train.startMonitor(taskId), 1);
-    }
-
-    const resultId = this.activatedRoute.snapshot.params.resultId;
-    if (resultId) {
-      this.backend.currentJobId = resultId;
-      this.stepFinished({state: 'train'});
     }
 
     this.stepper.selectionChange.subscribe(event => {
       switch (event.selectedIndex) {
         case 3:
-          window.history.pushState('', '', `/search/result/${this.backend.currentJobId}`);
+          window.history.pushState('', '', `/search/${this.backend.currentDatasetId}/job/${this.backend.currentJobId}/result`);
           break;
         case 2:
-          window.history.pushState('', '', `/search/train/${this.backend.currentJobId}`);
+          window.history.pushState('', '', `/search/${this.backend.currentDatasetId}/job/${this.backend.currentJobId}/train`);
           break;
         case 1:
-          window.history.pushState('', '', `/search/explore/${this.backend.currentDatasetId}`);
+          window.history.pushState('', '', `/search/${this.backend.currentDatasetId}/explore`);
           break;
         case 0:
         default:
@@ -104,8 +74,9 @@ export class SearchPage implements OnInit, AfterViewInit {
   }
 
   reset() {
+    this.backend.currentJobId = undefined;
+    this.backend.currentDatasetId = undefined;
     this.stepper.reset();
-    this.uploadForm.reset();
     window.history.pushState('', '', `/search`);
   }
 
@@ -125,20 +96,14 @@ export class SearchPage implements OnInit, AfterViewInit {
   }
 
   stepFinished(event) {
-    switch (event.state) {
-      case 'upload':
-        this.featureCount = event.data;
-        this.uploadForm.get('upload').setValue('true');
-        this.stepper.selectedIndex = 1;
-        break;
+    switch (event.nextStep) {
       case 'explore':
-        this.uploadForm.get('upload').setValue('true');
-        this.stepper.selectedIndex = 2;
+        setTimeout(() => this.stepper.selectedIndex = 1, 1);
         break;
       case 'train':
-        this.uploadForm.get('upload').setValue('true');
-        this.trainForm.get('train').setValue('true');
-        this.stepper.selectedIndex = 2;
+        setTimeout(() => this.stepper.selectedIndex = 2, 1);
+        break;
+      case 'result':
         setTimeout(() => this.stepper.selectedIndex = 3, 1);
     }
   }

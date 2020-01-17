@@ -110,7 +110,7 @@ export class TrainComponent implements OnDestroy, OnInit {
       (task: TaskAdded) => {
         this.allPipelines = task.pipelines;
         this.checkStatus(task.id);
-        window.history.pushState('', '', `/search/status/${this.backend.currentJobId}/${task.id}`);
+        window.history.pushState('', '', `/search/${this.backend.currentJobId}/job/${this.backend.currentJobId}/train/${task.id}/status`);
       },
       async () => {
         const alert = await this.alertController.create({
@@ -127,7 +127,7 @@ export class TrainComponent implements OnDestroy, OnInit {
   }
 
   startMonitor(taskId) {
-    window.history.pushState('', '', `/search/status/${this.backend.currentJobId}/${taskId}`);
+    window.history.pushState('', '', `/search/${this.backend.currentJobId}/job/${this.backend.currentJobId}/train/${taskId}/status`);
     this.training = true;
 
     this.backend.getPipelines().subscribe(
@@ -223,7 +223,7 @@ export class TrainComponent implements OnDestroy, OnInit {
 
         if (status.state === 'SUCCESS') {
           this.training = false;
-          this.stepFinished.emit({state: 'train'});
+          this.stepFinished.emit({nextStep: 'result'});
         } else if (status.state === 'FAILURE') {
           const alert = await this.alertController.create({
             cssClass: 'wide-alert',
