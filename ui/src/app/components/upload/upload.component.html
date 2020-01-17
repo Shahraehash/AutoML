@@ -51,7 +51,7 @@
         <ion-card-title>Previous Data Set</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-      <ion-chip *ngFor='let dataSet of dataSets' (click)='exploreDataSet(dataSet.id)'>{{dataSet.label}}</ion-chip>
+      <ion-chip *ngFor='let dataSet of dataSets' (click)='exploreDataSet(dataSet.id)'>{{dataSet.label}} ({{dataSet.date | date:'short'}})</ion-chip>
       </ion-card-content>
     </ion-card>
   </ng-container>

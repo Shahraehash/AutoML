@@ -3,6 +3,7 @@ Handle dataset related requests
 """
 
 import os
+import time
 import uuid
 
 from flask import abort, jsonify, request
@@ -18,24 +19,30 @@ def get(userid):
         abort(400)
         return
 
-    jobs = []
-    for job in os.listdir(folder):
-        if not os.path.isdir(folder + '/' + job) or\
-            not os.path.exists(folder + '/' + job + '/train.csv') or\
-            not os.path.exists(folder + '/' + job + '/test.csv') or\
-            not os.path.exists(folder + '/' + job + '/label.txt'):
+    datasets = []
+    for dataset in os.listdir(folder):
+        if not os.path.isdir(folder + '/' + dataset) or\
+            not os.path.exists(folder + '/' + dataset + '/train.csv') or\
+            not os.path.exists(folder + '/' + dataset + '/test.csv') or\
+            not os.path.exists(folder + '/' + dataset + '/label.txt'):
             continue
 
-        label = open(folder + '/' + job + '/label.txt', 'r')
+        label = open(folder + '/' + dataset + '/label.txt', 'r')
         label_column = label.read()
         label.close()
 
-        jobs.append({
-            'id': job,
+        datasets.append({
+            'date': time.strftime(
+                '%Y-%m-%dT%H:%M:%SZ',
+                time.gmtime(max(
+                    os.path.getmtime(root) for root, _, _ in os.walk(folder + '/' + dataset)
+                ))
+            ),
+            'id': dataset,
             'label': label_column
         })
 
-    return jsonify(jobs)
+    return jsonify(datasets)
 
 def add(userid):
     """Upload files to the server"""
