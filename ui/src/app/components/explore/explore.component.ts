@@ -37,9 +37,9 @@ export class ExploreComponent implements OnInit {
   getValue(job, column) {
     switch (column) {
       case 'Date':
-        return this.datePipe.transform(job.date, 'short');
+        return this.datePipe.transform(job.date, 'shortDate');
       case 'Completed':
-        return this.datePipe.transform(job.metadata.date, 'short');
+        return this.datePipe.transform(job.metadata.date, 'shortTime');
     }
   }
 
