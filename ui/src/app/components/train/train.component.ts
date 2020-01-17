@@ -110,7 +110,7 @@ export class TrainComponent implements OnDestroy, OnInit {
       (task: TaskAdded) => {
         this.allPipelines = task.pipelines;
         this.checkStatus(task.id);
-        window.history.pushState('', '', `/search/${this.backend.currentJobId}/job/${this.backend.currentJobId}/train/${task.id}/status`);
+        this.pushStateStatus(task.id);
       },
       async () => {
         const alert = await this.alertController.create({
@@ -127,7 +127,7 @@ export class TrainComponent implements OnDestroy, OnInit {
   }
 
   startMonitor(taskId) {
-    window.history.pushState('', '', `/search/${this.backend.currentJobId}/job/${this.backend.currentJobId}/train/${taskId}/status`);
+    this.pushStateStatus(taskId);
     this.training = true;
 
     this.backend.getPipelines().subscribe(
@@ -244,5 +244,9 @@ export class TrainComponent implements OnDestroy, OnInit {
   private async showError(message) {
     const toast = await this.toastController.create({message, duration: 2000});
     await toast.present();
+  }
+
+  private pushStateStatus(id) {
+    window.history.pushState('', '', `/search/${this.backend.userData.id}/job/${this.backend.currentJobId}/train/${id}/status`);
   }
 }
