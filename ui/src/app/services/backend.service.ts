@@ -113,7 +113,7 @@ export class BackendService {
   }
 
   getPriorJobs() {
-    return this.http.get<PriorJobs[]>(environment.apiUrl + '/user/' + this.userData.id + '/jobs');
+    return this.http.get<PriorJobs[]>(environment.apiUrl + '/user/' + this.userData.id + '/datasets');
   }
 
   getPublishedModels() {
