@@ -28,8 +28,8 @@ export class SearchPage implements OnInit, AfterViewInit {
   featureCount: number;
 
   constructor(
+    public activatedRoute: ActivatedRoute,
     public backend: BackendService,
-    private activatedRoute: ActivatedRoute,
     private popoverController: PopoverController
   ) {}
 

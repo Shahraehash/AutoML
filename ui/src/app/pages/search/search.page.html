@@ -25,16 +25,16 @@
       <mat-icon>check</mat-icon>
     </ng-template>
 
-    <mat-step label='Select Data' [completed]='!!backend.currentDatasetId'>
+    <mat-step label='Select' [completed]='!!backend.currentDatasetId' [editable]='!backend.currentDatasetId'>
       <app-upload #upload (stepFinished)='stepFinished($event)' *ngIf='stepper?.selectedIndex === 0'></app-upload>
     </mat-step>
-    <mat-step label='Explore' [completed]='!!backend.currentJobId'>
+    <mat-step label='Explore' [completed]='!!backend.currentJobId' [editable]='!backend.currentJobId'>
       <app-explore #explore (stepFinished)='stepFinished($event)' *ngIf='stepper?.selectedIndex === 1'></app-explore>
     </mat-step>
-    <mat-step label='Train'>
+    <mat-step label='Train' [completed]='activatedRoute.snapshot.params.step === "result"' [editable]='activatedRoute.snapshot.params.step !== "result"'>
       <app-train #train *ngIf='stepper?.selectedIndex === 2' (stepFinished)='stepFinished($event)' (reset)='reset()'></app-train>
     </mat-step>
-    <mat-step label='View Results'>
+    <mat-step label='Results'>
       <app-results *ngIf='stepper?.selectedIndex === 3'></app-results>
     </mat-step>
   </mat-horizontal-stepper>
