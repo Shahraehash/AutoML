@@ -1,7 +1,8 @@
 <div class='container'>
-  <ion-card class='ion-padding ion-text-center upload-new' [formGroup]='uploadForm'>
+  <ion-card class='ion-padding ion-text-center upload-new ion-margin-bottom' [formGroup]='uploadForm'>
     <ion-card-header>
-      <ion-card-subtitle>Please provide a training test set and a separate test set used for generalization. Both data sets must have the same columns.</ion-card-subtitle>
+      <ion-card-subtitle>Please provide a training test set and a separate test set used for generalization. Both data
+        sets must have the same columns.</ion-card-subtitle>
       <ion-card-title>Data Upload</ion-card-title>
     </ion-card-header>
 
@@ -15,43 +16,37 @@
       Select Testing Data (Generalization)
       <input type='file' name='test' (change)='onFileSelect($event)' [disabled]='!uploadForm.get("train").valid'>
     </label>
-    <ion-select placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column'>
+    <ion-select placeholder='Target Column' interface='popover' [disabled]='!labels.length'
+      formControlName='label_column'>
       <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
     </ion-select>
 
     <ion-button expand='block' class='ion-padding' (click)='onSubmit()' [disabled]='!uploadForm.valid'>Next</ion-button>
   </ion-card>
 
-  <ng-container *ngIf='(publishedModels$ | async) | keyvalue; let publishedModels'>
-    <ion-card class='ion-padding ion-text-center' *ngIf='publishedModels.length'>
-      <ion-card-header>
-        <ion-card-subtitle>Listed are models you have already published. You may manage your published models below.</ion-card-subtitle>
-        <ion-card-title>Published Models</ion-card-title>
-      </ion-card-header>
-    
-      <table>
-        <tr *ngFor='let model of publishedModels'>
-          <td class='model-name'>
-            <ion-chip (click)='launchModel(model.key)'>{{model.key}}</ion-chip>
-          </td>
-          <td>
-            <ion-button fill='none' size='small' (click)='deletePublished(model.key)'>
-              <ion-icon name='close' color='danger' slot='icon-only'></ion-icon>
-            </ion-button>
-          </td>
-        </tr>
-      </table>
-    </ion-card>
-  </ng-container>
-
   <ng-container *ngIf='(dataSets$ | async) as dataSets'>
-    <ion-card class='ion-padding ion-text-center previous-jobs' *ngIf='dataSets.length'>
+    <ion-card class='ion-padding ion-text-center ion-margin-bottom' *ngIf='dataSets.length'>
       <ion-card-header>
         <ion-card-subtitle>Alternatively, you may select previously uploaded data sets.</ion-card-subtitle>
         <ion-card-title>Previous Data Set</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-      <ion-chip *ngFor='let dataSet of dataSets' (click)='exploreDataSet(dataSet.id)'>{{dataSet.label}} ({{dataSet.date | date:'short'}})</ion-chip>
+        <ion-chip *ngFor='let dataSet of dataSets' (click)='exploreDataSet(dataSet.id)'>{{dataSet.label}}
+          ({{dataSet.date | date:'short'}})</ion-chip>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+
+  <ng-container *ngIf='(publishedModels$ | async); let publishedModels'>
+    <ion-card class='ion-padding ion-text-center' *ngIf='publishedModels'>
+      <ion-card-header>
+        <ion-card-subtitle>Listed are models you have already published. You may manage your published models below.
+        </ion-card-subtitle>
+        <ion-card-title>Published Models</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-chip *ngFor='let model of publishedModels | keyvalue' (click)='launchModel(model.key)'>{{model.key}}
+          ({{model.value.date | date:'short'}})</ion-chip>
       </ion-card-content>
     </ion-card>
   </ng-container>

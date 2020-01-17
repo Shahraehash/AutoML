@@ -98,7 +98,10 @@ export interface PendingTasks {
     scheduled: ScheduledTaskStatus[];
 }
 export interface PublishedModels {
-    [key: string]: string[];
+    [key: string]: {
+        date: Date;
+        features: string[];
+    };
 }
 
 export interface DataAnalysisReply {

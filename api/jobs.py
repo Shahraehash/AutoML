@@ -5,6 +5,7 @@ Search for the best model for a given dataset
 import ast
 import os
 import json
+import time
 import uuid
 from shutil import copyfile, rmtree
 
@@ -163,6 +164,7 @@ def refit(userid, jobid):
             return
 
         published[request.form['publishName']] = {
+            'date': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
             'features': request.form['features'],
             'path': model_path
         }

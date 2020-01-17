@@ -23,7 +23,12 @@ def get(userid):
         published = json.load(published_file)
 
     user = userid.urn[9:]
-    published = {k:ast.literal_eval(v['features']) for (k, v) in published.items() if user in v['path']}
+    published = {
+        k:{
+            'features': ast.literal_eval(v['features']),
+            'date': v['date']
+        } for (k, v) in published.items() if user in v['path']
+    }
 
     return jsonify(published)
 
