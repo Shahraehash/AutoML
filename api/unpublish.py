@@ -9,7 +9,7 @@ from flask import jsonify, abort
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
-def unpublish(model):
+def unpublish(name):
     """Unpublish a published model"""
 
     if not os.path.exists(PUBLISHED_MODELS):
@@ -19,11 +19,11 @@ def unpublish(model):
     with open(PUBLISHED_MODELS) as published_file:
         published = json.load(published_file)
 
-    if model not in published:
+    if name not in published:
         abort(400)
         return
 
-    published.pop(model, None)
+    published.pop(name, None)
 
     with open(PUBLISHED_MODELS, 'w') as published_file:
         json.dump(published, published_file)

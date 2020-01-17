@@ -60,7 +60,7 @@ def train(userid, jobid):
 def get_pipelines(userid, jobid):
     """Returns the pipelines for a job"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/' + '/metadata.json'):
         abort(400)

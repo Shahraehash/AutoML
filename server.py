@@ -37,30 +37,35 @@ def page_not_found(_):
 
     return load_ui()
 
+# Datasets
 APP.add_url_rule('/user/<uuid:userid>/datasets', 'upload', upload, methods=['POST'])
 APP.add_url_rule('/user/<uuid:userid>/datasets/<uuid:datasetid>/describe', 'describe', describe_data)
+
+# Jobs
+APP.add_url_rule('/user/<uuid:userid>/jobs', 'list-jobs', list_jobs)
 APP.add_url_rule('/user/<uuid:userid>/jobs', 'create-job', jobs.create, methods=['POST'])
+APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>', 'delete', delete, methods=['DELETE'])
 APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/train', 'train', jobs.train, methods=['POST'])
 APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/result', 'results', results)
 APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/refit', 'refit', create, methods=['POST'])
 APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/test', 'test-model', test.test_model, methods=['POST'])
+APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/pipelines', 'pipelines', jobs.get_pipelines)
+APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/export', 'export', export.results)
+APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/export-pmml', 'export-pmml', export.pmml)
+APP.add_url_rule('/user/<uuid:userid>/jobs/<uuid:jobid>/export-model', 'export-model', export.model)
 
+# Tasks
+APP.add_url_rule('/user/<uuid:userid>/tasks', 'pending', jobs.pending)
+APP.add_url_rule('/tasks/<uuid:task_id>', 'status', jobs.status)
+APP.add_url_rule('/tasks/<uuid:task_id>', 'cancel', jobs.cancel, methods=['DELETE'])
 
-APP.add_url_rule('/unpublish/<string:model>', 'unpublish', unpublish, methods=['DELETE'])
-APP.add_url_rule('/delete/<uuid:userid>/<uuid:jobid>', 'delete', delete, methods=['DELETE'])
-APP.add_url_rule('/features/<string:model>', 'features', features, methods=['GET'])
-APP.add_url_rule('/test/<string:model>', 'test-published', test.test_published_model, methods=['POST'])
-APP.add_url_rule('/pipelines/<uuid:userid>/<uuid:jobid>', 'pipelines', jobs.get_pipelines, methods=['GET'])
-APP.add_url_rule('/status/<task_id>', 'status', jobs.status)
-APP.add_url_rule('/list-pending/<uuid:userid>', 'pending', jobs.pending, methods=['GET'])
-APP.add_url_rule('/cancel/<uuid:task_id>', 'cancel', jobs.cancel, methods=['DELETE'])
-APP.add_url_rule('/list-jobs/<uuid:userid>', 'list-jobs', list_jobs, methods=['GET'])
-APP.add_url_rule('/list-published/<uuid:userid>', 'list-published', list_published, methods=['GET'])
-APP.add_url_rule('/export/<uuid:userid>/<uuid:jobid>', 'export', export.results, methods=['GET'])
-APP.add_url_rule('/export-pmml/<uuid:userid>/<uuid:jobid>', 'export-pmml', export.pmml, methods=['GET'])
-APP.add_url_rule('/export-pmml/<string:model>', 'export-published-pmml', export.published_pmml, methods=['GET'])
-APP.add_url_rule('/export-model/<uuid:userid>/<uuid:jobid>', 'export-model', export.model, methods=['GET'])
-APP.add_url_rule('/export-model/<string:model>', 'export-published-model', export.published_model, methods=['GET'])
+# Published Models
+APP.add_url_rule('/user/<uuid:userid>/published', 'list-published', list_published)
+APP.add_url_rule('/published/<string:name>', 'unpublish', unpublish, methods=['DELETE'])
+APP.add_url_rule('/published/<string:name>/test', 'test-published', test.test_published_model, methods=['POST'])
+APP.add_url_rule('/published/<string:name>/export-model', 'export-published-model', export.published_model)
+APP.add_url_rule('/published/<string:name>/export-pmml', 'export-published-pmml', export.published_pmml)
+APP.add_url_rule('/published/<string:name>/features', 'features', features)
 
 if __name__ == "__main__":
     APP.run()

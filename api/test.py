@@ -11,7 +11,7 @@ from ml.predict import predict
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
-def test_published_model(model):
+def test_published_model(name):
     """Tests the published model against the provided data"""
 
     if not os.path.exists(PUBLISHED_MODELS):
@@ -21,21 +21,21 @@ def test_published_model(model):
     with open(PUBLISHED_MODELS) as published_file:
         published = json.load(published_file)
 
-    if model not in published:
+    if name not in published:
         abort(400)
         return
 
-    folder = published[model]['path'][:published[model]['path'].rfind('/')]
-    label = open(folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
+    folder = published[name]['path'][:published[name]['path'].rfind('/')]
+
+    with open(folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
 
     reply = predict(
         json.loads(request.data),
-        published[model]['path']
+        published[name]['path']
     )
 
-    reply['target'] = label_column
+    reply['target'] = metadata['label']
 
     return jsonify(reply)
 

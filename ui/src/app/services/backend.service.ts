@@ -57,7 +57,7 @@ export class BackendService {
   }
 
   deleteJob(id) {
-    return this.http.delete(environment.apiUrl + '/delete/' + this.userData.id + '/' + id);
+    return this.http.delete(environment.apiUrl + '/user/' + this.userData.id + '/jobs/' + id);
   }
 
   startTraining(formData) {
@@ -65,15 +65,15 @@ export class BackendService {
   }
 
   getPipelines() {
-    return this.http.get(environment.apiUrl + '/pipelines/' + this.userData.id + '/' + this.currentJobId);
+    return this.http.get(`${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/pipelines`);
   }
 
   getTaskStatus(id: number) {
-    return this.http.get<ActiveTaskStatus>(environment.apiUrl + '/status/' + id);
+    return this.http.get<ActiveTaskStatus>(`${environment.apiUrl}/tasks/${id}`);
   }
 
-  cancelTask(id: number) {
-    return this.http.delete(environment.apiUrl + '/cancel/' + id);
+  cancelTask(id) {
+    return this.http.delete(`${environment.apiUrl}/tasks/${id}`);
   }
 
   getResults() {
@@ -83,7 +83,7 @@ export class BackendService {
   }
 
   getModelFeatures(model: string) {
-    return this.http.get<string>(environment.apiUrl + '/features/' + model);
+    return this.http.get<string>(`${environment.apiUrl}/published/${model}/features`);
   }
 
   createModel(formData) {
@@ -94,11 +94,11 @@ export class BackendService {
   }
 
   unpublishModel(id: string) {
-    return this.http.delete(environment.apiUrl + '/unpublish/' + id);
+    return this.http.delete(environment.apiUrl + '/published/' + id);
   }
 
   testPublishedModel(data, publishName) {
-    return this.http.post(environment.apiUrl + '/test/' + publishName, data);
+    return this.http.post(`${environment.apiUrl}/published/${publishName}/test`, data);
   }
 
   testModel(data) {
@@ -109,34 +109,34 @@ export class BackendService {
   }
 
   getPendingTasks() {
-    return this.http.get<PendingTasks>(environment.apiUrl + '/list-pending/' + this.userData.id);
+    return this.http.get<PendingTasks>(`${environment.apiUrl}/user/${this.userData.id}/tasks`);
   }
 
   getPriorJobs() {
-    return this.http.get<PriorJobs[]>(environment.apiUrl + '/list-jobs/' + this.userData.id);
+    return this.http.get<PriorJobs[]>(environment.apiUrl + '/user/' + this.userData.id + '/jobs');
   }
 
   getPublishedModels() {
-    return this.http.get<PublishedModels>(environment.apiUrl + '/list-published/' + this.userData.id);
+    return this.http.get<PublishedModels>(`${environment.apiUrl}/user/${this.userData.id}/published`);
   }
 
   exportCSV() {
-    return environment.apiUrl + '/export/' + this.userData.id + '/' + this.currentJobId;
+    return `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/export`;
   }
 
   exportModel() {
-    return environment.apiUrl + '/export-model/' + this.userData.id + '/' + this.currentJobId;
+    return `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/export-model`;
   }
 
   exportPMML() {
-    return environment.apiUrl + '/export-pmml/' + this.userData.id + '/' + this.currentJobId;
+    return `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/export-pmml`;
   }
 
   exportPublishedModel(publishName) {
-    return environment.apiUrl + '/export-model/' + publishName;
+    return `${environment.apiUrl}/published/${publishName}/export-model`;
   }
 
   exportPublishedPMML(publishName) {
-    return environment.apiUrl + '/export-pmml/' + publishName;
+    return `${environment.apiUrl}/published/${publishName}/export-pmml`;
   }
 }

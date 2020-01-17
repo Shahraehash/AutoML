@@ -12,7 +12,7 @@ PUBLISHED_MODELS = 'data/published-models.json'
 def results(userid, jobid):
     """Export the results CSV"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/report.csv'):
         abort(400)
@@ -23,7 +23,7 @@ def results(userid, jobid):
 def pmml(userid, jobid):
     """Export the selected model's PMML"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/pipeline.pmml'):
         abort(400)
@@ -31,7 +31,7 @@ def pmml(userid, jobid):
 
     return send_file(folder + '/pipeline.pmml', as_attachment=True)
 
-def published_pmml(model):
+def published_pmml(name):
     """Export the published model's PMML"""
 
     if not os.path.exists(PUBLISHED_MODELS):
@@ -41,20 +41,20 @@ def published_pmml(model):
     with open(PUBLISHED_MODELS) as published_file:
         published = json.load(published_file)
 
-    if model not in published:
+    if name not in published:
         abort(400)
         return
 
-    if not os.path.exists(published[model]['path'] + '.pmml'):
+    if not os.path.exists(published[name]['path'] + '.pmml'):
         abort(400)
         return
 
-    return send_file(published[model]['path'] + '.pmml', as_attachment=True)
+    return send_file(published[name]['path'] + '.pmml', as_attachment=True)
 
 def model(userid, jobid):
     """Export the selected model"""
 
-    folder = 'data/' + userid.urn[9:] + '/' + jobid.urn[9:]
+    folder = 'data/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/pipeline.joblib'):
         abort(400)

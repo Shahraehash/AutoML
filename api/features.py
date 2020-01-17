@@ -9,7 +9,7 @@ from flask import abort, jsonify
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
-def features(model):
+def features(name):
     """Returns the features for a published model"""
 
     if not os.path.exists(PUBLISHED_MODELS):
@@ -19,8 +19,8 @@ def features(model):
     with open(PUBLISHED_MODELS) as published_file:
         published = json.load(published_file)
 
-    if model not in published:
+    if name not in published:
         abort(400)
         return
 
-    return jsonify(published[model]['features'])
+    return jsonify(published[name]['features'])
