@@ -247,6 +247,6 @@ export class TrainComponent implements OnDestroy, OnInit {
   }
 
   private pushStateStatus(id) {
-    window.history.pushState('', '', `/search/${this.backend.userData.id}/job/${this.backend.currentJobId}/train/${id}/status`);
+    window.history.pushState('', '', `/search/${this.backend.currentDatasetId}/job/${this.backend.currentJobId}/train/${id}/status`);
   }
 }
