@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnInit, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatStepper } from '@angular/material';
 import { ActivatedRoute } from '@angular/router';
@@ -30,6 +30,7 @@ export class SearchPage implements OnInit, AfterViewInit {
   constructor(
     public activatedRoute: ActivatedRoute,
     public backend: BackendService,
+    private element: ElementRef,
     private popoverController: PopoverController
   ) {}
 
@@ -78,6 +79,12 @@ export class SearchPage implements OnInit, AfterViewInit {
     this.backend.currentDatasetId = undefined;
     this.trainCompleted = false;
     this.stepper.reset();
+
+    /** Fixes stepper reset not clearing done state */
+    for (const match of this.element.nativeElement.querySelectorAll('.mat-step-icon-state-done')) {
+      match.classList.remove('mat-step-icon-state-done');
+    }
+
     window.history.pushState('', '', `/search`);
   }
 
