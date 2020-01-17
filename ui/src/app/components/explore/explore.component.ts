@@ -1,4 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { MatTableDataSource } from '@angular/material';
 
 import { BackendService } from '../../services/backend.service';
 import { DataAnalysisReply, Jobs } from '../../interfaces';
@@ -12,10 +14,11 @@ export class ExploreComponent implements OnInit {
   @Output() stepFinished = new EventEmitter();
 
   analysis: DataAnalysisReply;
-  jobs: Jobs[];
+  jobs: MatTableDataSource<Jobs>;
   columns = ['Date', 'Completed', 'actions'];
   constructor(
-    public backend: BackendService
+    public backend: BackendService,
+    private datePipe: DatePipe
   ) {}
 
   ngOnInit() {
@@ -24,7 +27,20 @@ export class ExploreComponent implements OnInit {
     }
 
     this.backend.getDataAnalysis().subscribe(data => this.analysis = data);
-    this.backend.getJobs().subscribe(data => this.jobs = data);
+    this.backend.getJobs().subscribe(data => {
+      this.jobs = new MatTableDataSource(
+        data.filter(job => job.metadata.datasetid === this.backend.currentDatasetId)
+      );
+    });
+  }
+
+  getValue(job, column) {
+    switch (column) {
+      case 'Date':
+        return this.datePipe.transform(job.date, 'short');
+      case 'Completed':
+        return this.datePipe.transform(job.metadata.date, 'short');
+    }
   }
 
   continue() {

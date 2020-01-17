@@ -17,6 +17,7 @@ export interface Jobs {
 }
 
 export interface MetaData {
+    datasetid: string;
     fits?: {
         knn: number;
         nb: number;
