@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
 import { BackendService } from '../../services/backend.service';
-import { DataAnalysisReply } from '../../interfaces';
+import { DataAnalysisReply, Jobs } from '../../interfaces';
 
 @Component({
   selector: 'app-explore',
@@ -11,15 +11,20 @@ import { DataAnalysisReply } from '../../interfaces';
 export class ExploreComponent implements OnInit {
   @Output() stepFinished = new EventEmitter();
 
-  data: DataAnalysisReply;
+  analysis: DataAnalysisReply;
+  jobs: Jobs[];
+  columns = ['Date', 'Completed', 'actions'];
   constructor(
     public backend: BackendService
   ) {}
 
   ngOnInit() {
-    if (this.backend.currentDatasetId) {
-      this.backend.getDataAnalysis().subscribe(data => this.data = data);
+    if (!this.backend.currentDatasetId) {
+      return;
     }
+
+    this.backend.getDataAnalysis().subscribe(data => this.analysis = data);
+    this.backend.getJobs().subscribe(data => this.jobs = data);
   }
 
   continue() {

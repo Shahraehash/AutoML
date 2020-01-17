@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
-import { ActiveTaskStatus, DataAnalysisReply, DataSets, PendingTasks, PublishedModels, Results } from '../interfaces';
+import { ActiveTaskStatus, DataAnalysisReply, DataSets, Jobs, PendingTasks, PublishedModels, Results } from '../interfaces';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -114,6 +114,10 @@ export class BackendService {
 
   getDataSets() {
     return this.http.get<DataSets[]>(environment.apiUrl + '/user/' + this.userData.id + '/datasets');
+  }
+
+  getJobs() {
+    return this.http.get<Jobs[]>(environment.apiUrl + '/user/' + this.userData.id + '/jobs');
   }
 
   getPublishedModels() {

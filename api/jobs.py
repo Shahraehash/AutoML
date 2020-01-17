@@ -19,6 +19,38 @@ from worker import queue_training
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
+def get(userid):
+    """Get all the jobs for a given user ID"""
+
+    folder = 'data/' + userid.urn[9:] + '/jobs'
+
+    if not os.path.exists(folder):
+        abort(400)
+        return
+
+    jobs = []
+    for job in os.listdir(folder):
+        if not os.path.isdir(folder + '/' + job) or\
+            not os.path.exists(folder + '/' + job + '/metadata.json'):
+            continue
+
+        with open(folder + '/' + job + '/metadata.json') as metafile:
+            metadata = json.load(metafile)
+
+        jobs.append({
+            'date': time.strftime(
+                '%Y-%m-%dT%H:%M:%SZ',
+                time.gmtime(max(
+                    os.path.getmtime(root) for root, _, _ in os.walk(folder + '/' + job)
+                ))
+            ),
+            'id': job,
+            'hasResults': os.path.exists(folder + '/' + job + '/report.csv'),
+            'metadata': metadata
+        })
+
+    return jsonify(jobs)
+
 def create(userid):
     """Creates a new job"""
 

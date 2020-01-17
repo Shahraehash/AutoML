@@ -9,8 +9,15 @@ export interface DataSets {
     label: string;
 }
 
+export interface Jobs {
+    date: Date;
+    id: string;
+    hasResults: boolean;
+    metadata: MetaData;
+}
+
 export interface MetaData {
-    fits: {
+    fits?: {
         knn: number;
         nb: number;
         svm: number;
@@ -19,10 +26,11 @@ export interface MetaData {
         lr: number;
         gb: number;
     };
-    train_negative_count: number;
-    train_positive_count: number;
-    test_negative_count: number;
-    test_positive_count: number;
+    label?: string;
+    train_negative_count?: number;
+    train_positive_count?: number;
+    test_negative_count?: number;
+    test_positive_count?: number;
     parameters: SearchParameters;
     date: number;
 }

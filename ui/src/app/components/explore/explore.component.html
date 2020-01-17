@@ -1,11 +1,35 @@
-<ion-button class='continue' expand='block' (click)='continue()'>Continue</ion-button>
-<ion-grid *ngIf='data'>
+<ion-grid>
   <ion-row>
-    <ion-col size-xs='12' size-md='6'>
-      <app-feature-details [label]='data.label' [data]='data.analysis.train' type='Training'></app-feature-details>
+    <ion-col size='4'>
+      <table mat-table [dataSource]='' matSort matSortActive='roc_auc' matSortDirection='desc'>
+
+        <ng-container [matColumnDef]='column' *ngFor='let column of columns'>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{column}}</th>
+          <td mat-cell *matCellDef='let element; let i = index'>
+            <span *ngIf='column !== "actions"'>
+              {{element[column]}}
+            </span>
+            <span *ngIf='column === "actions"' class='actions'>
+              <!-- <ion-icon name='cloud-upload' color='primary' size='large' (click)='beginPublish(i)'></ion-icon> -->
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef='columns; sticky: true'></tr>
+        <tr mat-row *matRowDef='let row; let i = index; columns: columns'></tr>
+      </table>
     </ion-col>
-    <ion-col size-xs='12' size-md='6'>
-      <app-feature-details [label]='data.label' [data]='data.analysis.test' type='Generalization'></app-feature-details>
+    <ion-col>
+      <ion-grid *ngIf='analysis'>
+        <ion-row>
+          <ion-col size-xs='12' size-md='6'>
+            <app-feature-details [label]='analysis.label' [data]='analysis.analysis.train' type='Training'></app-feature-details>
+          </ion-col>
+          <ion-col size-xs='12' size-md='6'>
+            <app-feature-details [label]='analysis.label' [data]='analysis.analysis.test' type='Generalization'></app-feature-details>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-col>
-  </ion-row>
+  </ion-row>  
 </ion-grid>
