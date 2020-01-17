@@ -18,3 +18,11 @@
         color: white;
     }
 }
+
+@media (max-width: 992px) {
+    :host {
+        .analysis {
+            order: 1;
+        }
+    }
+}
