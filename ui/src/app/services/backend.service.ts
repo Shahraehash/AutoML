@@ -29,7 +29,9 @@ export class BackendService {
       };
     }
 
-    localStorage.setItem('userData', JSON.stringify(userData));
+    try {
+      localStorage.setItem('userData', JSON.stringify(userData));
+    } catch (err) {}
     this.userData = userData;
   }
 
@@ -97,8 +99,8 @@ export class BackendService {
     );
   }
 
-  unpublishModel(id: string) {
-    return this.http.delete(environment.apiUrl + '/published/' + id);
+  deletePublishedModel(name: string) {
+    return this.http.delete(environment.apiUrl + '/published/' + name);
   }
 
   testPublishedModel(data, publishName) {

@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { parse } from 'papaparse';
 import { Observable, ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -31,7 +31,8 @@ export class UploadComponent implements OnInit, OnDestroy {
     private alertController: AlertController,
     private datePipe: DatePipe,
     private element: ElementRef,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private loadingController: LoadingController
   ) {
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],
@@ -131,11 +132,37 @@ export class UploadComponent implements OnInit, OnDestroy {
       message: 'Please select one of the following options:',
       buttons: [
         { text: 'Dismiss' },
-        { text: 'Delete' },
-        { text: 'Open', handler: _ => window.open('/model/' + model.key, '_blank') }
+        { text: 'Delete', handler: async _ => {
+          await alert.dismiss();
+          this.deletePublished(model.key);
+        } },
+        { text: 'Open', handler: _ => setTimeout(() => window.open('/model/' + model.key, '_blank'), 1) }
       ]
     });
 
+    await alert.present();
+  }
+
+  async deletePublished(name) {
+    const alert = await this.alertController.create({
+      buttons: [
+        'Dismiss',
+        {
+          text: 'Delete',
+          handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Deleting published model...'
+            });
+            await loading.present();
+            await this.backend.deletePublishedModel(name).toPromise();
+            await loading.dismiss();
+          }
+        }
+      ],
+      header: 'Are you sure you want to delete?',
+      subHeader: 'This cannot be undone.',
+      message: 'Are you sure you want to delete this published model?'
+    });
     await alert.present();
   }
 
