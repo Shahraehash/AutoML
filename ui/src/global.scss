@@ -204,3 +204,9 @@
     color: var(--ion-color-light) !important;
   }
 }
+
+@media (max-width: 420px) {
+  .mat-step-label {
+    display: none;
+  }
+}

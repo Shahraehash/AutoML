@@ -1,6 +1,7 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>MILO: Machine Intelligence Learning Optimizer</ion-title>
+    <ion-title class='ion-hide-sm-up'>MILO</ion-title>
+    <ion-title class='ion-hide-sm-down'>MILO: Machine Intelligence Learning Optimizer</ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
       <ng-container *ngIf='pendingTasks$ | async as pendingTasks'>
         <ion-button fill='solid' color='primary' (click)='openPendingTasks($event, pendingTasks)' *ngIf='pendingTasks.active.length || pendingTasks.scheduled.length'>
