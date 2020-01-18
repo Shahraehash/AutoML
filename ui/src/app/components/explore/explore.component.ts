@@ -54,6 +54,10 @@ export class ExploreComponent implements OnInit {
     console.log(id);
   }
 
+  deleteDataset() {
+    console.log('delete');
+  }
+
   async newJob() {
     const loading = await this.loadingController.create({message: 'Creating new job...'});
     await loading.present();

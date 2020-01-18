@@ -1,4 +1,4 @@
-<ion-grid>
+<ion-grid class='ion-text-center'>
   <ion-row>
     <ion-col size-xs='12' size-lg='9' class='analysis' *ngIf='analysis'>
       <ion-grid>
@@ -16,14 +16,19 @@
     <ion-col size-xs='12' size-lg='3' class='runs'>
       <h4 class='ion-text-center'>Previous Runs</h4>
 
-      <ion-button size='small' expand='full' (click)='newJob()'>
+      <ion-button size='small' (click)='newJob()'>
         <ion-icon slot='start' name='add'></ion-icon>
-        New
+        New Run
+      </ion-button>
+
+      <ion-button size='small' color='danger' (click)='deleteDataset()'>
+        <ion-icon slot='start' name='trash'></ion-icon>
+        Delete Dataset
       </ion-button>
 
       <table mat-table [dataSource]='jobs'>
         <ng-container [matColumnDef]='column' *ngFor='let column of columns'>
-          <th mat-header-cell *matHeaderCellDef [class.ion-hide]='column === "actions"'>{{column}}</th>
+          <th mat-header-cell *matHeaderCellDef [class.ion-hide]='column === "actions"' class='ion-text-center'>{{column}}</th>
           <td mat-cell *matCellDef='let element; let i = index'>
             <span *ngIf='column !== "actions"'>
               {{getValue(element, column)}}
