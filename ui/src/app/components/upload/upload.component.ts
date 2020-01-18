@@ -20,7 +20,7 @@ export class UploadComponent implements OnInit, OnDestroy {
 
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   dataSets$: Observable<DataSets[]>;
-  publishedModels$: Observable<PublishedModels>;
+  publishedModels: PublishedModels;
 
   labels = [];
   keys = Object.keys;
@@ -46,9 +46,7 @@ export class UploadComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     );
 
-    this.publishedModels$ = this.backend.getPublishedModels().pipe(
-      takeUntil(this.destroy$)
-    );
+    this.updatePublishedModels();
   }
 
   ngOnDestroy() {
@@ -155,6 +153,7 @@ export class UploadComponent implements OnInit, OnDestroy {
             });
             await loading.present();
             await this.backend.deletePublishedModel(name).toPromise();
+            this.updatePublishedModels();
             await loading.dismiss();
           }
         }
@@ -164,6 +163,10 @@ export class UploadComponent implements OnInit, OnDestroy {
       message: 'Are you sure you want to delete this published model?'
     });
     await alert.present();
+  }
+
+  updatePublishedModels() {
+    this.backend.getPublishedModels().subscribe(data => this.publishedModels = data);
   }
 
   reset() {

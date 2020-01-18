@@ -36,17 +36,15 @@
     </ion-card>
   </ng-container>
 
-  <ng-container *ngIf='(publishedModels$ | async); let publishedModels'>
-    <ion-card class='ion-padding ion-text-center' *ngIf='keys(publishedModels).length'>
-      <ion-card-header>
-        <ion-card-subtitle>Listed are models you have already published. You may manage your published models below.
-        </ion-card-subtitle>
-        <ion-card-title>Published Models</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-chip *ngFor='let model of publishedModels | keyvalue' (click)='publishedOptions(model)'>{{model.key}}
-          ({{model.value.date | date:'short'}})</ion-chip>
-      </ion-card-content>
-    </ion-card>
-  </ng-container>
+  <ion-card class='ion-padding ion-text-center' *ngIf='publishedModels && keys(publishedModels).length'>
+    <ion-card-header>
+      <ion-card-subtitle>Listed are models you have already published. You may manage your published models below.
+      </ion-card-subtitle>
+      <ion-card-title>Published Models</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-chip *ngFor='let model of publishedModels | keyvalue' (click)='publishedOptions(model)'>{{model.key}}
+        ({{model.value.date | date:'short'}})</ion-chip>
+    </ion-card-content>
+  </ion-card>
 </div>
