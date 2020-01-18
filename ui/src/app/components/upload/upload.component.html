@@ -37,7 +37,7 @@
   </ng-container>
 
   <ng-container *ngIf='(publishedModels$ | async); let publishedModels'>
-    <ion-card class='ion-padding ion-text-center' *ngIf='publishedModels.length'>
+    <ion-card class='ion-padding ion-text-center' *ngIf='keys(publishedModels).length'>
       <ion-card-header>
         <ion-card-subtitle>Listed are models you have already published. You may manage your published models below.
         </ion-card-subtitle>

@@ -22,6 +22,7 @@ export class UploadComponent implements OnInit, OnDestroy {
   publishedModels$: Observable<PublishedModels>;
 
   labels = [];
+  keys = Object.keys;
   uploadForm: FormGroup;
 
   constructor(
