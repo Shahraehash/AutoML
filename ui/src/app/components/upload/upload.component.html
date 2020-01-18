@@ -1,9 +1,8 @@
 <div class='container'>
   <ion-card class='ion-padding ion-text-center upload-new ion-margin-bottom' [formGroup]='uploadForm'>
     <ion-card-header>
-      <ion-card-subtitle>Please provide a training test set and a separate test set used for generalization. Both data
-        sets must have the same columns.</ion-card-subtitle>
-      <ion-card-title>Data Upload</ion-card-title>
+      <ion-card-subtitle>Please select a training dataset and a separate test dataset used for generalization</ion-card-subtitle>
+      <ion-card-title>Select Data</ion-card-title>
     </ion-card-header>
 
     <label class='file-input'>
@@ -27,8 +26,8 @@
   <ng-container *ngIf='(dataSets$ | async) as dataSets'>
     <ion-card class='ion-padding ion-text-center ion-margin-bottom' *ngIf='dataSets.length'>
       <ion-card-header>
-        <ion-card-subtitle>Alternatively, you may select previously uploaded data sets.</ion-card-subtitle>
-        <ion-card-title>Previous Data Set</ion-card-title>
+        <ion-card-subtitle>Alternatively, you may select previously used datasets</ion-card-subtitle>
+        <ion-card-title>Previous Datasets</ion-card-title>
       </ion-card-header>
       <ion-card-content>
         <ion-chip *ngFor='let dataSet of dataSets' (click)='exploreDataSet(dataSet.id)'>{{dataSet.label}}
