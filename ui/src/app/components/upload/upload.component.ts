@@ -1,4 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { parse } from 'papaparse';
@@ -28,6 +29,7 @@ export class UploadComponent implements OnInit, OnDestroy {
   constructor(
     public backend: BackendService,
     private alertController: AlertController,
+    private datePipe: DatePipe,
     private element: ElementRef,
     private formBuilder: FormBuilder
   ) {
@@ -122,8 +124,19 @@ export class UploadComponent implements OnInit, OnDestroy {
     this.stepFinished.emit({nextStep: 'explore'});
   }
 
-  launchModel(id) {
-    window.open('/model/' + id, '_blank');
+  async publishedOptions(model) {
+    const alert = await this.alertController.create({
+      header: `${model.key} Model`,
+      subHeader: `This model was published on ${this.datePipe.transform(model.value.date, 'medium')}`,
+      message: 'Please select one of the following options:',
+      buttons: [
+        { text: 'Dismiss' },
+        { text: 'Delete' },
+        { text: 'Open', handler: _ => window.open('/model/' + model.key, '_blank') }
+      ]
+    });
+
+    await alert.present();
   }
 
   reset() {

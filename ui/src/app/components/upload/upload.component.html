@@ -44,7 +44,7 @@
         <ion-card-title>Published Models</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <ion-chip *ngFor='let model of publishedModels | keyvalue' (click)='launchModel(model.key)'>{{model.key}}
+        <ion-chip *ngFor='let model of publishedModels | keyvalue' (click)='publishedOptions(model)'>{{model.key}}
           ({{model.value.date | date:'short'}})</ion-chip>
       </ion-card-content>
     </ion-card>
