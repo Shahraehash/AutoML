@@ -16,7 +16,7 @@ export class ExploreComponent implements OnInit {
 
   analysis: DataAnalysisReply;
   jobs: MatTableDataSource<Jobs>;
-  columns = ['Date', 'Status', 'actions'];
+  columns = ['Date', 'Status', 'Actions'];
   constructor(
     public backend: BackendService,
     private datePipe: DatePipe,
