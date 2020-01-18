@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatTableDataSource } from '@angular/material';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, AlertController } from '@ionic/angular';
 
 import { BackendService } from '../../services/backend.service';
 import { DataAnalysisReply, Jobs } from '../../interfaces';
@@ -19,6 +19,7 @@ export class ExploreComponent implements OnInit {
   columns = ['Date', 'Status', 'Actions'];
   constructor(
     public backend: BackendService,
+    private alertController: AlertController,
     private datePipe: DatePipe,
     private loadingController: LoadingController
   ) {}
@@ -29,11 +30,7 @@ export class ExploreComponent implements OnInit {
     }
 
     this.backend.getDataAnalysis().subscribe(data => this.analysis = data);
-    this.backend.getJobs().subscribe(data => {
-      this.jobs = new MatTableDataSource(
-        data.filter(job => job.metadata.datasetid === this.backend.currentDatasetId)
-      );
-    });
+    this.updateJobs();
   }
 
   getValue(job, column) {
@@ -50,8 +47,28 @@ export class ExploreComponent implements OnInit {
     this.stepFinished.emit({nextStep: step});
   }
 
-  deleteJob(id) {
-    console.log(id);
+  async deleteJob(id) {
+    const alert = await this.alertController.create({
+      buttons: [
+        'Dismiss',
+        {
+          text: 'Delete',
+          handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Deleting Job'
+            });
+            await loading.present();
+            await this.backend.deleteJob(id).toPromise();
+            this.updateJobs();
+            await loading.dismiss();
+          }
+        }
+      ],
+      header: 'Are you sure you want to delete?',
+      subHeader: 'This cannot be undone.',
+      message: 'Are you sure you want to delete the selected run?'
+    });
+    await alert.present();
   }
 
   deleteDataset() {
@@ -64,5 +81,11 @@ export class ExploreComponent implements OnInit {
     await this.backend.createJob();
     this.stepFinished.emit({nextStep: 'train'});
     await loading.dismiss();
+  }
+
+  private async updateJobs() {
+    this.jobs = new MatTableDataSource(
+      (await this.backend.getJobs().toPromise()).filter(job => job.metadata.datasetid === this.backend.currentDatasetId)
+    );
   }
 }
