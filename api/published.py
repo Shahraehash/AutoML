@@ -69,6 +69,10 @@ def test(name):
 
     folder = published[name]['path'][:published[name]['path'].rfind('/')]
 
+    if not os.path.exists(folder + '/metadata.json'):
+        abort(400)
+        return
+
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
