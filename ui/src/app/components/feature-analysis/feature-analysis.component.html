@@ -6,57 +6,57 @@
     </ion-col>
     <ion-col>
       <ion-grid class='summary-table'>
-        <ion-row>
+        <ion-row nowrap>
           <ion-col size='6'>Valid</ion-col>
           <ion-col>{{summary.count}}</ion-col>
           <ion-col>100%</ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row nowrap>
           <ion-col size='6'>Missing</ion-col>
           <ion-col>{{nullCount}}</ion-col>
           <ion-col>{{((nullCount / summary.count)) * 100 | number:'1.0-0'}}%</ion-col>
         </ion-row>
-        <ion-row class='ion-margin-top'>
+        <ion-row nowrap class='ion-margin-top'>
           <ion-col size='6'>Mean</ion-col>
           <ion-col>{{summary.mean | number:'1.0-2'}}</ion-col>
           <ion-col></ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row nowrap>
           <ion-col size='6'>Std</ion-col>
           <ion-col>{{summary.std | number:'1.0-2'}}</ion-col>
           <ion-col></ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row nowrap>
           <ion-col size='6'>Median</ion-col>
           <ion-col>{{median | number:'1.0-2'}}</ion-col>
           <ion-col></ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row nowrap>
           <ion-col size='6'>Mode</ion-col>
           <ion-col>{{mode | number:'1.0-2'}}</ion-col>
           <ion-col></ion-col>
         </ion-row>
-        <ion-row class='ion-margin-top'>
+        <ion-row nowrap class='ion-margin-top'>
           <ion-col size='6'>Quantiles</ion-col>
           <ion-col>{{summary.min | number:'1.0-2'}}</ion-col>
           <ion-col>Min</ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row nowrap>
           <ion-col size='6'></ion-col>
           <ion-col>{{summary['25%'] | number:'1.0-2'}}</ion-col>
           <ion-col>25%</ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row nowrap>
           <ion-col size='6'></ion-col>
           <ion-col>{{summary['50%'] | number:'1.0-2'}}</ion-col>
           <ion-col>50%</ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row nowrap>
           <ion-col size='6'></ion-col>
           <ion-col>{{summary['75%'] | number:'1.0-2'}}</ion-col>
           <ion-col>75%</ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row nowrap>
           <ion-col size='6'></ion-col>
           <ion-col>{{summary.max | number:'1.0-2'}}</ion-col>
           <ion-col>Max</ion-col>
