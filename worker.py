@@ -20,7 +20,7 @@ def fix_celery_solo(userid, jobid):
     We can manually check if the task has already completed and quickly finish the re-queue.
     """
 
-    folder = 'data/' + userid + '/' + jobid
+    folder = 'data/users/' + userid + '/' + jobid
     if os.path.exists(folder + '/metadata.json'):
         with open(folder + '/metadata.json') as metafile:
             try:
@@ -38,12 +38,12 @@ def queue_training(self, userid, jobid, label_column, parameters):
     if fix_celery_solo(userid, jobid):
         return 0
 
-    job_folder = 'data/' + userid + '/jobs/' + jobid
+    job_folder = 'data/users/' + userid + '/jobs/' + jobid
 
     with open(job_folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    dataset_folder = 'data/' + userid + '/datasets/' + metadata['datasetid']
+    dataset_folder = 'data/users/' + userid + '/datasets/' + metadata['datasetid']
     labels = ['No ' + label_column, label_column]
 
     metadata['parameters'] = parameters

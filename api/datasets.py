@@ -14,7 +14,7 @@ from ml.describe import describe as Describe
 def get(userid):
     """Get all the datasets for a given user ID"""
 
-    folder = 'data/' + userid.urn[9:] + '/datasets'
+    folder = 'data/users/' + userid.urn[9:] + '/datasets'
 
     if not os.path.exists(folder):
         abort(400)
@@ -56,7 +56,7 @@ def add(userid):
 
     datasetid = uuid.uuid4().urn[9:]
 
-    folder = 'data/' + userid.urn[9:] + '/datasets/' + datasetid
+    folder = 'data/users/' + userid.urn[9:] + '/datasets/' + datasetid
 
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -76,7 +76,7 @@ def add(userid):
 def delete(userid, datasetid):
     """Deletes a dataset"""
 
-    folder = 'data/' + userid.urn[9:] + '/datasets/' + datasetid.urn[9:]
+    folder = 'data/users/' + userid.urn[9:] + '/datasets/' + datasetid.urn[9:]
 
     if not os.path.exists(folder):
         abort(400)
@@ -89,7 +89,7 @@ def delete(userid, datasetid):
 def describe(userid, datasetid):
     """Generate descriptive statistics for training/testing datasets"""
 
-    folder = 'data/' + userid.urn[9:] + '/datasets/' + datasetid.urn[9:]
+    folder = 'data/users/' + userid.urn[9:] + '/datasets/' + datasetid.urn[9:]
 
     if not os.path.exists(folder):
         abort(400)
