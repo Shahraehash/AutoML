@@ -5,6 +5,7 @@ Handle dataset related requests
 import os
 import time
 import uuid
+from shutil import rmtree
 
 from flask import abort, jsonify, request
 
@@ -71,6 +72,19 @@ def add(userid):
         return jsonify({'id': datasetid})
 
     return abort(400)
+
+def delete(userid, datasetid):
+    """Deletes a dataset"""
+
+    folder = 'data/' + userid.urn[9:] + '/datasets/' + datasetid.urn[9:]
+
+    if not os.path.exists(folder):
+        abort(400)
+        return
+
+    rmtree(folder)
+
+    return jsonify({'success': True})
 
 def describe(userid, datasetid):
     """Generate descriptive statistics for training/testing datasets"""

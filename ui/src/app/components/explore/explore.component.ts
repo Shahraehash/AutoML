@@ -13,6 +13,7 @@ import { DataAnalysisReply, Jobs } from '../../interfaces';
 })
 export class ExploreComponent implements OnInit {
   @Output() stepFinished = new EventEmitter();
+  @Output() reset = new EventEmitter();
 
   analysis: DataAnalysisReply;
   jobs: MatTableDataSource<Jobs>;
@@ -55,7 +56,7 @@ export class ExploreComponent implements OnInit {
           text: 'Delete',
           handler: async () => {
             const loading = await this.loadingController.create({
-              message: 'Deleting Job'
+              message: 'Deleting job...'
             });
             await loading.present();
             await this.backend.deleteJob(id).toPromise();
@@ -71,8 +72,28 @@ export class ExploreComponent implements OnInit {
     await alert.present();
   }
 
-  deleteDataset() {
-    console.log('delete');
+  async deleteDataset() {
+    const alert = await this.alertController.create({
+      buttons: [
+        'Dismiss',
+        {
+          text: 'Delete',
+          handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Deleting dataset...'
+            });
+            await loading.present();
+            await this.backend.deleteDataset(this.backend.currentDatasetId).toPromise();
+            this.reset.emit();
+            await loading.dismiss();
+          }
+        }
+      ],
+      header: 'Are you sure you want to delete?',
+      subHeader: 'This cannot be undone.',
+      message: 'Are you sure you want to delete this dataset?'
+    });
+    await alert.present();
   }
 
   async newJob() {

@@ -60,6 +60,10 @@ export class BackendService {
     return this.http.delete(environment.apiUrl + '/user/' + this.userData.id + '/jobs/' + id);
   }
 
+  deleteDataset(id) {
+    return this.http.delete(environment.apiUrl + '/user/' + this.userData.id + '/datasets/' + id);
+  }
+
   startTraining(formData) {
     return this.http.post(`${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/train`, formData);
   }

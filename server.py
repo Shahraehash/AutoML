@@ -32,6 +32,7 @@ def page_not_found(_):
 # Datasets
 APP.add_url_rule('/user/<uuid:userid>/datasets', 'datasets-get', datasets.get)
 APP.add_url_rule('/user/<uuid:userid>/datasets', 'datasets-add', datasets.add, methods=['POST'])
+APP.add_url_rule('/user/<uuid:userid>/datasets/<uuid:datasetid>', 'datasets-delete', datasets.delete, methods=['DELETE'])
 APP.add_url_rule('/user/<uuid:userid>/datasets/<uuid:datasetid>/describe', 'datasets-describe', datasets.describe)
 
 # Jobs

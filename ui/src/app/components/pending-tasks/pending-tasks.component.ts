@@ -41,7 +41,7 @@ export class PendingTasksComponent implements OnInit {
         {
           text: 'Cancel Job',
           handler: async () => {
-            const loader = await this.loadingController.create({message: 'Canceling Task...'});
+            const loader = await this.loadingController.create({message: 'Canceling task...'});
             await loader.present();
 
             try {
