@@ -1,6 +1,8 @@
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .file-input {
@@ -34,6 +36,11 @@ ion-select {
 form {
   max-width: 900px;
   margin: 0 auto;
+}
+
+.submit {
+  max-width: 560px;
+  margin: 4px auto;
 }
 
 @media(max-width:700px) {

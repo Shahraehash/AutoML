@@ -1,5 +1,5 @@
-<div class='container'>
-  <ion-card class='ion-padding ion-text-center upload-new ion-margin-bottom' [formGroup]='uploadForm'>
+<div>
+  <ion-card class='ion-padding ion-text-center ion-margin-bottom' [formGroup]='uploadForm'>
     <ion-card-header>
       <ion-card-subtitle>Please select a training dataset and a separate test dataset used for generalization</ion-card-subtitle>
       <ion-card-title>Select Data</ion-card-title>
@@ -20,7 +20,7 @@
       <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
     </ion-select>
 
-    <ion-button expand='block' class='ion-padding' (click)='onSubmit()' [disabled]='!uploadForm.valid'>Next</ion-button>
+    <ion-button expand='block' class='ion-padding submit' (click)='onSubmit()' [disabled]='!uploadForm.valid'>Next</ion-button>
   </ion-card>
 
   <ng-container *ngIf='(dataSets$ | async) as dataSets'>
