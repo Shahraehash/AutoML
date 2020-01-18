@@ -2,7 +2,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
 }
 
 .file-input {
@@ -50,5 +49,11 @@ form {
     margin: 10px auto;
     max-width: 100%;
     text-align: left;
+  }
+}
+
+@media(min-height:700px) {
+  :host {
+    height: 100%;
   }
 }
