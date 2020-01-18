@@ -38,26 +38,27 @@ def queue_training(self, userid, jobid, label_column, parameters):
     if fix_celery_solo(userid, jobid):
         return 0
 
-    folder = 'data/' + userid + '/' + jobid
+    job_folder = 'data/' + userid + '/jobs/' + jobid
+
+    with open(job_folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    dataset_folder = 'data/' + userid + '/datasets/' + metadata['datasetid']
     labels = ['No ' + label_column, label_column]
 
-    metadata = {}
-    if os.path.exists(folder + '/metadata.json'):
-        with open(folder + '/metadata.json') as metafile:
-            metadata = json.load(metafile)
-
     metadata['parameters'] = parameters
+    metadata['label'] = label_column
 
-    with open(folder + '/metadata.json', 'w') as metafile:
+    with open(job_folder + '/metadata.json', 'w') as metafile:
         json.dump(metadata, metafile)
 
     search.find_best_model(
-        folder + '/train.csv',
-        folder + '/test.csv',
+        dataset_folder + '/train.csv',
+        dataset_folder + '/test.csv',
         labels,
         label_column,
         parameters,
-        folder,
+        job_folder,
         lambda x, y: self.update_state(state='PROGRESS', meta={'current': x, 'total': y})
     )
     return {}

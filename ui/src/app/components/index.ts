@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -62,6 +62,9 @@ import { UseModelModule } from './use-model/use-model.module';
       MatSortModule,
       UseModelModule
   ],
+  providers: [
+    DatePipe
+  ]
 } )
 export class ComponentsModule {}
 export * from './pending-tasks/pending-tasks.component';

@@ -150,7 +150,7 @@ def find_best_model(
 
     # Update the metadata and write it out
     metadata.update({
-        'date': time.time(),
+        'date': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
         'fits': total_fits
     })
 

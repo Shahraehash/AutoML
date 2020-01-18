@@ -110,7 +110,7 @@ export class TrainComponent implements OnDestroy, OnInit {
       (task: TaskAdded) => {
         this.allPipelines = task.pipelines;
         this.checkStatus(task.id);
-        window.history.pushState('', '', `/search/status/${this.backend.currentJobId}/${task.id}`);
+        this.pushStateStatus(task.id);
       },
       async () => {
         const alert = await this.alertController.create({
@@ -127,7 +127,7 @@ export class TrainComponent implements OnDestroy, OnInit {
   }
 
   startMonitor(taskId) {
-    window.history.pushState('', '', `/search/status/${this.backend.currentJobId}/${taskId}`);
+    this.pushStateStatus(taskId);
     this.training = true;
 
     this.backend.getPipelines().subscribe(
@@ -223,7 +223,7 @@ export class TrainComponent implements OnDestroy, OnInit {
 
         if (status.state === 'SUCCESS') {
           this.training = false;
-          this.stepFinished.emit({state: 'train'});
+          this.stepFinished.emit({nextStep: 'result'});
         } else if (status.state === 'FAILURE') {
           const alert = await this.alertController.create({
             cssClass: 'wide-alert',
@@ -244,5 +244,9 @@ export class TrainComponent implements OnDestroy, OnInit {
   private async showError(message) {
     const toast = await this.toastController.create({message, duration: 2000});
     await toast.present();
+  }
+
+  private pushStateStatus(id) {
+    window.history.pushState('', '', `/search/${this.backend.currentDatasetId}/job/${this.backend.currentJobId}/train/${id}/status`);
   }
 }

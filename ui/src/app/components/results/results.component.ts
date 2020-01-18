@@ -398,7 +398,7 @@ export class ResultsComponent implements OnInit {
 
   private async presentLoading() {
     this.loading = await this.loadingController.create({
-      message: 'Refitting selected model'
+      message: 'Refitting selected model...'
     });
     await this.loading.present();
   }

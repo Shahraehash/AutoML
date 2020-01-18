@@ -31,28 +31,6 @@ ion-select {
   text-align: left;
 }
 
-.previous-jobs {
-  margin-bottom: 40px;
-
-  table {
-    width: 100%;
-    
-    tr td {
-      &:first-child {
-        text-align: left;
-      }
-
-      &:last-child {
-        text-align: right;
-      }
-    }
-
-    .actions {
-      min-width: 260px;
-    }
-  }
-}
-
 form {
   max-width: 900px;
   margin: 0 auto;

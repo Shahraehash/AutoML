@@ -3,10 +3,36 @@
         max-width: 600px;
         margin: 10px auto;
     }
+
+    table {
+        width: 100%;
+
+        ion-icon {
+            cursor: pointer;
+        }
+
+        td, th {
+            padding: 16px 0;
+        }
+    }
+
+    .runs {
+        h4 {
+            padding: 10px;
+        }
+    }
 }
 
 @media (prefers-color-scheme: dark) {
     :host {
         color: white;
+    }
+}
+
+@media (max-width: 992px) {
+    :host {
+        .analysis {
+            order: 1;
+        }
     }
 }

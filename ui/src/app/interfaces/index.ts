@@ -3,15 +3,22 @@ export interface Results {
     results: GeneralizationResult[];
 }
 
-export interface PriorJobs {
-    metadata: MetaData;
+export interface DataSets {
+    date: Date;
     id: string;
     label: string;
-    results: boolean;
+}
+
+export interface Jobs {
+    date: Date;
+    id: string;
+    hasResults: boolean;
+    metadata: MetaData;
 }
 
 export interface MetaData {
-    fits: {
+    datasetid: string;
+    fits?: {
         knn: number;
         nb: number;
         svm: number;
@@ -20,10 +27,11 @@ export interface MetaData {
         lr: number;
         gb: number;
     };
-    train_negative_count: number;
-    train_positive_count: number;
-    test_negative_count: number;
-    test_positive_count: number;
+    label?: string;
+    train_negative_count?: number;
+    train_positive_count?: number;
+    test_negative_count?: number;
+    test_positive_count?: number;
     parameters: SearchParameters;
     date: number;
 }
@@ -99,7 +107,10 @@ export interface PendingTasks {
     scheduled: ScheduledTaskStatus[];
 }
 export interface PublishedModels {
-    [key: string]: string[];
+    [key: string]: {
+        date: Date;
+        features: string[];
+    };
 }
 
 export interface DataAnalysisReply {

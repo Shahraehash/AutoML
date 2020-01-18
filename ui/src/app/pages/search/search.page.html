@@ -7,7 +7,7 @@
           <ion-spinner name='dots' slot='icon-only'></ion-spinner>
         </ion-button>
       </ng-container>
-      <ion-button fill='solid' color='primary' (click)='reset()' *ngIf='uploadForm.valid'>
+      <ion-button fill='solid' color='primary' (click)='reset()' *ngIf='backend.currentDatasetId || backend.currentJobId'>
         <ion-icon slot='start' name='add'></ion-icon>
         Start New Search
       </ion-button>
@@ -25,16 +25,16 @@
       <mat-icon>check</mat-icon>
     </ng-template>
 
-    <mat-step label='Select Data' [stepControl]='uploadForm' [editable]='!uploadForm.valid' errorMessage='Data upload is required'>
+    <mat-step label='Select' [completed]='!!backend.currentDatasetId' [editable]='!backend.currentDatasetId'>
       <app-upload #upload (stepFinished)='stepFinished($event)' *ngIf='stepper?.selectedIndex === 0'></app-upload>
     </mat-step>
-    <mat-step label='Explore' [stepControl]='uploadForm' optional='true'>
-      <app-explore #explore (stepFinished)='stepFinished($event)' *ngIf='stepper?.selectedIndex === 1'></app-explore>
+    <mat-step label='Explore' [completed]='!!backend.currentJobId' [editable]='!backend.currentJobId'>
+      <app-explore #explore (stepFinished)='stepFinished($event)' (reset)='reset()' *ngIf='stepper?.selectedIndex === 1'></app-explore>
     </mat-step>
-    <mat-step label='Train' [stepControl]='trainForm' [editable]='!trainForm.valid' errorMessage='Pipeline elements need selection'>
-      <app-train #train *ngIf='stepper?.selectedIndex === 2' (stepFinished)='stepFinished($event)' [featureCount]='featureCount' (reset)='reset()'></app-train>
+    <mat-step label='Train' [completed]='trainCompleted' [editable]='!trainCompleted'>
+      <app-train #train *ngIf='stepper?.selectedIndex === 2' (stepFinished)='stepFinished($event)' (reset)='reset()'></app-train>
     </mat-step>
-    <mat-step label='View Results'>
+    <mat-step label='Results'>
       <app-results *ngIf='stepper?.selectedIndex === 3'></app-results>
     </mat-step>
   </mat-horizontal-stepper>

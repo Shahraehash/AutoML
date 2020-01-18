@@ -1,7 +1,10 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { MatTableDataSource } from '@angular/material';
+import { LoadingController, AlertController } from '@ionic/angular';
 
 import { BackendService } from '../../services/backend.service';
-import { DataAnalysisReply } from '../../interfaces';
+import { DataAnalysisReply, Jobs } from '../../interfaces';
 
 @Component({
   selector: 'app-explore',
@@ -10,17 +13,100 @@ import { DataAnalysisReply } from '../../interfaces';
 })
 export class ExploreComponent implements OnInit {
   @Output() stepFinished = new EventEmitter();
+  @Output() reset = new EventEmitter();
 
-  data: DataAnalysisReply;
+  analysis: DataAnalysisReply;
+  jobs: MatTableDataSource<Jobs>;
+  columns = ['Date', 'Status', 'Actions'];
   constructor(
-    public backend: BackendService
+    public backend: BackendService,
+    private alertController: AlertController,
+    private datePipe: DatePipe,
+    private loadingController: LoadingController
   ) {}
 
   ngOnInit() {
-    this.backend.getDataAnalysis().subscribe(data => this.data = data);
+    if (!this.backend.currentDatasetId) {
+      return;
+    }
+
+    this.backend.getDataAnalysis().subscribe(data => this.analysis = data);
+    this.updateJobs();
   }
 
-  continue() {
-    this.stepFinished.emit({state: 'explore'});
+  getValue(job, column) {
+    switch (column) {
+      case 'Date':
+        return this.datePipe.transform(job.date, 'shortDate');
+      case 'Status':
+        return job.metadata.date ? 'Completed' : 'Pending';
+    }
+  }
+
+  useJob(id, step) {
+    this.backend.currentJobId = id;
+    this.stepFinished.emit({nextStep: step});
+  }
+
+  async deleteJob(id) {
+    const alert = await this.alertController.create({
+      buttons: [
+        'Dismiss',
+        {
+          text: 'Delete',
+          handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Deleting job...'
+            });
+            await loading.present();
+            await this.backend.deleteJob(id).toPromise();
+            this.updateJobs();
+            await loading.dismiss();
+          }
+        }
+      ],
+      header: 'Are you sure you want to delete?',
+      subHeader: 'This cannot be undone.',
+      message: 'Are you sure you want to delete the selected run?'
+    });
+    await alert.present();
+  }
+
+  async deleteDataset() {
+    const alert = await this.alertController.create({
+      buttons: [
+        'Dismiss',
+        {
+          text: 'Delete',
+          handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Deleting dataset...'
+            });
+            await loading.present();
+            await this.backend.deleteDataset(this.backend.currentDatasetId).toPromise();
+            this.reset.emit();
+            await loading.dismiss();
+          }
+        }
+      ],
+      header: 'Are you sure you want to delete?',
+      subHeader: 'This cannot be undone.',
+      message: 'Are you sure you want to delete this dataset?'
+    });
+    await alert.present();
+  }
+
+  async newJob() {
+    const loading = await this.loadingController.create({message: 'Creating new job...'});
+    await loading.present();
+    await this.backend.createJob();
+    this.stepFinished.emit({nextStep: 'train'});
+    await loading.dismiss();
+  }
+
+  private async updateJobs() {
+    this.jobs = new MatTableDataSource(
+      (await this.backend.getJobs().toPromise()).filter(job => job.metadata.datasetid === this.backend.currentDatasetId)
+    );
   }
 }

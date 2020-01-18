@@ -66,7 +66,7 @@ export class UseModelComponent implements OnInit {
     }
 
     const loading = await this.loadingController.create({
-      message: 'Calculating Probabilities...'
+      message: 'Calculating probabilities...'
     });
     await loading.present();
 

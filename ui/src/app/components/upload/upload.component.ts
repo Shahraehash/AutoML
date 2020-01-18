@@ -1,12 +1,13 @@
 import { Component, ElementRef, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { parse } from 'papaparse';
-import { Observable, timer, of, ReplaySubject } from 'rxjs';
-import { switchMap, takeUntil, finalize, catchError } from 'rxjs/operators';
+import { Observable, ReplaySubject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { BackendService } from '../../services/backend.service';
-import { PriorJobs, PublishedModels } from '../../interfaces';
+import { DataSets, PublishedModels } from '../../interfaces';
 
 @Component({
   selector: 'app-upload',
@@ -18,19 +19,20 @@ export class UploadComponent implements OnInit, OnDestroy {
   @Output() stepFinished = new EventEmitter();
 
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
-  priorJobs$: Observable<PriorJobs[]>;
-  publishedModels$: Observable<PublishedModels>;
+  dataSets$: Observable<DataSets[]>;
+  publishedModels: PublishedModels;
 
   labels = [];
+  keys = Object.keys;
   uploadForm: FormGroup;
 
   constructor(
     public backend: BackendService,
     private alertController: AlertController,
+    private datePipe: DatePipe,
     private element: ElementRef,
     private formBuilder: FormBuilder,
-    private loadingController: LoadingController,
-    private toastController: ToastController
+    private loadingController: LoadingController
   ) {
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],
@@ -40,19 +42,11 @@ export class UploadComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.priorJobs$ = timer(0, 5000).pipe(
-      takeUntil(this.destroy$),
-      switchMap(() => this.backend.getPriorJobs().pipe(
-        catchError(() => of([]))
-      ))
+    this.dataSets$ = this.backend.getDataSets().pipe(
+      takeUntil(this.destroy$)
     );
 
-    this.publishedModels$ = timer(0, 5000).pipe(
-      takeUntil(this.destroy$),
-      switchMap(() => this.backend.getPublishedModels().pipe(
-        catchError(() => of({}))
-      ))
-    );
+    this.updatePublishedModels();
   }
 
   ngOnDestroy() {
@@ -66,9 +60,9 @@ export class UploadComponent implements OnInit, OnDestroy {
     formData.append('test', this.uploadForm.get('test').value);
     formData.append('label_column', this.uploadForm.get('label_column').value);
 
-    this.backend.submitData(formData).subscribe(
+    this.backend.submitData(formData).then(
       () => {
-        this.stepFinished.emit({state: 'upload', data: this.labels.length});
+        this.stepFinished.emit({nextStep: 'explore'});
       },
       async () => {
         const alert = await this.alertController.create({
@@ -124,29 +118,30 @@ export class UploadComponent implements OnInit, OnDestroy {
     }
   }
 
-  async trainPrior(job) {
-    if (!job.results) {
-      this.backend.currentJobId = job.id;
-      this.stepFinished.emit({state: 'upload'});
-      return;
-    }
+  exploreDataSet(id) {
+    this.backend.currentDatasetId = id;
+    this.stepFinished.emit({nextStep: 'explore'});
+  }
 
-    const loading = await this.loadingController.create({
-      message: 'Creating New Job'
+  async publishedOptions(model) {
+    const alert = await this.alertController.create({
+      header: `${model.key} Model`,
+      subHeader: `This model was published on ${this.datePipe.transform(model.value.date, 'medium')}`,
+      message: 'Please select one of the following options:',
+      buttons: [
+        { text: 'Dismiss' },
+        { text: 'Delete', handler: async _ => {
+          await alert.dismiss();
+          this.deletePublished(model.key);
+        } },
+        { text: 'Open', handler: _ => setTimeout(() => window.open('/model/' + model.key, '_blank'), 1) }
+      ]
     });
 
-    await loading.present();
-    await this.backend.cloneJob(job.id).toPromise();
-    await loading.dismiss();
-    this.stepFinished.emit({state: 'upload'});
+    await alert.present();
   }
 
-  viewPrior(id) {
-    this.backend.currentJobId = id;
-    this.stepFinished.emit({state: 'train'});
-  }
-
-  async deletePrior(id) {
+  async deletePublished(name) {
     const alert = await this.alertController.create({
       buttons: [
         'Dismiss',
@@ -154,74 +149,28 @@ export class UploadComponent implements OnInit, OnDestroy {
           text: 'Delete',
           handler: async () => {
             const loading = await this.loadingController.create({
-              message: 'Deleting Job'
+              message: 'Deleting published model...'
             });
-
             await loading.present();
-            await this.backend.deleteJob(id).toPromise();
+            await this.backend.deletePublishedModel(name).toPromise();
+            this.updatePublishedModels();
             await loading.dismiss();
           }
         }
       ],
       header: 'Are you sure you want to delete?',
       subHeader: 'This cannot be undone.',
-      message: 'Are you sure you want to delete the selected data and results'
+      message: 'Are you sure you want to delete this published model?'
     });
-
     await alert.present();
   }
 
-  launchModel(id) {
-    window.open('/model/' + id, '_blank');
+  updatePublishedModels() {
+    this.backend.getPublishedModels().subscribe(data => this.publishedModels = data);
   }
 
   reset() {
     this.element.nativeElement.querySelectorAll('input[type="file"]').forEach(node => node.value = '');
     this.uploadForm.reset();
-  }
-
-  async deletePublished(id: string) {
-    const alert = await this.alertController.create({
-      buttons: [
-        'Dismiss',
-        {
-          text: 'Unpublish',
-          handler: (data) => {
-            if (!data || data.name !== id) {
-              this.showError('The entered name does not match.');
-              return false;
-            }
-
-            this.unpublishModel(id);
-          }
-        }
-      ],
-      inputs: [{
-        name: 'name',
-        type: 'text',
-        placeholder: 'Enter the model name'
-      }],
-      header: 'Are you sure you want to unpublish?',
-      subHeader: 'This cannot be undone.',
-      message: `Are you sure you want to delete the published model: '${id}'?<br><br>Type the model name below to confirm.`
-    });
-
-    await alert.present();
-  }
-
-  private async showError(message: string) {
-    const toast = await this.toastController.create({message, duration: 2000});
-    toast.present();
-  }
-
-  private async unpublishModel(id: string) {
-    const loading = await this.loadingController.create({message: 'Unpublishing model...'});
-    await loading.present();
-    this.backend.unpublishModel(id).pipe(
-      finalize(() => loading.dismiss())
-    ).subscribe(
-      () => this.showError(`The model labeled '${id}' has been successfully unpublished.`),
-      () => this.showError('An error occurred unpublishing the selected model.')
-    );
   }
 }
