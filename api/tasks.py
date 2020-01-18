@@ -10,7 +10,7 @@ from worker import CELERY, get_task_status, revoke_task
 
 def status(task_id):
     """Get a jobs status"""
-    return jsonify(get_task_status(task_id))
+    return jsonify(get_task_status(task_id.urn[9:]))
 
 def pending(userid):
     """Get all pending tasks for a given user ID"""
