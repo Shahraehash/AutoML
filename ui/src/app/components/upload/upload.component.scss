@@ -41,5 +41,7 @@ form {
   ion-select {
     display: flex;
     margin: 10px auto;
+    max-width: 100%;
+    text-align: left;
   }
 }
