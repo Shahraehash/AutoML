@@ -23,6 +23,7 @@ export class SearchPage implements OnInit, AfterViewInit {
   @ViewChild('stepper') stepper: MatStepper;
   @ViewChild('train') train: TrainComponent;
 
+  featureCount: number;
   pendingTasks$: Observable<PendingTasks>;
   pauseUpdates = false;
   trainCompleted = false;
@@ -109,6 +110,7 @@ export class SearchPage implements OnInit, AfterViewInit {
         setTimeout(() => this.stepper.selectedIndex = 1, 1);
         break;
       case 'train':
+        this.featureCount = event.data;
         setTimeout(() => this.stepper.selectedIndex = 2, 1);
         break;
       case 'result':

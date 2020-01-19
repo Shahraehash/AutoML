@@ -36,3 +36,21 @@
         }
     }
 }
+
+@media (min-width: 992px) {
+    :host {
+        > ion-grid {
+            overflow: hidden;
+            height: 100%;
+    
+            > ion-row {
+                height: 100%;
+    
+                > ion-col {
+                    overflow: scroll;
+                    height: 100%;
+                }
+            }
+        }
+    }
+}

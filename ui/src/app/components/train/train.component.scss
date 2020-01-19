@@ -6,9 +6,11 @@
 }
 
 .training-page {
-  height: 100%;
   max-width: 1000px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .pipeline-selection {
@@ -45,11 +47,14 @@
 }
 
 @media(max-width: 950px) {
-  .training-page {
-    height: initial;
-  }
-
   .pipeline-selection {
     display: block;
+  }
+}
+
+@media (min-width: 950px) and (min-height: 800px) {
+  .training-page {
+    height: 100%;
+
   }
 }

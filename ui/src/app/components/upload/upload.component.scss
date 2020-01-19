@@ -52,7 +52,7 @@ form {
   }
 }
 
-@media(min-height:700px) {
+@media(min-height:700px) and (min-width:400px) {
   :host {
     height: 100%;
   }

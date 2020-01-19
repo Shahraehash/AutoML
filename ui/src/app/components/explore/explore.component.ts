@@ -45,7 +45,7 @@ export class ExploreComponent implements OnInit {
 
   useJob(id, step) {
     this.backend.currentJobId = id;
-    this.stepFinished.emit({nextStep: step});
+    this.stepFinished.emit({nextStep: step, data: Object.keys(this.analysis.analysis.train.summary).length});
   }
 
   async deleteJob(id) {
@@ -65,7 +65,7 @@ export class ExploreComponent implements OnInit {
           }
         }
       ],
-      header: 'Are you sure you want to delete?',
+      header: 'Are you sure you want to delete this?',
       subHeader: 'This cannot be undone.',
       message: 'Are you sure you want to delete the selected run?'
     });
@@ -89,7 +89,7 @@ export class ExploreComponent implements OnInit {
           }
         }
       ],
-      header: 'Are you sure you want to delete?',
+      header: 'Are you sure you want to delete this?',
       subHeader: 'This cannot be undone.',
       message: 'Are you sure you want to delete this dataset?'
     });
@@ -100,7 +100,7 @@ export class ExploreComponent implements OnInit {
     const loading = await this.loadingController.create({message: 'Creating new job...'});
     await loading.present();
     await this.backend.createJob();
-    this.stepFinished.emit({nextStep: 'train'});
+    this.stepFinished.emit({nextStep: 'train', data: Object.keys(this.analysis.analysis.train.summary).length});
     await loading.dismiss();
   }
 
