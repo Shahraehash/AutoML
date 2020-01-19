@@ -33,7 +33,7 @@
       <app-explore #explore (stepFinished)='stepFinished($event)' (reset)='reset()' *ngIf='stepper?.selectedIndex === 1'></app-explore>
     </mat-step>
     <mat-step label='Train' [completed]='trainCompleted' [editable]='!trainCompleted'>
-      <app-train #train *ngIf='stepper?.selectedIndex === 2' (stepFinished)='stepFinished($event)' (reset)='reset()'></app-train>
+      <app-train #train *ngIf='stepper?.selectedIndex === 2' (stepFinished)='stepFinished($event)' [featureCount]='featureCount' (reset)='reset()'></app-train>
     </mat-step>
     <mat-step label='Results'>
       <app-results *ngIf='stepper?.selectedIndex === 3'></app-results>
