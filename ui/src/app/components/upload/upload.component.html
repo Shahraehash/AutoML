@@ -20,13 +20,15 @@
       <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
     </ion-select>
 
-    <ion-button expand='block' class='ion-padding submit' (click)='onSubmit()' [disabled]='!uploadForm.valid'>Next</ion-button>
+    <ion-button expand='block' class='ion-padding submit' (click)='onSubmit()' [disabled]='!uploadForm.valid'>
+      Next
+    </ion-button>
   </ion-card>
 
   <ng-container *ngIf='(dataSets$ | async) as dataSets'>
     <ion-card class='ion-padding ion-text-center ion-margin-bottom' *ngIf='dataSets.length'>
       <ion-card-header>
-        <ion-card-subtitle>Alternatively, you may select previously used datasets</ion-card-subtitle>
+        <ion-card-subtitle>Alternatively, you may select a previously used dataset</ion-card-subtitle>
         <ion-card-title>Previous Datasets</ion-card-title>
       </ion-card-header>
       <ion-card-content>
@@ -38,7 +40,8 @@
 
   <ion-card class='ion-padding ion-text-center' *ngIf='publishedModels && keys(publishedModels).length'>
     <ion-card-header>
-      <ion-card-subtitle>Listed are models you have already published. You may manage your published models below.
+      <ion-card-subtitle>
+        Explore and manage your published models
       </ion-card-subtitle>
       <ion-card-title>Published Models</ion-card-title>
     </ion-card-header>
