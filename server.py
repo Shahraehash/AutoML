@@ -7,11 +7,14 @@ using an Angular SPA.
 
 from flask import Flask, send_from_directory
 from flask_cors import CORS
+from dotenv import load_dotenv
 
 import api.datasets as datasets
 import api.jobs as jobs
 import api.published as published
 import api.tasks as tasks
+
+load_dotenv()
 
 APP = Flask(__name__, static_url_path='')
 APP.config['JSON_SORT_KEYS'] = False
