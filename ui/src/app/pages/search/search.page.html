@@ -8,7 +8,7 @@
           <ion-spinner name='dots' slot='icon-only'></ion-spinner>
         </ion-button>
       </ng-container>
-      <ion-button fill='solid' color='primary' (click)='reset()' *ngIf='backend.currentDatasetId || backend.currentJobId'>
+      <ion-button fill='solid' color='primary' (click)='reset()' *ngIf='api.currentDatasetId || api.currentJobId'>
         <ion-icon slot='start' name='add'></ion-icon>
         Start New Search
       </ion-button>
@@ -26,10 +26,10 @@
       <mat-icon>check</mat-icon>
     </ng-template>
 
-    <mat-step label='Select' [completed]='!!backend.currentDatasetId' [editable]='!backend.currentDatasetId'>
+    <mat-step label='Select' [completed]='!!api.currentDatasetId' [editable]='!api.currentDatasetId'>
       <app-upload #upload (stepFinished)='stepFinished($event)' *ngIf='stepper?.selectedIndex === 0'></app-upload>
     </mat-step>
-    <mat-step label='Explore' [completed]='!!backend.currentJobId' [editable]='!backend.currentJobId'>
+    <mat-step label='Explore' [completed]='!!api.currentJobId' [editable]='!api.currentJobId'>
       <app-explore #explore (stepFinished)='stepFinished($event)' (reset)='reset()' *ngIf='stepper?.selectedIndex === 1'></app-explore>
     </mat-step>
     <mat-step label='Train' [completed]='trainCompleted' [editable]='!trainCompleted'>

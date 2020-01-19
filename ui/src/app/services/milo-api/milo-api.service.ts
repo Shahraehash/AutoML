@@ -2,13 +2,21 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
-import { ActiveTaskStatus, DataAnalysisReply, DataSets, Jobs, PendingTasks, PublishedModels, Results } from '../interfaces';
-import { environment } from '../../environments/environment';
+import {
+  ActiveTaskStatus,
+  DataAnalysisReply,
+  DataSets,
+  Jobs,
+  PendingTasks,
+  PublishedModels,
+  Results
+} from '../../interfaces';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
-export class BackendService {
+export class MiloApiService {
   currentJobId: string;
   currentDatasetId: string;
   userData;
