@@ -1,9 +1,19 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>login</ion-title>
+    <ion-title>Login</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-grid class='full-height'>
+    <ion-row class='ion-align-items-center full-height'>
+      <ion-col class='ion-text-center'>
+        <h1>Welcome to MILO!</h1>
 
+        <p>To get started, please login below:</p>
+
+        <ion-button (click)='login()'>Login with Google</ion-button>
+      </ion-col>
+    </ion-row>    
+  </ion-grid>
 </ion-content>

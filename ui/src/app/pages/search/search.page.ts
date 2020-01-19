@@ -1,7 +1,8 @@
 import { Component, AfterViewInit, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { MatStepper } from '@angular/material';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { Observable, timer, of } from 'rxjs';
 import { filter, switchMap, catchError } from 'rxjs/operators';
@@ -30,9 +31,11 @@ export class SearchPage implements OnInit, AfterViewInit {
 
   constructor(
     public activatedRoute: ActivatedRoute,
+    public afAuth: AngularFireAuth,
     public api: MiloApiService,
     private element: ElementRef,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -117,5 +120,10 @@ export class SearchPage implements OnInit, AfterViewInit {
         this.trainCompleted = true;
         setTimeout(() => this.stepper.selectedIndex = 3, 1);
     }
+  }
+
+  async signOut() {
+    await this.afAuth.auth.signOut();
+    this.router.navigateByUrl('/login');
   }
 }
