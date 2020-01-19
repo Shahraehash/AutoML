@@ -28,9 +28,8 @@ def get(userid):
             not os.path.exists(folder + '/' + dataset + '/label.txt'):
             continue
 
-        label = open(folder + '/' + dataset + '/label.txt', 'r')
-        label_column = label.read()
-        label.close()
+        with open(folder + '/' + dataset + '/label.txt') as label:
+            label_column = label.read()
 
         datasets.append({
             'date': time.strftime(
@@ -68,9 +67,8 @@ def add(userid):
     train.save(folder + '/train.csv')
     test.save(folder + '/test.csv')
 
-    label = open(folder + '/label.txt', 'w')
-    label.write(request.form['label_column'])
-    label.close()
+    with open(folder + '/label.txt', 'w') as label:
+        label.write(request.form['label_column'])
 
     return jsonify({'id': datasetid})
 
@@ -96,9 +94,8 @@ def describe(userid, datasetid):
         abort(400)
         return
 
-    label = open(folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
+    with open(folder + '/label.txt') as label:
+        label_column = label.read()
 
     return {
         'analysis': Describe(folder),

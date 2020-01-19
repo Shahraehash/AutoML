@@ -105,9 +105,8 @@ def train(userid, jobid):
 
     dataset_folder = 'data/users/' + userid.urn[9:] + '/datasets/' + metadata['datasetid']
 
-    label = open(dataset_folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
+    with open(dataset_folder + '/label.txt') as label:
+        label_column = label.read()
 
     task = queue_training.s(
         userid.urn[9:], jobid.urn[9:], label_column, parameters
@@ -167,9 +166,8 @@ def refit(userid, jobid):
 
     dataset_folder = 'data/users/' + userid.urn[9:] + '/datasets/' + metadata['datasetid']
 
-    label = open(dataset_folder + '/label.txt', 'r')
-    label_column = label.read()
-    label.close()
+    with open(dataset_folder + '/label.txt') as label:
+        label_column = label.read()
 
     create_model(
         request.form['key'],
