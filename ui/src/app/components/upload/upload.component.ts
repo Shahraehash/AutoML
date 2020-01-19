@@ -158,7 +158,7 @@ export class UploadComponent implements OnInit, OnDestroy {
           }
         }
       ],
-      header: 'Are you sure you want to delete?',
+      header: 'Are you sure you want to delete this?',
       subHeader: 'This cannot be undone.',
       message: 'Are you sure you want to delete this published model?'
     });
