@@ -26,6 +26,10 @@
         Delete Dataset
       </ion-button>
 
+      <div class='ion-padding-top ion-margin-top' *ngIf='!jobs?.data.length'>
+        Start training by clicking new run above
+      </div>
+
       <table mat-table [dataSource]='jobs' *ngIf='jobs?.data.length'>
         <ng-container [matColumnDef]='column' *ngFor='let column of columns'>
           <th mat-header-cell *matHeaderCellDef class='ion-text-center'>{{column}}</th>
