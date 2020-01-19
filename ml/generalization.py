@@ -41,6 +41,7 @@ def generalize(model, pipeline, x2, y2, labels=None):
         'f1': f1,
         'sensitivity': sensitivity,
         'specificity': specificity,
+        'ppv': tp / (tp+fp),
         'tn': tn,
         'tp': tp,
         'fn': fn,

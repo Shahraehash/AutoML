@@ -63,6 +63,12 @@ export class ResultsComponent implements OnInit {
       number: true
     },
     {
+      key: 'ppv',
+      name: 'PPV',
+      number: true,
+      hideMobile: true
+    },
+    {
       key: 'brier_score',
       name: 'Brier Score',
       number: true
