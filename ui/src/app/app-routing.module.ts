@@ -1,32 +1,39 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { canActivate, redirectUnauthorizedTo } from '@angular/fire/auth-guard';
+import { AngularFireAuthGuard, redirectUnauthorizedTo } from '@angular/fire/auth-guard';
+
+const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login']);
 
 const routes: Routes = [
   { path: 'login', loadChildren: () => import('./pages/login/login.module').then(m => m.LoginPageModule) },
   {
     path: 'search',
-    ...canActivate(redirectUnauthorizedTo(['login'])),
+    canActivate: [AngularFireAuthGuard],
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
     loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
   },
   {
     path: 'search/:dataId/:step',
-    ...canActivate(redirectUnauthorizedTo(['login'])),
+    canActivate: [AngularFireAuthGuard],
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
     loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
   },
   {
     path: 'search/:dataId/job/:jobId/:step',
-    ...canActivate(redirectUnauthorizedTo(['login'])),
+    canActivate: [AngularFireAuthGuard],
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
     loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
   },
   {
     path: 'search/:dataId/job/:jobId/:step/:taskId/status',
-    ...canActivate(redirectUnauthorizedTo(['login'])),
+    canActivate: [AngularFireAuthGuard],
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
     loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
   },
   {
     path: 'model/:id',
-    ...canActivate(redirectUnauthorizedTo(['login'])),
+    canActivate: [AngularFireAuthGuard],
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
     loadChildren: () => import('./pages/run-model/run-model.module').then(m => m.RunModelPageModule)
   },
   { path: '**', redirectTo: 'search' }
