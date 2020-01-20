@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { v4 as uuid } from 'uuid';
 
 import {
   ActiveTaskStatus,

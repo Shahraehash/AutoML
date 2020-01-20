@@ -1,5 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { parse } from 'papaparse';
@@ -28,6 +29,7 @@ export class UploadComponent implements OnInit, OnDestroy {
 
   constructor(
     public api: MiloApiService,
+    private afAuth: AngularFireAuth,
     private alertController: AlertController,
     private datePipe: DatePipe,
     private element: ElementRef,
@@ -42,11 +44,13 @@ export class UploadComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.dataSets$ = this.api.getDataSets().pipe(
+    this.afAuth.authState.pipe(
       takeUntil(this.destroy$)
-    );
-
-    this.updatePublishedModels();
+    ).subscribe(user => {
+      if (user) {
+        this.updateView();
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -172,5 +176,13 @@ export class UploadComponent implements OnInit, OnDestroy {
   reset() {
     this.element.nativeElement.querySelectorAll('input[type="file"]').forEach(node => node.value = '');
     this.uploadForm.reset();
+  }
+
+  private updateView() {
+    this.dataSets$ = this.api.getDataSets().pipe(
+      takeUntil(this.destroy$)
+    );
+
+    this.updatePublishedModels();
   }
 }
