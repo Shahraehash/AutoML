@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { v4 as uuid } from 'uuid';
 
 import {
@@ -19,33 +20,27 @@ import { environment } from '../../../environments/environment';
 export class MiloApiService {
   currentJobId: string;
   currentDatasetId: string;
-  userData;
+  currentUser: string;
 
   constructor(
-    private http: HttpClient,
+    private afAuth: AngularFireAuth,
+    private http: HttpClient
   ) {
-    let userData;
-    try {
-      userData = JSON.parse(localStorage.getItem('userData'));
-
-      if (userData === null) {
-        throw new Error('No user data found');
+    this.afAuth.authState.subscribe(user => {
+      if (!user) {
+        this.currentDatasetId = undefined;
+        this.currentJobId = undefined;
+        this.currentUser = undefined;
+        return;
       }
-    } catch (err) {
-      userData = {
-        id: uuid()
-      };
-    }
 
-    try {
-      localStorage.setItem('userData', JSON.stringify(userData));
-    } catch (err) {}
-    this.userData = userData;
+      this.currentUser = user.uid;
+    });
   }
 
   submitData(formData: FormData) {
     return this.http.post<{id: string}>(
-      `${environment.apiUrl}/user/${this.userData.id}/datasets`, formData
+      `${environment.apiUrl}/user/${this.currentUser}/datasets`, formData
     ).toPromise().then(reply => {
       this.currentDatasetId = reply.id;
     });
@@ -53,13 +48,13 @@ export class MiloApiService {
 
   getDataAnalysis() {
     return this.http.get<DataAnalysisReply>(
-      `${environment.apiUrl}/user/${this.userData.id}/datasets/${this.currentDatasetId}/describe`
+      `${environment.apiUrl}/user/${this.currentUser}/datasets/${this.currentDatasetId}/describe`
     );
   }
 
   createJob() {
     return this.http.post<any>(
-      `${environment.apiUrl}/user/${this.userData.id}/jobs`,
+      `${environment.apiUrl}/user/${this.currentUser}/jobs`,
       {datasetid: this.currentDatasetId}
     ).toPromise().then(reply => {
       this.currentJobId = reply.id;
@@ -67,19 +62,19 @@ export class MiloApiService {
   }
 
   deleteJob(id) {
-    return this.http.delete(environment.apiUrl + '/user/' + this.userData.id + '/jobs/' + id);
+    return this.http.delete(environment.apiUrl + '/user/' + this.currentUser + '/jobs/' + id);
   }
 
   deleteDataset(id) {
-    return this.http.delete(environment.apiUrl + '/user/' + this.userData.id + '/datasets/' + id);
+    return this.http.delete(environment.apiUrl + '/user/' + this.currentUser + '/datasets/' + id);
   }
 
   startTraining(formData) {
-    return this.http.post(`${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/train`, formData);
+    return this.http.post(`${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/train`, formData);
   }
 
   getPipelines() {
-    return this.http.get(`${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/pipelines`);
+    return this.http.get(`${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/pipelines`);
   }
 
   getTaskStatus(id: number) {
@@ -92,7 +87,7 @@ export class MiloApiService {
 
   getResults() {
     return this.http.get<Results>(
-      `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/result`
+      `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/result`
     );
   }
 
@@ -102,7 +97,7 @@ export class MiloApiService {
 
   createModel(formData) {
     return this.http.post(
-      `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/refit`,
+      `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/refit`,
       formData
     );
   }
@@ -117,37 +112,37 @@ export class MiloApiService {
 
   testModel(data) {
     return this.http.post(
-      `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/test`,
+      `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/test`,
       data
     );
   }
 
   getPendingTasks() {
-    return this.http.get<PendingTasks>(`${environment.apiUrl}/user/${this.userData.id}/tasks`);
+    return this.http.get<PendingTasks>(`${environment.apiUrl}/user/${this.currentUser}/tasks`);
   }
 
   getDataSets() {
-    return this.http.get<DataSets[]>(environment.apiUrl + '/user/' + this.userData.id + '/datasets');
+    return this.http.get<DataSets[]>(environment.apiUrl + '/user/' + this.currentUser + '/datasets');
   }
 
   getJobs() {
-    return this.http.get<Jobs[]>(environment.apiUrl + '/user/' + this.userData.id + '/jobs');
+    return this.http.get<Jobs[]>(environment.apiUrl + '/user/' + this.currentUser + '/jobs');
   }
 
   getPublishedModels() {
-    return this.http.get<PublishedModels>(`${environment.apiUrl}/user/${this.userData.id}/published`);
+    return this.http.get<PublishedModels>(`${environment.apiUrl}/user/${this.currentUser}/published`);
   }
 
   exportCSV() {
-    return `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/export`;
+    return `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/export`;
   }
 
   exportModel() {
-    return `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/export-model`;
+    return `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/export-model`;
   }
 
   exportPMML() {
-    return `${environment.apiUrl}/user/${this.userData.id}/jobs/${this.currentJobId}/export-pmml`;
+    return `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/export-pmml`;
   }
 
   exportPublishedModel(publishName) {
