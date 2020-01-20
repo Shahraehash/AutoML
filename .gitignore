@@ -9,6 +9,9 @@ __pycache__/
 *.manifest
 *.spec
 
+# Firebase logs
+.firebase
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
