@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { MatTableDataSource } from '@angular/material';
 import { LoadingController, AlertController } from '@ionic/angular';
 
-import { BackendService } from '../../services/backend.service';
+import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { DataAnalysisReply, Jobs } from '../../interfaces';
 
 @Component({
@@ -19,18 +19,18 @@ export class ExploreComponent implements OnInit {
   jobs: MatTableDataSource<Jobs>;
   columns = ['Date', 'Status', 'Actions'];
   constructor(
-    public backend: BackendService,
+    public api: MiloApiService,
     private alertController: AlertController,
     private datePipe: DatePipe,
     private loadingController: LoadingController
   ) {}
 
   ngOnInit() {
-    if (!this.backend.currentDatasetId) {
+    if (!this.api.currentDatasetId) {
       return;
     }
 
-    this.backend.getDataAnalysis().subscribe(data => this.analysis = data);
+    this.api.getDataAnalysis().subscribe(data => this.analysis = data);
     this.updateJobs();
   }
 
@@ -44,7 +44,7 @@ export class ExploreComponent implements OnInit {
   }
 
   useJob(id, step) {
-    this.backend.currentJobId = id;
+    this.api.currentJobId = id;
     this.stepFinished.emit({nextStep: step, data: Object.keys(this.analysis.analysis.train.summary).length});
   }
 
@@ -59,7 +59,7 @@ export class ExploreComponent implements OnInit {
               message: 'Deleting job...'
             });
             await loading.present();
-            await this.backend.deleteJob(id).toPromise();
+            await this.api.deleteJob(id).toPromise();
             this.updateJobs();
             await loading.dismiss();
           }
@@ -83,7 +83,7 @@ export class ExploreComponent implements OnInit {
               message: 'Deleting dataset...'
             });
             await loading.present();
-            await this.backend.deleteDataset(this.backend.currentDatasetId).toPromise();
+            await this.api.deleteDataset(this.api.currentDatasetId).toPromise();
             this.reset.emit();
             await loading.dismiss();
           }
@@ -99,14 +99,14 @@ export class ExploreComponent implements OnInit {
   async newJob() {
     const loading = await this.loadingController.create({message: 'Creating new job...'});
     await loading.present();
-    await this.backend.createJob();
+    await this.api.createJob();
     this.stepFinished.emit({nextStep: 'train', data: Object.keys(this.analysis.analysis.train.summary).length});
     await loading.dismiss();
   }
 
   private async updateJobs() {
     this.jobs = new MatTableDataSource(
-      (await this.backend.getJobs().toPromise()).filter(job => job.metadata.datasetid === this.backend.currentDatasetId)
+      (await this.api.getJobs().toPromise()).filter(job => job.metadata.datasetid === this.api.currentDatasetId)
     );
   }
 }

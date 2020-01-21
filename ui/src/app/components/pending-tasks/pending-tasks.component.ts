@@ -3,7 +3,7 @@ import { AlertController, ModalController, LoadingController } from '@ionic/angu
 import { Observable, timer, of } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 
-import { BackendService } from '../../services/backend.service';
+import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { PendingTasks } from '../../interfaces';
 import { TrainComponent } from '../train/train.component';
 
@@ -18,14 +18,14 @@ export class PendingTasksComponent implements OnInit {
 
   constructor(
     private alertController: AlertController,
-    private backend: BackendService,
+    private api: MiloApiService,
     private loadingController: LoadingController,
     private modalController: ModalController
   ) {}
 
   ngOnInit() {
     this.pendingTasks$ = timer(0, 5000).pipe(
-      switchMap(() => this.backend.getPendingTasks().pipe(
+      switchMap(() => this.api.getPendingTasks().pipe(
         catchError(() => of({active: [], scheduled: []}))
       ))
     );
@@ -45,7 +45,7 @@ export class PendingTasksComponent implements OnInit {
             await loader.present();
 
             try {
-              await this.backend.cancelTask(id).toPromise();
+              await this.api.cancelTask(id).toPromise();
             } catch (error) {
               (await this.alertController.create({message: 'Unable to cancel the task', buttons: ['Dismiss']})).present();
             }

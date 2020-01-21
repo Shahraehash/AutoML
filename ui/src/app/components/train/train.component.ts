@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 import { TaskAdded } from '../../interfaces';
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { TextareaModalComponent } from '../../components/textarea-modal/textarea-modal.component';
-import { BackendService } from '../../services/backend.service';
+import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one-checked.validator';
 
 @Component({
@@ -33,7 +33,7 @@ export class TrainComponent implements OnDestroy, OnInit {
 
   constructor(
     private alertController: AlertController,
-    private backend: BackendService,
+    private api: MiloApiService,
     private formBuilder: FormBuilder,
     private modalController: ModalController,
     private toastController: ToastController
@@ -106,7 +106,7 @@ export class TrainComponent implements OnDestroy, OnInit {
       formData.append('ignore_shuffle', 'true');
     }
 
-    this.backend.startTraining(formData).subscribe(
+    this.api.startTraining(formData).subscribe(
       (task: TaskAdded) => {
         this.allPipelines = task.pipelines;
         this.checkStatus(task.id);
@@ -130,7 +130,7 @@ export class TrainComponent implements OnDestroy, OnInit {
     this.pushStateStatus(taskId);
     this.training = true;
 
-    this.backend.getPipelines().subscribe(
+    this.api.getPipelines().subscribe(
       (pipelines) => {
         this.allPipelines = pipelines;
         this.checkStatus(taskId);
@@ -212,7 +212,7 @@ export class TrainComponent implements OnDestroy, OnInit {
   private checkStatus(taskId) {
     this.statusPoller$ = timer(1000, 5000).pipe(
       takeUntil(this.destroy$),
-      switchMap(() => this.backend.getTaskStatus(taskId).pipe(
+      switchMap(() => this.api.getTaskStatus(taskId).pipe(
         catchError(() => of(false))
       ))
     ).subscribe(
@@ -247,6 +247,6 @@ export class TrainComponent implements OnDestroy, OnInit {
   }
 
   private pushStateStatus(id) {
-    window.history.pushState('', '', `/search/${this.backend.currentDatasetId}/job/${this.backend.currentJobId}/train/${id}/status`);
+    window.history.pushState('', '', `/search/${this.api.currentDatasetId}/job/${this.api.currentJobId}/train/${id}/status`);
   }
 }

@@ -22,7 +22,7 @@ PUBLISHED_MODELS = 'data/published-models.json'
 def get(userid):
     """Get all the jobs for a given user ID"""
 
-    folder = 'data/users/' + userid.urn[9:] + '/jobs'
+    folder = 'data/users/' + userid + '/jobs'
 
     if not os.path.exists(folder):
         abort(400)
@@ -62,7 +62,7 @@ def create(userid):
 
     jobid = uuid.uuid4().urn[9:]
 
-    folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid
+    folder = 'data/users/' + userid + '/jobs/' + jobid
 
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -82,7 +82,7 @@ def create(userid):
 def delete(userid, jobid):
     """Deletes a previous job"""
 
-    folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+    folder = 'data/users/' + userid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder):
         abort(400)
@@ -98,18 +98,18 @@ def train(userid, jobid):
     parameters = request.form.to_dict()
     pipelines = list_pipelines(parameters)
 
-    job_folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+    job_folder = 'data/users/' + userid + '/jobs/' + jobid.urn[9:]
 
     with open(job_folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    dataset_folder = 'data/users/' + userid.urn[9:] + '/datasets/' + metadata['datasetid']
+    dataset_folder = 'data/users/' + userid + '/datasets/' + metadata['datasetid']
 
     with open(dataset_folder + '/label.txt') as label:
         label_column = label.read()
 
     task = queue_training.s(
-        userid.urn[9:], jobid.urn[9:], label_column, parameters
+        userid, jobid.urn[9:], label_column, parameters
     ).apply_async()
 
     return jsonify({
@@ -121,7 +121,7 @@ def train(userid, jobid):
 def result(userid, jobid):
     """Retrieve the training results"""
 
-    folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+    folder = 'data/users/' + userid + '/jobs/' + jobid.urn[9:]
     metadata = None
 
     if not os.path.exists(folder + '/report.csv'):
@@ -145,7 +145,7 @@ def result(userid, jobid):
 def get_pipelines(userid, jobid):
     """Returns the pipelines for a job"""
 
-    folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+    folder = 'data/users/' + userid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/' + '/metadata.json'):
         abort(400)
@@ -159,12 +159,12 @@ def get_pipelines(userid, jobid):
 def refit(userid, jobid):
     """Create a static copy of the selected model"""
 
-    job_folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+    job_folder = 'data/users/' + userid + '/jobs/' + jobid.urn[9:]
 
     with open(job_folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    dataset_folder = 'data/users/' + userid.urn[9:] + '/datasets/' + metadata['datasetid']
+    dataset_folder = 'data/users/' + userid + '/datasets/' + metadata['datasetid']
 
     with open(dataset_folder + '/label.txt') as label:
         label_column = label.read()
@@ -207,7 +207,7 @@ def refit(userid, jobid):
 def test(userid, jobid):
     """Tests the selected model against the provided data"""
 
-    folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+    folder = 'data/users/' + userid + '/jobs/' + jobid.urn[9:]
 
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
@@ -224,7 +224,7 @@ def test(userid, jobid):
 def export(userid, jobid):
     """Export the results CSV"""
 
-    folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+    folder = 'data/users/' + userid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/report.csv'):
         abort(400)
@@ -235,7 +235,7 @@ def export(userid, jobid):
 def export_pmml(userid, jobid):
     """Export the selected model's PMML"""
 
-    folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+    folder = 'data/users/' + userid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/pipeline.pmml'):
         abort(400)
@@ -246,7 +246,7 @@ def export_pmml(userid, jobid):
 def export_model(userid, jobid):
     """Export the selected model"""
 
-    folder = 'data/users/' + userid.urn[9:] + '/jobs/' + jobid.urn[9:]
+    folder = 'data/users/' + userid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/pipeline.joblib'):
         abort(400)

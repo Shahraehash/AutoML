@@ -2,19 +2,22 @@
   <ion-toolbar>
     <ion-title class='ion-hide-sm-up' [class.ion-hide]='stepper?.selectedIndex'>MILO</ion-title>
     <ion-title class='ion-hide-sm-down'>MILO: Machine Intelligence Learning Optimizer</ion-title>
-    <ion-buttons slot='end' class='ion-padding-end'>
+    <ion-buttons slot='end'>
       <ng-container *ngIf='pendingTasks$ | async as pendingTasks'>
         <ion-button fill='solid' color='primary' (click)='openPendingTasks($event, pendingTasks)' *ngIf='pendingTasks.active.length || pendingTasks.scheduled.length'>
           <ion-spinner name='dots' slot='icon-only'></ion-spinner>
         </ion-button>
       </ng-container>
-      <ion-button fill='solid' color='primary' (click)='reset()' *ngIf='backend.currentDatasetId || backend.currentJobId'>
+      <ion-button fill='solid' color='primary' (click)='reset()' *ngIf='api.currentDatasetId || api.currentJobId'>
         <ion-icon slot='start' name='add'></ion-icon>
         Start New Search
       </ion-button>
       <ion-button fill="solid" color='primary' (click)='exportCSV()' *ngIf='stepper?.selectedIndex === 3'>
         <ion-icon slot='start' name='download'></ion-icon>
         Export
+      </ion-button>
+      <ion-button (click)='signOut()'>
+        <ion-icon slot='icon-only' name='log-out'></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -26,10 +29,10 @@
       <mat-icon>check</mat-icon>
     </ng-template>
 
-    <mat-step label='Select' [completed]='!!backend.currentDatasetId' [editable]='!backend.currentDatasetId'>
+    <mat-step label='Select' [completed]='!!api.currentDatasetId' [editable]='!api.currentDatasetId'>
       <app-upload #upload (stepFinished)='stepFinished($event)' *ngIf='stepper?.selectedIndex === 0'></app-upload>
     </mat-step>
-    <mat-step label='Explore' [completed]='!!backend.currentJobId' [editable]='!backend.currentJobId'>
+    <mat-step label='Explore' [completed]='!!api.currentJobId' [editable]='!api.currentJobId'>
       <app-explore #explore (stepFinished)='stepFinished($event)' (reset)='reset()' *ngIf='stepper?.selectedIndex === 1'></app-explore>
     </mat-step>
     <mat-step label='Train' [completed]='trainCompleted' [editable]='!trainCompleted'>
