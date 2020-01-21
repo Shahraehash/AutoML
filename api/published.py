@@ -6,13 +6,13 @@ import ast
 import os
 import json
 
-from flask import abort, jsonify, request, send_file
+from flask import abort, g, jsonify, request, send_file
 
 from ml.predict import predict
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
-def get(userid):
+def get():
     """Get all published models for a given user ID"""
 
     if not os.path.exists(PUBLISHED_MODELS):
@@ -26,7 +26,7 @@ def get(userid):
         k:{
             'features': ast.literal_eval(v['features']),
             'date': v['date']
-        } for (k, v) in published.items() if userid in v['path']
+        } for (k, v) in published.items() if g.uid in v['path']
     }
 
     return jsonify(published)

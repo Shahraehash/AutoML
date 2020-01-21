@@ -37,7 +37,7 @@ export class MiloApiService {
   async submitData(formData: FormData) {
     return (await this.request<{id: string}>(
       'post',
-      `/user/${this.afAuth.auth.currentUser.uid}/datasets`,
+      `/datasets`,
       formData
     )).toPromise().then(reply => {
       this.currentDatasetId = reply.id;
@@ -47,14 +47,14 @@ export class MiloApiService {
   getDataAnalysis() {
     return this.request<DataAnalysisReply>(
       'get',
-      `/user/${this.afAuth.auth.currentUser.uid}/datasets/${this.currentDatasetId}/describe`
+      `/datasets/${this.currentDatasetId}/describe`
     );
   }
 
   async createJob() {
     return (await this.request<{id: string}>(
       'post',
-      `/user/${this.afAuth.auth.currentUser.uid}/jobs`,
+      `/jobs`,
       {datasetid: this.currentDatasetId}
     )).toPromise().then(reply => {
       this.currentJobId = reply.id;
@@ -62,17 +62,17 @@ export class MiloApiService {
   }
 
   deleteJob(id) {
-    return this.request('delete', '/user/' + this.afAuth.auth.currentUser.uid + '/jobs/' + id);
+    return this.request('delete', '/jobs/' + id);
   }
 
   deleteDataset(id) {
-    return this.request('delete', '/user/' + this.afAuth.auth.currentUser.uid + '/datasets/' + id);
+    return this.request('delete', '/datasets/' + id);
   }
 
   startTraining(formData) {
     return this.request(
       'post',
-      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/train`,
+      `/jobs/${this.currentJobId}/train`,
       formData
     );
   }
@@ -80,7 +80,7 @@ export class MiloApiService {
   getPipelines() {
     return this.request(
       'get',
-      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/pipelines`
+      `/jobs/${this.currentJobId}/pipelines`
     );
   }
 
@@ -95,7 +95,7 @@ export class MiloApiService {
   getResults() {
     return this.request<Results>(
       'get',
-      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/result`
+      `/jobs/${this.currentJobId}/result`
     );
   }
 
@@ -106,7 +106,7 @@ export class MiloApiService {
   createModel(formData) {
     return this.request(
       'post',
-      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/refit`,
+      `/jobs/${this.currentJobId}/refit`,
       formData
     );
   }
@@ -126,37 +126,37 @@ export class MiloApiService {
   testModel(data) {
     return this.request<TestReply>(
       'post',
-      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/test`,
+      `/jobs/${this.currentJobId}/test`,
       data
     );
   }
 
   getPendingTasks() {
-    return this.request<PendingTasks>('get', `/user/${this.afAuth.auth.currentUser.uid}/tasks`);
+    return this.request<PendingTasks>('get', `/tasks`);
   }
 
   getDataSets() {
-    return this.request<DataSets[]>('get', '/user/' + this.afAuth.auth.currentUser.uid + '/datasets');
+    return this.request<DataSets[]>('get', '/datasets');
   }
 
   getJobs() {
-    return this.request<Jobs[]>('get', '/user/' + this.afAuth.auth.currentUser.uid + '/jobs');
+    return this.request<Jobs[]>('get', '/jobs');
   }
 
   getPublishedModels() {
-    return this.request<PublishedModels>('get', `/user/${this.afAuth.auth.currentUser.uid}/published`);
+    return this.request<PublishedModels>('get', `/published`);
   }
 
   exportCSV() {
-    return `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/export`;
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export`;
   }
 
   exportModel() {
-    return `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/export-model`;
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model`;
   }
 
   exportPMML() {
-    return `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/export-pmml`;
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-pmml`;
   }
 
   exportPublishedModel(publishName) {

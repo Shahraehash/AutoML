@@ -4,7 +4,7 @@ API methods for getting data from Celery tasks
 
 import ast
 
-from flask import jsonify
+from flask import g, jsonify
 
 from worker import CELERY, get_task_status, revoke_task
 
@@ -12,7 +12,7 @@ def status(task_id):
     """Get a jobs status"""
     return jsonify(get_task_status(task_id.urn[9:]))
 
-def pending(userid):
+def pending():
     """Get all pending tasks for a given user ID"""
 
     active = []
@@ -22,7 +22,7 @@ def pending(userid):
     scheduled_tasks = list(scheduled_tasks.values()) if scheduled_tasks else []
     for worker in scheduled_tasks:
         for task in worker:
-            if userid in task['request']['args']:
+            if g.uid in task['request']['args']:
                 try:
                     args = ast.literal_eval(task['request']['args'])
                 except ValueError:
@@ -42,7 +42,7 @@ def pending(userid):
     reserved_tasks = list(reserved_tasks.values()) if reserved_tasks else []
     for worker in active_tasks + reserved_tasks:
         for task in worker:
-            if '.queue_training' in task['type'] and userid in task['args']:
+            if '.queue_training' in task['type'] and g.uid in task['args']:
                 try:
                     args = ast.literal_eval(task['args'])
                 except ValueError:
