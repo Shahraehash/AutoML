@@ -19,7 +19,6 @@ import { environment } from '../../../environments/environment';
 export class MiloApiService {
   currentJobId: string;
   currentDatasetId: string;
-  currentUser: string;
 
   constructor(
     private afAuth: AngularFireAuth,
@@ -29,17 +28,14 @@ export class MiloApiService {
       if (!user) {
         this.currentDatasetId = undefined;
         this.currentJobId = undefined;
-        this.currentUser = undefined;
         return;
       }
-
-      this.currentUser = user.uid;
     });
   }
 
   submitData(formData: FormData) {
     return this.http.post<{id: string}>(
-      `${environment.apiUrl}/user/${this.currentUser}/datasets`, formData
+      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/datasets`, formData
     ).toPromise().then(reply => {
       this.currentDatasetId = reply.id;
     });
@@ -47,13 +43,13 @@ export class MiloApiService {
 
   getDataAnalysis() {
     return this.http.get<DataAnalysisReply>(
-      `${environment.apiUrl}/user/${this.currentUser}/datasets/${this.currentDatasetId}/describe`
+      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/datasets/${this.currentDatasetId}/describe`
     );
   }
 
   createJob() {
     return this.http.post<any>(
-      `${environment.apiUrl}/user/${this.currentUser}/jobs`,
+      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs`,
       {datasetid: this.currentDatasetId}
     ).toPromise().then(reply => {
       this.currentJobId = reply.id;
@@ -61,19 +57,22 @@ export class MiloApiService {
   }
 
   deleteJob(id) {
-    return this.http.delete(environment.apiUrl + '/user/' + this.currentUser + '/jobs/' + id);
+    return this.http.delete(environment.apiUrl + '/user/' + this.afAuth.auth.currentUser.uid + '/jobs/' + id);
   }
 
   deleteDataset(id) {
-    return this.http.delete(environment.apiUrl + '/user/' + this.currentUser + '/datasets/' + id);
+    return this.http.delete(environment.apiUrl + '/user/' + this.afAuth.auth.currentUser.uid + '/datasets/' + id);
   }
 
   startTraining(formData) {
-    return this.http.post(`${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/train`, formData);
+    return this.http.post(
+      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/train`,
+      formData
+    );
   }
 
   getPipelines() {
-    return this.http.get(`${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/pipelines`);
+    return this.http.get(`${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/pipelines`);
   }
 
   getTaskStatus(id: number) {
@@ -86,7 +85,7 @@ export class MiloApiService {
 
   getResults() {
     return this.http.get<Results>(
-      `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/result`
+      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/result`
     );
   }
 
@@ -96,7 +95,7 @@ export class MiloApiService {
 
   createModel(formData) {
     return this.http.post(
-      `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/refit`,
+      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/refit`,
       formData
     );
   }
@@ -111,37 +110,37 @@ export class MiloApiService {
 
   testModel(data) {
     return this.http.post(
-      `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/test`,
+      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/test`,
       data
     );
   }
 
   getPendingTasks() {
-    return this.http.get<PendingTasks>(`${environment.apiUrl}/user/${this.currentUser}/tasks`);
+    return this.http.get<PendingTasks>(`${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/tasks`);
   }
 
   getDataSets() {
-    return this.http.get<DataSets[]>(environment.apiUrl + '/user/' + this.currentUser + '/datasets');
+    return this.http.get<DataSets[]>(environment.apiUrl + '/user/' + this.afAuth.auth.currentUser.uid + '/datasets');
   }
 
   getJobs() {
-    return this.http.get<Jobs[]>(environment.apiUrl + '/user/' + this.currentUser + '/jobs');
+    return this.http.get<Jobs[]>(environment.apiUrl + '/user/' + this.afAuth.auth.currentUser.uid + '/jobs');
   }
 
   getPublishedModels() {
-    return this.http.get<PublishedModels>(`${environment.apiUrl}/user/${this.currentUser}/published`);
+    return this.http.get<PublishedModels>(`${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/published`);
   }
 
   exportCSV() {
-    return `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/export`;
+    return `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/export`;
   }
 
   exportModel() {
-    return `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/export-model`;
+    return `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/export-model`;
   }
 
   exportPMML() {
-    return `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/export-pmml`;
+    return `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/export-pmml`;
   }
 
   exportPublishedModel(publishName) {
