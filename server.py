@@ -69,6 +69,7 @@ APP.add_url_rule('/tasks/<uuid:task_id>', 'cancel', tasks.cancel, methods=['DELE
 
 # Published Models
 APP.add_url_rule('/published', 'published-get', published.get)
+APP.add_url_rule('/published/<string:name>', 'published-add', published.add, methods=['POST'])
 APP.add_url_rule('/published/<string:name>', 'published-delete', published.delete, methods=['DELETE'])
 APP.add_url_rule('/published/<string:name>/test', 'published-test', published.test, methods=['POST'])
 APP.add_url_rule('/published/<string:name>/export-model', 'published-export-model', published.export_model)

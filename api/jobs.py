@@ -17,8 +17,6 @@ from ml.list_pipelines import list_pipelines
 from ml.predict import predict
 from worker import queue_training
 
-PUBLISHED_MODELS = 'data/published-models.json'
-
 def get():
     """Get all the jobs for a given user ID"""
 
@@ -179,30 +177,6 @@ def refit(jobid):
         label_column,
         job_folder
     )
-
-    if 'publishName' in request.form:
-        model_path = job_folder + '/' + request.form['publishName']
-        copyfile(job_folder + '/pipeline.joblib', model_path + '.joblib')
-        copyfile(job_folder + '/pipeline.pmml', model_path + '.pmml')
-
-        if os.path.exists(PUBLISHED_MODELS):
-            with open(PUBLISHED_MODELS) as published_file:
-                published = json.load(published_file)
-        else:
-            published = {}
-
-        if request.form['publishName'] in published:
-            abort(409)
-            return
-
-        published[request.form['publishName']] = {
-            'date': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-            'features': request.form['features'],
-            'path': model_path
-        }
-
-        with open(PUBLISHED_MODELS, 'w') as published_file:
-            json.dump(published, published_file)
 
     return jsonify({'success': True})
 

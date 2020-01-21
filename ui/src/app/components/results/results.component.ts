@@ -254,11 +254,12 @@ export class ResultsComponent implements OnInit {
   async publishModel(model, name) {
     await this.presentLoading();
     const formData = new FormData();
-    formData.append('publishName', name);
     formData.append('key', model.key);
     formData.append('parameters', model.best_params);
     formData.append('features', model.selected_features);
-    (await this.api.createModel(formData)).subscribe(
+    formData.append('job', this.api.currentJobId);
+
+    (await this.api.publishModel(name, formData)).subscribe(
       async () => {
         const alert = await this.alertController.create({
           buttons: ['Dismiss'],

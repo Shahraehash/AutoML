@@ -111,6 +111,14 @@ export class MiloApiService {
     );
   }
 
+  publishModel(name, formData) {
+    return this.request(
+      'post',
+      `/published/${name}`,
+      formData
+    );
+  }
+
   deletePublishedModel(name: string) {
     return this.request('delete', '/published/' + name);
   }

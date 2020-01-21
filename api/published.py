@@ -5,10 +5,14 @@ Handle published model requests
 import ast
 import os
 import json
+import time
+import uuid
+from shutil import copyfile
 
 from flask import abort, g, jsonify, request, send_file
 
 from ml.predict import predict
+from .jobs import refit
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
@@ -140,3 +144,35 @@ def export_model(name):
         return
 
     return send_file(published[name]['path'] + '.joblib', as_attachment=True)
+
+def add(name):
+    """Refits a model for future use via a published name"""
+
+    refit(uuid.UUID(request.form['job']))
+
+    job_folder = 'data/users/' + g.uid + '/jobs/' + request.form['job']
+    model_path = job_folder + '/' + name
+
+    copyfile(job_folder + '/pipeline.joblib', model_path + '.joblib')
+    copyfile(job_folder + '/pipeline.pmml', model_path + '.pmml')
+
+    if os.path.exists(PUBLISHED_MODELS):
+        with open(PUBLISHED_MODELS) as published_file:
+            published = json.load(published_file)
+    else:
+        published = {}
+
+    if name in published:
+        abort(409)
+        return
+
+    published[name] = {
+        'date': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+        'features': request.form['features'],
+        'path': model_path
+    }
+
+    with open(PUBLISHED_MODELS, 'w') as published_file:
+        json.dump(published, published_file)
+
+    return jsonify({'success': True})
