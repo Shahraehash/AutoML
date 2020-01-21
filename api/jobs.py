@@ -49,7 +49,7 @@ def get():
 
     return jsonify(jobs)
 
-def create():
+def add():
     """Creates a new job"""
 
     try:

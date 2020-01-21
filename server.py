@@ -51,7 +51,7 @@ APP.add_url_rule('/datasets/<uuid:datasetid>/describe', 'datasets-describe', dat
 
 # Jobs
 APP.add_url_rule('/jobs', 'jobs-get', jobs.get)
-APP.add_url_rule('/jobs', 'jobs-add', jobs.create, methods=['POST'])
+APP.add_url_rule('/jobs', 'jobs-add', jobs.add, methods=['POST'])
 APP.add_url_rule('/jobs/<uuid:jobid>', 'jobs-delete', jobs.delete, methods=['DELETE'])
 APP.add_url_rule('/jobs/<uuid:jobid>/train', 'jobs-train', jobs.train, methods=['POST'])
 APP.add_url_rule('/jobs/<uuid:jobid>/result', 'jobs-result', jobs.result)
