@@ -9,9 +9,10 @@ __pycache__/
 *.manifest
 *.spec
 
-# Firebase logs
+# Firebase
 .firebase
 firebase-debug.log
+serviceAccountKey.json
 
 # Installer logs
 pip-log.txt

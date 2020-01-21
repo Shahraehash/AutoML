@@ -88,7 +88,7 @@ export class TrainComponent implements OnDestroy, OnInit {
     this.destroy$.unsubscribe();
   }
 
-  startTraining() {
+  async startTraining() {
     this.training = true;
 
     const formData = new FormData();
@@ -106,7 +106,7 @@ export class TrainComponent implements OnDestroy, OnInit {
       formData.append('ignore_shuffle', 'true');
     }
 
-    this.api.startTraining(formData).subscribe(
+    (await this.api.startTraining(formData)).subscribe(
       (task: TaskAdded) => {
         this.allPipelines = task.pipelines;
         this.checkStatus(task.id);
@@ -126,11 +126,11 @@ export class TrainComponent implements OnDestroy, OnInit {
     localStorage.setItem('training-options', JSON.stringify(this.trainForm.value));
   }
 
-  startMonitor(taskId) {
+  async startMonitor(taskId) {
     this.pushStateStatus(taskId);
     this.training = true;
 
-    this.api.getPipelines().subscribe(
+    (await this.api.getPipelines()).subscribe(
       (pipelines) => {
         this.allPipelines = pipelines;
         this.checkStatus(taskId);
@@ -209,10 +209,11 @@ export class TrainComponent implements OnDestroy, OnInit {
     );
   }
 
-  private checkStatus(taskId) {
+  private async checkStatus(taskId) {
+    const observable = await this.api.getTaskStatus(taskId);
     this.statusPoller$ = timer(1000, 5000).pipe(
       takeUntil(this.destroy$),
-      switchMap(() => this.api.getTaskStatus(taskId).pipe(
+      switchMap(() => observable.pipe(
         catchError(() => of(false))
       ))
     ).subscribe(

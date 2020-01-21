@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/auth';
 
 import {
@@ -9,6 +9,7 @@ import {
   Jobs,
   PendingTasks,
   PublishedModels,
+  TestReply,
   Results
 } from '../../interfaces';
 import { environment } from '../../../environments/environment';
@@ -19,7 +20,6 @@ import { environment } from '../../../environments/environment';
 export class MiloApiService {
   currentJobId: string;
   currentDatasetId: string;
-  currentUser: string;
 
   constructor(
     private afAuth: AngularFireAuth,
@@ -29,119 +29,142 @@ export class MiloApiService {
       if (!user) {
         this.currentDatasetId = undefined;
         this.currentJobId = undefined;
-        this.currentUser = undefined;
         return;
       }
-
-      this.currentUser = user.uid;
     });
   }
 
-  submitData(formData: FormData) {
-    return this.http.post<{id: string}>(
-      `${environment.apiUrl}/user/${this.currentUser}/datasets`, formData
-    ).toPromise().then(reply => {
+  async submitData(formData: FormData) {
+    return (await this.request<{id: string}>(
+      'post',
+      `/datasets`,
+      formData
+    )).toPromise().then(reply => {
       this.currentDatasetId = reply.id;
     });
   }
 
   getDataAnalysis() {
-    return this.http.get<DataAnalysisReply>(
-      `${environment.apiUrl}/user/${this.currentUser}/datasets/${this.currentDatasetId}/describe`
+    return this.request<DataAnalysisReply>(
+      'get',
+      `/datasets/${this.currentDatasetId}/describe`
     );
   }
 
-  createJob() {
-    return this.http.post<any>(
-      `${environment.apiUrl}/user/${this.currentUser}/jobs`,
+  async createJob() {
+    return (await this.request<{id: string}>(
+      'post',
+      `/jobs`,
       {datasetid: this.currentDatasetId}
-    ).toPromise().then(reply => {
+    )).toPromise().then(reply => {
       this.currentJobId = reply.id;
     });
   }
 
   deleteJob(id) {
-    return this.http.delete(environment.apiUrl + '/user/' + this.currentUser + '/jobs/' + id);
+    return this.request('delete', '/jobs/' + id);
   }
 
   deleteDataset(id) {
-    return this.http.delete(environment.apiUrl + '/user/' + this.currentUser + '/datasets/' + id);
+    return this.request('delete', '/datasets/' + id);
   }
 
   startTraining(formData) {
-    return this.http.post(`${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/train`, formData);
+    return this.request(
+      'post',
+      `/jobs/${this.currentJobId}/train`,
+      formData
+    );
   }
 
   getPipelines() {
-    return this.http.get(`${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/pipelines`);
+    return this.request(
+      'get',
+      `/jobs/${this.currentJobId}/pipelines`
+    );
   }
 
   getTaskStatus(id: number) {
-    return this.http.get<ActiveTaskStatus>(`${environment.apiUrl}/tasks/${id}`);
+    return this.request<ActiveTaskStatus>('get', `/tasks/${id}`);
   }
 
   cancelTask(id) {
-    return this.http.delete(`${environment.apiUrl}/tasks/${id}`);
+    return this.request('delete', `/tasks/${id}`);
   }
 
   getResults() {
-    return this.http.get<Results>(
-      `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/result`
+    return this.request<Results>(
+      'get',
+      `/jobs/${this.currentJobId}/result`
     );
   }
 
   getModelFeatures(model: string) {
-    return this.http.get<string>(`${environment.apiUrl}/published/${model}/features`);
+    return this.request<string>('get', `/published/${model}/features`);
   }
 
   createModel(formData) {
-    return this.http.post(
-      `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/refit`,
+    return this.request(
+      'post',
+      `/jobs/${this.currentJobId}/refit`,
+      formData
+    );
+  }
+
+  publishModel(name, formData) {
+    return this.request(
+      'post',
+      `/published/${name}`,
       formData
     );
   }
 
   deletePublishedModel(name: string) {
-    return this.http.delete(environment.apiUrl + '/published/' + name);
+    return this.request('delete', '/published/' + name);
   }
 
   testPublishedModel(data, publishName) {
-    return this.http.post(`${environment.apiUrl}/published/${publishName}/test`, data);
+    return this.request<TestReply>(
+      'post',
+      `/published/${publishName}/test`,
+      data
+    );
   }
 
   testModel(data) {
-    return this.http.post(
-      `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/test`,
+    return this.request<TestReply>(
+      'post',
+      `/jobs/${this.currentJobId}/test`,
       data
     );
   }
 
   getPendingTasks() {
-    return this.http.get<PendingTasks>(`${environment.apiUrl}/user/${this.currentUser}/tasks`);
+    return this.request<PendingTasks>('get', `/tasks`);
   }
 
   getDataSets() {
-    return this.http.get<DataSets[]>(environment.apiUrl + '/user/' + this.currentUser + '/datasets');
+    return this.request<DataSets[]>('get', '/datasets');
   }
 
   getJobs() {
-    return this.http.get<Jobs[]>(environment.apiUrl + '/user/' + this.currentUser + '/jobs');
+    return this.request<Jobs[]>('get', '/jobs');
   }
 
   getPublishedModels() {
-    return this.http.get<PublishedModels>(`${environment.apiUrl}/user/${this.currentUser}/published`);
+    return this.request<PublishedModels>('get', `/published`);
   }
 
   exportCSV() {
-    return `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/export`;
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export`;
   }
 
   exportModel() {
-    return `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/export-model`;
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model`;
   }
 
   exportPMML() {
-    return `${environment.apiUrl}/user/${this.currentUser}/jobs/${this.currentJobId}/export-pmml`;
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-pmml`;
   }
 
   exportPublishedModel(publishName) {
@@ -150,5 +173,22 @@ export class MiloApiService {
 
   exportPublishedPMML(publishName) {
     return `${environment.apiUrl}/published/${publishName}/export-pmml`;
+  }
+
+  private async request<T>(method: string, url: string, body?: any) {
+    const request = this.http.request<T>(
+      method,
+      environment.apiUrl + url,
+      {
+        body,
+        headers: await this.getHttpHeaders()
+      }
+    );
+
+    return request;
+  }
+
+  private async getHttpHeaders(): Promise<HttpHeaders> {
+    return new HttpHeaders().set('Authorization', `Bearer ${await this.afAuth.auth.currentUser.getIdToken()}`);
   }
 }

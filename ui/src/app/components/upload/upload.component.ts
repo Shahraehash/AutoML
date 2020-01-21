@@ -156,8 +156,8 @@ export class UploadComponent implements OnInit, OnDestroy {
               message: 'Deleting published model...'
             });
             await loading.present();
-            await this.api.deletePublishedModel(name).toPromise();
-            this.updatePublishedModels();
+            await (await this.api.deletePublishedModel(name)).toPromise();
+            this.updateView();
             await loading.dismiss();
           }
         }
@@ -169,20 +169,16 @@ export class UploadComponent implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  updatePublishedModels() {
-    this.api.getPublishedModels().subscribe(data => this.publishedModels = data);
-  }
-
   reset() {
     this.element.nativeElement.querySelectorAll('input[type="file"]').forEach(node => node.value = '');
     this.uploadForm.reset();
   }
 
-  private updateView() {
-    this.dataSets$ = this.api.getDataSets().pipe(
+  private async updateView() {
+    this.dataSets$ = (await this.api.getDataSets()).pipe(
       takeUntil(this.destroy$)
     );
 
-    this.updatePublishedModels();
+    (await this.api.getPublishedModels()).subscribe(data => this.publishedModels = data);
   }
 }

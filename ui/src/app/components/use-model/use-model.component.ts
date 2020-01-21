@@ -2,9 +2,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { parse, unparse } from 'papaparse';
+import { finalize } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
-import { finalize } from 'rxjs/operators';
+import { TestReply } from '../../interfaces';
 
 @Component({
   selector: 'app-use-model',
@@ -16,7 +17,7 @@ export class UseModelComponent implements OnInit {
   @Input() publishName: string;
   parsedFeatures: string[];
   testForm: FormGroup;
-  result;
+  result: TestReply;
 
   constructor(
     private api: MiloApiService,
@@ -35,13 +36,13 @@ export class UseModelComponent implements OnInit {
     });
   }
 
-  testModel() {
+  async testModel() {
     let observable;
 
     if (this.publishName) {
-      observable = this.api.testPublishedModel([this.testForm.get('inputs').value], this.publishName);
+      observable = await this.api.testPublishedModel([this.testForm.get('inputs').value], this.publishName);
     } else {
-      observable = this.api.testModel([this.testForm.get('inputs').value]);
+      observable = await this.api.testModel([this.testForm.get('inputs').value]);
     }
 
     observable.subscribe(

@@ -7,15 +7,15 @@ import time
 import uuid
 from shutil import rmtree
 
-from flask import abort, jsonify, request
+from flask import abort, g, jsonify, request
 
 from ml.describe import describe as Describe
 
-def get(userid):
+def get():
     """Get all the datasets for a given user ID"""
 
     datasets = []
-    folder = 'data/users/' + userid + '/datasets'
+    folder = 'data/users/' + g.uid + '/datasets'
 
     if not os.path.exists(folder):
         abort(400)
@@ -44,7 +44,7 @@ def get(userid):
 
     return jsonify(datasets)
 
-def add(userid):
+def add():
     """Upload files to the server"""
 
     if 'train' not in request.files or 'test' not in request.files:
@@ -55,7 +55,7 @@ def add(userid):
 
     datasetid = uuid.uuid4().urn[9:]
 
-    folder = 'data/users/' + userid + '/datasets/' + datasetid
+    folder = 'data/users/' + g.uid + '/datasets/' + datasetid
 
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -72,10 +72,10 @@ def add(userid):
 
     return jsonify({'id': datasetid})
 
-def delete(userid, datasetid):
+def delete(datasetid):
     """Deletes a dataset"""
 
-    folder = 'data/users/' + userid + '/datasets/' + datasetid.urn[9:]
+    folder = 'data/users/' + g.uid + '/datasets/' + datasetid.urn[9:]
 
     if not os.path.exists(folder):
         abort(400)
@@ -85,10 +85,10 @@ def delete(userid, datasetid):
 
     return jsonify({'success': True})
 
-def describe(userid, datasetid):
+def describe(datasetid):
     """Generate descriptive statistics for training/testing datasets"""
 
-    folder = 'data/users/' + userid + '/datasets/' + datasetid.urn[9:]
+    folder = 'data/users/' + g.uid + '/datasets/' + datasetid.urn[9:]
 
     if not os.path.exists(folder):
         abort(400)

@@ -6,6 +6,7 @@
 #
 azure-storage-blob==12.1.0
 celery==4.3.0
+firebase-admin==3.2.1
 flask-cors==3.0.8
 flask==1.1.1
 future==0.17.1

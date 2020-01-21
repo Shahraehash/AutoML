@@ -25,12 +25,12 @@ export class ExploreComponent implements OnInit {
     private loadingController: LoadingController
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     if (!this.api.currentDatasetId) {
       return;
     }
 
-    this.api.getDataAnalysis().subscribe(data => this.analysis = data);
+    (await this.api.getDataAnalysis()).subscribe(data => this.analysis = data);
     this.updateJobs();
   }
 
@@ -59,7 +59,7 @@ export class ExploreComponent implements OnInit {
               message: 'Deleting job...'
             });
             await loading.present();
-            await this.api.deleteJob(id).toPromise();
+            await (await this.api.deleteJob(id)).toPromise();
             this.updateJobs();
             await loading.dismiss();
           }
@@ -83,7 +83,7 @@ export class ExploreComponent implements OnInit {
               message: 'Deleting dataset...'
             });
             await loading.present();
-            await this.api.deleteDataset(this.api.currentDatasetId).toPromise();
+            await (await this.api.deleteDataset(this.api.currentDatasetId)).toPromise();
             this.reset.emit();
             await loading.dismiss();
           }
@@ -106,7 +106,7 @@ export class ExploreComponent implements OnInit {
 
   private async updateJobs() {
     this.jobs = new MatTableDataSource(
-      (await this.api.getJobs().toPromise()).filter(job => job.metadata.datasetid === this.api.currentDatasetId)
+      (await (await this.api.getJobs()).toPromise()).filter(job => job.metadata.datasetid === this.api.currentDatasetId)
     );
   }
 }
