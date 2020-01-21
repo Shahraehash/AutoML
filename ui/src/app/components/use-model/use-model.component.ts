@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { parse, unparse } from 'papaparse';
 
-import { BackendService } from '../../services/backend.service';
+import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({
@@ -19,7 +19,7 @@ export class UseModelComponent implements OnInit {
   result;
 
   constructor(
-    private backend: BackendService,
+    private api: MiloApiService,
     private formBuilder: FormBuilder,
     private loadingController: LoadingController,
     private toastController: ToastController
@@ -39,9 +39,9 @@ export class UseModelComponent implements OnInit {
     let observable;
 
     if (this.publishName) {
-      observable = this.backend.testPublishedModel([this.testForm.get('inputs').value], this.publishName);
+      observable = this.api.testPublishedModel([this.testForm.get('inputs').value], this.publishName);
     } else {
-      observable = this.backend.testModel([this.testForm.get('inputs').value]);
+      observable = this.api.testModel([this.testForm.get('inputs').value]);
     }
 
     observable.subscribe(
@@ -87,9 +87,9 @@ export class UseModelComponent implements OnInit {
         }
 
         if (this.publishName) {
-          observable = this.backend.testPublishedModel(reply.data, this.publishName);
+          observable = this.api.testPublishedModel(reply.data, this.publishName);
         } else {
-          observable = this.backend.testModel(reply.data);
+          observable = this.api.testModel(reply.data);
         }
 
         observable.pipe(
@@ -116,11 +116,11 @@ export class UseModelComponent implements OnInit {
   }
 
   exportModel() {
-    window.open(this.publishName ? this.backend.exportPublishedModel(this.publishName) : this.backend.exportModel(), '_self');
+    window.open(this.publishName ? this.api.exportPublishedModel(this.publishName) : this.api.exportModel(), '_self');
   }
 
   exportPMML() {
-    window.open(this.publishName ? this.backend.exportPublishedPMML(this.publishName) : this.backend.exportPMML(), '_self');
+    window.open(this.publishName ? this.api.exportPublishedPMML(this.publishName) : this.api.exportPMML(), '_self');
   }
 
   private async showError(message: string) {

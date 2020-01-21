@@ -22,12 +22,11 @@ def get(userid):
     with open(PUBLISHED_MODELS) as published_file:
         published = json.load(published_file)
 
-    user = userid.urn[9:]
     published = {
         k:{
             'features': ast.literal_eval(v['features']),
             'date': v['date']
-        } for (k, v) in published.items() if user in v['path']
+        } for (k, v) in published.items() if userid in v['path']
     }
 
     return jsonify(published)

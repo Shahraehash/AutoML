@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { BackendService } from './backend.service';
+import { MiloApiService } from './milo-api.service';
 
-describe('BackendService', () => {
+describe('MiloApiService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: BackendService = TestBed.get(BackendService);
+    const service: MiloApiService = TestBed.get(MiloApiService);
     expect(service).toBeTruthy();
   });
 });

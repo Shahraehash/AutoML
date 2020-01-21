@@ -1,12 +1,13 @@
 import { Component, ElementRef, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { parse } from 'papaparse';
 import { Observable, ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { BackendService } from '../../services/backend.service';
+import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { DataSets, PublishedModels } from '../../interfaces';
 
 @Component({
@@ -27,7 +28,8 @@ export class UploadComponent implements OnInit, OnDestroy {
   uploadForm: FormGroup;
 
   constructor(
-    public backend: BackendService,
+    public api: MiloApiService,
+    private afAuth: AngularFireAuth,
     private alertController: AlertController,
     private datePipe: DatePipe,
     private element: ElementRef,
@@ -42,11 +44,13 @@ export class UploadComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.dataSets$ = this.backend.getDataSets().pipe(
+    this.afAuth.authState.pipe(
       takeUntil(this.destroy$)
-    );
-
-    this.updatePublishedModels();
+    ).subscribe(user => {
+      if (user) {
+        this.updateView();
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -60,7 +64,7 @@ export class UploadComponent implements OnInit, OnDestroy {
     formData.append('test', this.uploadForm.get('test').value);
     formData.append('label_column', this.uploadForm.get('label_column').value);
 
-    this.backend.submitData(formData).then(
+    this.api.submitData(formData).then(
       () => {
         this.stepFinished.emit({nextStep: 'explore'});
       },
@@ -119,7 +123,7 @@ export class UploadComponent implements OnInit, OnDestroy {
   }
 
   exploreDataSet(id) {
-    this.backend.currentDatasetId = id;
+    this.api.currentDatasetId = id;
     this.stepFinished.emit({nextStep: 'explore'});
   }
 
@@ -152,7 +156,7 @@ export class UploadComponent implements OnInit, OnDestroy {
               message: 'Deleting published model...'
             });
             await loading.present();
-            await this.backend.deletePublishedModel(name).toPromise();
+            await this.api.deletePublishedModel(name).toPromise();
             this.updatePublishedModels();
             await loading.dismiss();
           }
@@ -166,11 +170,19 @@ export class UploadComponent implements OnInit, OnDestroy {
   }
 
   updatePublishedModels() {
-    this.backend.getPublishedModels().subscribe(data => this.publishedModels = data);
+    this.api.getPublishedModels().subscribe(data => this.publishedModels = data);
   }
 
   reset() {
     this.element.nativeElement.querySelectorAll('input[type="file"]').forEach(node => node.value = '');
     this.uploadForm.reset();
+  }
+
+  private updateView() {
+    this.dataSets$ = this.api.getDataSets().pipe(
+      takeUntil(this.destroy$)
+    );
+
+    this.updatePublishedModels();
   }
 }

@@ -1,14 +1,15 @@
 import { Component, AfterViewInit, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { MatStepper } from '@angular/material';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { Observable, timer, of } from 'rxjs';
 import { filter, switchMap, catchError } from 'rxjs/operators';
 
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { TrainComponent } from '../../components/train/train.component';
-import { BackendService } from '../../services/backend.service';
+import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { PendingTasks } from '../../interfaces';
 
 @Component({
@@ -30,23 +31,25 @@ export class SearchPage implements OnInit, AfterViewInit {
 
   constructor(
     public activatedRoute: ActivatedRoute,
-    public backend: BackendService,
+    public afAuth: AngularFireAuth,
+    public api: MiloApiService,
     private element: ElementRef,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private router: Router
   ) {}
 
   ngOnInit() {
     this.pendingTasks$ = timer(0, 5000).pipe(
       filter(() => !this.pauseUpdates),
-      switchMap(() => this.backend.getPendingTasks().pipe(
+      switchMap(() => this.api.getPendingTasks().pipe(
         catchError(() => of({active: [], scheduled: []}))
       ))
     );
   }
 
   ngAfterViewInit() {
-    this.backend.currentDatasetId = this.activatedRoute.snapshot.params.dataId;
-    this.backend.currentJobId = this.activatedRoute.snapshot.params.jobId;
+    this.api.currentDatasetId = this.activatedRoute.snapshot.params.dataId;
+    this.api.currentJobId = this.activatedRoute.snapshot.params.jobId;
     this.stepFinished({nextStep: this.activatedRoute.snapshot.params.step});
     const taskId = this.activatedRoute.snapshot.params.taskId;
     if (taskId) {
@@ -56,13 +59,13 @@ export class SearchPage implements OnInit, AfterViewInit {
     this.stepper.selectionChange.subscribe(event => {
       switch (event.selectedIndex) {
         case 3:
-          window.history.pushState('', '', `/search/${this.backend.currentDatasetId}/job/${this.backend.currentJobId}/result`);
+          window.history.pushState('', '', `/search/${this.api.currentDatasetId}/job/${this.api.currentJobId}/result`);
           break;
         case 2:
-          window.history.pushState('', '', `/search/${this.backend.currentDatasetId}/job/${this.backend.currentJobId}/train`);
+          window.history.pushState('', '', `/search/${this.api.currentDatasetId}/job/${this.api.currentJobId}/train`);
           break;
         case 1:
-          window.history.pushState('', '', `/search/${this.backend.currentDatasetId}/explore`);
+          window.history.pushState('', '', `/search/${this.api.currentDatasetId}/explore`);
           break;
         case 0:
         default:
@@ -72,12 +75,12 @@ export class SearchPage implements OnInit, AfterViewInit {
   }
 
   exportCSV() {
-    window.open(this.backend.exportCSV(), '_self');
+    window.open(this.api.exportCSV(), '_self');
   }
 
   reset() {
-    this.backend.currentJobId = undefined;
-    this.backend.currentDatasetId = undefined;
+    this.api.currentJobId = undefined;
+    this.api.currentDatasetId = undefined;
     this.trainCompleted = false;
     this.stepper.reset();
 
@@ -117,5 +120,10 @@ export class SearchPage implements OnInit, AfterViewInit {
         this.trainCompleted = true;
         setTimeout(() => this.stepper.selectedIndex = 3, 1);
     }
+  }
+
+  async signOut() {
+    await this.afAuth.auth.signOut();
+    this.router.navigateByUrl('/login');
   }
 }

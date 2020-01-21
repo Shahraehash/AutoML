@@ -22,7 +22,7 @@ def pending(userid):
     scheduled_tasks = list(scheduled_tasks.values()) if scheduled_tasks else []
     for worker in scheduled_tasks:
         for task in worker:
-            if str(userid) in task['request']['args']:
+            if userid in task['request']['args']:
                 try:
                     args = ast.literal_eval(task['request']['args'])
                 except ValueError:
@@ -42,7 +42,7 @@ def pending(userid):
     reserved_tasks = list(reserved_tasks.values()) if reserved_tasks else []
     for worker in active_tasks + reserved_tasks:
         for task in worker:
-            if '.queue_training' in task['type'] and str(userid) in task['args']:
+            if '.queue_training' in task['type'] and userid in task['args']:
                 try:
                     args = ast.literal_eval(task['args'])
                 except ValueError:

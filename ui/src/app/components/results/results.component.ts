@@ -6,7 +6,7 @@ import { AlertController, LoadingController, ModalController, ToastController } 
 import * as saveSvgAsPng from 'save-svg-as-png';
 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
-import { BackendService } from '../../services/backend.service';
+import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { GeneralizationResult, MetaData } from '../../interfaces';
 import { TrainComponent } from '../train/train.component';
 import { UseModelComponent } from '../use-model/use-model.component';
@@ -103,7 +103,7 @@ export class ResultsComponent implements OnInit {
 
   constructor(
     private alertController: AlertController,
-    private backend: BackendService,
+    private api: MiloApiService,
     private formBuilder: FormBuilder,
     private loadingController: LoadingController,
     private modalController: ModalController,
@@ -116,7 +116,7 @@ export class ResultsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.backend.getResults().subscribe(
+    this.api.getResults().subscribe(
       data => {
         this.data = data.results;
         this.metadata = data.metadata;
@@ -258,7 +258,7 @@ export class ResultsComponent implements OnInit {
     formData.append('key', model.key);
     formData.append('parameters', model.best_params);
     formData.append('features', model.selected_features);
-    this.backend.createModel(formData).subscribe(
+    this.api.createModel(formData).subscribe(
       async () => {
         const alert = await this.alertController.create({
           buttons: ['Dismiss'],
@@ -284,7 +284,7 @@ export class ResultsComponent implements OnInit {
     formData.append('parameters', this.sortedData[index].best_params);
     formData.append('features', this.sortedData[index].selected_features);
 
-    this.backend.createModel(formData).subscribe(
+    this.api.createModel(formData).subscribe(
       async () => {
         const modal = await this.modalController.create({
           component: UseModelComponent,
