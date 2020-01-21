@@ -115,8 +115,8 @@ export class ResultsComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    this.api.getResults().subscribe(
+  async ngOnInit() {
+    (await this.api.getResults()).subscribe(
       data => {
         this.data = data.results;
         this.metadata = data.metadata;
@@ -258,7 +258,7 @@ export class ResultsComponent implements OnInit {
     formData.append('key', model.key);
     formData.append('parameters', model.best_params);
     formData.append('features', model.selected_features);
-    this.api.createModel(formData).subscribe(
+    (await this.api.createModel(formData)).subscribe(
       async () => {
         const alert = await this.alertController.create({
           buttons: ['Dismiss'],
@@ -277,14 +277,14 @@ export class ResultsComponent implements OnInit {
     );
   }
 
-  launchModel(index: number) {
+  async launchModel(index: number) {
     this.presentLoading();
     const formData = new FormData();
     formData.append('key', this.sortedData[index].key);
     formData.append('parameters', this.sortedData[index].best_params);
     formData.append('features', this.sortedData[index].selected_features);
 
-    this.api.createModel(formData).subscribe(
+    (await this.api.createModel(formData)).subscribe(
       async () => {
         const modal = await this.modalController.create({
           component: UseModelComponent,

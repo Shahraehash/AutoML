@@ -38,10 +38,11 @@ export class SearchPage implements OnInit, AfterViewInit {
     private router: Router
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
+    const pending = await this.api.getPendingTasks();
     this.pendingTasks$ = timer(0, 5000).pipe(
       filter(() => !this.pauseUpdates),
-      switchMap(() => this.api.getPendingTasks().pipe(
+      switchMap(() => pending.pipe(
         catchError(() => of({active: [], scheduled: []}))
       ))
     );

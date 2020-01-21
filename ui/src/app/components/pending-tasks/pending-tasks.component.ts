@@ -23,9 +23,10 @@ export class PendingTasksComponent implements OnInit {
     private modalController: ModalController
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
+    const pending = await this.api.getPendingTasks();
     this.pendingTasks$ = timer(0, 5000).pipe(
-      switchMap(() => this.api.getPendingTasks().pipe(
+      switchMap(() => pending.pipe(
         catchError(() => of({active: [], scheduled: []}))
       ))
     );
@@ -45,7 +46,7 @@ export class PendingTasksComponent implements OnInit {
             await loader.present();
 
             try {
-              await this.api.cancelTask(id).toPromise();
+              await (await this.api.cancelTask(id)).toPromise();
             } catch (error) {
               (await this.alertController.create({message: 'Unable to cancel the task', buttons: ['Dismiss']})).present();
             }

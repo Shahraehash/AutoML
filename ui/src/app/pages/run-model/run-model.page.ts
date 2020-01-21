@@ -17,10 +17,10 @@ export class RunModelPage {
     private api: MiloApiService,
     private route: ActivatedRoute
   ) {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe(async params => {
       this.id = params.id;
 
-      this.api.getModelFeatures(this.id).subscribe(
+      (await this.api.getModelFeatures(this.id)).subscribe(
         features => {
           this.error = false;
           this.features = features;

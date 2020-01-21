@@ -113,6 +113,12 @@ export interface PublishedModels {
     };
 }
 
+export interface TestReply {
+    predicted: number[];
+    probability: number[];
+    target: string;
+}
+
 export interface DataAnalysisReply {
     analysis: {
         train: DataAnalysis;

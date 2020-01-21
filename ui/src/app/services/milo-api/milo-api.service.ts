@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/auth';
 
 import {
@@ -9,6 +9,7 @@ import {
   Jobs,
   PendingTasks,
   PublishedModels,
+  TestReply,
   Results
 } from '../../interfaces';
 import { environment } from '../../../environments/environment';
@@ -33,102 +34,117 @@ export class MiloApiService {
     });
   }
 
-  submitData(formData: FormData) {
-    return this.http.post<{id: string}>(
-      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/datasets`, formData
-    ).toPromise().then(reply => {
+  async submitData(formData: FormData) {
+    return (await this.request<{id: string}>(
+      'post',
+      `/user/${this.afAuth.auth.currentUser.uid}/datasets`,
+      formData
+    )).toPromise().then(reply => {
       this.currentDatasetId = reply.id;
     });
   }
 
   getDataAnalysis() {
-    return this.http.get<DataAnalysisReply>(
-      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/datasets/${this.currentDatasetId}/describe`
+    return this.request<DataAnalysisReply>(
+      'get',
+      `/user/${this.afAuth.auth.currentUser.uid}/datasets/${this.currentDatasetId}/describe`
     );
   }
 
-  createJob() {
-    return this.http.post<any>(
-      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs`,
+  async createJob() {
+    return (await this.request<{id: string}>(
+      'post',
+      `/user/${this.afAuth.auth.currentUser.uid}/jobs`,
       {datasetid: this.currentDatasetId}
-    ).toPromise().then(reply => {
+    )).toPromise().then(reply => {
       this.currentJobId = reply.id;
     });
   }
 
   deleteJob(id) {
-    return this.http.delete(environment.apiUrl + '/user/' + this.afAuth.auth.currentUser.uid + '/jobs/' + id);
+    return this.request('delete', '/user/' + this.afAuth.auth.currentUser.uid + '/jobs/' + id);
   }
 
   deleteDataset(id) {
-    return this.http.delete(environment.apiUrl + '/user/' + this.afAuth.auth.currentUser.uid + '/datasets/' + id);
+    return this.request('delete', '/user/' + this.afAuth.auth.currentUser.uid + '/datasets/' + id);
   }
 
   startTraining(formData) {
-    return this.http.post(
-      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/train`,
+    return this.request(
+      'post',
+      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/train`,
       formData
     );
   }
 
   getPipelines() {
-    return this.http.get(`${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/pipelines`);
+    return this.request(
+      'get',
+      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/pipelines`
+    );
   }
 
   getTaskStatus(id: number) {
-    return this.http.get<ActiveTaskStatus>(`${environment.apiUrl}/tasks/${id}`);
+    return this.request<ActiveTaskStatus>('get', `/tasks/${id}`);
   }
 
   cancelTask(id) {
-    return this.http.delete(`${environment.apiUrl}/tasks/${id}`);
+    return this.request('delete', `/tasks/${id}`);
   }
 
   getResults() {
-    return this.http.get<Results>(
-      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/result`
+    return this.request<Results>(
+      'get',
+      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/result`
     );
   }
 
   getModelFeatures(model: string) {
-    return this.http.get<string>(`${environment.apiUrl}/published/${model}/features`);
+    return this.request<string>('get', `/published/${model}/features`);
   }
 
   createModel(formData) {
-    return this.http.post(
-      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/refit`,
+    return this.request(
+      'post',
+      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/refit`,
       formData
     );
   }
 
   deletePublishedModel(name: string) {
-    return this.http.delete(environment.apiUrl + '/published/' + name);
+    return this.request('delete', '/published/' + name);
   }
 
   testPublishedModel(data, publishName) {
-    return this.http.post(`${environment.apiUrl}/published/${publishName}/test`, data);
+    return this.request<TestReply>(
+      'post',
+      `/published/${publishName}/test`,
+      data
+    );
   }
 
   testModel(data) {
-    return this.http.post(
-      `${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/test`,
+    return this.request<TestReply>(
+      'post',
+      `/user/${this.afAuth.auth.currentUser.uid}/jobs/${this.currentJobId}/test`,
       data
     );
   }
 
   getPendingTasks() {
-    return this.http.get<PendingTasks>(`${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/tasks`);
+    return this.request<PendingTasks>('get', `/user/${this.afAuth.auth.currentUser.uid}/tasks`);
   }
 
   getDataSets() {
-    return this.http.get<DataSets[]>(environment.apiUrl + '/user/' + this.afAuth.auth.currentUser.uid + '/datasets');
+    return this.request<DataSets[]>('get', '/user/' + this.afAuth.auth.currentUser.uid + '/datasets');
   }
 
   getJobs() {
-    return this.http.get<Jobs[]>(environment.apiUrl + '/user/' + this.afAuth.auth.currentUser.uid + '/jobs');
+    return this.request<Jobs[]>('get', '/user/' + this.afAuth.auth.currentUser.uid + '/jobs');
   }
 
   getPublishedModels() {
-    return this.http.get<PublishedModels>(`${environment.apiUrl}/user/${this.afAuth.auth.currentUser.uid}/published`);
+    return this.request<PublishedModels>('get', `/user/${this.afAuth.auth.currentUser.uid}/published`);
   }
 
   exportCSV() {
@@ -149,5 +165,22 @@ export class MiloApiService {
 
   exportPublishedPMML(publishName) {
     return `${environment.apiUrl}/published/${publishName}/export-pmml`;
+  }
+
+  private async request<T>(method: string, url: string, body?: any) {
+    const request = this.http.request<T>(
+      method,
+      environment.apiUrl + url,
+      {
+        body,
+        headers: await this.getHttpHeaders()
+      }
+    );
+
+    return request;
+  }
+
+  private async getHttpHeaders(): Promise<HttpHeaders> {
+    return new HttpHeaders().set('Authorization', `Bearer ${await this.afAuth.auth.currentUser.getIdToken()}`);
   }
 }
