@@ -155,24 +155,24 @@ export class MiloApiService {
     return this.request<PublishedModels>('get', `/published`);
   }
 
-  exportCSV() {
-    return `${environment.apiUrl}/jobs/${this.currentJobId}/export`;
+  async exportCSV() {
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
   }
 
-  exportModel() {
-    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model`;
+  async exportModel() {
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
   }
 
-  exportPMML() {
-    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-pmml`;
+  async exportPMML() {
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-pmml?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
   }
 
-  exportPublishedModel(publishName) {
-    return `${environment.apiUrl}/published/${publishName}/export-model`;
+  async exportPublishedModel(publishName) {
+    return `${environment.apiUrl}/published/${publishName}/export-model?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
   }
 
-  exportPublishedPMML(publishName) {
-    return `${environment.apiUrl}/published/${publishName}/export-pmml`;
+  async exportPublishedPMML(publishName) {
+    return `${environment.apiUrl}/published/${publishName}/export-pmml?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
   }
 
   private async request<T>(method: string, url: string, body?: any) {

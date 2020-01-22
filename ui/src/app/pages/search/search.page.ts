@@ -75,8 +75,8 @@ export class SearchPage implements OnInit, AfterViewInit {
     });
   }
 
-  exportCSV() {
-    window.open(this.api.exportCSV(), '_self');
+  async exportCSV() {
+    window.open(await this.api.exportCSV(), '_self');
   }
 
   reset() {

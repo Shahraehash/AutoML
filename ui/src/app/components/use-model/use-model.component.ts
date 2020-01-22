@@ -116,12 +116,12 @@ export class UseModelComponent implements OnInit {
     });
   }
 
-  exportModel() {
-    window.open(this.publishName ? this.api.exportPublishedModel(this.publishName) : this.api.exportModel(), '_self');
+  async exportModel() {
+    window.open(await (this.publishName ? this.api.exportPublishedModel(this.publishName) : this.api.exportModel()), '_self');
   }
 
-  exportPMML() {
-    window.open(this.publishName ? this.api.exportPublishedPMML(this.publishName) : this.api.exportPMML(), '_self');
+  async exportPMML() {
+    window.open(await (this.publishName ? this.api.exportPublishedPMML(this.publishName) : this.api.exportPMML()), '_self');
   }
 
   private async showError(message: string) {

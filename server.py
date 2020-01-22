@@ -40,11 +40,18 @@ def page_not_found(_):
 @APP.before_request
 def parse_auth():
     bearer = request.headers.get('Authorization')
-    if not bearer:
-        g.uid = None
+    currentUser = request.args.get('currentUser')
+
+    if bearer is not None:
+        g.uid = auth.verify_id_token(bearer.split()[1])['uid']
         return
-    
-    g.uid = auth.verify_id_token(bearer.split()[1])['uid']
+
+    if currentUser is not None:
+        g.uid = auth.verify_id_token(currentUser)['uid']
+        return
+
+    g.uid = None
+    return    
 
 # Datasets
 APP.add_url_rule('/datasets', 'datasets-get', datasets.get)
