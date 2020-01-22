@@ -1,11 +1,11 @@
-import { Component, AfterViewInit, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { MatStepper } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
-import { Observable, timer, of } from 'rxjs';
-import { filter, switchMap, catchError } from 'rxjs/operators';
+import { timer, of, ReplaySubject } from 'rxjs';
+import { filter, catchError, takeUntil } from 'rxjs/operators';
 
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { TrainComponent } from '../../components/train/train.component';
@@ -20,12 +20,13 @@ import { PendingTasks } from '../../interfaces';
     provide: STEPPER_GLOBAL_OPTIONS, useValue: {showError: true}
   }]
 })
-export class SearchPage implements OnInit, AfterViewInit {
+export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('stepper') stepper: MatStepper;
   @ViewChild('train') train: TrainComponent;
 
+  destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   featureCount: number;
-  pendingTasks$: Observable<PendingTasks>;
+  pendingTasks: PendingTasks;
   pauseUpdates = false;
   trainCompleted = false;
 
@@ -39,13 +40,19 @@ export class SearchPage implements OnInit, AfterViewInit {
   ) {}
 
   async ngOnInit() {
-    const pending = await this.api.getPendingTasks();
-    this.pendingTasks$ = timer(0, 5000).pipe(
+    timer(0, 5000).pipe(
       filter(() => !this.pauseUpdates),
-      switchMap(() => pending.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async _ => {
+      (await this.api.getPendingTasks()).pipe(
         catchError(() => of({active: [], scheduled: []}))
-      ))
-    );
+      ).subscribe(pending => this.pendingTasks = pending);
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 
   ngAfterViewInit() {

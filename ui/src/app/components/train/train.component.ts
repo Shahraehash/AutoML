@@ -1,8 +1,8 @@
 import { Component, Input, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
-import { timer, Subscription, of, ReplaySubject } from 'rxjs';
-import { switchMap, catchError, takeUntil } from 'rxjs/operators';
+import { ReplaySubject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { TaskAdded } from '../../interfaces';
@@ -23,7 +23,6 @@ export class TrainComponent implements OnDestroy, OnInit {
   @Output() stepFinished = new EventEmitter();
 
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
-  statusPoller$: Subscription;
   allPipelines;
   showAdvanced = !environment.production;
   defaultHyperParameters = {grid: {}, random: {}};
@@ -210,14 +209,10 @@ export class TrainComponent implements OnDestroy, OnInit {
   }
 
   private async checkStatus(taskId) {
-    const observable = await this.api.getTaskStatus(taskId);
-    this.statusPoller$ = timer(1000, 5000).pipe(
-      takeUntil(this.destroy$),
-      switchMap(() => observable.pipe(
-        catchError(() => of(false))
-      ))
-    ).subscribe(
-      async (status) => {
+    timer(1000, 5000).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async _ => {
+      (await this.api.getTaskStatus(taskId)).subscribe(async (status) => {
         if (typeof status === 'boolean') {
           return;
         }
@@ -238,8 +233,8 @@ export class TrainComponent implements OnDestroy, OnInit {
         } else if (status.state === 'REVOKED') {
           this.reset.emit();
         }
-      }
-    );
+      });
+    });
   }
 
   private async showError(message) {

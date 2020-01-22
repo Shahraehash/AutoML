@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AlertController, ModalController, LoadingController } from '@ionic/angular';
-import { Observable, timer, of } from 'rxjs';
-import { switchMap, catchError } from 'rxjs/operators';
+import { timer, of, ReplaySubject } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { PendingTasks } from '../../interfaces';
@@ -14,7 +14,8 @@ import { TrainComponent } from '../train/train.component';
 })
 export class PendingTasksComponent implements OnInit {
   @Input() firstViewData: PendingTasks;
-  pendingTasks$: Observable<PendingTasks>;
+  destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
+  pendingTasks: PendingTasks;
 
   constructor(
     private alertController: AlertController,
@@ -24,12 +25,14 @@ export class PendingTasksComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const pending = await this.api.getPendingTasks();
-    this.pendingTasks$ = timer(0, 5000).pipe(
-      switchMap(() => pending.pipe(
+    timer(0, 5000).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(async _ => {
+      (await this.api.getPendingTasks()).pipe(
         catchError(() => of({active: [], scheduled: []}))
-      ))
-    );
+      ).subscribe(pending => this.pendingTasks = pending);
+    });
+
   }
 
   async cancelTask(event: Event, id) {
