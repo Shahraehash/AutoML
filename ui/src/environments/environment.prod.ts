@@ -1,4 +1,5 @@
 export const environment = {
+  localUser: false,
   production: true,
   apiUrl: '/api',
   firebase: {

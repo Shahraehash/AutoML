@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { v4 as uuid } from 'uuid';
 
 import {
   ActiveTaskStatus,
@@ -20,6 +21,7 @@ import { environment } from '../../../environments/environment';
 export class MiloApiService {
   currentJobId: string;
   currentDatasetId: string;
+  localUser: string;
 
   constructor(
     private afAuth: AngularFireAuth,
@@ -32,6 +34,16 @@ export class MiloApiService {
         return;
       }
     });
+
+    try {
+      this.localUser = localStorage.getItem('localUser') || uuid();
+    } catch (err) {
+      this.localUser = uuid();
+    }
+
+    try {
+      localStorage.setItem('localUser', this.localUser);
+    } catch (err) {}
   }
 
   async submitData(formData: FormData) {
@@ -156,27 +168,27 @@ export class MiloApiService {
   }
 
   async exportCSV() {
-    return `${environment.apiUrl}/jobs/${this.currentJobId}/export?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export?${await this.getURLAuth()}`;
   }
 
   async exportModel() {
-    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model?${await this.getURLAuth()}`;
   }
 
   async exportPMML() {
-    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-pmml?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-pmml?${await this.getURLAuth()}`;
   }
 
   async exportPublishedModel(publishName) {
-    return `${environment.apiUrl}/published/${publishName}/export-model?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
+    return `${environment.apiUrl}/published/${publishName}/export-model?${await this.getURLAuth()}`;
   }
 
   async exportPublishedPMML(publishName) {
-    return `${environment.apiUrl}/published/${publishName}/export-pmml?currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
+    return `${environment.apiUrl}/published/${publishName}/export-pmml?${await this.getURLAuth()}`;
   }
 
   private async request<T>(method: string, url: string, body?: any) {
-    const request = this.http.request<T>(
+    return this.http.request<T>(
       method,
       environment.apiUrl + url,
       {
@@ -184,11 +196,17 @@ export class MiloApiService {
         headers: await this.getHttpHeaders()
       }
     );
-
-    return request;
   }
 
   private async getHttpHeaders(): Promise<HttpHeaders> {
-    return new HttpHeaders().set('Authorization', `Bearer ${await this.afAuth.auth.currentUser.getIdToken()}`);
+    return environment.localUser ?
+      new HttpHeaders().set('LocalUserID', this.localUser) :
+      new HttpHeaders().set('Authorization', `Bearer ${await this.afAuth.auth.currentUser.getIdToken()}`);
+  }
+
+  private async getURLAuth(): Promise<string> {
+    return environment.localUser ?
+      `localUser=${this.localUser}` :
+      `currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
   }
 }

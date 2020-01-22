@@ -3,7 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  localUser: false,
+  localUser: true,
   production: false,
   apiUrl: 'http://localhost:5000',
   firebase: {

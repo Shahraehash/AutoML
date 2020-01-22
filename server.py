@@ -5,6 +5,8 @@ Launches the API server and allows access
 using an Angular SPA.
 """
 
+import os
+
 from firebase_admin import auth, credentials, initialize_app
 from flask import Flask, g, request, send_from_directory
 from flask_cors import CORS
@@ -39,19 +41,26 @@ def page_not_found(_):
 
 @APP.before_request
 def parse_auth():
+    """Handle authentication headers/query parameters for the incoming request"""
+
     bearer = request.headers.get('Authorization')
-    currentUser = request.args.get('currentUser')
+    current_user = request.args.get('currentUser')
 
     if bearer is not None:
         g.uid = auth.verify_id_token(bearer.split()[1])['uid']
         return
 
-    if currentUser is not None:
-        g.uid = auth.verify_id_token(currentUser)['uid']
+    if current_user is not None:
+        g.uid = auth.verify_id_token(current_user)['uid']
+        return
+
+    local_user = request.headers.get('LocalUserID', request.args.get('localUser'))
+    if os.getenv('NO_NETWORK_ALLOWED') == 'true' and local_user:
+        g.uid = local_user
         return
 
     g.uid = None
-    return    
+    return
 
 # Datasets
 APP.add_url_rule('/datasets', 'datasets-get', datasets.get)

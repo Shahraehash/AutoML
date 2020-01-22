@@ -6,6 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start-local": "ng serve -c=local",
     "serve": "ng serve",
     "build": "ng build --outputPath ../static --prod",
     "test": "ng test",
