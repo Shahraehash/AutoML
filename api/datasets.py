@@ -14,6 +14,10 @@ from ml.describe import describe as Describe
 def get():
     """Get all the datasets for a given user ID"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     datasets = []
     folder = 'data/users/' + g.uid + '/datasets'
 
@@ -47,6 +51,10 @@ def get():
 def add():
     """Upload files to the server"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     if 'train' not in request.files or 'test' not in request.files:
         return abort(400)
 
@@ -75,6 +83,10 @@ def add():
 def delete(datasetid):
     """Deletes a dataset"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     folder = 'data/users/' + g.uid + '/datasets/' + datasetid.urn[9:]
 
     if not os.path.exists(folder):
@@ -87,6 +99,10 @@ def delete(datasetid):
 
 def describe(datasetid):
     """Generate descriptive statistics for training/testing datasets"""
+
+    if g.uid is None:
+        abort(401)
+        return
 
     folder = 'data/users/' + g.uid + '/datasets/' + datasetid.urn[9:]
 

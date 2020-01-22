@@ -19,6 +19,10 @@ PUBLISHED_MODELS = 'data/published-models.json'
 def get():
     """Get all published models for a given user ID"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     if not os.path.exists(PUBLISHED_MODELS):
         abort(400)
         return
@@ -147,6 +151,10 @@ def export_model(name):
 
 def add(name):
     """Refits a model for future use via a published name"""
+
+    if g.uid is None:
+        abort(401)
+        return
 
     refit(uuid.UUID(request.form['job']))
 

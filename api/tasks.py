@@ -4,7 +4,7 @@ API methods for getting data from Celery tasks
 
 import ast
 
-from flask import g, jsonify
+from flask import abort, g, jsonify
 
 from worker import CELERY, get_task_status, revoke_task
 
@@ -14,6 +14,10 @@ def status(task_id):
 
 def pending():
     """Get all pending tasks for a given user ID"""
+
+    if g.uid is None:
+        abort(401)
+        return
 
     active = []
     scheduled = []

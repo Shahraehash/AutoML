@@ -20,6 +20,10 @@ from worker import queue_training
 def get():
     """Get all the jobs for a given user ID"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     folder = 'data/users/' + g.uid + '/jobs'
 
     if not os.path.exists(folder):
@@ -52,6 +56,10 @@ def get():
 def add():
     """Creates a new job"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     try:
         datasetid = request.get_json()['datasetid']
     except KeyError:
@@ -80,6 +88,10 @@ def add():
 def delete(jobid):
     """Deletes a previous job"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder):
@@ -92,6 +104,10 @@ def delete(jobid):
 
 def train(jobid):
     """Finds the best model for the selected parameters/data"""
+
+    if g.uid is None:
+        abort(401)
+        return
 
     parameters = request.form.to_dict()
     pipelines = list_pipelines(parameters)
@@ -119,6 +135,10 @@ def train(jobid):
 def result(jobid):
     """Retrieve the training results"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
     metadata = None
 
@@ -143,6 +163,10 @@ def result(jobid):
 def get_pipelines(jobid):
     """Returns the pipelines for a job"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/' + '/metadata.json'):
@@ -156,6 +180,10 @@ def get_pipelines(jobid):
 
 def refit(jobid):
     """Create a static copy of the selected model"""
+
+    if g.uid is None:
+        abort(401)
+        return
 
     job_folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
 
@@ -181,6 +209,10 @@ def refit(jobid):
 def test(jobid):
     """Tests the selected model against the provided data"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
 
     with open(folder + '/metadata.json') as metafile:
@@ -198,6 +230,10 @@ def test(jobid):
 def export(jobid):
     """Export the results CSV"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/report.csv'):
@@ -209,6 +245,10 @@ def export(jobid):
 def export_pmml(jobid):
     """Export the selected model's PMML"""
 
+    if g.uid is None:
+        abort(401)
+        return
+
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/pipeline.pmml'):
@@ -219,6 +259,10 @@ def export_pmml(jobid):
 
 def export_model(jobid):
     """Export the selected model"""
+
+    if g.uid is None:
+        abort(401)
+        return
 
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
 
