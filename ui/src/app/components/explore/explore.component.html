@@ -1,6 +1,7 @@
 <ion-grid class='ion-text-center'>
   <ion-row>
-    <ion-col size-xs='12' size-lg='9' class='analysis' *ngIf='analysis'>
+    <ion-col size-xs='12' size-lg='9' class='analysis' *ngIf='analysis' [ngClass]='{"expand": !jobs?.data.length}'>
+      <ion-button class='continue' (click)='newJob()' *ngIf='!jobs?.data.length'>Continue Training</ion-button>
       <ion-grid>
         <ion-row>
           <ion-col size-xs='12' size-md='6'>
@@ -13,7 +14,7 @@
       </ion-grid>
     </ion-col>
 
-    <ion-col size-xs='12' size-lg='3' class='runs'>
+    <ion-col size-xs='12' size-lg='3' class='runs' *ngIf='jobs?.data.length'>
       <h4 class='ion-text-center'>Previous Runs</h4>
 
       <ion-button size='small' (click)='newJob()' class='ion-margin-end'>
