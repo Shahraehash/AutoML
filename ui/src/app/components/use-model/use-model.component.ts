@@ -88,9 +88,9 @@ export class UseModelComponent implements OnInit {
         }
 
         if (this.publishName) {
-          observable = this.api.testPublishedModel(reply.data, this.publishName);
+          observable = await this.api.testPublishedModel(reply.data, this.publishName);
         } else {
-          observable = this.api.testModel(reply.data);
+          observable = await this.api.testModel(reply.data);
         }
 
         observable.pipe(
