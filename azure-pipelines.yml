@@ -27,13 +27,16 @@ steps:
 - script: |
     python -m pip install --upgrade pip
     npm install
-    npm run build-ui
   displayName: 'Install dependencies'
 
 - script: |
     pip install pytest pytest-azurepipelines
     pytest
   displayName: 'pytest'
+
+- script: |
+    npm run build-ui
+  displayName: 'Build UI'
 
 - task: CopyFiles@2
   inputs:
