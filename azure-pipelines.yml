@@ -42,8 +42,8 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: |
-      'firebase.json'
-      'firestore.indexes.json'
+      firebase.json
+      firestore.indexes.json
     TargetFolder: '$(Build.ArtifactStagingDirectory)/firebase'
 
 - task: CopyFiles@2
