@@ -32,13 +32,14 @@ steps:
 - script: |
     pip install pytest pytest-azurepipelines
     pytest
-  displayName: 'pytest'
+  displayName: 'ML Module Unit Test'
 
 - script: |
     npm run build-ui
-  displayName: 'Build UI'
+  displayName: 'Build Angular SPA'
 
 - task: CopyFiles@2
+  displayName: 'Copy Firebase configuration to staging'
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: |
@@ -48,12 +49,14 @@ steps:
     TargetFolder: '$(Build.ArtifactStagingDirectory)/firebase'
 
 - task: CopyFiles@2
+  displayName: 'Copy SPA to staging'
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)/static'
     Contents: '**'
     TargetFolder: '$(build.artifactstagingdirectory)/firebase/static'
 
 - task: ArchiveFiles@2
+  displayName: 'Create Firebase artifact'
   inputs:
     rootFolderOrFile: '$(build.artifactstagingdirectory)/firebase'
     includeRootFolder: false
@@ -62,6 +65,7 @@ steps:
     replaceExistingArchive: true
 
 - task: PublishBuildArtifacts@1
+  displayName: 'Publish Firebase artifact'
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)/firebase.zip' 
     artifactName: 'static'
