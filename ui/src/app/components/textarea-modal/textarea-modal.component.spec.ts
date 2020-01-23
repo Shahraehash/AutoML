@@ -25,6 +25,7 @@ describe('TextareaModalComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TextareaModalComponent);
     component = fixture.componentInstance;
+    component.inputs = [];
     fixture.detectChanges();
   });
 

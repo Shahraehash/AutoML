@@ -18,6 +18,10 @@ describe('HistogramComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(HistogramComponent);
     component = fixture.componentInstance;
+    component.data = [
+      [279, 0, 0, 0, 0, 0, 0, 0, 0, 124, 0],
+      [0, 0.1, 0.2, 0.30000000000000004, 0.4, 0.5, 0.6000000000000001, 0.7000000000000001, 0.8, 0.9, 1]
+    ];
     fixture.detectChanges();
   });
 

@@ -47,8 +47,6 @@ export class RocChartComponent implements OnInit, OnChanges {
         const points = [];
         const sdPoints = [];
 
-        console.log(this.data);
-
         this.data.fpr.forEach((e, i) => {
             points.push([e, this.data.tpr[i]]);
 
