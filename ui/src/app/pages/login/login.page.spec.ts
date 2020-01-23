@@ -14,7 +14,7 @@ describe('LoginPage', () => {
       declarations: [ LoginPage ],
       imports: [
         CommonModule,
-        RouterModule
+        RouterModule.forRoot([])
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })

@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { UploadComponent } from './upload.component';
 
-describe('HomePage', () => {
+describe('UploadComponent', () => {
   let component: UploadComponent;
   let fixture: ComponentFixture<UploadComponent>;
 

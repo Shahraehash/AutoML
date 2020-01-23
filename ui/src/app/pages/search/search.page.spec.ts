@@ -14,7 +14,7 @@ describe('SearchPage', () => {
       declarations: [ SearchPage ],
       imports: [
         CommonModule,
-        RouterModule
+        RouterModule.forRoot([])
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
