@@ -44,7 +44,7 @@ steps:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: |
       firebase.json
-      firebase.rules
+      firestore.rules
       firestore.indexes.json
     TargetFolder: '$(Build.ArtifactStagingDirectory)/firebase'
 
