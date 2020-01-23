@@ -19,7 +19,6 @@ export class RunModelPage {
   ) {
     this.route.params.subscribe(async params => {
       this.id = params.id;
-
       (await this.api.getModelFeatures(this.id)).subscribe(
         features => {
           this.error = false;
