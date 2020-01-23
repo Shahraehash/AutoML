@@ -1,6 +1,6 @@
 <h4 class='ion-text-center'>{{type}} Description</h4>
 <app-feature-analysis
-  *ngFor='let feature of data.summary | keyvalue:preventSort'
+  *ngFor='let feature of data?.summary | keyvalue:preventSort'
   [summary]='feature.value'
   [mode]='data.mode[feature.key]'
   [median]='data.median[feature.key]'
