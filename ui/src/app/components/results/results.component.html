@@ -58,7 +58,7 @@
         Parameters
       </ion-button>
 
-      <table mat-table [dataSource]='results' matSort matSortActive='roc_auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
+      <table mat-table [dataSource]='results' matSort matSortActive='auc' matSortDirection='desc' class='mat-elevation-z8 result-table'>
 
         <ng-container [matColumnDef]='column.key' *ngFor='let column of columns'>
           <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]='column.class'>{{column.name}}</th>
