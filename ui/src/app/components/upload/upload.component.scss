@@ -25,6 +25,10 @@ ion-select {
   max-width: 200px;
   display: inline-flex;
   height: 36px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+  padding: 8px;
 }
 
 .model-name {
