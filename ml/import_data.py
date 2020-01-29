@@ -33,16 +33,16 @@ def import_csv(path, label_column, show_warning=False):
     """Import the specificed sheet"""
 
     # Read the CSV to memory and drop rows with empty values
-    data = pd.read_csv(path).dropna()
+    data = pd.read_csv(path)
+
+    # Convert cell values to numerical data and drop invalid data
+    data = data.apply(pd.to_numeric, errors='coerce').dropna()
 
     # Drop the label column from the data
     x = data.drop(label_column, axis=1)
 
     # Save the label colum values
     y = data[label_column]
-
-    # Remove columns which contain data that is not an integer or float value
-    x = x.loc[:, (x.dtypes == np.int64) | (x.dtypes == np.float64)].dropna()
 
     # Grab the feature names
     feature_names = list(x)

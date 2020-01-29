@@ -18,7 +18,7 @@ def parse_csv(csv_file):
     """Parse the CSV file and get required details"""
 
     csv = pd.read_csv(csv_file)
-    csv_clean = csv.loc[:, (csv.dtypes == np.int64) | (csv.dtypes == np.float64)].dropna()
+    csv_clean = csv.apply(pd.to_numeric, errors='coerce').dropna()
 
     return {
         'null': csv.isnull().sum(axis=0).to_dict(),
