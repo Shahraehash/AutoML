@@ -59,5 +59,6 @@ form {
 @media(min-height:800px) and (min-width:400px) {
   :host {
     height: 100%;
+    margin-top: -64px;
   }
 }
