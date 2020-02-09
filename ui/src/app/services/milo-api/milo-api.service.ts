@@ -33,6 +33,11 @@ export class MiloApiService {
         this.currentJobId = undefined;
         return;
       }
+
+      /** If the environment is setup for local user, log out the user */
+      if (environment.localUser) {
+        this.afAuth.auth.signOut();
+      }
     });
 
     try {

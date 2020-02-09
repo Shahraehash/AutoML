@@ -51,6 +51,8 @@ export class UploadComponent implements OnInit, OnDestroy {
         this.updateView();
       }
     });
+
+    this.updateView();
   }
 
   ngOnDestroy() {
