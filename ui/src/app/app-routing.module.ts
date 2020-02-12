@@ -34,6 +34,8 @@ const routes: Routes = [
   },
   {
     path: 'model/:id',
+    ...(environment.localUser ? {} : {canActivate: [AngularFireAuthGuard]}),
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
     loadChildren: () => import('./pages/run-model/run-model.module').then(m => m.RunModelPageModule)
   },
   { path: '**', redirectTo: 'search' }
