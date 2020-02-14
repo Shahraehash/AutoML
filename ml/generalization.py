@@ -36,7 +36,7 @@ def generalize(model, pipeline, x2, y2, labels=None):
 
     return {
         'accuracy': accuracy,
-        'auc': auc,
+        'avg_sn_sp': auc,
         'roc_auc': roc_auc,
         'f1': f1,
         'sensitivity': sensitivity,

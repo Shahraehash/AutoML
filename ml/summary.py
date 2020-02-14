@@ -19,6 +19,6 @@ def print_summary(results):
 
     print('Best model:', model_key_to_name(
         pd.read_csv(results).sort_values(
-            by=['auc', 'sensitivity', 'f1'], ascending=False
+            by=['avg_sn_sp', 'sensitivity', 'f1'], ascending=False
         ).iloc[0]['key']
     ), '\n')

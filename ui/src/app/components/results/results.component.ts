@@ -32,7 +32,7 @@ export class ResultsComponent implements OnInit {
       name: 'Algorithm'
     },
     {
-      key: 'auc',
+      key: 'avg_sn_sp',
       name: 'Sn+Sp',
       class: 'overline',
       number: true
