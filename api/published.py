@@ -106,6 +106,10 @@ def features(name):
         abort(400)
         return
 
+    if 'restricted' in published[name] and g.uid not in published[name]['restricted']:
+        abort(400)
+        return
+
     return jsonify(published[name]['features'])
 
 def export_pmml(name):

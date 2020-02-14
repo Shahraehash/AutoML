@@ -117,7 +117,7 @@ export class MiloApiService {
   }
 
   getModelFeatures(model: string) {
-    return this.http.get<string>(`${environment.apiUrl}/published/${model}/features`);
+    return this.request<string>('get', `/published/${model}/features`);
   }
 
   createModel(formData) {
