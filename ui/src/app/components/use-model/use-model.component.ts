@@ -73,6 +73,7 @@ export class UseModelComponent implements OnInit {
 
     const file = event.target.files[0];
     parse(file, {
+      dynamicTyping: true,
       worker: true,
       complete: async reply => {
         let observable;
