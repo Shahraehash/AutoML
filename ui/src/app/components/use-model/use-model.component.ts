@@ -75,6 +75,7 @@ export class UseModelComponent implements OnInit {
     parse(file, {
       dynamicTyping: true,
       worker: true,
+      skipEmptyLines: true,
       complete: async reply => {
         let observable;
         const header = reply.data.shift();
