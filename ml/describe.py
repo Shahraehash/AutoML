@@ -21,7 +21,7 @@ def parse_csv(csv_file):
     csv_clean = csv.apply(pd.to_numeric, errors='coerce').dropna()
 
     return {
-        'null': csv.isnull().sum(axis=0).to_dict(),
+        'null': len(csv.index) - len(csv_clean.index),
         'invalid': csv.loc[:, (csv.dtypes != np.int64) & (csv.dtypes != np.float64)].columns.values.tolist(),
         'mode': csv_clean.mode().iloc[0].to_dict(),
         'median': csv_clean.median().to_dict(),

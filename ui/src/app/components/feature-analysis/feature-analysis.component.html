@@ -9,12 +9,12 @@
         <ion-row nowrap>
           <ion-col size='6'>Valid</ion-col>
           <ion-col>{{summary.count}}</ion-col>
-          <ion-col>100%</ion-col>
+          <ion-col>{{((summary.count / (summary.count + nullCount))) * 100 | number:'1.0-0'}}%</ion-col>
         </ion-row>
         <ion-row nowrap>
           <ion-col size='6'>Removed</ion-col>
           <ion-col>{{nullCount}}</ion-col>
-          <ion-col>{{((nullCount / summary.count)) * 100 | number:'1.0-0'}}%</ion-col>
+          <ion-col>{{((nullCount / (summary.count + nullCount))) * 100 | number:'1.0-0'}}%</ion-col>
         </ion-row>
         <ion-row nowrap class='ion-margin-top'>
           <ion-col size='6'>Mean</ion-col>
