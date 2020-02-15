@@ -19,8 +19,11 @@ def reliability(pipeline, model, x_test, y_test):
         probabilities = model['best_estimator'].decision_function(x_test)
 
         if np.count_nonzero(probabilities):
-            probabilities = (probabilities - probabilities.min()) / \
-                (probabilities.max() - probabilities.min())
+            if probabilities.max() - probabilities.min() == 0:
+                probabilities = [0] * len(probabilities)
+            else:
+                probabilities = (probabilities - probabilities.min()) / \
+                    (probabilities.max() - probabilities.min())
     else:
         probabilities = model['best_estimator'].predict_proba(x_test)[:, 1]
 
