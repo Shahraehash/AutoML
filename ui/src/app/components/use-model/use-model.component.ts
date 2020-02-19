@@ -99,7 +99,7 @@ export class UseModelComponent implements OnInit {
           finalize(() => loading.dismiss())
         ).subscribe(
           (result) => {
-            header.push('predicated', 'probability');
+            header.push('prediction', 'probability');
             const data = reply.data.map((i, index) => [...i, result.predicted[index], result.probability[index]]);
             data.unshift(header);
             this.saveCSV(unparse(data));
