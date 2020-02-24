@@ -71,8 +71,8 @@ HYPER_PARAMETER_RANGE = {
             'n_estimators': randint(100, 1000)
         },
         'svm': {
-            'C': np.random.normal(1, 0.1, 10).astype(float),
-            'gamma': np.random.uniform(0.01, 0.1, 1).astype(float)
+            'C': np.random.normal(1, 0.1, 10),
+            'gamma': np.random.uniform(0.01, 0.1, 1)
         },
         'knn': lambda class_member_count: {
 
