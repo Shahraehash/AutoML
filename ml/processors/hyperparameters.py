@@ -3,7 +3,7 @@ Define hyper-parameter ranges for grid search
 """
 
 import numpy as np
-from scipy.stats import randint, uniform
+from scipy.stats import randint, norm, uniform
 
 HYPER_PARAMETER_RANGE = {
     'grid': {
@@ -71,8 +71,8 @@ HYPER_PARAMETER_RANGE = {
             'n_estimators': randint(100, 1000)
         },
         'svm': {
-            'C': np.random.normal(1, 0.1, 10),
-            'gamma': np.random.uniform(0.01, 0.1, 1)
+            'C': norm(1, 0.1),
+            'gamma': uniform(0.01, 0.1)
         },
         'knn': lambda class_member_count: {
 
