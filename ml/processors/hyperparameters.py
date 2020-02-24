@@ -2,7 +2,6 @@
 Define hyper-parameter ranges for grid search
 """
 
-import numpy as np
 from scipy.stats import randint, norm, uniform
 
 HYPER_PARAMETER_RANGE = {
