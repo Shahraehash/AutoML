@@ -31,7 +31,7 @@ def reliability(pipeline, model, x_test, y_test):
     brier_score = brier_score_loss(y_test, probabilities)
 
     return {
-        'brier_score': brier_score,
+        'brier_score': round(brier_score, 4),
         'fop': list(fop),
         'mpv': list(mpv)
     }

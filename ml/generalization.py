@@ -6,6 +6,7 @@ from sklearn.metrics import roc_auc_score, accuracy_score,\
     confusion_matrix, classification_report, f1_score
 
 from .preprocess import preprocess
+from .stats import clopper_pearson
 
 def generalize(model, pipeline, x2, y2, labels=None):
     """"Generalize method"""
@@ -35,14 +36,17 @@ def generalize(model, pipeline, x2, y2, labels=None):
     print('\t\tF1:', f1, '\n')
 
     return {
-        'accuracy': accuracy,
-        'avg_sn_sp': auc,
-        'roc_auc': roc_auc,
-        'f1': f1,
-        'sensitivity': sensitivity,
-        'specificity': specificity,
-        'ppv': tp / (tp+fp) if tp+fp > 0 else 0,
-        'npv': tn / (tn+fn) if tn+fn > 0 else 0,
+        'accuracy': round(accuracy, 4),
+        'acc_95_ci': clopper_pearson(tp+tn, len(y2)),
+        'avg_sn_sp': round(auc, 4),
+        'roc_auc': round(roc_auc, 4),
+        'f1': round(f1, 4),
+        'sensitivity': round(sensitivity, 4),
+        'sn_95_ci': clopper_pearson(tp, tp+fn),
+        'specificity': round(specificity, 4),
+        'sp_95_ci': clopper_pearson(tn, tn+fp),
+        'ppv': round(tp / (tp+fp), 4) if tp+fp > 0 else 0,
+        'npv': round(tn / (tn+fn), 4) if tn+fn > 0 else 0,
         'tn': tn,
         'tp': tp,
         'fn': fn,
