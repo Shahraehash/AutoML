@@ -15,8 +15,8 @@ def reliability(pipeline, features, model, x_test, y_test):
     # Transform values based on the pipeline
     x_test = preprocess(features, pipeline, x_test)
 
-    if hasattr(model['best_estimator'], 'decision_function'):
-        probabilities = model['best_estimator'].decision_function(x_test)
+    if hasattr(model, 'decision_function'):
+        probabilities = model.decision_function(x_test)
 
         if np.count_nonzero(probabilities):
             if probabilities.max() - probabilities.min() == 0:
@@ -25,7 +25,7 @@ def reliability(pipeline, features, model, x_test, y_test):
                 probabilities = (probabilities - probabilities.min()) / \
                     (probabilities.max() - probabilities.min())
     else:
-        probabilities = model['best_estimator'].predict_proba(x_test)[:, 1]
+        probabilities = model.predict_proba(x_test)[:, 1]
 
     fop, mpv = calibration_curve(y_test, probabilities, n_bins=10)
     brier_score = brier_score_loss(y_test, probabilities)

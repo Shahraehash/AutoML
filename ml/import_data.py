@@ -3,14 +3,14 @@ Import data and process/clean data
 """
 
 import pandas as pd
-import numpy as np
 
 from sklearn.model_selection import train_test_split
 
 def import_data(train_path, test_path, label_column):
     """Import both the training and test data using the passed paths"""
 
-    x, y, feature_names, train_negative_count, train_positive_count = import_csv(train_path, label_column, True)
+    x, y, feature_names, train_negative_count, train_positive_count = import_csv(
+        train_path, label_column, True)
     x2, y2, _, test_negative_count, test_positive_count = import_csv(test_path, label_column)
 
     metadata = {

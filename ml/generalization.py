@@ -13,7 +13,7 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
 
     # Process test data based on pipeline
     x2 = preprocess(features, pipeline, x2)
-    predictions = model['best_estimator'].predict(x2)
+    predictions = model.predict(x2)
     print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
 
     print('\tGeneralization:')
@@ -24,7 +24,7 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
     auc = roc_auc_score(y2, predictions)
     print('\t\tBinary AUC:', auc)
 
-    roc_auc = roc_auc_score(y2, model['best_estimator'].predict_proba(x2)[:, 1])
+    roc_auc = roc_auc_score(y2, model.predict_proba(x2)[:, 1])
     print('\t\tROC AUC:', roc_auc)
 
     tn, fp, fn, tp = confusion_matrix(y2, predictions).ravel()

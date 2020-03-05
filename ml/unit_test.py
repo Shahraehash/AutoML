@@ -20,8 +20,8 @@ def test_logistic_regression():
 
     pipeline = generate_pipeline('none', 'none', 'lr', Y_TRAIN, None, 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'lr', 'accuracy', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'lr', 'accuracy', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.3725
     assert generalization['avg_sn_sp'] == 0.6
     assert generalization['f1'] == 0.3704
@@ -33,8 +33,8 @@ def test_logistic_regression_with_standard_scaler():
 
     pipeline = generate_pipeline('std', 'none', 'lr', Y_TRAIN, None, 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'lr', 'accuracy', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'lr', 'accuracy', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.4902
     assert generalization['avg_sn_sp'] == 0.675
     assert generalization['f1'] == 0.4884
@@ -46,8 +46,8 @@ def test_logistic_regression_with_standard_scaler_with_select_75():
 
     pipeline = generate_pipeline('std', 'select-75', 'lr', Y_TRAIN, None, 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'lr', 'accuracy', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'lr', 'accuracy', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.3529
     assert generalization['avg_sn_sp'] == 0.5875
     assert generalization['f1'] == 0.3489
@@ -59,8 +59,8 @@ def test_k_nearest_neighbor():
 
     pipeline = generate_pipeline('none', 'none', 'knn', Y_TRAIN, None, 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'knn', 'accuracy', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'knn', 'accuracy', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.3922
     assert generalization['avg_sn_sp'] == 0.6125
     assert generalization['f1'] == 0.3912
@@ -72,8 +72,8 @@ def test_k_nearest_neighbor_with_standard_scaler():
 
     pipeline = generate_pipeline('std', 'none', 'knn', Y_TRAIN, None, 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'knn', 'accuracy', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'knn', 'accuracy', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.5490
     assert generalization['avg_sn_sp'] == 0.6795
     assert generalization['f1'] == 0.5376
@@ -85,8 +85,8 @@ def test_k_nearest_neighbor_with_standard_scaler_with_select_75():
 
     pipeline = generate_pipeline('std', 'select-75', 'knn', Y_TRAIN, None, 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'knn', 'accuracy', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'knn', 'accuracy', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.4902
     assert generalization['avg_sn_sp'] == 0.675
     assert generalization['f1'] == 0.4884
@@ -98,8 +98,8 @@ def test_support_vector_machine():
 
     pipeline = generate_pipeline('none', 'none', 'svm', Y_TRAIN, None, 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'svm', 'accuracy', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'svm', 'accuracy', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.2549
     assert generalization['avg_sn_sp'] == 0.4920
     assert generalization['f1'] == 0.2406
@@ -111,8 +111,8 @@ def test_support_vector_machine_with_standard_scaler():
 
     pipeline = generate_pipeline('std', 'none', 'svm', Y_TRAIN, None, 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'svm', 'accuracy', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'svm', 'accuracy', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.4118
     assert generalization['avg_sn_sp'] == 0.625
     assert generalization['f1'] == 0.4115
@@ -124,8 +124,8 @@ def test_support_vector_machine_with_standard_scaler_and_roc_auc():
 
     pipeline = generate_pipeline('std', 'none', 'svm', Y_TRAIN, ['roc_auc'], 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'svm', 'roc_auc', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'svm', 'roc_auc', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.7059
     assert generalization['avg_sn_sp'] == 0.6807
     assert generalization['f1'] == 0.6386
@@ -137,8 +137,8 @@ def test_support_vector_machine_with_standard_scaler_with_select_75():
 
     pipeline = generate_pipeline('std', 'select-75', 'svm', Y_TRAIN, None, 'grid', False)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
-    model.update(refit_model(pipeline[0], model['features'], 'svm', 'accuracy', X_TRAIN, Y_TRAIN))
-    generalization = generalize(model, pipeline[0], X2, Y2)
+    model.update(refit_model(pipeline[0], model['features'], 'svm', 'accuracy', X_TRAIN, Y_TRAIN)[0])
+    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     assert generalization['accuracy'] == 0.2353
     assert generalization['avg_sn_sp'] == 0.5125
     assert generalization['f1'] == 0.2047

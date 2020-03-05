@@ -129,14 +129,14 @@ def find_best_model(
                 }
 
                 print('\t#%d' % (position+1))
-                result.update(generalize(model['features'], candidate, pipeline[0], x2, y2, labels))
+                result.update(generalize(model['features'], candidate['best_estimator'], pipeline[0], x2, y2, labels))
                 result.update({
                     'selected_features': list(model['selected_features']),
                     'best_params': candidate['best_params']
                 })
-                result.update(roc(pipeline[0], model['features'], candidate, x_test, y_test, 'test'))
-                result.update(roc(pipeline[0], model['features'], candidate, x2, y2, 'generalization'))
-                result.update(reliability(pipeline[0], model['features'], candidate, x2, y2))
+                result.update(roc(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test, 'test'))
+                result.update(roc(pipeline[0], model['features'], candidate['best_estimator'], x2, y2, 'generalization'))
+                result.update(reliability(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
 
                 if not csv_header_written:
                     report_writer.writerow(result.keys())
