@@ -40,7 +40,7 @@ export interface GeneralizationResult {
     key: string;
     scaler: string;
     feature_selector: string;
-    estimator: string;
+    algorithm: string;
     searcher: string;
     scorer: string;
     accuracy: number;
@@ -54,7 +54,7 @@ export interface GeneralizationResult {
     fp: number;
     selected_features: string;
     best_params: string;
-    std_auc: string;
+    std_auc: number;
     mean_fpr: string;
     mean_tpr: string;
     mean_upper: string;
@@ -63,7 +63,7 @@ export interface GeneralizationResult {
     test_tpr: string;
     generalization_fpr: string;
     generalization_tpr: string;
-    brier_score: string;
+    brier_score: number;
     fop: string;
     mpv: string;
 }

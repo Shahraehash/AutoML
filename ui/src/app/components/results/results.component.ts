@@ -28,7 +28,7 @@ export class ResultsComponent implements OnInit {
   results: MatTableDataSource<GeneralizationResult>;
   columns: {key: string; class?: string, name: string; number?: boolean, hideMobile?: boolean}[] = [
     {
-      key: 'estimator',
+      key: 'algorithm',
       name: 'Algorithm'
     },
     {
@@ -165,13 +165,13 @@ export class ResultsComponent implements OnInit {
     this.results.filter = this.filterForm.get('query').value;
   }
 
-  parse(object, mode) {
+  parse(object: GeneralizationResult, mode) {
     let fpr;
     let tpr;
     let upper;
     let lower;
     const textElements = [
-      'Algorithm: ' + object.estimator,
+      'Algorithm: ' + object.algorithm,
       'Scaler: ' + object.scaler,
       'Selector: ' + object.feature_selector,
       'Scorer: ' + object.scorer,

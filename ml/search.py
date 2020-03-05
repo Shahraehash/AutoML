@@ -124,7 +124,7 @@ def find_best_model(
                 'key': key,
                 'scaler': SCALER_NAMES[scaler],
                 'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
-                'estimator': ESTIMATOR_NAMES[estimator],
+                'algorithm': ESTIMATOR_NAMES[estimator],
                 'searcher': SEARCHER_NAMES[searcher],
                 'scorer': SCORER_NAMES[scorer]
             }
