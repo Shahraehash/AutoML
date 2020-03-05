@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { MatTableDataSource } from '@angular/material';
+import { MatTableDataSource } from '@angular/material/table';
 import { LoadingController, AlertController } from '@ionic/angular';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
