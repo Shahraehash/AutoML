@@ -8,11 +8,11 @@ from sklearn.metrics import roc_auc_score, accuracy_score,\
 from .preprocess import preprocess
 from .stats import clopper_pearson
 
-def generalize(model, pipeline, x2, y2, labels=None):
+def generalize(features, model, pipeline, x2, y2, labels=None):
     """"Generalize method"""
 
     # Process test data based on pipeline
-    x2 = preprocess(model['features'], pipeline, x2)
+    x2 = preprocess(features, pipeline, x2)
     predictions = model['best_estimator'].predict(x2)
     print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
 

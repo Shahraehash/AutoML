@@ -115,34 +115,34 @@ def find_best_model(
 
         for scorer in scorers:
             key += '__' + scorer
-            model.update(
-                refit_model(pipeline[0], model['features'], estimator, scorer, x_train, y_train))
+            candidates = refit_model(pipeline[0], model['features'], estimator, scorer, x_train, y_train)
+            total_fits[estimator] += len(candidates)
 
-            total_fits[estimator] += 1
+            for position, candidate in enumerate(candidates):
+                result = {
+                    'key': key,
+                    'scaler': SCALER_NAMES[scaler],
+                    'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
+                    'algorithm': ESTIMATOR_NAMES[estimator],
+                    'searcher': SEARCHER_NAMES[searcher],
+                    'scorer': SCORER_NAMES[scorer]
+                }
 
-            result = {
-                'key': key,
-                'scaler': SCALER_NAMES[scaler],
-                'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
-                'algorithm': ESTIMATOR_NAMES[estimator],
-                'searcher': SEARCHER_NAMES[searcher],
-                'scorer': SCORER_NAMES[scorer]
-            }
+                print('\t#%d' % (position+1))
+                result.update(generalize(model['features'], candidate, pipeline[0], x2, y2, labels))
+                result.update({
+                    'selected_features': list(model['selected_features']),
+                    'best_params': candidate['best_params']
+                })
+                result.update(roc(pipeline[0], model['features'], candidate, x_test, y_test, 'test'))
+                result.update(roc(pipeline[0], model['features'], candidate, x2, y2, 'generalization'))
+                result.update(reliability(pipeline[0], model['features'], candidate, x2, y2))
 
-            result.update(generalize(model, pipeline[0], x2, y2, labels))
-            result.update({
-                'selected_features': list(model['selected_features']),
-                'best_params': model['best_params']
-            })
-            result.update(roc(pipeline[0], model, x_test, y_test, 'test'))
-            result.update(roc(pipeline[0], model, x2, y2, 'generalization'))
-            result.update(reliability(pipeline[0], model, x2, y2))
+                if not csv_header_written:
+                    report_writer.writerow(result.keys())
+                    csv_header_written = True
 
-            if not csv_header_written:
-                report_writer.writerow(result.keys())
-                csv_header_written = True
-
-            report_writer.writerow(list([str(i) for i in result.values()]))
+                report_writer.writerow(list([str(i) for i in result.values()]))
 
     report.close()
     print('Total fits generated', sum(total_fits.values()))

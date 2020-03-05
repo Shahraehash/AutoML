@@ -22,19 +22,28 @@ def refit_model(pipeline, features, estimator, scoring, x_train, y_train):
 
     results = pipeline.named_steps['estimator'].cv_results_
 
-    best_index_ = results['rank_test_%s' % scoring].argmin()
-    best_score_ = results['mean_test_%s' % scoring][best_index_]
-    best_params_ = results['params'][best_index_]
+    top10 = sorted(
+        range(len(results['rank_test_%s' % scoring])),
+        key=lambda i: results['rank_test_%s' % scoring][i]
+    )[:10]
 
-    print('\tBest %s: %.7g (sd=%.7g)'
-          % (SCORER_NAMES[scoring], best_score_,\
-                results['std_test_%s' % scoring][best_index_]))
-    print('\tBest %s parameters:' % SCORER_NAMES[scoring],
-          json.dumps(best_params_, indent=4, sort_keys=True).replace('\n', '\n\t'))
+    models = []
 
-    model = clone(ESTIMATORS[estimator]).set_params(**best_params_).fit(x_train, y_train)
+    for position, index in enumerate(top10):
+        best_params_ = results['params'][index]
 
-    return {
-        'best_estimator': model,
-        'best_params': best_params_
-    }
+        print('\t#%d %s: %.7g (sd=%.7g)'
+              % (position+1, SCORER_NAMES[scoring], results['mean_test_%s' % scoring][index],
+                 results['std_test_%s' % scoring][index]))
+        print('\t#%d %s parameters:' % (position+1, SCORER_NAMES[scoring]),
+              json.dumps(best_params_, indent=4, sort_keys=True).replace('\n', '\n\t'))
+
+        model = clone(ESTIMATORS[estimator]).set_params(
+            **best_params_).fit(x_train, y_train)
+
+        models.append({
+            'best_estimator': model,
+            'best_params': best_params_
+        })
+
+    return models

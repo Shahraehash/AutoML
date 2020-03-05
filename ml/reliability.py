@@ -9,11 +9,11 @@ from sklearn.metrics import brier_score_loss
 
 from .preprocess import preprocess
 
-def reliability(pipeline, model, x_test, y_test):
+def reliability(pipeline, features, model, x_test, y_test):
     """Compute reliability curve and Briar score"""
 
     # Transform values based on the pipeline
-    x_test = preprocess(model['features'], pipeline, x_test)
+    x_test = preprocess(features, pipeline, x_test)
 
     if hasattr(model['best_estimator'], 'decision_function'):
         probabilities = model['best_estimator'].decision_function(x_test)
