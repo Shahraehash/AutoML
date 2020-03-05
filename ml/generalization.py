@@ -2,12 +2,11 @@
 Generalization of a provided model using a secondary test set.
 """
 
-from numpy import isnan
-from scipy.stats import beta
 from sklearn.metrics import roc_auc_score, accuracy_score,\
     confusion_matrix, classification_report, f1_score
 
 from .preprocess import preprocess
+from .stats import clopper_pearson
 
 def generalize(model, pipeline, x2, y2, labels=None):
     """"Generalize method"""
@@ -53,14 +52,3 @@ def generalize(model, pipeline, x2, y2, labels=None):
         'fn': fn,
         'fp': fp
     }
-
-def clopper_pearson(x, n, alpha=0.95):
-    lower = beta.ppf((1 - alpha) / 2, x, n - x + 1)
-    upper = beta.ppf(1 - ((1 - alpha) / 2), x + 1, n - x)
-    if isnan(lower):
-        lower = 0
-
-    if isnan(upper):
-        upper = 1
-
-    return (lower, upper)
