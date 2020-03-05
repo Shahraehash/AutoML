@@ -10,4 +10,4 @@ def clopper_pearson(x, n, alpha=0.95):
     if isnan(upper):
         upper = 1
 
-    return (lower, upper)
+    return (round(lower, 4), round(upper, 4))
