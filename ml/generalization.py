@@ -2,6 +2,8 @@
 Generalization of a provided model using a secondary test set.
 """
 
+from numpy import isnan
+from scipy.stats import beta
 from sklearn.metrics import roc_auc_score, accuracy_score,\
     confusion_matrix, classification_report, f1_score
 
@@ -36,11 +38,14 @@ def generalize(model, pipeline, x2, y2, labels=None):
 
     return {
         'accuracy': accuracy,
+        'acc_95_ci': clopper_pearson(tp+tn, len(y2)),
         'avg_sn_sp': auc,
         'roc_auc': roc_auc,
         'f1': f1,
         'sensitivity': sensitivity,
+        'sn_95_ci': clopper_pearson(tp, tp+fn),
         'specificity': specificity,
+        'sp_95_ci': clopper_pearson(tn, tn+fp),
         'ppv': tp / (tp+fp) if tp+fp > 0 else 0,
         'npv': tn / (tn+fn) if tn+fn > 0 else 0,
         'tn': tn,
@@ -48,3 +53,14 @@ def generalize(model, pipeline, x2, y2, labels=None):
         'fn': fn,
         'fp': fp
     }
+
+def clopper_pearson(x, n, alpha=0.95):
+    lower = beta.ppf((1 - alpha) / 2, x, n - x + 1)
+    upper = beta.ppf(1 - ((1 - alpha) / 2), x + 1, n - x)
+    if isnan(lower):
+        lower = 0
+
+    if isnan(upper):
+        upper = 1
+
+    return (lower, upper)
