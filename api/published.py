@@ -130,7 +130,7 @@ def export_pmml(name):
         abort(400)
         return
 
-    return send_file(published[name]['path'] + '.pmml', as_attachment=True)
+    return send_file(published[name]['path'] + '.pmml', as_attachment=True, cache_timeout=-1)
 
 
 def export_model(name):
@@ -151,7 +151,7 @@ def export_model(name):
         abort(400)
         return
 
-    return send_file(published[name]['path'] + '.joblib', as_attachment=True)
+    return send_file(published[name]['path'] + '.joblib', as_attachment=True, cache_timeout=-1)
 
 def add(name):
     """Refits a model for future use via a published name"""

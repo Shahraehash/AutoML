@@ -7,7 +7,7 @@ import os
 import json
 import time
 import uuid
-from shutil import copyfile, rmtree
+from shutil import rmtree
 
 from flask import abort, g, jsonify, request, send_file, url_for
 import pandas as pd
@@ -240,7 +240,7 @@ def export(jobid):
         abort(400)
         return
 
-    return send_file(folder + '/report.csv', as_attachment=True)
+    return send_file(folder + '/report.csv', as_attachment=True, cache_timeout=-1)
 
 def export_pmml(jobid):
     """Export the selected model's PMML"""
@@ -255,7 +255,7 @@ def export_pmml(jobid):
         abort(400)
         return
 
-    return send_file(folder + '/pipeline.pmml', as_attachment=True)
+    return send_file(folder + '/pipeline.pmml', as_attachment=True, cache_timeout=-1)
 
 def export_model(jobid):
     """Export the selected model"""
@@ -270,4 +270,4 @@ def export_model(jobid):
         abort(400)
         return
 
-    return send_file(folder + '/pipeline.joblib', as_attachment=True)
+    return send_file(folder + '/pipeline.joblib', as_attachment=True, cache_timeout=-1)
