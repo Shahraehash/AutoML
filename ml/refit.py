@@ -25,7 +25,7 @@ def refit_model(pipeline, features, estimator, scoring, x_train, y_train):
     top10 = sorted(
         range(len(results['rank_test_%s' % scoring])),
         key=lambda i: results['rank_test_%s' % scoring][i]
-    )[:10]
+    )[:2]
 
     models = []
 
