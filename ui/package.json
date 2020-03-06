@@ -34,6 +34,7 @@
     "firebase": "^7.10.0",
     "material-icons": "^0.3.1",
     "papaparse": "^5.1.1",
+    "proxy-polyfill": "^0.3.1",
     "rxjs": "~6.5.4",
     "save-svg-as-png": "^1.4.17",
     "tslib": "^1.11.1",

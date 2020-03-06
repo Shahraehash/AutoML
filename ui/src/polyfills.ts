@@ -19,7 +19,10 @@
  */
 
 /** IE10 and IE11 requires the following for NgClass support on SVG elements */
-import 'classlist.js';  // Run `npm install --save classlist.js`.
+import 'classlist.js';
+
+/** IE11 needs a Proxy polyfill */
+import 'proxy-polyfill/proxy.min.js';
 
 /**
  * Web Animations `@angular/platform-browser/animations`
