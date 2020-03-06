@@ -28,7 +28,8 @@
 
       <ion-select
         placeholder='Previously Uploaded Data Sets'
-        interface='popover'
+        interface='alert'
+        [interfaceOptions]='alertInterfaceOptions'
         (ionChange)='exploreDataSet($event.detail.value)'
         *ngIf='dataSets$ | async as dataSets'>
         <ion-select-option *ngFor='let dataSet of dataSets' [value]='dataSet.id'>

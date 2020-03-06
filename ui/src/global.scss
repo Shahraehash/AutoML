@@ -48,6 +48,7 @@
 .wide-alert {
   --max-width: 70%;
   --max-height: 90%;
+  --min-width: 40%;
 
   .alert-message {
     max-height: initial;

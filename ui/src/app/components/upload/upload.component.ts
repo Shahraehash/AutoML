@@ -22,6 +22,12 @@ export class UploadComponent implements OnInit, OnDestroy {
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   dataSets$: Observable<DataSets[]>;
   publishedModels: PublishedModels;
+  alertInterfaceOptions = {
+    header: 'Previous Datasets',
+    subHeader: 'Select a dataset',
+    translucent: true,
+    cssClass: 'wide-alert'
+  };
 
   labels = [];
   keys = Object.keys;
