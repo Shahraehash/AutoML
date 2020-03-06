@@ -114,6 +114,11 @@
   }
 }
 
+.mat-paginator, .mat-select-panel, .mat-option {
+  background: #fff;
+  color: var(--ion-color-dark);
+}
+
 .mat-checkbox-frame {
   border-color: #ccc;
 }
@@ -178,6 +183,11 @@
         color: var(--ion-color-light);
     }
   }
+
+  .mat-paginator, .mat-select-panel, .mat-option {
+    background: var(--ion-color-dark);
+    color: var(--ion-color-light);
+  }  
 
   .mat-checkbox-frame {
     border-color: rgba(255,255,255,.7);

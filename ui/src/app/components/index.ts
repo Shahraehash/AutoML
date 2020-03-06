@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { RouterModule } from '@angular/router';
@@ -56,6 +57,7 @@ import { UseModelModule } from './use-model/use-model.module';
       ReactiveFormsModule,
       MatCheckboxModule,
       MatInputModule,
+      MatPaginatorModule,
       MatTableModule,
       MatSortModule,
       UseModelModule

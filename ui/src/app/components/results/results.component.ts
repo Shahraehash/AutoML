@@ -1,7 +1,8 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
 import * as saveSvgAsPng from 'save-svg-as-png';
 
@@ -94,6 +95,7 @@ export class ResultsComponent implements OnInit {
   ];
 
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     private alertController: AlertController,
@@ -117,6 +119,7 @@ export class ResultsComponent implements OnInit {
         this.results = new MatTableDataSource(data.results);
         setTimeout(() => {
           this.results.sort = this.sort;
+          this.results.paginator = this.paginator;
           this.results.filterPredicate = this.filter.bind(this);
         }, 1);
 
