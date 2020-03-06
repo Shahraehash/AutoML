@@ -16,29 +16,27 @@
         Select Testing Data (Generalization)
         <input type='file' name='test' (change)='onFileSelect($event)' [disabled]='!uploadForm.get("train").valid'>
       </label>
-      <ion-select placeholder='Target Column' interface='popover' [disabled]='!labels.length'
-        formControlName='label_column'>
+      <ion-select class='target-select' placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column'>
         <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
       </ion-select>
 
-      <ion-button expand='block' class='ion-padding submit' (click)='onSubmit()' [disabled]='!uploadForm.valid'>
+      <ion-button expand='block' class='submit' (click)='onSubmit()' [disabled]='!uploadForm.valid'>
         Next
       </ion-button>
+
+      <h6 class='divider'><span>or</span></h6>
+
+      <ion-select
+        placeholder='Previously Uploaded Data Sets'
+        interface='popover'
+        (ionChange)='exploreDataSet($event.detail.value)'
+        *ngIf='dataSets$ | async as dataSets'>
+        <ion-select-option *ngFor='let dataSet of dataSets' [value]='dataSet.id'>
+          {{dataSet.label}} ({{dataSet.date | date:'short'}})
+        </ion-select-option>
+      </ion-select>
     </ion-card-content>
   </ion-card>
-
-  <ng-container *ngIf='(dataSets$ | async) as dataSets'>
-    <ion-card class='ion-padding ion-text-center ion-margin-bottom' *ngIf='dataSets.length'>
-      <ion-card-header>
-        <ion-card-subtitle>Alternatively, you may select a previously used dataset</ion-card-subtitle>
-        <ion-card-title>Previous Datasets</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-chip *ngFor='let dataSet of dataSets' (click)='exploreDataSet(dataSet.id)'>{{dataSet.label}}
-          ({{dataSet.date | date:'short'}})</ion-chip>
-      </ion-card-content>
-    </ion-card>
-  </ng-container>
 
   <ion-card class='ion-padding ion-text-center' *ngIf='publishedModels && keys(publishedModels).length'>
     <ion-card-header>
