@@ -6,18 +6,18 @@
     <ion-buttons slot='end' class='ion-padding-end'>
       <ion-button fill='solid' color='primary' (click)='exportPMML()'>
         <ion-icon name='code-download' slot='start'></ion-icon>
-        PMML
+        <span class='ion-hide-sm-down'>PMML</span>
       </ion-button>
       <ion-button fill='solid' color='primary' (click)='exportModel()'>
         <ion-icon name='download' slot='start'></ion-icon>
-        Download
+        <span class='ion-hide-sm-down'>Download</span>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class='ion-padding' [formGroup]='testForm' [ngClass]='{"page-view": publishName}'>
-  <ion-title *ngIf='publishName' class='ion-text-center'>{{publishName}} Model</ion-title>
+  <h4 *ngIf='publishName' class='ion-text-center'>{{publishName}} Model</h4>
   <div class='container'>
     <div class='inputs ion-padding' formArrayName='inputs'>
       <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
