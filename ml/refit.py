@@ -11,6 +11,8 @@ from .processors.estimators import ESTIMATORS
 from .processors.scorers import SCORER_NAMES
 from .preprocess import preprocess
 
+MODELS_TO_EVALUATE = 2
+
 def refit_model(pipeline, features, estimator, scoring, x_train, y_train):
     """
     Determine the best model based on the provided scoring method
@@ -22,14 +24,15 @@ def refit_model(pipeline, features, estimator, scoring, x_train, y_train):
 
     results = pipeline.named_steps['estimator'].cv_results_
 
-    top10 = sorted(
+    # Select the top search results
+    sorted_results = sorted(
         range(len(results['rank_test_%s' % scoring])),
         key=lambda i: results['rank_test_%s' % scoring][i]
-    )[:2]
+    )[:MODELS_TO_EVALUATE]
 
     models = []
 
-    for position, index in enumerate(top10):
+    for position, index in enumerate(sorted_results):
         best_params_ = results['params'][index]
 
         print('\t#%d %s: %.7g (sd=%.7g)'
