@@ -195,7 +195,7 @@ def refit(jobid):
     with open(dataset_folder + '/label.txt') as label:
         label_column = label.read()
 
-    create_model(
+    generalization_result = create_model(
         request.form['key'],
         ast.literal_eval(request.form['parameters']),
         ast.literal_eval(request.form['features']),
@@ -204,7 +204,7 @@ def refit(jobid):
         job_folder
     )
 
-    return jsonify({'success': True})
+    return jsonify({'generalization': generalization_result})
 
 def test(jobid):
     """Tests the selected model against the provided data"""

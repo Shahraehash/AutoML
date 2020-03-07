@@ -8,7 +8,7 @@ import * as saveSvgAsPng from 'save-svg-as-png';
 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
-import { GeneralizationResult, MetaData } from '../../interfaces';
+import { GeneralizationResult, MetaData, RefitGeneralization } from '../../interfaces';
 import { TrainComponent } from '../train/train.component';
 import { UseModelComponent } from '../use-model/use-model.component';
 
@@ -288,12 +288,13 @@ export class ResultsComponent implements OnInit {
     formData.append('features', this.sortedData[index].selected_features);
 
     (await this.api.createModel(formData)).subscribe(
-      async () => {
+      async (reply: {generalization: RefitGeneralization}) => {
         const modal = await this.modalController.create({
           component: UseModelComponent,
           cssClass: 'test-model',
           componentProps: {
-            features: this.sortedData[index].selected_features
+            features: this.sortedData[index].selected_features,
+            generalization: reply.generalization
           }
         });
         await modal.present();

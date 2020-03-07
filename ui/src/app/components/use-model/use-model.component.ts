@@ -5,7 +5,7 @@ import { parse, unparse } from 'papaparse';
 import { finalize } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
-import { TestReply } from '../../interfaces';
+import { RefitGeneralization, TestReply } from '../../interfaces';
 
 @Component({
   selector: 'app-use-model',
@@ -14,6 +14,7 @@ import { TestReply } from '../../interfaces';
 })
 export class UseModelComponent implements OnInit {
   @Input() features: string;
+  @Input() generalization: RefitGeneralization;
   @Input() publishName: string;
   parsedFeatures: string[];
   testForm: FormGroup;
@@ -56,7 +57,7 @@ export class UseModelComponent implements OnInit {
     );
   }
 
-  async batchTest(event, type) {
+  async batchTest(event, type?) {
     event.preventDefault();
     this.endDrag();
 

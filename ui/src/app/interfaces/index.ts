@@ -146,3 +146,21 @@ export interface DataAnalysisSummary {
     mean: number;
     std: number;
 }
+
+export interface RefitGeneralization {
+    accuracy: number;
+    acc_95_ci: number[];
+    avg_sn_sp: number;
+    roc_auc: number;
+    f1: number;
+    sensitivity: number;
+    sn_95_ci: number[];
+    specificity: number;
+    sp_95_ci: number[];
+    ppv: number;
+    npv: number;
+    tn: number;
+    tp: number;
+    fn: number;
+    fp: number;
+}

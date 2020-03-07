@@ -78,4 +78,4 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
         except OSError:
             pass
 
-    return pipeline
+    return generalization_result
