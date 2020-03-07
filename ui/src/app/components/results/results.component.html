@@ -1,6 +1,6 @@
 <div class='container'>
+  <ion-icon name='save' size='small' slot='icon-only' color='medium' class='save-rocs' (click)='saveCurves()'></ion-icon>
   <div *ngIf='results; else noResults' class='results-viewer'>
-    <ion-icon name='save' size='small' slot='icon-only' color='medium' class='save-rocs' (click)='saveCurves()'></ion-icon>
     <div class='roc-graphs' *ngIf='sortedData.length'>
       <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.mean_fpr'>
         <ion-card-header>
@@ -58,7 +58,7 @@
         Parameters
       </ion-button>
 
-      <table mat-table [dataSource]='results' matSort matSortActive='avg_sn_sp' matSortDirection='desc' class='mat-elevation-z1 result-table'>
+      <table mat-table [dataSource]='results' matSort matSortActive='avg_sn_sp' matSortDirection='desc' class='mat-elevation-z3 result-table'>
 
         <ng-container [matColumnDef]='column.key' *ngFor='let column of columns'>
           <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]='column.class'>{{column.name}}</th>
@@ -76,7 +76,7 @@
         <tr mat-header-row *matHeaderRowDef='getColumns(); sticky: true'></tr>
         <tr mat-row *matRowDef='let row; let i = index; columns: getColumns();' (click)='activeRow = i' [ngClass]='{"active": i === activeRow}'></tr>
       </table>
-      <mat-paginator class='mat-elevation-z1' [pageSizeOptions]='[10, 30, 50]' showFirstLastButtons></mat-paginator>
+      <mat-paginator class='mat-elevation-z3' [pageSizeOptions]='[10, 30, 50]' showFirstLastButtons></mat-paginator>
     </div>
   </div>
 
