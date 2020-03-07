@@ -110,7 +110,13 @@ def features(name):
         abort(400)
         return
 
-    return jsonify(published[name]['features'])
+    with open(published[name]['path'] + '.json') as statsfile:
+        generalization = json.load(statsfile)
+
+    return jsonify({
+        'features': published[name]['features'],
+        'generalization': generalization
+    })
 
 def export_pmml(name):
     """Export the published model's PMML"""
