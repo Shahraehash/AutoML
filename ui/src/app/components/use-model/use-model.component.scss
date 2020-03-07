@@ -45,3 +45,9 @@ ion-content {
 .hidden {
     display: none;
 }
+
+.overlay {
+    border: rgb(6,103,250) 4px solid;
+    border-radius: 16px;
+    background-color: rgba(6,103,250,.25);
+}

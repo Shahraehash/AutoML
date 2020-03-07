@@ -73,12 +73,15 @@
     </ng-container>
 
     <ng-template #batch>
-        <p class='ion-padding ion-text-center'>
-            <ion-button color='medium' fill='solid' (click)='fileInput.click()'>
-                <ion-icon name='copy' slot='start'></ion-icon>
-                Select CSV
-            </ion-button>
-        </p>
-        <input #fileInput type='file' class='hidden' (change)='batchTest($event)'>
+        <div class='container' (drop)='batchTest($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()' [ngClass]='{"overlay": isDragging}'>
+            <div class='ion-padding ion-margin ion-text-center' style='flex: 1'>
+                Drag and drop your CSV or select the button below to open a file picker.
+            </div>
+        </div>
+        <ion-button expand='block' color='primary' fill='solid' (click)='fileInput.click()'>
+            <ion-icon name='copy' slot='start'></ion-icon>
+            Select CSV
+        </ion-button>
+        <input #fileInput type='file' class='hidden' (change)='batchTest($event)' accept='.csv, text/csv'>
     </ng-template>
 </ion-content>
