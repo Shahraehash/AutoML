@@ -27,7 +27,7 @@ export class ResultsComponent implements OnInit {
   sortedData: GeneralizationResult[];
   trainingRocData;
   results: MatTableDataSource<GeneralizationResult>;
-  columns: {key: string; class?: string, name: string; number?: boolean, hideMobile?: boolean}[] = [
+  columns: {key: string; class?: string, name: string; number?: boolean, hideOnWidth?: number}[] = [
     {
       key: 'algorithm',
       name: 'Algorithm'
@@ -41,52 +41,58 @@ export class ResultsComponent implements OnInit {
     {
       key: 'roc_auc',
       name: 'ROC AUC',
+      hideOnWidth: 375,
       number: true
     },
     {
       key: 'accuracy',
       name: 'Accuracy',
+      hideOnWidth: 400,
       number: true
     },
     {
       key: 'f1',
       name: 'F1',
+      hideOnWidth: 600,
       number: true
     },
     {
       key: 'sensitivity',
       name: 'Sensitivity',
+      hideOnWidth: 600,
       number: true
     },
     {
       key: 'specificity',
       name: 'Specificity',
+      hideOnWidth: 600,
       number: true
     },
     {
       key: 'brier_score',
       name: 'Brier Score',
+      hideOnWidth: 500,
       number: true
     },
     {
       key: 'scaler',
       name: 'Scaler',
-      hideMobile: true
+      hideOnWidth: 1350
     },
     {
       key: 'feature_selector',
       name: 'Feature Selector',
-      hideMobile: true
+      hideOnWidth: 1350
     },
     {
       key: 'scorer',
       name: 'Scorer',
-      hideMobile: true
+      hideOnWidth: 1350
     },
     {
       key: 'searcher',
       name: 'Searcher',
-      hideMobile: true
+      hideOnWidth: 1350
     },
     {
       key: 'actions',
@@ -140,8 +146,7 @@ export class ResultsComponent implements OnInit {
   }
 
   getColumns() {
-    const isMobile = window.innerWidth < 1350;
-    return isMobile ? this.columns.filter(c => !c.hideMobile).map(c => c.key) : this.columns.map(c => c.key);
+    return this.columns.filter(c => !c.hideOnWidth || window.innerWidth > c.hideOnWidth).map(c => c.key);
   }
 
   getFilterColumns() {
