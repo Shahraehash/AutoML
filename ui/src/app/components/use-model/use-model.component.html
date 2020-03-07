@@ -27,12 +27,10 @@
       </ng-container>
     </div>
     <div class='results ion-padding'>
-      <div *ngIf='!result' class='ion-padding-top ion-margin-top'>
+      <div *ngIf='!result' class='ion-margin-top'>
         <div *ngIf='publishName; else testDetail'>
-          This page has been published to test the '{{publishName}}' model.
-          <br><br>
           Please enter your values and press predict to test the model against your sample data. You may also
-          batch test multiple values by uploading an excel sheet by using the 'Batch Test' button below.
+          batch test multiple values by uploading a CSV sheet by using the 'Batch Test' button below.
           <br><br>
           If you wish you may download a copy of the model or it's PMML representation from the header buttons above.
         </div>
