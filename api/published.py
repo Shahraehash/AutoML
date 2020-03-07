@@ -167,6 +167,7 @@ def add(name):
 
     copyfile(job_folder + '/pipeline.joblib', model_path + '.joblib')
     copyfile(job_folder + '/pipeline.pmml', model_path + '.pmml')
+    copyfile(job_folder + '/pipeline.json', model_path + '.json')
 
     if os.path.exists(PUBLISHED_MODELS):
         with open(PUBLISHED_MODELS) as published_file:

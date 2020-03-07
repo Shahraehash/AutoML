@@ -4,6 +4,7 @@ the key, hyper parameters and features used).
 """
 
 import os
+import json
 import numpy as np
 from joblib import dump
 from nyoka import skl_to_pmml, xgboost_to_pmml
@@ -12,14 +13,16 @@ from sklearn.pipeline import Pipeline
 from .processors.estimators import ESTIMATORS
 from .processors.feature_selection import FEATURE_SELECTORS
 from .processors.scalers import SCALERS
-from .import_data import import_train
+from .import_data import import_data
+from .generalization import generalize
+from .model import generate_model
 from .utils import explode_key
 
-def create_model(key, hyper_parameters, selected_features, train_set=None, label_column=None, output_path='.'):
+def create_model(key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.'):
     """Refits the requested model and pickles it for export"""
 
-    if train_set is None:
-        print('Missing training data')
+    if dataset_path is None:
+        print('Missing dataset path')
         return {}
 
     if label_column is None:
@@ -27,7 +30,8 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
         return {}
 
     # Import data
-    (x_train, _, y_train, _, features) = import_train(train_set, label_column)
+    (x_train, _, y_train, _, x2, y2, features, _) = \
+        import_data(dataset_path + '/train.csv', dataset_path + '/test.csv', label_column)
 
     # Get pipeline details from the key
     scaler, feature_selector, estimator, _, _ = explode_key(key)
@@ -51,7 +55,13 @@ def create_model(key, hyper_parameters, selected_features, train_set=None, label
     steps.append(('estimator', ESTIMATORS[estimator].set_params(**hyper_parameters)))
 
     # Fit the pipeline using the same training data
-    pipeline = Pipeline(steps).fit(x_train, y_train)
+    pipeline = Pipeline(steps)
+    model = generate_model(pipeline, selected_features, x_train, y_train)
+
+    # Assess the model performance and store the results
+    generalization_result = generalize(model['features'], pipeline['estimator'], pipeline, x2, y2, ['No ' + label_column, label_column])
+    with open(output_path + '/pipeline.json', 'w') as statsfile:
+        json.dump(generalization_result, statsfile)
 
     # Dump the pipeline to a file
     dump(pipeline, output_path + '/pipeline.joblib')

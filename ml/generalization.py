@@ -47,8 +47,8 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
         'sp_95_ci': clopper_pearson(tn, tn+fp),
         'ppv': round(tp / (tp+fp), 4) if tp+fp > 0 else 0,
         'npv': round(tn / (tn+fn), 4) if tn+fn > 0 else 0,
-        'tn': tn,
-        'tp': tp,
-        'fn': fn,
-        'fp': fp
+        'tn': int(tn),
+        'tp': int(tp),
+        'fn': int(fn),
+        'fp': int(fp)
     }

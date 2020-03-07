@@ -199,7 +199,7 @@ def refit(jobid):
         request.form['key'],
         ast.literal_eval(request.form['parameters']),
         ast.literal_eval(request.form['features']),
-        dataset_folder + '/train.csv',
+        dataset_folder,
         label_column,
         job_folder
     )
