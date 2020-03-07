@@ -1,80 +1,84 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>
-      {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : 'Use Selected Model'}}
-    </ion-title>
-    <ion-buttons slot='end' class='ion-padding-end'>
-      <ion-button fill='solid' color='primary' (click)='exportPMML()'>
-        <ion-icon class='ion-hide-sm-down' name='code-download' slot='start'></ion-icon><span class='ion-hide-sm-down'>PMML</span>
-        <ion-icon class='ion-hide-sm-up' name='code-download' slot='icon-only'></ion-icon>
-      </ion-button>
-      <ion-button fill='solid' color='primary' (click)='exportModel()'>
-        <ion-icon class='ion-hide-sm-down' name='download' slot='start'></ion-icon><span class='ion-hide-sm-down'>Download</span>
-        <ion-icon class='ion-hide-sm-up' name='download' slot='icon-only'></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-title>
+            {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : 'Use Selected Model'}}
+        </ion-title>
+        <ion-buttons slot='end' class='ion-padding-end'>
+            <ion-button fill='solid' color='primary' (click)='exportPMML()'>
+                <ion-icon class='ion-hide-sm-down' name='code-download' slot='start'></ion-icon><span
+                    class='ion-hide-sm-down'>PMML</span>
+                <ion-icon class='ion-hide-sm-up' name='code-download' slot='icon-only'></ion-icon>
+            </ion-button>
+            <ion-button fill='solid' color='primary' (click)='exportModel()'>
+                <ion-icon class='ion-hide-sm-down' name='download' slot='start'></ion-icon><span
+                    class='ion-hide-sm-down'>Download</span>
+                <ion-icon class='ion-hide-sm-up' name='download' slot='icon-only'></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content class='ion-padding' [formGroup]='testForm' [ngClass]='{"page-view": publishName}'>
-  <h4 *ngIf='publishName' class='ion-padding-bottom ion-text-center'>{{publishName}} Model</h4>
+    <h4 *ngIf='publishName' class='ion-padding-bottom ion-text-center'>{{publishName}} Model</h4>
 
-  <ion-segment value='single' #segment>
-    <ion-segment-button value='single'>
-      <ion-label>Single</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value='batch'>
-      <ion-label>Batch</ion-label>
-    </ion-segment-button>
-  </ion-segment>
+    <ion-segment value='single' #segment>
+        <ion-segment-button value='single'>
+            <ion-label>Single</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value='batch'>
+            <ion-label>Batch</ion-label>
+        </ion-segment-button>
+    </ion-segment>
 
-  <ng-container *ngIf='segment.value === "single"; else batch'>
-    <div class='container'>
-      <div class='inputs ion-padding' formArrayName='inputs'>
-        <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
-          <mat-form-field color='accent'>
-            <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
-          </mat-form-field>
-        </ng-container>
-      </div>
-      <div class='results ion-padding'>
-        <div *ngIf='!result' class='ion-margin-top'>
-          <div *ngIf='publishName; else testDetail'>
-            Please enter your values and press predict to test the model against your sample data. You may also
-            batch test multiple values by using the 'Batch' button.
-            <br><br>
-            If you wish you may download a copy of the model or it's PMML representation from the header buttons above.
-          </div>
-          <ng-template #testDetail>Please enter the values you wish to test or use the batch test to upload a CSV of values to test.</ng-template>
+    <ng-container *ngIf='segment.value === "single"; else batch'>
+        <div class='container'>
+            <div class='inputs ion-padding' formArrayName='inputs'>
+                <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
+                    <mat-form-field color='accent'>
+                        <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
+                    </mat-form-field>
+                </ng-container>
+            </div>
+            <div class='results ion-padding'>
+                <div *ngIf='!result' class='ion-margin-top'>
+                    <div *ngIf='publishName; else testDetail'>
+                        Please enter your values and press predict to test the model against your sample data. You may
+                        also
+                        batch test multiple values by using the 'Batch' button.
+                        <br><br>
+                        If you wish you may download a copy of the model or it's PMML representation from the header
+                        buttons above.
+                    </div>
+                    <ng-template #testDetail>Please enter the values you wish to test or use the batch test to upload a
+                        CSV of values to test.</ng-template>
+                </div>
+                <div *ngIf='result'>
+                    <span class='label'>Predicted Outcome</span>:
+                    {{result.predicted[0] === 1 ? 'Positive' : 'Negative'}} for {{ result.target }}
+                    <ion-icon class='indicator' size='large' [color]='result.predicted[0] === 1 ? "danger" : "success"'
+                        [name]='result.predicted[0] === 1 ? "add-circle" : "remove-circle"'></ion-icon>
+                    <br><br>
+                    <span class='label'>Probability</span>: {{(result.probability[0] * 100) | number}}%
+
+                    <p>
+                        The predictions confidence is indicated by the probability above. Higher indicates a stronger
+                        confidence in the prediction.
+                    </p>
+                </div>
+            </div>
         </div>
-        <div *ngIf='result'>
-          <span class='label'>Predicted Outcome</span>:
-          {{result.predicted[0] === 1 ? 'Positive' : 'Negative'}} for {{ result.target }}
-          <ion-icon
-            class='indicator'
-            size='large'
-            [color]='result.predicted[0] === 1 ? "danger" : "success"'
-            [name]='result.predicted[0] === 1 ? "add-circle" : "remove-circle"'></ion-icon>
-          <br><br>
-          <span class='label'>Probability</span>: {{(result.probability[0] * 100) | number}}%
-  
-          <p>
-            The predictions confidence is indicated by the probability above. Higher indicates a stronger confidence in the prediction.
-          </p>
-        </div>
-      </div>
-    </div>
 
-    <ion-button expand='block' (click)='testModel()' color='primary' fill='solid' class='submit' [disabled]='!testForm.valid'>Predict</ion-button>
-  </ng-container>
+        <ion-button expand='block' (click)='testModel()' color='primary' fill='solid' class='submit'
+            [disabled]='!testForm.valid'>Predict</ion-button>
+    </ng-container>
 
-  <ng-template #batch>
-    <p class='ion-padding ion-text-center'>
-      <ion-button color='medium' fill='solid' (click)='fileInput.click()'>
-        <ion-icon name='copy' slot='start'></ion-icon>
-        Select CSV
-      </ion-button>  
-    </p>
-    <input #fileInput type='file' class='hidden' (change)='batchTest($event)'>
-  </ng-template>
+    <ng-template #batch>
+        <p class='ion-padding ion-text-center'>
+            <ion-button color='medium' fill='solid' (click)='fileInput.click()'>
+                <ion-icon name='copy' slot='start'></ion-icon>
+                Select CSV
+            </ion-button>
+        </p>
+        <input #fileInput type='file' class='hidden' (change)='batchTest($event)'>
+    </ng-template>
 </ion-content>
