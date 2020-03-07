@@ -4,7 +4,7 @@
     <div class='roc-graphs' *ngIf='sortedData.length'>
       <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.mean_fpr'>
         <ion-card-header>
-          <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline with one plus/minus standard deviation</ion-card-subtitle>
+          <ion-card-subtitle>Receiver operator characteristics for the selected pipeline with one plus/minus standard deviation</ion-card-subtitle>
           <ion-card-title>Training Search ROC</ion-card-title>
         </ion-card-header>
         <app-roc-chart [data]='parse(sortedData[activeRow], "mean")' mode='mean'></app-roc-chart>
@@ -12,7 +12,7 @@
 
       <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.test_fpr'>
         <ion-card-header>
-          <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (prevalence independent test)</ion-card-subtitle>
+          <ion-card-subtitle>Receiver operator characteristics for the selected pipeline (prevalence independent test)</ion-card-subtitle>
           <ion-card-title>Training Validation ROC</ion-card-title>
         </ion-card-header>
         <app-roc-chart [data]='parse(sortedData[activeRow], "test")' mode='test'></app-roc-chart>
@@ -20,7 +20,7 @@
 
       <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.generalization_fpr'>
         <ion-card-header>
-          <ion-card-subtitle>Plot the receiver operator characteristics for the currently selected pipeline (prevalence dependent test)</ion-card-subtitle>
+          <ion-card-subtitle>Receiver operator characteristics for the selected pipeline (prevalence dependent test)</ion-card-subtitle>
           <ion-card-title>Generalization ROC</ion-card-title>
         </ion-card-header>
         <app-roc-chart [data]='parse(sortedData[activeRow], "generalization")' mode='generalization'></app-roc-chart>
@@ -28,7 +28,7 @@
 
       <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.mpv'>
         <ion-card-header>
-          <ion-card-subtitle>Plot the reliability diagram (calibration curve) for predictions against the generalization dataset</ion-card-subtitle>
+          <ion-card-subtitle>Reliability diagram (calibration curve) for predictions against the generalization dataset</ion-card-subtitle>
           <ion-card-title>Generalization Reliability</ion-card-title>
         </ion-card-header>
         <app-roc-chart [data]='parse(sortedData[activeRow], "reliability")' mode='reliability'></app-roc-chart>
