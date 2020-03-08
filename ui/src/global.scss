@@ -40,8 +40,16 @@
   height: 100%;
 }
 
+.modal-only {
+  display: none;
+}
+
 .test-modal {
   --min-width: 60%;
+
+  .modal-only {
+    display: initial;
+  }
 }
 
 .wide-modal {

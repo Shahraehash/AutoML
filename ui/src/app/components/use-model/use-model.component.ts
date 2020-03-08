@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { parse, unparse } from 'papaparse';
 import { finalize } from 'rxjs/operators';
 
@@ -22,6 +22,7 @@ export class UseModelComponent implements OnInit {
   isDragging = false;
 
   constructor(
+    public modalController: ModalController,
     private api: MiloApiService,
     private formBuilder: FormBuilder,
     private loadingController: LoadingController,
