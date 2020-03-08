@@ -24,18 +24,20 @@
         Next
       </ion-button>
 
-      <ng-container *ngIf='dataSets$ | async as dataSets'>
-        <h6 class='divider'><span>or</span></h6>
+      <ng-container *ngIf='dataSets$ | async; let dataSets'>
+        <ng-container *ngIf='dataSets.length > 0'>
+          <h6 class='divider'><span>or</span></h6>
 
-        <ion-select
-          placeholder='Previously Uploaded Datasets'
-          interface='alert'
-          [interfaceOptions]='alertInterfaceOptions'
-          (ionChange)='exploreDataSet($event.detail.value)'>
-          <ion-select-option *ngFor='let dataSet of dataSets' [value]='dataSet.id'>
-            {{dataSet.label}} - {{dataSet.features.length}} features ({{dataSet.date | date:'short'}})
-          </ion-select-option>
-        </ion-select>
+          <ion-select
+            placeholder='Previously Uploaded Datasets'
+            interface='alert'
+            [interfaceOptions]='alertInterfaceOptions'
+            (ionChange)='exploreDataSet($event.detail.value)'>
+            <ion-select-option *ngFor='let dataSet of dataSets' [value]='dataSet.id'>
+              {{dataSet.label}} - {{dataSet.features.length}} features ({{dataSet.date | date:'short'}})
+            </ion-select-option>
+          </ion-select>
+        </ng-container>
       </ng-container>
     </ion-card-content>
   </ion-card>
