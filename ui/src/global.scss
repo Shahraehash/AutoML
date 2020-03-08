@@ -240,4 +240,8 @@
   .mat-paginator-range-label {
     margin: 0 12px 0 20px !important;
   }
+
+  .wide-alert {
+    --min-width: 90%;
+  }
 }
