@@ -79,7 +79,7 @@
   <ng-template #batch>
     <div class='container' (drop)='batchTest($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()'
       [ngClass]='{"overlay": isDragging}'>
-      <div class='ion-padding ion-margin ion-text-center batch-details'>
+      <div class='ion-padding ion-text-center batch-details'>
         Drag and drop your CSV or select the button below to open a file picker.
 
         <app-model-statistics [generalization]='generalization'></app-model-statistics>
