@@ -1,4 +1,21 @@
 table {
     width: 100%;
-    margin-top: 20px;
+    max-width: 800px;
+    margin: 20px auto 0;
+
+    thead > tr {
+      border-bottom: 2px solid var(--ion-color-dark);
+    }
+
+    tbody td {
+      padding: 10px;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+  table {
+    thead > tr {
+      border-bottom-color: var(--ion-color-light);
+    }
+  }
 }

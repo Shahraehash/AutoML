@@ -32,13 +32,6 @@
 
     <ng-container *ngIf='segment.value === "single"; else batch'>
         <div class='container'>
-            <div class='inputs ion-padding' formArrayName='inputs'>
-                <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
-                    <mat-form-field color='accent'>
-                        <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
-                    </mat-form-field>
-                </ng-container>
-            </div>
             <div class='results ion-padding'>
                 <div *ngIf='!result' class='ion-margin-top'>
                     <div *ngIf='publishName; else testDetail'>
@@ -67,6 +60,13 @@
                 </div>
                 <app-model-statistics [generalization]='generalization'></app-model-statistics>
             </div>
+            <div class='inputs ion-padding' formArrayName='inputs'>
+              <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
+                  <mat-form-field color='accent'>
+                      <input matInput type='number' [placeholder]='"Enter " + feature' [formControlName]='i'>
+                  </mat-form-field>
+              </ng-container>
+          </div>
         </div>
 
         <ion-button expand='block' (click)='testModel()' color='primary' fill='solid' class='submit'
@@ -75,7 +75,7 @@
 
     <ng-template #batch>
         <div class='container' (drop)='batchTest($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()' [ngClass]='{"overlay": isDragging}'>
-            <div class='ion-padding ion-margin ion-text-center' style='flex: 1'>
+            <div class='ion-padding ion-margin ion-text-center batch-details'>
                 Drag and drop your CSV or select the button below to open a file picker.
 
                 <app-model-statistics [generalization]='generalization'></app-model-statistics>

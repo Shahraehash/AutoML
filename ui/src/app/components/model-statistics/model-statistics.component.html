@@ -1,29 +1,41 @@
-<table>
-    <thead><tr>
-        <td></td>
-        <td>Value</td>
-        <td>95% CI</td>
-    </tr></thead>
-    <tbody>
-        <tr>
-            <td>Sensitivity</td>
-            <td>{{generalization.sensitivity * 100 | number}}%</td>
-            <td>{{generalization.sn_95_ci[0] * 100 | number}}% to {{generalization.sn_95_ci[1] * 100 | number}}%</td>
-        </tr>
-        <tr>
-            <td>Specificity</td>
-            <td>{{generalization.specificity * 100 | number}}%</td>
-            <td>{{generalization.sp_95_ci[0] * 100 | number}}% to {{generalization.sp_95_ci[1] * 100 | number}}%</td>
-        </tr>
-        <tr>
-            <td>Accuracy</td>
-            <td>{{generalization.accuracy * 100 | number}}%</td>
-            <td>{{generalization.acc_95_ci[0] * 100 | number}}% to {{generalization.acc_95_ci[1] * 100 | number}}%</td>
-        </tr>
-        <tr>
-            <td>Prevalence</td>
-            <td>{{generalization.prevalence * 100 | number}}%</td>
-            <td>{{generalization.pr_95_ci[0] * 100 | number}}% to {{generalization.pr_95_ci[1] * 100 | number}}%</td>
-        </tr>
-    </tbody>
+<table class='ion-text-center'>
+  <thead>
+    <tr>
+      <td></td>
+      <td class='ion-padding-bottom'>Value</td>
+      <td class='ion-padding-bottom'>95% CI</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sensitivity</td>
+      <td>{{generalization.sensitivity * 100 | number}}%</td>
+      <td>{{generalization.sn_95_ci[0] * 100 | number}}% to {{generalization.sn_95_ci[1] * 100 | number}}%</td>
+    </tr>
+    <tr>
+      <td>Specificity</td>
+      <td>{{generalization.specificity * 100 | number}}%</td>
+      <td>{{generalization.sp_95_ci[0] * 100 | number}}% to {{generalization.sp_95_ci[1] * 100 | number}}%</td>
+    </tr>
+    <tr>
+      <td>Accuracy</td>
+      <td>{{generalization.accuracy * 100 | number}}%</td>
+      <td>{{generalization.acc_95_ci[0] * 100 | number}}% to {{generalization.acc_95_ci[1] * 100 | number}}%</td>
+    </tr>
+    <tr>
+      <td>Prevalence</td>
+      <td>{{generalization.prevalence * 100 | number}}%</td>
+      <td>{{generalization.pr_95_ci[0] * 100 | number}}% to {{generalization.pr_95_ci[1] * 100 | number}}%</td>
+    </tr>
+    <tr>
+      <td>PPV</td>
+      <td>{{generalization.ppv * 100 | number}}%</td>
+      <td>N/A</td>
+    </tr>
+    <tr>
+      <td>NPV</td>
+      <td>{{generalization.npv * 100 | number}}%</td>
+      <td>N/A</td>
+    </tr>
+  </tbody>
 </table>
