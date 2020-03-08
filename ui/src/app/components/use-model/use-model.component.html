@@ -65,30 +65,7 @@
                         confidence in the prediction.
                     </p>
                 </div>
-                <table>
-                    <thead><tr>
-                        <td>Statistic</td>
-                        <td>Value</td>
-                        <td>95% CI</td>
-                    </tr></thead>
-                    <tbody>
-                        <tr>
-                            <td>Sensitivity</td>
-                            <td>{{generalization.sensitivity}}</td>
-                            <td>{{generalization.sn_95_ci}}</td>
-                        </tr>
-                        <tr>
-                            <td>Specificity</td>
-                            <td>{{generalization.specificity}}</td>
-                            <td>{{generalization.sp_95_ci}}</td>
-                        </tr>
-                        <tr>
-                            <td>Accuracy</td>
-                            <td>{{generalization.accuracy}}</td>
-                            <td>{{generalization.acc_95_ci}}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <app-model-statistics [generalization]='generalization'></app-model-statistics>
             </div>
         </div>
 
@@ -100,6 +77,8 @@
         <div class='container' (drop)='batchTest($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()' [ngClass]='{"overlay": isDragging}'>
             <div class='ion-padding ion-margin ion-text-center' style='flex: 1'>
                 Drag and drop your CSV or select the button below to open a file picker.
+
+                <app-model-statistics [generalization]='generalization'></app-model-statistics>
             </div>
         </div>
         <ion-button expand='block' color='primary' fill='solid' (click)='fileInput.click()'>
