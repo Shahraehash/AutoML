@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { RefitGeneralization } from 'src/app/interfaces';
 
@@ -7,10 +7,6 @@ import { RefitGeneralization } from 'src/app/interfaces';
   templateUrl: './model-statistics.component.html',
   styleUrls: ['./model-statistics.component.scss'],
 })
-export class ModelStatisticsComponent implements OnInit {
+export class ModelStatisticsComponent {
     @Input() generalization: RefitGeneralization;
-
-    constructor() {}
-
-    ngOnInit() {}
 }

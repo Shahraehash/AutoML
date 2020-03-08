@@ -7,18 +7,18 @@
     <tbody>
         <tr>
             <td>Sensitivity</td>
-            <td>{{generalization.sensitivity}}</td>
-            <td>{{generalization.sn_95_ci}}</td>
+            <td>{{generalization.sensitivity * 100 | number}}%</td>
+            <td>{{generalization.sn_95_ci[0] * 100 | number}}% to {{generalization.sn_95_ci[1] * 100 | number}}%</td>
         </tr>
         <tr>
             <td>Specificity</td>
-            <td>{{generalization.specificity}}</td>
-            <td>{{generalization.sp_95_ci}}</td>
+            <td>{{generalization.specificity * 100 | number}}%</td>
+            <td>{{generalization.sp_95_ci[0] * 100 | number}}% to {{generalization.sp_95_ci[1] * 100 | number}}%</td>
         </tr>
         <tr>
             <td>Accuracy</td>
-            <td>{{generalization.accuracy}}</td>
-            <td>{{generalization.acc_95_ci}}</td>
+            <td>{{generalization.accuracy * 100 | number}}%</td>
+            <td>{{generalization.acc_95_ci[0] * 100 | number}}% to {{generalization.acc_95_ci[1] * 100 | number}}%</td>
         </tr>
     </tbody>
 </table>
