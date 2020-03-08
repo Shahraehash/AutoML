@@ -42,6 +42,7 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
         for index, feature in reversed(list(enumerate(features))):
             if feature not in selected_features:
                 x_train = np.delete(x_train, index, axis=1)
+                x2 = np.delete(x2, index, axis=1)
 
     # Add the scaler, if used
     if scaler and SCALERS[scaler]:
@@ -57,6 +58,7 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
     # Fit the pipeline using the same training data
     pipeline = Pipeline(steps)
     model = generate_model(pipeline, selected_features, x_train, y_train)
+    print(model['features'])
 
     # Assess the model performance and store the results
     generalization_result = generalize(model['features'], pipeline['estimator'], pipeline, x2, y2, ['No ' + label_column, label_column])
