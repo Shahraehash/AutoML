@@ -3,10 +3,12 @@ Handle dataset related requests
 """
 
 import os
+import json
 import time
 import uuid
 from shutil import rmtree
 
+import pandas as pd
 from flask import abort, g, jsonify, request
 
 from ml.describe import describe as Describe
@@ -29,11 +31,11 @@ def get():
         if not os.path.isdir(folder + '/' + dataset) or\
             not os.path.exists(folder + '/' + dataset + '/train.csv') or\
             not os.path.exists(folder + '/' + dataset + '/test.csv') or\
-            not os.path.exists(folder + '/' + dataset + '/label.txt'):
+            not os.path.exists(folder + '/' + dataset + '/metadata.json'):
             continue
 
-        with open(folder + '/' + dataset + '/label.txt') as label:
-            label_column = label.read()
+        with open(folder + '/' + dataset + '/metadata.json') as metafile:
+            dataset_metadata = json.load(metafile)
 
         datasets.append({
             'date': time.strftime(
@@ -43,7 +45,8 @@ def get():
                 ))
             ),
             'id': dataset,
-            'label': label_column
+            'label': dataset_metadata['label'],
+            'features': dataset_metadata['features']
         })
 
     return jsonify(datasets)
@@ -75,8 +78,7 @@ def add():
     train.save(folder + '/train.csv')
     test.save(folder + '/test.csv')
 
-    with open(folder + '/label.txt', 'w') as label:
-        label.write(request.form['label_column'])
+    process_files(folder, request.form['label_column'])
 
     return jsonify({'id': datasetid})
 
@@ -110,10 +112,30 @@ def describe(datasetid):
         abort(400)
         return
 
-    with open(folder + '/label.txt') as label:
-        label_column = label.read()
+    with open(folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
 
     return {
         'analysis': Describe(folder),
-        'label': label_column
+        'label': metadata['label']
     }
+
+def process_files(folder, label_column):
+    """Cleans CSV headers and generates dataset metadata"""
+
+    features = clean_csv_headers(folder + '/train.csv', label_column)
+    clean_csv_headers(folder + '/test.csv', label_column)
+    metadata = {
+        'label': label_column,
+        'features': features
+    }
+    with open(folder + '/metadata.json', 'w') as metafile:
+        json.dump(metadata, metafile)
+
+def clean_csv_headers(file, label_column):
+    """Strips spaces from CSV headers"""
+
+    csv = pd.read_csv(file)
+    csv.rename(columns=lambda x: x.strip(), inplace=True)
+    csv.to_csv(file, index=False)
+    return csv.columns.drop(label_column).tolist()

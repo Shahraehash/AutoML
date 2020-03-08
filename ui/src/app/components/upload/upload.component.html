@@ -33,7 +33,7 @@
           [interfaceOptions]='alertInterfaceOptions'
           (ionChange)='exploreDataSet($event.detail.value)'>
           <ion-select-option *ngFor='let dataSet of dataSets' [value]='dataSet.id'>
-            {{dataSet.label}} ({{dataSet.date | date:'short'}})
+            {{dataSet.label}} - {{dataSet.features.length}} features ({{dataSet.date | date:'short'}})
           </ion-select-option>
         </ion-select>
       </ng-container>

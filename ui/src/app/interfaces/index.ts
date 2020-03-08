@@ -7,6 +7,7 @@ export interface DataSets {
     date: Date;
     id: string;
     label: string;
+    features: string[];
 }
 
 export interface Jobs {

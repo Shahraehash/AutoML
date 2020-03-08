@@ -119,11 +119,11 @@ def train(jobid):
 
     dataset_folder = 'data/users/' + g.uid + '/datasets/' + metadata['datasetid']
 
-    with open(dataset_folder + '/label.txt') as label:
-        label_column = label.read()
+    with open(dataset_folder + '/metadata.json') as metafile:
+        dataset_metadata = json.load(metafile)
 
     task = queue_training.s(
-        g.uid, jobid.urn[9:], label_column, parameters
+        g.uid, jobid.urn[9:], dataset_metadata['label'], parameters
     ).apply_async()
 
     return jsonify({
@@ -192,15 +192,15 @@ def refit(jobid):
 
     dataset_folder = 'data/users/' + g.uid + '/datasets/' + metadata['datasetid']
 
-    with open(dataset_folder + '/label.txt') as label:
-        label_column = label.read()
+    with open(dataset_folder + '/metadata.json') as metafile:
+        dataset_metadata = json.load(metafile)
 
     generalization_result = create_model(
         request.form['key'],
         ast.literal_eval(request.form['parameters']),
         ast.literal_eval(request.form['features']),
         dataset_folder,
-        label_column,
+        dataset_metadata['label'],
         job_folder
     )
 
