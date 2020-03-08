@@ -68,3 +68,9 @@ ion-content {
     overflow-y: scroll;
   }
 }
+
+@media(max-height: 600px) {
+  .modal-only {
+    display: initial !important;
+  }  
+}
