@@ -3,6 +3,7 @@ API methods for getting data from Celery tasks
 """
 
 import ast
+import json
 
 from flask import abort, g, jsonify
 
@@ -31,9 +32,16 @@ def pending():
                     args = ast.literal_eval(task['request']['args'])
                 except ValueError:
                     continue
+
+                job_folder = 'data/users/' + g.uid + '/jobs/' + args[1]
+
+                with open(job_folder + '/metadata.json') as metafile:
+                    metadata = json.load(metafile)
+
                 scheduled.append({
                     'id': task['request']['id'],
                     'eta': task['eta'],
+                    'datasetid': metadata['datasetid'],
                     'jobid': args[1],
                     'label': args[2],
                     'parameters': args[3],
@@ -51,9 +59,16 @@ def pending():
                     args = ast.literal_eval(task['args'])
                 except ValueError:
                     continue
+
+                job_folder = 'data/users/' + g.uid + '/jobs/' + args[1]
+
+                with open(job_folder + '/metadata.json') as metafile:
+                    metadata = json.load(metafile)
+
                 task_status = get_task_status(task['id'])
                 task_status.update({
                     'id': task['id'],
+                    'datasetid': metadata['datasetid'],
                     'jobid': args[1],
                     'label': args[2],
                     'parameters': args[3],
