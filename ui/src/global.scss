@@ -40,6 +40,10 @@
   height: 100%;
 }
 
+.test-modal {
+  --min-width: 60%;
+}
+
 .wide-modal {
   --width: 90%;
   --max-width: 1000px;

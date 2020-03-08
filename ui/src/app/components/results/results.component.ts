@@ -291,7 +291,7 @@ export class ResultsComponent implements OnInit {
       async (reply: {generalization: RefitGeneralization}) => {
         const modal = await this.modalController.create({
           component: UseModelComponent,
-          cssClass: 'test-model',
+          cssClass: 'test-modal',
           componentProps: {
             features: this.sortedData[index].selected_features,
             generalization: reply.generalization

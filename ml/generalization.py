@@ -31,6 +31,7 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
     f1 = f1_score(y2, predictions, average='macro')
     sensitivity = tp / (tp+fn)
     specificity = tn / (tn+fp)
+    prevalence = (tp + fn) / (len(y2))
     print('\t\tSensitivity:', sensitivity)
     print('\t\tSpecificity:', specificity)
     print('\t\tF1:', f1, '\n')
@@ -45,6 +46,8 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
         'sn_95_ci': clopper_pearson(tp, tp+fn),
         'specificity': round(specificity, 4),
         'sp_95_ci': clopper_pearson(tn, tn+fp),
+        'prevalence': round(prevalence, 4),
+        'pr_95_ci': clopper_pearson(tp+fn, len(y2)),
         'ppv': round(tp / (tp+fp), 4) if tp+fp > 0 else 0,
         'npv': round(tn / (tn+fn), 4) if tn+fn > 0 else 0,
         'tn': int(tn),
