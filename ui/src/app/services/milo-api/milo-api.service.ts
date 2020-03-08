@@ -11,7 +11,8 @@ import {
   PendingTasks,
   PublishedModels,
   TestReply,
-  Results
+  Results,
+  RefitGeneralization
 } from '../../interfaces';
 import { environment } from '../../../environments/environment';
 
@@ -117,7 +118,7 @@ export class MiloApiService {
   }
 
   getModelFeatures(model: string) {
-    return this.request<string>('get', `/published/${model}/features`);
+    return this.request<{features: string; generalization: RefitGeneralization}>('get', `/published/${model}/features`);
   }
 
   createModel(formData) {

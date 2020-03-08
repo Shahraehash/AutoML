@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
+import { RefitGeneralization } from '../../interfaces';
 
 @Component({
   selector: 'app-run-model',
@@ -11,6 +12,7 @@ import { MiloApiService } from '../../services/milo-api/milo-api.service';
 export class RunModelPage {
   id: string;
   features: string;
+  generalization: RefitGeneralization;
   error = false;
 
   constructor(
@@ -20,9 +22,10 @@ export class RunModelPage {
     this.route.params.subscribe(async params => {
       this.id = params.id;
       (await this.api.getModelFeatures(this.id)).subscribe(
-        features => {
+        reply => {
           this.error = false;
-          this.features = features;
+          this.features = reply.features;
+          this.generalization = reply.generalization;
         },
         () => this.error = true
       );

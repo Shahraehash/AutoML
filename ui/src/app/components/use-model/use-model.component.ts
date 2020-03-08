@@ -5,7 +5,7 @@ import { parse, unparse } from 'papaparse';
 import { finalize } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
-import { TestReply } from '../../interfaces';
+import { RefitGeneralization, TestReply } from '../../interfaces';
 
 @Component({
   selector: 'app-use-model',
@@ -14,10 +14,12 @@ import { TestReply } from '../../interfaces';
 })
 export class UseModelComponent implements OnInit {
   @Input() features: string;
+  @Input() generalization: RefitGeneralization;
   @Input() publishName: string;
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
+  isDragging = false;
 
   constructor(
     private api: MiloApiService,
@@ -55,12 +57,17 @@ export class UseModelComponent implements OnInit {
     );
   }
 
-  async batchTest(event) {
-    if (!event.target.files.length) {
+  async batchTest(event, type?) {
+    event.preventDefault();
+    this.endDrag();
+
+    const files = type === 'drop' ? event.dataTransfer.files : event.target.files;
+
+    if (!files.length) {
       return;
     }
 
-    if (event.target.files.length > 1) {
+    if (files.length > 1) {
       event.target.value = '';
       this.showError('Only one file may be selected at a time.');
       return;
@@ -71,7 +78,7 @@ export class UseModelComponent implements OnInit {
     });
     await loading.present();
 
-    const file = event.target.files[0];
+    const file = files[0];
     parse(file, {
       dynamicTyping: true,
       worker: true,
@@ -124,6 +131,17 @@ export class UseModelComponent implements OnInit {
 
   async exportPMML() {
     window.open(await (this.publishName ? this.api.exportPublishedPMML(this.publishName) : this.api.exportPMML()), '_self');
+  }
+
+  startDrag(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.isDragging = true;
+  }
+
+  endDrag() {
+    this.isDragging = false;
   }
 
   private async showError(message: string) {
