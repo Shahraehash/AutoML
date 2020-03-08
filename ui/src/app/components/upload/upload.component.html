@@ -9,12 +9,12 @@
       <label class='file-input'>
         <ion-icon *ngIf='uploadForm.get("train").valid' name='checkmark-circle' color='success'></ion-icon>
         Select Training Data
-        <input type='file' name='train' (change)='onFileSelect($event)'>
+        <input type='file' name='train' (change)='onFileSelect($event)' accept='.csv, text/csv'>
       </label>
       <label class='file-input'>
         <ion-icon *ngIf='uploadForm.get("test").valid' name='checkmark-circle' color='success'></ion-icon>
         Select Testing Data (Generalization)
-        <input type='file' name='test' (change)='onFileSelect($event)' [disabled]='!uploadForm.get("train").valid'>
+        <input type='file' name='test' (change)='onFileSelect($event)' [disabled]='!uploadForm.get("train").valid' accept='.csv, text/csv'>
       </label>
       <ion-select class='target-select' placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column'>
         <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
