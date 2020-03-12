@@ -281,7 +281,7 @@ export class ResultsComponent implements OnInit {
   }
 
   async launchModel(index: number) {
-    this.presentLoading();
+    await this.presentLoading();
     const formData = new FormData();
     formData.append('key', this.sortedData[index].key);
     formData.append('parameters', this.sortedData[index].best_params);
