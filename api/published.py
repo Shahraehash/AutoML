@@ -60,6 +60,27 @@ def delete(name):
 
     return jsonify({'success': True})
 
+def rename(name):
+    """Renames a published model"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(400)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if name not in published:
+        abort(400)
+        return
+
+    published[request.get_json()['name']] = published.pop(name)
+
+    with open(PUBLISHED_MODELS, 'w') as published_file:
+        json.dump(published, published_file)
+
+    return jsonify({'success': True})
+
 def test(name):
     """Tests the published model against the provided data"""
 

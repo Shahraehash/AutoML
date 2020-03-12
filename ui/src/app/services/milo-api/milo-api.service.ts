@@ -141,6 +141,12 @@ export class MiloApiService {
     return this.request('delete', '/published/' + name);
   }
 
+  renamePublishedModel(name: string, newName: string) {
+    return this.request('post', `/published/${name}/rename`, {
+      name: newName
+    });
+  }
+
   testPublishedModel(data, publishName) {
     return this.request<TestReply>(
       'post',

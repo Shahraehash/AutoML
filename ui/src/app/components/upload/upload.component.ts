@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, Output, OnInit, OnDestroy }
 import { DatePipe } from '@angular/common';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AlertController, LoadingController } from '@ionic/angular';
+import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { parse } from 'papaparse';
 import { Observable, ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -40,7 +40,8 @@ export class UploadComponent implements OnInit, OnDestroy {
     private datePipe: DatePipe,
     private element: ElementRef,
     private formBuilder: FormBuilder,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private toastController: ToastController
   ) {
     this.uploadForm = this.formBuilder.group({
       label_column: ['', Validators.required],
@@ -142,10 +143,20 @@ export class UploadComponent implements OnInit, OnDestroy {
       message: 'Please select one of the following options:',
       buttons: [
         { text: 'Dismiss' },
-        { text: 'Delete', handler: async _ => {
-          await alert.dismiss();
-          this.deletePublished(model.key);
-        } },
+        {
+          text: 'Delete',
+          handler: async _ => {
+            await alert.dismiss();
+            this.deletePublished(model.key);
+          }
+        },
+        {
+          text: 'Rename',
+          handler: async _ => {
+            await alert.dismiss();
+            this.renamePublished(model);
+          }
+        },
         { text: 'Open', handler: _ => setTimeout(() => window.open('/model/' + model.key, '_blank'), 1) }
       ]
     });
@@ -177,6 +188,43 @@ export class UploadComponent implements OnInit, OnDestroy {
     await alert.present();
   }
 
+  async renamePublished(model) {
+    const alert = await this.alertController.create({
+      inputs: [{
+        type: 'text',
+        name: 'name',
+        placeholder: 'Enter the name of your model'
+      }],
+      buttons: [
+        'Dismiss',
+        {
+          text: 'Submit',
+          handler: async data => {
+            if (!data.name || !data.name.match(/^[!#$&-;=?-[\]_a-z~]+$/)) {
+              this.showError('Invalid characters detected, please use an alphanumeric name.');
+              return false;
+            }
+
+            const loading = await this.loadingController.create({
+              message: 'Renaming published model...'
+            });
+            await loading.present();
+            try {
+              await (await this.api.renamePublishedModel(model.key, data.name)).toPromise();
+              this.updateView();
+            } catch(err) {
+              this.showError(`Unable to rename the model ${model.key}.`)
+            }
+            await loading.dismiss();
+          }
+        }
+      ],
+      header: `Rename ${model.key}`,
+      message: 'Enter a new name below to rename the model'
+    });
+    await alert.present();
+  }
+
   reset() {
     this.element.nativeElement.querySelectorAll('input[type="file"]').forEach(node => node.value = '');
     this.uploadForm.reset();
@@ -188,5 +236,10 @@ export class UploadComponent implements OnInit, OnDestroy {
     );
 
     (await this.api.getPublishedModels()).subscribe(data => this.publishedModels = data);
+  }
+
+  private async showError(message: string) {
+    const toast = await this.toastController.create({message, duration: 2000});
+    return toast.present();
   }
 }
