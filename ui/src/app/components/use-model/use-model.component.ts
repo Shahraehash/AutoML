@@ -87,6 +87,9 @@ export class UseModelComponent implements OnInit {
       complete: async reply => {
         let observable;
         const header = reply.data.shift();
+        header.forEach((element, index, arr) => {
+          arr[index] = element.trim();
+        });
 
         event.target.value = '';
 
