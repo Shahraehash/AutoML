@@ -26,7 +26,8 @@ PARAMETERS = dict(
     ignore_scaler=os.getenv('IGNORE_SCALER', ''),
     ignore_searcher=os.getenv('IGNORE_SEARCHER', ''),
     ignore_shuffle=os.getenv('IGNORE_SHUFFLE', ''),
-    ignore_scorer=os.getenv('IGNORE_SCORER', '')
+    ignore_scorer=os.getenv('IGNORE_SCORER', ''),
+    hyper_parameters=os.getenv('CUSTOM_HYPER_PARAMETERS', '')
 )
 
 search.find_best_model(TRAIN_SET, TEST_SET, LABELS, LABEL_COLUMN, PARAMETERS)
