@@ -3,10 +3,10 @@ Generalization of a provided model using a secondary test set.
 """
 
 from sklearn.metrics import roc_auc_score, accuracy_score,\
-    confusion_matrix, classification_report, f1_score
+    confusion_matrix, classification_report, f1_score, roc_curve
 
 from .preprocess import preprocess
-from .stats import clopper_pearson
+from .stats import clopper_pearson, roc_auc_ci
 
 def generalize(features, model, pipeline, x2, y2, labels=None):
     """"Generalize method"""
@@ -14,6 +14,7 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
     # Process test data based on pipeline
     x2 = preprocess(features, pipeline, x2)
     predictions = model.predict(x2)
+    probabilities = model.predict_proba(x2)[:, 1]
     print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
 
     print('\tGeneralization:')
@@ -24,8 +25,10 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
     auc = roc_auc_score(y2, predictions)
     print('\t\tBinary AUC:', auc)
 
-    roc_auc = roc_auc_score(y2, model.predict_proba(x2)[:, 1])
+    roc_auc = roc_auc_score(y2, probabilities)
     print('\t\tROC AUC:', roc_auc)
+
+    _, tpr, _ = roc_curve(y2, probabilities)
 
     tn, fp, fn, tp = confusion_matrix(y2, predictions).ravel()
     f1 = f1_score(y2, predictions, average='macro')
@@ -41,6 +44,7 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
         'acc_95_ci': clopper_pearson(tp+tn, len(y2)),
         'avg_sn_sp': round(auc, 4),
         'roc_auc': round(roc_auc, 4),
+        'roc_auc_95_ci': roc_auc_ci(roc_auc, tpr),
         'f1': round(f1, 4),
         'sensitivity': round(sensitivity, 4),
         'sn_95_ci': clopper_pearson(tp, tp+fn),
