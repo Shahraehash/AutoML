@@ -59,7 +59,7 @@
         padding-left: 8px;
     }
 
-    .active {
+    .active > td:not(.mat-column-select) {
         background: #ccc;
     }
 
@@ -89,7 +89,7 @@
     grid-gap: 10px;
 }
 
-.details-button {
+.details-button, .selected-button {
     float: right;
     margin-top: 20px;
 }

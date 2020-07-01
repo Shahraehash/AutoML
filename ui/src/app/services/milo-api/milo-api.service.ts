@@ -179,6 +179,18 @@ export class MiloApiService {
     return this.request<PublishedModels>('get', `/published`);
   }
 
+  async getStarredModels() {
+    return await (await this.request<string[]>('get', `/jobs/${this.currentJobId}/star-models`)).toPromise();
+  }
+
+  async starModels(models: string[]) {
+    return await (await this.request<void>('post', `/jobs/${this.currentJobId}/star-models`, {models})).toPromise();
+  }
+
+  async unStarModels(models: string[]) {
+    return await (await this.request<void>('post', `/jobs/${this.currentJobId}/un-star-models`, {models})).toPromise();
+  }
+
   async exportCSV() {
     return `${environment.apiUrl}/jobs/${this.currentJobId}/export?${await this.getURLAuth()}`;
   }

@@ -271,3 +271,68 @@ def export_model(jobid):
         return
 
     return send_file(folder + '/pipeline.joblib', as_attachment=True, cache_timeout=-1)
+
+def star_models(jobid):
+    """Marks the selected models as starred"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    if os.path.exists(folder + '/starred.json'):
+        with open(folder + '/starred.json') as starred_file:
+            starred = json.load(starred_file)
+    else:
+        starred = []
+
+    starred = list(set(starred + request.get_json()['models']))
+
+    with open(folder + '/starred.json', 'w') as starred_file:
+        json.dump(starred, starred_file)
+
+    return jsonify({'success': True})
+
+def un_star_models(jobid):
+    """Removes the selected models as starred models"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/starred.json'):
+        return jsonify({'success': True})
+
+    with open(folder + '/starred.json') as starred_file:
+        starred = json.load(starred_file)
+
+    for item in request.get_json()['models']:
+        try:
+            starred.remove(item)
+        except Exception:
+            continue
+
+    with open(folder + '/starred.json', 'w') as starred_file:
+        json.dump(starred, starred_file)
+
+    return jsonify({'success': True})
+
+def get_starred(jobid):
+    """Get the starred models for a job"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/starred.json'):
+        return abort(404)
+
+    with open(folder + '/starred.json') as starred_file:
+        starred = json.load(starred_file)
+
+    return jsonify(starred)

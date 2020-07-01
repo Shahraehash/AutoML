@@ -1,0 +1,5 @@
+<ion-list lines='none'>
+  <ion-item button (click)='starModels()'>Star All Models</ion-item>
+  <ion-item button (click)='unStarModels()'>Un-Star All Models</ion-item>
+  <ion-item button *ngIf='supportsTandem()' (click)='popoverController.dismiss("tandem")'>Create Tandem Model</ion-item>
+</ion-list>

@@ -1,14 +1,16 @@
+import { SelectionModel } from '@angular/cdk/collections';
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
+import { AlertController, LoadingController, ModalController, ToastController, PopoverController } from '@ionic/angular';
 import * as saveSvgAsPng from 'save-svg-as-png';
 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { GeneralizationResult, MetaData, RefitGeneralization } from '../../interfaces';
+import { MultiSelectMenuComponent } from '../multi-select-menu/multi-select-menu.component';
 import { TrainComponent } from '../train/train.component';
 import { UseModelComponent } from '../use-model/use-model.component';
 
@@ -27,6 +29,8 @@ export class ResultsComponent implements OnInit {
   sortedData: GeneralizationResult[];
   trainingRocData;
   results: MatTableDataSource<GeneralizationResult>;
+  selection = new SelectionModel<GeneralizationResult>(true, []);
+  starred: string[];
   columns: {key: string; class?: string, name: string; number?: boolean, hideOnWidth?: number}[] = [
     {
       key: 'algorithm',
@@ -110,6 +114,7 @@ export class ResultsComponent implements OnInit {
     private loadingController: LoadingController,
     private modalController: ModalController,
     private toastController: ToastController,
+    private popoverController: PopoverController
   ) {
     this.filterForm = this.formBuilder.group({
       query: new FormControl(''),
@@ -143,10 +148,12 @@ export class ResultsComponent implements OnInit {
         await alert.present();
       }
     );
+
+    this.updateStarredModels();
   }
 
   getColumns() {
-    return this.columns.filter(c => !c.hideOnWidth || window.innerWidth > c.hideOnWidth).map(c => c.key);
+    return ['select', 'star', ...this.columns.filter(c => !c.hideOnWidth || window.innerWidth > c.hideOnWidth).map(c => c.key)];
   }
 
   getFilterColumns() {
@@ -154,6 +161,12 @@ export class ResultsComponent implements OnInit {
   }
 
   filter(value, filter) {
+    if (filter === 'starred') {
+      return this.starred.includes(value.key);
+    } else if (filter === 'un-starred') {
+      return !this.starred.includes(value.key);
+    }
+
     const group = this.filterForm.get('group').value;
     let dataStr;
 
@@ -164,13 +177,53 @@ export class ResultsComponent implements OnInit {
     } else {
       dataStr = value[group].toLowerCase();
     }
-    const transformedFilter = filter.trim().toLowerCase();
 
-    return dataStr.indexOf(transformedFilter) !== -1;
+
+    return dataStr.indexOf(filter.trim().toLowerCase()) !== -1;
   }
 
   applyFilter() {
     this.results.filter = this.filterForm.get('query').value;
+  }
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.sortedData.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    this.isAllSelected() ?
+        this.selection.clear() :
+        this.sortedData.forEach(row => this.selection.select(row));
+  }
+
+  /** The label for the checkbox on the passed row */
+  checkboxLabel(row?: GeneralizationResult): string {
+    if (!row) {
+      return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
+    }
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.key}`;
+  }
+
+  async toggleStar(key) {
+    await (this.starred.includes(key) ? this.api.unStarModels : this.api.starModels).call(this.api, [key]);
+    await this.updateStarredModels();
+  }
+
+  toggleStarFilter() {
+    switch (this.results.filter) {
+      case 'starred':
+        this.results.filter = 'un-starred';
+        break;
+      case 'un-starred':
+        this.results.filter = '';
+        break;
+      default:
+        this.results.filter = 'starred';
+    }
   }
 
   parse(object: GeneralizationResult, mode) {
@@ -389,6 +442,21 @@ export class ResultsComponent implements OnInit {
     await modal.present();
   }
 
+  async openSelectedOptions(event) {
+    const popover = await this.popoverController.create({
+      component: MultiSelectMenuComponent,
+      componentProps: {
+        selected: this.selection.selected
+      },
+      event
+    });
+    await popover.present();
+    const { data } = await popover.onWillDismiss();
+    if (data && data.starred) {
+      await this.updateStarredModels();
+    }
+  }
+
   saveCurves() {
     document.querySelectorAll('app-roc-chart').forEach(ele => {
       const name = ele.getAttribute('mode');
@@ -404,6 +472,18 @@ export class ResultsComponent implements OnInit {
       }
     });
     return area.toFixed(4);
+  }
+
+  private async updateStarredModels() {
+    try {
+      this.starred = await this.api.getStarredModels();
+    } catch (err) {
+      this.starred = [];
+    }
+
+    if (['starred', 'un-starred'].includes(this.results?.filter)) {
+      this.results.filter = this.results.filter;
+    }
   }
 
   private async presentLoading() {
