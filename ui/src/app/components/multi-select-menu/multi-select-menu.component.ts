@@ -39,6 +39,10 @@ export class MultiSelectMenuComponent {
     await this.close({starred});
   }
 
+  async createTandemModel() {
+    
+  }
+
   private async close(data) {
     await this.popoverController.dismiss(data);
   }
