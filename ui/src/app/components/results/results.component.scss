@@ -48,6 +48,10 @@
         &:last-of-type {
             pointer-events: none;
         }
+
+        &.mat-column-star {
+          font-size: 14px;
+        }
     }
 
     
