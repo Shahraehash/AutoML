@@ -129,6 +129,10 @@ export class MiloApiService {
     );
   }
 
+  async createTandemModel(formData) {
+    return await (await this.request('post', `/jobs/${this.currentJobId}/tandem`, formData)).toPromise();
+  }
+
   publishModel(name, formData) {
     return this.request(
       'post',

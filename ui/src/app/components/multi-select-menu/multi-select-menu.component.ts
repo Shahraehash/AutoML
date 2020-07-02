@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { GeneralizationResult } from 'src/app/interfaces';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, LoadingController, AlertController, ToastController } from '@ionic/angular';
 
 import { MiloApiService } from '../../services';
 
@@ -12,7 +12,9 @@ import { MiloApiService } from '../../services';
 export class MultiSelectMenuComponent {
   @Input() selected: GeneralizationResult[];
   constructor(
-    public popoverController: PopoverController,
+    private toastController: ToastController,
+    private popoverController: PopoverController,
+    private loadingController: LoadingController,
     private api: MiloApiService
   ) {}
 
@@ -21,8 +23,7 @@ export class MultiSelectMenuComponent {
       return false;
     }
 
-    const npvModel = this.selected.find(item => item.npv >= .95);
-    const ppvModel = this.selected.find(item => item.ppv >= .95);
+    const { npvModel, ppvModel } = this.getNamedTandem();
 
     return npvModel && ppvModel && npvModel !== ppvModel;
   }
@@ -40,10 +41,42 @@ export class MultiSelectMenuComponent {
   }
 
   async createTandemModel() {
-    
+    const loading = await this.loadingController.create();
+    await loading.present();
+
+    const { npvModel, ppvModel } = this.getNamedTandem();
+
+    const formData = new FormData();
+
+    formData.append('npv_key', npvModel.key);
+    formData.append('npv_parameters', npvModel.best_params);
+    formData.append('npv_features', npvModel.selected_features);
+
+    formData.append('ppv_key', ppvModel.key);
+    formData.append('ppv_parameters', ppvModel.best_params);
+    formData.append('ppv_features', ppvModel.selected_features);
+
+    try {
+      await this.api.createTandemModel(formData);
+    } catch (err) {
+      await this.showError('Unable to create tandem model');
+    }
+
+    await loading.dismiss();
+    await this.close();
   }
 
-  private async close(data) {
+  private async close(data?) {
     await this.popoverController.dismiss(data);
+  }
+
+  private getNamedTandem() {
+    const npvModel = this.selected.find(item => item.npv >= .95);
+    const ppvModel = this.selected.find(item => item.ppv >= .95);
+    return {npvModel, ppvModel};
+  }
+
+  private async showError(message: string) {
+    await (await this.toastController.create({message, duration: 5000})).present();
   }
 }

@@ -7,7 +7,7 @@ import os
 import json
 import time
 import uuid
-from shutil import rmtree
+from shutil import copyfile, rmtree
 
 from flask import abort, g, jsonify, request, send_file, url_for
 import pandas as pd
@@ -206,6 +206,54 @@ def refit(jobid):
 
     return jsonify({'generalization': generalization_result})
 
+def tandem(jobid):
+    """Create a static copy of the two selected models to be used in tandem"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    job_folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    with open(job_folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    dataset_folder = 'data/users/' + g.uid + '/datasets/' + metadata['datasetid']
+
+    with open(dataset_folder + '/metadata.json') as metafile:
+        dataset_metadata = json.load(metafile)
+
+    npv_generalization_result = create_model(
+        request.form['npv_key'],
+        ast.literal_eval(request.form['npv_parameters']),
+        ast.literal_eval(request.form['npv_features']),
+        dataset_folder,
+        dataset_metadata['label'],
+        job_folder
+    )
+
+    copyfile(job_folder + '/pipeline.joblib', job_folder + '/tandem_npv.joblib')
+    copyfile(job_folder + '/pipeline.pmml', job_folder + '/tandem_npv.pmml')
+    copyfile(job_folder + '/pipeline.json', job_folder + '/tandem_npv.json')
+
+    ppv_generalization_result = create_model(
+        request.form['ppv_key'],
+        ast.literal_eval(request.form['ppv_parameters']),
+        ast.literal_eval(request.form['ppv_features']),
+        dataset_folder,
+        dataset_metadata['label'],
+        job_folder
+    )
+
+    copyfile(job_folder + '/pipeline.joblib', job_folder + '/tandem_ppv.joblib')
+    copyfile(job_folder + '/pipeline.pmml', job_folder + '/tandem_ppv.pmml')
+    copyfile(job_folder + '/pipeline.json', job_folder + '/tandem_ppv.json')
+
+    return jsonify({
+      'npv_generalization': npv_generalization_result,
+      'ppv_generalization_result': ppv_generalization_result
+    })
+
 def test(jobid):
     """Tests the selected model against the provided data"""
 
@@ -226,6 +274,32 @@ def test(jobid):
     reply['target'] = metadata['label']
 
     return jsonify(reply)
+
+def test_tandem(jobid):
+    """Tests the selected tandem model against the provided data"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    with open(folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    npv_reply = predict(
+        json.loads(request.data),
+        folder + '/tandem_npv'
+    )
+
+    ppv_reply = predict(
+        json.loads(request.data),
+        folder + '/tandem_ppv'
+    )
+
+    return jsonify({
+      'target': metadata['label']
+    })
 
 def export(jobid):
     """Export the results CSV"""

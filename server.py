@@ -76,6 +76,8 @@ APP.add_url_rule('/jobs/<uuid:jobid>/train', 'jobs-train', jobs.train, methods=[
 APP.add_url_rule('/jobs/<uuid:jobid>/result', 'jobs-result', jobs.result)
 APP.add_url_rule('/jobs/<uuid:jobid>/refit', 'jobs-refit', jobs.refit, methods=['POST'])
 APP.add_url_rule('/jobs/<uuid:jobid>/test', 'jobs-test', jobs.test, methods=['POST'])
+APP.add_url_rule('/jobs/<uuid:jobid>/tandem', 'jobs-tandem', jobs.tandem, methods=['POST'])
+APP.add_url_rule('/jobs/<uuid:jobid>/test-tandem', 'jobs-test-tandem', jobs.test_tandem, methods=['POST'])
 APP.add_url_rule('/jobs/<uuid:jobid>/pipelines', 'jobs-pipelines', jobs.get_pipelines)
 APP.add_url_rule('/jobs/<uuid:jobid>/export', 'jobs-export', jobs.export)
 APP.add_url_rule('/jobs/<uuid:jobid>/export-pmml', 'jobs-export-pmml', jobs.export_pmml)
