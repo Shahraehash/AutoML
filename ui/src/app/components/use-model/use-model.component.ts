@@ -60,10 +60,10 @@ export class UseModelComponent implements OnInit {
   }
 
   async testTandemModel() {
-    await this.api.testTandemModel({
+    this.result = await this.api.testTandemModel({
       data: [this.testForm.get('inputs').value],
       features: this.parsedFeatures
-    })
+    });
   }
 
   async batchTest(event, type?) {

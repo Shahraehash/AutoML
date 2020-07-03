@@ -313,7 +313,7 @@ def test_tandem(jobid):
         folder + '/tandem_ppv'
     ))
 
-    ppv_reply['predicted'] = ppv_reply.apply(lambda row: row['predicted'] if row['predicted'] > 0 else '?', axis=1)
+    ppv_reply['predicted'] = ppv_reply.apply(lambda row: row['predicted'] if row['predicted'] > 0 else -1, axis=1)
     npv_reply['predicted'] = npv_reply.apply(lambda row: ppv_reply.iloc[row.name]['predicted'] if row['predicted'] > 0 else row['predicted'], axis=1)
 
     return jsonify({

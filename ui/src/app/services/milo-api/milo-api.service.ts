@@ -169,7 +169,7 @@ export class MiloApiService {
 
 
   async testTandemModel(data) {
-    return await (await this.request(
+    return await (await this.request<TestReply>(
       'post',
       `/jobs/${this.currentJobId}/test-tandem`,
       data
