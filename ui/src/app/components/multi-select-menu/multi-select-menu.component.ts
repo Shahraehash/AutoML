@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { GeneralizationResult } from 'src/app/interfaces';
-import { PopoverController, LoadingController, AlertController, ToastController } from '@ionic/angular';
+import { PopoverController, LoadingController, ToastController, ModalController } from '@ionic/angular';
 
 import { MiloApiService } from '../../services';
+import { GeneralizationResult } from '../../interfaces';
+import { UseModelComponent } from '../use-model/use-model.component';
 
 @Component({
   selector: 'app-multi-select-menu',
@@ -15,6 +16,7 @@ export class MultiSelectMenuComponent {
     private toastController: ToastController,
     private popoverController: PopoverController,
     private loadingController: LoadingController,
+    private modalController: ModalController,
     private api: MiloApiService
   ) {}
 
@@ -60,10 +62,25 @@ export class MultiSelectMenuComponent {
       await this.api.createTandemModel(formData);
     } catch (err) {
       await this.showError('Unable to create tandem model');
+      return;
+    } finally {
+      await loading.dismiss();
+      await this.close();
     }
 
-    await loading.dismiss();
-    await this.close();
+    const features = JSON.stringify(
+      [...new Set(
+        this.parseFeatures(npvModel.selected_features).concat(this.parseFeatures(ppvModel.selected_features))
+      )]
+    );
+
+    const modal = await this.modalController.create({
+      component: UseModelComponent,
+      cssClass: 'test-modal',
+      componentProps: {features, type: 'tandem'}
+    });
+
+    await modal.present();
   }
 
   private async close(data?) {
@@ -74,6 +91,10 @@ export class MultiSelectMenuComponent {
     const npvModel = this.selected.find(item => item.npv >= .95);
     const ppvModel = this.selected.find(item => item.ppv >= .95);
     return {npvModel, ppvModel};
+  }
+
+  private parseFeatures(features) {
+    return JSON.parse(features.replace(/'/g, '"'));
   }
 
   private async showError(message: string) {

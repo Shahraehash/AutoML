@@ -16,6 +16,7 @@ export class UseModelComponent implements OnInit {
   @Input() features: string;
   @Input() generalization: RefitGeneralization;
   @Input() publishName: string;
+  @Input() type: string;
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
@@ -56,6 +57,13 @@ export class UseModelComponent implements OnInit {
         this.result = undefined;
       }
     );
+  }
+
+  async testTandemModel() {
+    await this.api.testTandemModel({
+      data: [this.testForm.get('inputs').value],
+      features: this.parsedFeatures
+    })
   }
 
   async batchTest(event, type?) {

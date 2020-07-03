@@ -167,6 +167,15 @@ export class MiloApiService {
     );
   }
 
+
+  async testTandemModel(data) {
+    return await (await this.request(
+      'post',
+      `/jobs/${this.currentJobId}/test-tandem`,
+      data
+    )).toPromise();
+  }
+
   getPendingTasks() {
     return this.request<PendingTasks>('get', `/tasks`);
   }

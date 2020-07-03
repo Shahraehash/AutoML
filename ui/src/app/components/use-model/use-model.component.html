@@ -61,7 +61,7 @@
             confidence in the prediction.
           </p>
         </div>
-        <app-model-statistics [generalization]='generalization'></app-model-statistics>
+        <app-model-statistics *ngIf='!type' [generalization]='generalization'></app-model-statistics>
       </div>
       <div class='inputs ion-padding' formArrayName='inputs'>
         <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
@@ -72,7 +72,7 @@
       </div>
     </div>
 
-    <ion-button expand='block' (click)='testModel()' color='primary' fill='solid' class='submit'
+    <ion-button expand='block' (click)='type === "tandem" ? testTandemModel() : testModel()' color='primary' fill='solid' class='submit'
       [disabled]='!testForm.valid'>Predict</ion-button>
   </ng-container>
 
@@ -82,7 +82,7 @@
       <div class='ion-padding ion-text-center batch-details'>
         Drag and drop your CSV or select the button below to open a file picker.
 
-        <app-model-statistics [generalization]='generalization'></app-model-statistics>
+        <app-model-statistics *ngIf='!type' [generalization]='generalization'></app-model-statistics>
       </div>
     </div>
     <ion-button expand='block' color='primary' fill='solid' (click)='fileInput.click()'>

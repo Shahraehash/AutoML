@@ -232,6 +232,9 @@ def tandem(jobid):
         job_folder
     )
 
+    with open(job_folder + '/tandem_npv_features.json', 'w') as npv_features:
+        json.dump(ast.literal_eval(request.form['npv_features']), npv_features)
+
     copyfile(job_folder + '/pipeline.joblib', job_folder + '/tandem_npv.joblib')
     copyfile(job_folder + '/pipeline.pmml', job_folder + '/tandem_npv.pmml')
     copyfile(job_folder + '/pipeline.json', job_folder + '/tandem_npv.json')
@@ -245,13 +248,16 @@ def tandem(jobid):
         job_folder
     )
 
+    with open(job_folder + '/tandem_ppv_features.json', 'w') as ppv_features:
+        json.dump(ast.literal_eval(request.form['ppv_features']), ppv_features)
+
     copyfile(job_folder + '/pipeline.joblib', job_folder + '/tandem_ppv.joblib')
     copyfile(job_folder + '/pipeline.pmml', job_folder + '/tandem_ppv.pmml')
     copyfile(job_folder + '/pipeline.json', job_folder + '/tandem_ppv.json')
 
     return jsonify({
-      'npv_generalization': npv_generalization_result,
-      'ppv_generalization_result': ppv_generalization_result
+        'npv_generalization': npv_generalization_result,
+        'ppv_generalization_result': ppv_generalization_result
     })
 
 def test(jobid):
@@ -287,18 +293,29 @@ def test_tandem(jobid):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    npv_reply = predict(
-        json.loads(request.data),
-        folder + '/tandem_npv'
-    )
+    with open(folder + '/tandem_npv_features.json') as feature_file:
+        npv_features = json.load(feature_file)
 
-    ppv_reply = predict(
-        json.loads(request.data),
+    payload = json.loads(request.data)
+    data = pd.DataFrame(payload['data'], columns=payload['features'])
+
+    npv_reply = pd.DataFrame(predict(
+        data[npv_features].to_numpy(),
+        folder + '/tandem_npv'
+    ))
+
+    with open(folder + '/tandem_ppv_features.json') as feature_file:
+        ppv_features = json.load(feature_file)
+
+    ppv_reply = pd.DataFrame(predict(
+        data[ppv_features].to_numpy(),
         folder + '/tandem_ppv'
-    )
+    ))
+
+    print(npv_reply, ppv_reply)
 
     return jsonify({
-      'target': metadata['label']
+        'target': metadata['label']
     })
 
 def export(jobid):
