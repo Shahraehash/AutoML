@@ -55,12 +55,6 @@ export class ResultsComponent implements OnInit {
       number: true
     },
     {
-      key: 'f1',
-      name: 'F1',
-      hideOnWidth: 600,
-      number: true
-    },
-    {
       key: 'sensitivity',
       name: 'Sensitivity',
       hideOnWidth: 600,
@@ -69,6 +63,18 @@ export class ResultsComponent implements OnInit {
     {
       key: 'specificity',
       name: 'Specificity',
+      hideOnWidth: 600,
+      number: true
+    },
+    {
+      key: 'npv',
+      name: 'NPV',
+      hideOnWidth: 600,
+      number: true
+    },
+    {
+      key: 'ppv',
+      name: 'PPV',
       hideOnWidth: 600,
       number: true
     },
