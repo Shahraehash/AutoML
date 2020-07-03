@@ -10,6 +10,7 @@ import uuid
 from shutil import copyfile, rmtree
 
 from flask import abort, g, jsonify, request, send_file, url_for
+from numpy.lib.financial import npv
 import pandas as pd
 
 from ml.create_model import create_model
@@ -312,10 +313,13 @@ def test_tandem(jobid):
         folder + '/tandem_ppv'
     ))
 
-    print(npv_reply, ppv_reply)
+    ppv_reply['predicted'] = ppv_reply.apply(lambda row: row['predicted'] if row['predicted'] > 0 else '?', axis=1)
+    npv_reply['predicted'] = npv_reply.apply(lambda row: ppv_reply.iloc[row.name]['predicted'] if row['predicted'] > 0 else row['predicted'], axis=1)
 
     return jsonify({
-        'target': metadata['label']
+      'predicted': npv_reply['predicted'].to_list(),
+      'probability': npv_reply['probability'].to_list(),
+      'target': metadata['label']
     })
 
 def export(jobid):
