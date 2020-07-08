@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { parse, unparse } from 'papaparse';
+import { of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
@@ -110,6 +111,11 @@ export class UseModelComponent implements OnInit {
 
         if (this.publishName) {
           observable = await this.api.testPublishedModel(reply.data, this.publishName);
+        } else if (this.type === 'tandem') {
+          observable = of(await this.api.testTandemModel({
+            data: reply.data,
+            features: header
+          }));
         } else {
           observable = await this.api.testModel(reply.data);
         }
