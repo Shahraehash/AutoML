@@ -144,12 +144,10 @@ export class UseModelComponent implements OnInit {
   }
 
   async exportBatchTemplate() {
-    const encodedUri = encodeURI(`data:text/csv;charset=utf-8,${this.parsedFeatures.join(',')}`);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'batch_template.csv');
-    document.body.appendChild(link);
-    link.click();
+    this.saveCSV(
+      unparse([this.parsedFeatures]),
+      'batch_template.csv'
+    );
   }
 
   async exportModel() {
@@ -180,14 +178,14 @@ export class UseModelComponent implements OnInit {
     await toast.present();
   }
 
-  private saveCSV(csvString) {
+  private saveCSV(csvString, fileName?) {
     const blob = new Blob([csvString]);
     if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(blob, 'results.csv');
+        window.navigator.msSaveBlob(blob, fileName ?? 'results.csv');
     } else {
         const a = window.document.createElement('a');
         a.href = window.URL.createObjectURL(blob);
-        a.download = 'results.csv';
+        a.download = fileName ?? 'results.csv';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
