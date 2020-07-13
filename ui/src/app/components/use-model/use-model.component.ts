@@ -143,6 +143,15 @@ export class UseModelComponent implements OnInit {
     });
   }
 
+  async exportBatchTemplate() {
+    const encodedUri = encodeURI(`data:text/csv;charset=utf-8,${this.parsedFeatures.join(',')}`);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'batch_template.csv');
+    document.body.appendChild(link);
+    link.click();
+  }
+
   async exportModel() {
     window.open(await (this.publishName ? this.api.exportPublishedModel(this.publishName) : this.api.exportModel()), '_self');
   }

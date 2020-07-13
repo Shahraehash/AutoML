@@ -85,10 +85,22 @@
         <app-model-statistics *ngIf='!type' [generalization]='generalization'></app-model-statistics>
       </div>
     </div>
-    <ion-button expand='block' color='primary' fill='solid' (click)='fileInput.click()'>
-      <ion-icon name='copy' slot='start'></ion-icon>
-      Select CSV
-    </ion-button>
+    <ion-grid class='ion-no-padding'>
+      <ion-row>
+        <ion-col class='ion-no-padding'>
+          <ion-button expand='block' color='medium' fill='solid' (click)='exportBatchTemplate()'>
+            <ion-icon name='code-download' slot='start'></ion-icon>
+            Download Template
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button expand='block' color='primary' fill='solid' (click)='fileInput.click()'>
+            <ion-icon name='copy' slot='start'></ion-icon>
+            Select CSV
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
     <input #fileInput type='file' class='hidden' (change)='batchTest($event)' accept='.csv, text/csv'>
   </ng-template>
 </ion-content>
