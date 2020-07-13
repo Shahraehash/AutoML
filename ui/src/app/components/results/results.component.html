@@ -36,6 +36,10 @@
     </div>
 
     <div class='table-wrapper' [formGroup]='filterForm'>
+      <ion-button fill='clear' size='small' class='star-toggle' (click)='filterForm.get("query").setValue(filterForm.get("query").value === "starred" ? "" : "starred"); applyFilter()'>
+        <ion-icon size='small' [name]='filterForm.get("query").value === "starred" ? "star" : "star-outline"' slot='icon-only' color='warning'></ion-icon>
+      </ion-button>
+      
       <mat-form-field class='filter-section'>
         <mat-label></mat-label>
         <select matNativeControl formControlName='group' (change)='applyFilter()'>

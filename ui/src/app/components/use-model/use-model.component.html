@@ -54,7 +54,7 @@
           <ion-icon class='indicator' size='large' [color]='result.predicted[0] === 1 ? "danger" : result.predicted[0] === 0 ? "success" : "warning"'
             [name]='result.predicted[0] === 1 ? "add-circle" : result.predicted[0] === 0 ? "remove-circle" : "help-circle"'></ion-icon>
           <br><br>
-          <span class='label'>Probability</span>: {{(result.probability[0] * 100) | number}}%
+          <span class='label' *ngIf='result.predicted[0] === 1 || result.predicted[0] === 0'>Probability</span>: {{(result.probability[0] * 100) | number}}%
 
           <p>
             The predictions confidence is indicated by the probability above. Higher indicates a stronger

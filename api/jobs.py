@@ -314,7 +314,9 @@ def test_tandem(jobid):
     ))
 
     ppv_reply['predicted'] = ppv_reply.apply(lambda row: row['predicted'] if row['predicted'] > 0 else -1, axis=1)
-    npv_reply['predicted'] = npv_reply.apply(lambda row: ppv_reply.iloc[row.name]['predicted'] if row['predicted'] > 0 else row['predicted'], axis=1)
+    predicted = npv_reply.apply(lambda row: ppv_reply.iloc[row.name]['predicted'] if row['predicted'] > 0 else row['predicted'], axis=1)
+    npv_reply['probability'] = npv_reply.apply(lambda row: ppv_reply.iloc[row.name]['probability'] if row['predicted'] > 0 else row['probability'], axis=1)
+    npv_reply['predicted'] = predicted
 
     return jsonify({
       'predicted': npv_reply['predicted'].to_list(),
