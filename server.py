@@ -7,7 +7,12 @@ using an Angular SPA.
 
 import os
 
-from firebase_admin import auth, credentials, initialize_app
+try:
+    from firebase_admin import auth, credentials, initialize_app
+except ImportError:
+    if os.getenv('NO_NETWORK_ALLOWED') != 'true':
+        raise Exception('No auth providers loaded')
+
 from flask import Flask, g, request, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -23,9 +28,10 @@ APP = Flask(__name__, static_url_path='')
 APP.config['JSON_SORT_KEYS'] = False
 CORS(APP)
 
-FIREBASE = initialize_app(
-    credentials.Certificate('serviceAccountKey.json')
-)
+if 'initialize_app' in globals():
+    FIREBASE = initialize_app(
+        credentials.Certificate('serviceAccountKey.json')
+    )
 
 @APP.route('/')
 def load_ui():
