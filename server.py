@@ -47,8 +47,6 @@ def parse_auth():
     bearer = request.headers.get('Authorization')
     current_user = request.args.get('currentUser')
 
-    print(os.getenv('NO_NETWORK_ALLOWED'))
-
     if bearer is not None:
         g.uid = auth.verify_id_token(bearer.split()[1])['uid']
         return
