@@ -24,7 +24,7 @@ APP.config['JSON_SORT_KEYS'] = False
 CORS(APP)
 
 if os.path.exists('serviceAccountKey.json'):
-    FIREBASE = initialize_app(
+    initialize_app(
         credentials.Certificate('serviceAccountKey.json')
     )
 
