@@ -12,7 +12,7 @@ def predict(data, path='.'):
     # Load the pipeline
     pipeline = load(path + '.joblib')
 
-    data = pd.DataFrame(data).dropna()
+    data = pd.DataFrame(data).dropna().values
 
     predicted = pipeline.predict(data).tolist()
     probability = pipeline.predict_proba(data).tolist()
