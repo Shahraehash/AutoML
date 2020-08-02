@@ -80,30 +80,54 @@ export class UseModelComponent implements OnInit {
     await loading.present();
 
     const file = files[0];
+    const data = [];
+    let header;
+    let headerMapping;
     parse(file, {
       dynamicTyping: true,
       worker: true,
       skipEmptyLines: true,
-      complete: async reply => {
-        let observable;
-        const header = reply.data.shift();
-        header.forEach((element, index, arr) => {
-          arr[index] = element.trim();
-        });
+      step: (row, parser) => {
+        if (!header) {
+          header = row.data;
+          header.forEach((element, index, arr) => {
+            arr[index] = element.trim();
+          });
+          header = header.filter(item => this.parsedFeatures.includes(item));
 
+          if (!this.parsedFeatures.every(item => header.includes(item))) {
+            parser.abort();
+            return;
+          }
+
+          headerMapping = header.reduce((result, item) => {
+            const index = this.parsedFeatures.indexOf(item);
+            if (index > -1) {
+              result.push(index);
+            }
+
+            return result;
+          }, []);
+        } else {
+          data.push(headerMapping.map(key => row.data[key]));
+        }
+      },
+      complete: async () => {
         event.target.value = '';
 
-        if (JSON.stringify(header) !== JSON.stringify(this.parsedFeatures)) {
+        if (!data.length) {
           await loading.dismiss();
           this.showError('Incoming values do not match expected values. ' +
             'Please check the columns are in the right order and the correct number of columns exists.');
           return;
         }
 
+        let observable;
+
         if (this.publishName) {
-          observable = await this.api.testPublishedModel(reply.data, this.publishName);
+          observable = await this.api.testPublishedModel(data, this.publishName);
         } else {
-          observable = await this.api.testModel(reply.data);
+          observable = await this.api.testModel(data);
         }
 
         observable.pipe(
@@ -111,9 +135,9 @@ export class UseModelComponent implements OnInit {
         ).subscribe(
           (result) => {
             header.push('prediction', 'probability');
-            const data = reply.data.map((i, index) => [...i, result.predicted[index], result.probability[index]]);
-            data.unshift(header);
-            this.saveCSV(unparse(data));
+            const mappedData = data.map((i, index) => [...i, result.predicted[index], result.probability[index]]);
+            mappedData.unshift(header);
+            this.saveCSV(unparse(mappedData));
           },
           () => {
             this.showError('Unable to test the data, please validate the data and try again.');
