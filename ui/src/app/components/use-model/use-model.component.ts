@@ -93,15 +93,14 @@ export class UseModelComponent implements OnInit {
           header.forEach((element, index, arr) => {
             arr[index] = element.trim();
           });
-          header = header.filter(item => this.parsedFeatures.includes(item));
 
           if (!this.parsedFeatures.every(item => header.includes(item))) {
             parser.abort();
             return;
           }
 
-          headerMapping = header.reduce((result, item) => {
-            const index = this.parsedFeatures.indexOf(item);
+          headerMapping = this.parsedFeatures.reduce((result, item) => {
+            const index = header.indexOf(item);
             if (index > -1) {
               result.push(index);
             }
@@ -134,6 +133,7 @@ export class UseModelComponent implements OnInit {
           finalize(() => loading.dismiss())
         ).subscribe(
           (result) => {
+            header = this.parsedFeatures;
             header.push('prediction', 'probability');
             const mappedData = data.map((i, index) => [...i, result.predicted[index], result.probability[index]]);
             mappedData.unshift(header);
