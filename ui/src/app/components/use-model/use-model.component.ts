@@ -108,7 +108,9 @@ export class UseModelComponent implements OnInit {
             return result;
           }, []);
         } else {
-          data.push(headerMapping.map(key => row.data[key]));
+          if (row.data.every(i => typeof i === 'number')) {
+            data.push(headerMapping.map(key => row.data[key]));
+          }
         }
       },
       complete: async () => {
@@ -117,7 +119,7 @@ export class UseModelComponent implements OnInit {
         if (!data.length) {
           await loading.dismiss();
           this.showError('Incoming values do not match expected values. ' +
-            'Please check the columns are in the right order and the correct number of columns exists.');
+            'Please check to ensure the required features are included.');
           return;
         }
 
