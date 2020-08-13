@@ -108,6 +108,17 @@ export class UploadComponent implements OnInit, OnDestroy {
           if (event.target.name === 'train') {
             this.labels = reply.data.reverse();
             this.uploadForm.get('test').reset();
+            if (new Set(this.labels).size !== this.labels.length) {
+              const alert = await this.alertController.create({
+                buttons: ['Dismiss'],
+                header: 'Duplicate Columns Detected',
+                message: 'Two or more columns appear to have the same name/feature.'
+              });
+              await alert.present();
+              this.uploadForm.get(event.target.name).setErrors({
+                invalidColumns: true
+              });
+            }
           } else {
             if (
               this.labels.length !== reply.data.length ||
