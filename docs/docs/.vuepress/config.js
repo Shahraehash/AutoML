@@ -34,12 +34,8 @@ module.exports = {
     lastUpdated: false,
     nav: [
       {
-        text: 'Guide',
+        text: 'User Guide',
         link: '/guide/',
-      },
-      {
-        text: 'Config',
-        link: '/config/'
       }
     ],
     sidebar: {
@@ -49,7 +45,14 @@ module.exports = {
           collapsable: false,
           children: [
             '',
-            'using-vue',
+            'dataset-preparation',
+            'selecting-dataset',
+            'analyzing-dataset',
+            'model-building',
+            'run-status',
+            'model-results',
+            'test-model',
+            'publish-model'
           ]
         }
       ],

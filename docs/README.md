@@ -1,13 +1,10 @@
 # MILO: Machine Learning Intelligence Optimizer
 
-> Auto machine learning (ML) infrastructure
+> Turnkey solution that provides a fully automated ML/AI solution to many different research and business needs
 
 ## Development
 
 ```bash
-yarn dev
-yarn build
+npm run dev
+npm run build
 ```
-
-For more details, please head VuePress's [documentation](https://v1.vuepress.vuejs.org/).
-
