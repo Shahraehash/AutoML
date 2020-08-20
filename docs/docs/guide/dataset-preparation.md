@@ -26,4 +26,14 @@ Notice the last column now contains a new column and the values below it represe
 
 ## Assessing data completeness
 
+When exporting data in bulk, often times you will find gaps for some rows in various columns and those values maybe represented in various ways. Gaps can be blank, NaN, Null, or other representations. MILO will remove all rows which do not contain 100% of the column data. The number of rows removed versus used will be visible after uploading the dataset and discussed in a later chapter.
+
+::: warning
+Some datasets may have other invalid values such as numerical representations (eg. -1) and these cases will not be removed by MILO and must be handled prior to upload.
+:::
+
 ## Creating the two required datasets
+
+One of MILO's strengths is the generalization step which tests a model against a secondary dataset which helps avoid common pitfalls of model building such as over-fitting. This is because the second (generalization) dataset is not used during the training phase whereas the first (training) dataset is split internally into a train/test split and is influenced by it's own data.
+
+The training dataset should typically be balanced between negative and positive cases of your binary classifier. The generalization dataset should be more reflective of the target prevalence.
