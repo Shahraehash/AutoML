@@ -83,3 +83,12 @@ npm run serve
 # Run all unit tests
 npm test
 ```
+
+## Documentation
+
+VuePress is used to generate the documentation which can be run as follows:
+
+```sh
+cd docs
+npm run dev
+```

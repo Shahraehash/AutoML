@@ -21,7 +21,7 @@ Once you have gathered your data, you need to add one additional column which re
 ![Sample Data with Target](./images/sample-data-with-target.png)
 
 ::: tip
-Notice the last column now contains a new column and the values below it represent a negative value for the listed row.
+Notice a new end column has been added and the values below it represent a negative value for the listed row.
 :::
 
 ## Assessing data completeness
