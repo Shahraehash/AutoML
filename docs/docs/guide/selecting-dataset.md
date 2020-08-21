@@ -20,6 +20,10 @@ After selecting your two datasets, you will need to select your target column na
 
 ## Select previously uploaded dataset
 
-If you have previously uploaded a dataset, you do not need to upload it again for additional searches. You may select from prior uploaded datasets by selecting it from the drop down as shown below:
+If you have previously uploaded a dataset, you do not need to upload it again for additional searches. You may select from prior uploaded datasets by clicking the previously uploaded datasets button:
 
 ![Previous Dataset](./images/previous-dataset.png)
+
+After clicking the button you will be presented with a modal to select the dataset:
+
+![Previous Dataset Opened](./images/previous-dataset-opened.png)
