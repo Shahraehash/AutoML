@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { PopoverController, LoadingController, ToastController, ModalController } from '@ionic/angular';
 
+import { environment } from '../../../environments/environment';
 import { MiloApiService } from '../../services';
 import { GeneralizationResult } from '../../interfaces';
 import { UseModelComponent } from '../use-model/use-model.component';
@@ -12,6 +13,8 @@ import { UseModelComponent } from '../use-model/use-model.component';
 })
 export class MultiSelectMenuComponent {
   @Input() selected: GeneralizationResult[];
+  showAdvanced = !environment.production;
+
   constructor(
     private toastController: ToastController,
     private popoverController: PopoverController,
