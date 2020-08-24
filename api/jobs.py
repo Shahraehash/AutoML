@@ -7,9 +7,10 @@ import os
 import json
 import time
 import uuid
-from shutil import rmtree
+from shutil import copyfile, rmtree
 
 from flask import abort, g, jsonify, request, send_file, url_for
+from numpy.lib.financial import npv
 import pandas as pd
 
 from ml.create_model import create_model
@@ -206,6 +207,60 @@ def refit(jobid):
 
     return jsonify({'generalization': generalization_result})
 
+def tandem(jobid):
+    """Create a static copy of the two selected models to be used in tandem"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    job_folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    with open(job_folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    dataset_folder = 'data/users/' + g.uid + '/datasets/' + metadata['datasetid']
+
+    with open(dataset_folder + '/metadata.json') as metafile:
+        dataset_metadata = json.load(metafile)
+
+    npv_generalization_result = create_model(
+        request.form['npv_key'],
+        ast.literal_eval(request.form['npv_parameters']),
+        ast.literal_eval(request.form['npv_features']),
+        dataset_folder,
+        dataset_metadata['label'],
+        job_folder
+    )
+
+    with open(job_folder + '/tandem_npv_features.json', 'w') as npv_features:
+        json.dump(ast.literal_eval(request.form['npv_features']), npv_features)
+
+    copyfile(job_folder + '/pipeline.joblib', job_folder + '/tandem_npv.joblib')
+    copyfile(job_folder + '/pipeline.pmml', job_folder + '/tandem_npv.pmml')
+    copyfile(job_folder + '/pipeline.json', job_folder + '/tandem_npv.json')
+
+    ppv_generalization_result = create_model(
+        request.form['ppv_key'],
+        ast.literal_eval(request.form['ppv_parameters']),
+        ast.literal_eval(request.form['ppv_features']),
+        dataset_folder,
+        dataset_metadata['label'],
+        job_folder
+    )
+
+    with open(job_folder + '/tandem_ppv_features.json', 'w') as ppv_features:
+        json.dump(ast.literal_eval(request.form['ppv_features']), ppv_features)
+
+    copyfile(job_folder + '/pipeline.joblib', job_folder + '/tandem_ppv.joblib')
+    copyfile(job_folder + '/pipeline.pmml', job_folder + '/tandem_ppv.pmml')
+    copyfile(job_folder + '/pipeline.json', job_folder + '/tandem_ppv.json')
+
+    return jsonify({
+        'npv_generalization': npv_generalization_result,
+        'ppv_generalization_result': ppv_generalization_result
+    })
+
 def test(jobid):
     """Tests the selected model against the provided data"""
 
@@ -226,6 +281,48 @@ def test(jobid):
     reply['target'] = metadata['label']
 
     return jsonify(reply)
+
+def test_tandem(jobid):
+    """Tests the selected tandem model against the provided data"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    with open(folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    with open(folder + '/tandem_npv_features.json') as feature_file:
+        npv_features = json.load(feature_file)
+
+    payload = json.loads(request.data)
+    data = pd.DataFrame(payload['data'], columns=payload['features'])
+
+    npv_reply = pd.DataFrame(predict(
+        data[npv_features].to_numpy(),
+        folder + '/tandem_npv'
+    ))
+
+    with open(folder + '/tandem_ppv_features.json') as feature_file:
+        ppv_features = json.load(feature_file)
+
+    ppv_reply = pd.DataFrame(predict(
+        data[ppv_features].to_numpy(),
+        folder + '/tandem_ppv'
+    ))
+
+    ppv_reply['predicted'] = ppv_reply.apply(lambda row: row['predicted'] if row['predicted'] > 0 else -1, axis=1)
+    predicted = npv_reply.apply(lambda row: ppv_reply.iloc[row.name]['predicted'] if row['predicted'] > 0 else row['predicted'], axis=1)
+    npv_reply['probability'] = npv_reply.apply(lambda row: ppv_reply.iloc[row.name]['probability'] if row['predicted'] > 0 else row['probability'], axis=1)
+    npv_reply['predicted'] = predicted
+
+    return jsonify({
+      'predicted': npv_reply['predicted'].to_list(),
+      'probability': npv_reply['probability'].to_list(),
+      'target': metadata['label']
+    })
 
 def export(jobid):
     """Export the results CSV"""
@@ -271,3 +368,68 @@ def export_model(jobid):
         return
 
     return send_file(folder + '/pipeline.joblib', as_attachment=True, cache_timeout=-1)
+
+def star_models(jobid):
+    """Marks the selected models as starred"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    if os.path.exists(folder + '/starred.json'):
+        with open(folder + '/starred.json') as starred_file:
+            starred = json.load(starred_file)
+    else:
+        starred = []
+
+    starred = list(set(starred + request.get_json()['models']))
+
+    with open(folder + '/starred.json', 'w') as starred_file:
+        json.dump(starred, starred_file)
+
+    return jsonify({'success': True})
+
+def un_star_models(jobid):
+    """Removes the selected models as starred models"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/starred.json'):
+        return jsonify({'success': True})
+
+    with open(folder + '/starred.json') as starred_file:
+        starred = json.load(starred_file)
+
+    for item in request.get_json()['models']:
+        try:
+            starred.remove(item)
+        except Exception:
+            continue
+
+    with open(folder + '/starred.json', 'w') as starred_file:
+        json.dump(starred, starred_file)
+
+    return jsonify({'success': True})
+
+def get_starred(jobid):
+    """Get the starred models for a job"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/starred.json'):
+        return abort(404)
+
+    with open(folder + '/starred.json') as starred_file:
+        starred = json.load(starred_file)
+
+    return jsonify(starred)

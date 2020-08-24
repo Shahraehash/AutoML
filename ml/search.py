@@ -120,7 +120,7 @@ def find_best_model(
 
             for position, candidate in enumerate(candidates):
                 result = {
-                    'key': key,
+                    'key': key + '__' + str(position),
                     'scaler': SCALER_NAMES[scaler],
                     'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
                     'algorithm': ESTIMATOR_NAMES[estimator],

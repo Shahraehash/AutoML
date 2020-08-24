@@ -190,7 +190,7 @@
   .mat-table {
     background: var(--ion-color-dark);
 
-    .active {
+    .active > td:not(.mat-column-select) {
       background: #333 !important;
     }
 

@@ -54,6 +54,8 @@ export interface GeneralizationResult {
     sp_95_ci: number[];
     prevalence: number;
     pr_95_ci: number[];
+    ppv: number;
+    npv: number;
     tn: number;
     tp: number;
     fn: number;

@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { parse, unparse } from 'papaparse';
+import { of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
@@ -16,6 +17,7 @@ export class UseModelComponent implements OnInit {
   @Input() features: string;
   @Input() generalization: RefitGeneralization;
   @Input() publishName: string;
+  @Input() type: string;
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
@@ -56,6 +58,13 @@ export class UseModelComponent implements OnInit {
         this.result = undefined;
       }
     );
+  }
+
+  async testTandemModel() {
+    this.result = await this.api.testTandemModel({
+      data: [this.testForm.get('inputs').value],
+      features: this.parsedFeatures
+    });
   }
 
   async batchTest(event, type?) {
@@ -127,6 +136,11 @@ export class UseModelComponent implements OnInit {
 
         if (this.publishName) {
           observable = await this.api.testPublishedModel(data, this.publishName);
+        } else if (this.type === 'tandem') {
+          observable = of(await this.api.testTandemModel({
+            data,
+            features: header
+          }));
         } else {
           observable = await this.api.testModel(data);
         }
@@ -153,6 +167,13 @@ export class UseModelComponent implements OnInit {
         this.showError('Unable to parse the CSV. Please verify a CSV was selected and try again.');
       }
     });
+  }
+
+  async exportBatchTemplate() {
+    this.saveCSV(
+      unparse([this.parsedFeatures]),
+      'batch_template.csv'
+    );
   }
 
   async exportModel() {
@@ -183,14 +204,14 @@ export class UseModelComponent implements OnInit {
     await toast.present();
   }
 
-  private saveCSV(csvString) {
+  private saveCSV(csvString, fileName?) {
     const blob = new Blob([csvString]);
     if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(blob, 'results.csv');
+        window.navigator.msSaveBlob(blob, fileName ?? 'results.csv');
     } else {
         const a = window.document.createElement('a');
         a.href = window.URL.createObjectURL(blob);
-        a.download = 'results.csv';
+        a.download = fileName ?? 'results.csv';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

@@ -4,9 +4,9 @@
       <ion-button (click)='modalController.dismiss()'><ion-icon slot='icon-only' name='close'></ion-icon></ion-button>
     </ion-buttons>
     <ion-title>
-      {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : 'Use Selected Model'}}
+      {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : type === 'tandem' ? 'Use Selected Tandem Model' : 'Use Selected Model'}}
     </ion-title>
-    <ion-buttons slot='end' class='ion-padding-end'>
+    <ion-buttons slot='end' class='ion-padding-end' *ngIf='type !== "tandem"'>
       <ion-button fill='solid' color='primary' (click)='exportPMML()'>
         <ion-icon class='ion-hide-sm-down' name='code-download' slot='start'></ion-icon><span
           class='ion-hide-sm-down'>PMML</span>
@@ -50,18 +50,20 @@
         </div>
         <div *ngIf='result'>
           <span class='label'>Predicted Outcome</span>:
-          {{result.predicted[0] === 1 ? 'Positive' : 'Negative'}} for {{ result.target }}
-          <ion-icon class='indicator' size='large' [color]='result.predicted[0] === 1 ? "danger" : "success"'
-            [name]='result.predicted[0] === 1 ? "add-circle" : "remove-circle"'></ion-icon>
+          {{result.predicted[0] === 1 ? 'Positive' : result.predicted[0] === 0 ? 'Negative' : 'Equivocal'}} for {{ result.target }}
+          <ion-icon class='indicator' size='large' [color]='result.predicted[0] === 1 ? "danger" : result.predicted[0] === 0 ? "success" : "warning"'
+            [name]='result.predicted[0] === 1 ? "add-circle" : result.predicted[0] === 0 ? "remove-circle" : "help-circle"'></ion-icon>
           <br><br>
-          <span class='label'>Probability</span>: {{(result.probability[0] * 100) | number}}%
+          <ng-container *ngIf='result.predicted[0] === 1 || result.predicted[0] === 0'>
+            <span class='label'>Probability</span>: {{(result.probability[0] * 100) | number}}%
+          </ng-container>
 
           <p>
             The predictions confidence is indicated by the probability above. Higher indicates a stronger
             confidence in the prediction.
           </p>
         </div>
-        <app-model-statistics [generalization]='generalization'></app-model-statistics>
+        <app-model-statistics *ngIf='!type' [generalization]='generalization'></app-model-statistics>
       </div>
       <div class='inputs ion-padding' formArrayName='inputs'>
         <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
@@ -72,7 +74,7 @@
       </div>
     </div>
 
-    <ion-button expand='block' (click)='testModel()' color='primary' fill='solid' class='submit'
+    <ion-button expand='block' (click)='type === "tandem" ? testTandemModel() : testModel()' color='primary' fill='solid' class='submit'
       [disabled]='!testForm.valid'>Predict</ion-button>
   </ng-container>
 
@@ -82,13 +84,25 @@
       <div class='ion-padding ion-text-center batch-details'>
         Drag and drop your CSV or select the button below to open a file picker.
 
-        <app-model-statistics [generalization]='generalization'></app-model-statistics>
+        <app-model-statistics *ngIf='!type' [generalization]='generalization'></app-model-statistics>
       </div>
     </div>
-    <ion-button expand='block' color='primary' fill='solid' (click)='fileInput.click()'>
-      <ion-icon name='copy' slot='start'></ion-icon>
-      Select CSV
-    </ion-button>
+    <ion-grid class='ion-no-padding'>
+      <ion-row>
+        <ion-col class='ion-no-padding'>
+          <ion-button expand='block' color='medium' fill='solid' (click)='exportBatchTemplate()'>
+            <ion-icon name='code-download' slot='start'></ion-icon>
+            Download Template
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button expand='block' color='primary' fill='solid' (click)='fileInput.click()'>
+            <ion-icon name='copy' slot='start'></ion-icon>
+            Select CSV
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
     <input #fileInput type='file' class='hidden' (change)='batchTest($event)' accept='.csv, text/csv'>
   </ng-template>
 </ion-content>

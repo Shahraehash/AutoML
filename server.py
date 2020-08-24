@@ -23,9 +23,10 @@ APP = Flask(__name__, static_url_path='')
 APP.config['JSON_SORT_KEYS'] = False
 CORS(APP)
 
-FIREBASE = initialize_app(
-    credentials.Certificate('serviceAccountKey.json')
-)
+if os.path.exists('serviceAccountKey.json'):
+    initialize_app(
+        credentials.Certificate('serviceAccountKey.json')
+    )
 
 @APP.route('/')
 def load_ui():
@@ -76,10 +77,15 @@ APP.add_url_rule('/jobs/<uuid:jobid>/train', 'jobs-train', jobs.train, methods=[
 APP.add_url_rule('/jobs/<uuid:jobid>/result', 'jobs-result', jobs.result)
 APP.add_url_rule('/jobs/<uuid:jobid>/refit', 'jobs-refit', jobs.refit, methods=['POST'])
 APP.add_url_rule('/jobs/<uuid:jobid>/test', 'jobs-test', jobs.test, methods=['POST'])
+APP.add_url_rule('/jobs/<uuid:jobid>/tandem', 'jobs-tandem', jobs.tandem, methods=['POST'])
+APP.add_url_rule('/jobs/<uuid:jobid>/test-tandem', 'jobs-test-tandem', jobs.test_tandem, methods=['POST'])
 APP.add_url_rule('/jobs/<uuid:jobid>/pipelines', 'jobs-pipelines', jobs.get_pipelines)
 APP.add_url_rule('/jobs/<uuid:jobid>/export', 'jobs-export', jobs.export)
 APP.add_url_rule('/jobs/<uuid:jobid>/export-pmml', 'jobs-export-pmml', jobs.export_pmml)
 APP.add_url_rule('/jobs/<uuid:jobid>/export-model', 'jobs-export-model', jobs.export_model)
+APP.add_url_rule('/jobs/<uuid:jobid>/star-models', 'jobs-get-starred', jobs.get_starred, methods=['GET'])
+APP.add_url_rule('/jobs/<uuid:jobid>/star-models', 'jobs-star-models', jobs.star_models, methods=['POST'])
+APP.add_url_rule('/jobs/<uuid:jobid>/un-star-models', 'jobs-un-star-models', jobs.un_star_models, methods=['POST'])
 
 # Tasks
 APP.add_url_rule('/tasks', 'pending', tasks.pending)

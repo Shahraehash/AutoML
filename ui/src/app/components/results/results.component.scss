@@ -24,6 +24,10 @@
     width: 100%;
     padding: 10px;
 
+    .star-toggle {
+      vertical-align: middle;
+    }
+
     .filter-section {
         width: 100px;
         margin-right: 10px;
@@ -48,6 +52,10 @@
         &:last-of-type {
             pointer-events: none;
         }
+
+        &.mat-column-star {
+          font-size: 14px;
+        }
     }
 
     
@@ -56,10 +64,10 @@
     }
 
     .mat-header-cell:first-of-type {
-        padding-left: 8px;
+        padding-left: 5px;
     }
 
-    .active {
+    .active > td:not(.mat-column-select) {
         background: #ccc;
     }
 
@@ -89,7 +97,7 @@
     grid-gap: 10px;
 }
 
-.details-button {
+.details-button, .selected-button {
     float: right;
     margin-top: 20px;
 }

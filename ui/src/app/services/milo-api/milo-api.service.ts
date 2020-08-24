@@ -129,6 +129,10 @@ export class MiloApiService {
     );
   }
 
+  async createTandemModel(formData) {
+    return await (await this.request('post', `/jobs/${this.currentJobId}/tandem`, formData)).toPromise();
+  }
+
   publishModel(name, formData) {
     return this.request(
       'post',
@@ -163,6 +167,15 @@ export class MiloApiService {
     );
   }
 
+
+  async testTandemModel(data) {
+    return await (await this.request<TestReply>(
+      'post',
+      `/jobs/${this.currentJobId}/test-tandem`,
+      data
+    )).toPromise();
+  }
+
   getPendingTasks() {
     return this.request<PendingTasks>('get', `/tasks`);
   }
@@ -177,6 +190,18 @@ export class MiloApiService {
 
   getPublishedModels() {
     return this.request<PublishedModels>('get', `/published`);
+  }
+
+  async getStarredModels() {
+    return await (await this.request<string[]>('get', `/jobs/${this.currentJobId}/star-models`)).toPromise();
+  }
+
+  async starModels(models: string[]) {
+    return await (await this.request<void>('post', `/jobs/${this.currentJobId}/star-models`, {models})).toPromise();
+  }
+
+  async unStarModels(models: string[]) {
+    return await (await this.request<void>('post', `/jobs/${this.currentJobId}/un-star-models`, {models})).toPromise();
   }
 
   async exportCSV() {
