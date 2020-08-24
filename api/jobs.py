@@ -71,8 +71,8 @@ def add():
 
     folder = 'data/users/' + g.uid + '/jobs/' + jobid
 
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+    if not os.path.exists(folder + '/models'):
+        os.makedirs(folder + '/models')
 
     metadata = {}
     if os.path.exists(folder + '/metadata.json'):

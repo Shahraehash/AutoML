@@ -11,6 +11,7 @@ import time
 import itertools
 
 from dotenv import load_dotenv
+from joblib import dump
 
 from .processors.estimators import ESTIMATOR_NAMES
 from .processors.feature_selection import FEATURE_SELECTOR_NAMES
@@ -129,6 +130,9 @@ def find_best_model(
                 }
 
                 print('\t#%d' % (position+1))
+                if estimator == 'mlp' or estimator == 'rf':
+                  dump(candidate['best_estimator'], output_path + '/models/' + result['key'])
+
                 result.update(generalize(model['features'], candidate['best_estimator'], pipeline[0], x2, y2, labels))
                 result.update({
                     'selected_features': list(model['selected_features']),

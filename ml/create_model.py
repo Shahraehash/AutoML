@@ -6,7 +6,7 @@ the key, hyper parameters and features used).
 import os
 import json
 import numpy as np
-from joblib import dump
+from joblib import dump, load
 from nyoka import skl_to_pmml, xgboost_to_pmml
 from sklearn.pipeline import Pipeline
 
@@ -59,6 +59,11 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
     pipeline = Pipeline(steps)
     model = generate_model(pipeline, selected_features, x_train, y_train)
     print(model['features'])
+
+    # If the model is DNN or RF, attempt to swap the estimator for a pickled one
+    if os.path.exists(output_path + '/models/' + key + '.joblib'):
+      pickled_estimator = load(output_path + '/models/' + key + '.joblib')
+      pipeline = Pipeline(pipeline.steps[:-1] + [('estimator', pickled_estimator)])
 
     # Assess the model performance and store the results
     generalization_result = generalize(model['features'], pipeline['estimator'], pipeline, x2, y2, ['No ' + label_column, label_column])
