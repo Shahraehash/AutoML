@@ -131,7 +131,7 @@ def find_best_model(
 
                 print('\t#%d' % (position+1))
                 if estimator == 'mlp' or estimator == 'rf':
-                  dump(candidate['best_estimator'], output_path + '/models/' + result['key'])
+                  dump(candidate['best_estimator'], output_path + '/models/' + result['key'] + '.joblib')
 
                 result.update(generalize(model['features'], candidate['best_estimator'], pipeline[0], x2, y2, labels))
                 result.update({
