@@ -116,7 +116,7 @@ def describe(datasetid):
         metadata = json.load(metafile)
 
     return {
-        'analysis': Describe(folder),
+        'analysis': Describe(folder, metadata['label']),
         'label': metadata['label']
     }
 
