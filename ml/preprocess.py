@@ -15,7 +15,8 @@ def preprocess(features, pipeline, data):
     if 'feature_selector' in pipeline.named_steps:
         feature_selector_type = pipeline.named_steps['feature_selector'].__class__.__module__
 
-        if 'sklearn.feature_selection.univariate_selection' in feature_selector_type:
+        if 'sklearn.feature_selection.univariate_selection' in feature_selector_type or\
+          'processors.rffi' in feature_selector_type:
 
             # Identify the selected featured for model provided
             for index, feature in reversed(list(enumerate(features.items()))):
@@ -24,8 +25,7 @@ def preprocess(features, pipeline, data):
                 if not feature[1]:
                     data = np.delete(data, index, axis=1)
 
-        if 'sklearn.decomposition.pca' in feature_selector_type or\
-            'processors.rffi' in feature_selector_type:
+        if 'sklearn.decomposition.pca' in feature_selector_type:
             data = pipeline.named_steps['feature_selector'].transform(data)
 
     return data
