@@ -33,6 +33,10 @@ export class MultiSelectMenuComponent {
     return npvModel && ppvModel && npvModel !== ppvModel;
   }
 
+  supportsEnsemble() {
+    return this.selected.length % 2 && this.selected.length > 2 && this.selected.length < 6;
+  }
+
   async starModels() {
     const starred = this.selected.map(item => item.key);
     await this.api.starModels(starred);
@@ -81,6 +85,47 @@ export class MultiSelectMenuComponent {
       component: UseModelComponent,
       cssClass: 'test-modal',
       componentProps: {features, type: 'tandem'}
+    });
+
+    await modal.present();
+  }
+
+  async createEnsembleModel() {
+    const loading = await this.loadingController.create();
+    await loading.present();
+
+    const formData = new FormData();
+
+    let x = 0;
+    for (const model of this.selected) {
+      formData.append(`model${x}_key`, model.key);
+      formData.append(`model${x}_parameters`, model.best_params);
+      formData.append(`model${x}_features`, model.selected_features);
+      x++;
+    }
+
+    formData.append('total_models', x.toString());
+
+    try {
+      await this.api.createEnsembleModel(formData);
+    } catch (err) {
+      await this.showError('Unable to create tandem model');
+      return;
+    } finally {
+      await loading.dismiss();
+      await this.close();
+    }
+
+    const features = JSON.stringify(
+      [...new Set(
+        this.selected.map(model => this.parseFeatures(model.selected_features))
+      )]
+    );
+
+    const modal = await this.modalController.create({
+      component: UseModelComponent,
+      cssClass: 'test-modal',
+      componentProps: {features, type: 'ensemble'}
     });
 
     await modal.present();

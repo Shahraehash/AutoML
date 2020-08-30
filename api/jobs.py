@@ -261,6 +261,45 @@ def tandem(jobid):
         'ppv_generalization_result': ppv_generalization_result
     })
 
+def ensemble(jobid):
+    """Create a static copy of the n selected models to be used in ensemble"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    job_folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    with open(job_folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    dataset_folder = 'data/users/' + g.uid + '/datasets/' + metadata['datasetid']
+
+    with open(dataset_folder + '/metadata.json') as metafile:
+        dataset_metadata = json.load(metafile)
+
+    total_models = int(request.form['total_models'])
+    for x in range(total_models):
+      generalization_result = create_model(
+          request.form['model' + str(x) + '_key'],
+          ast.literal_eval(request.form['model' + str(x) + '_parameters']),
+          ast.literal_eval(request.form['model' + str(x) + '_features']),
+          dataset_folder,
+          dataset_metadata['label'],
+          job_folder
+      )
+
+      with open(job_folder + '/ensemble' + str(x) + '_features.json', 'w') as model_features:
+          json.dump(ast.literal_eval(request.form['model' + str(x) + '_features']), model_features)
+
+      copyfile(job_folder + '/pipeline.joblib', job_folder + '/ensemble' + str(x) + '.joblib')
+      copyfile(job_folder + '/pipeline.pmml', job_folder + '/ensemble' + str(x) +'.pmml')
+      copyfile(job_folder + '/pipeline.json', job_folder + '/ensemble' + str(x) +'.json')
+
+    return jsonify({
+        'generalization': generalization_result
+    })
+
 def test(jobid):
     """Tests the selected model against the provided data"""
 

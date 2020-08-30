@@ -1,5 +1,6 @@
 <ion-list lines='none'>
   <ion-item button (click)='starModels()'>Star Models</ion-item>
   <ion-item button (click)='unStarModels()'>Un-Star Models</ion-item>
+  <ion-item button *ngIf='showAdvanced' [disabled]='!supportsEnsemble()' (click)='createEnsembleModel()'>Create Ensemble Model</ion-item>
   <ion-item button *ngIf='showAdvanced' [disabled]='!supportsTandem()' (click)='createTandemModel()'>Create Tandem Model</ion-item>
 </ion-list>

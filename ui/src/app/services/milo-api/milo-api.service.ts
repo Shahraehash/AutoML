@@ -133,6 +133,10 @@ export class MiloApiService {
     return await (await this.request('post', `/jobs/${this.currentJobId}/tandem`, formData)).toPromise();
   }
 
+  async createEnsembleModel(formData) {
+    return await (await this.request('post', `/jobs/${this.currentJobId}/ensemble`, formData)).toPromise();
+  }
+
   publishModel(name, formData) {
     return this.request(
       'post',
