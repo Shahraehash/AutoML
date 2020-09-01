@@ -180,6 +180,14 @@ export class MiloApiService {
     )).toPromise();
   }
 
+  async testEnsembleModel(data) {
+    return await (await this.request<TestReply>(
+      'post',
+      `/jobs/${this.currentJobId}/test-ensemble`,
+      data
+    )).toPromise();
+  }
+
   getPendingTasks() {
     return this.request<PendingTasks>('get', `/tasks`);
   }

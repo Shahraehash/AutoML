@@ -10,12 +10,11 @@ import uuid
 from shutil import copyfile, rmtree
 
 from flask import abort, g, jsonify, request, send_file, url_for
-from numpy.lib.financial import npv
 import pandas as pd
 
 from ml.create_model import create_model
 from ml.list_pipelines import list_pipelines
-from ml.predict import predict
+from ml.predict import predict, predict_ensemble
 from worker import queue_training
 
 def get():
@@ -365,6 +364,27 @@ def test_tandem(jobid):
       'probability': npv_reply['probability'].to_list(),
       'target': metadata['label']
     })
+
+def test_ensemble(jobid):
+    """Tests the selected ensemble model against the provided data"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    with open(folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    payload = json.loads(request.data)
+    data = pd.DataFrame(payload['data'], columns=payload['features'])
+
+    reply = predict_ensemble(data, folder)
+
+    reply['target'] = metadata['label']
+
+    return jsonify(reply)
 
 def export(jobid):
     """Export the results CSV"""

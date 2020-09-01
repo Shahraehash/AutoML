@@ -42,6 +42,19 @@ export class UseModelComponent implements OnInit {
   }
 
   async testModel() {
+    switch(this.type) {
+      case 'tandem':
+        this.testTandemModel();
+        break;
+      case 'ensemble':
+        this.testEnsembleModel();
+        break;
+      default:
+        this.testSingleModel();
+    }
+  }
+
+  async testSingleModel() {
     let observable;
 
     if (this.publishName) {
@@ -62,6 +75,13 @@ export class UseModelComponent implements OnInit {
 
   async testTandemModel() {
     this.result = await this.api.testTandemModel({
+      data: [this.testForm.get('inputs').value],
+      features: this.parsedFeatures
+    });
+  }
+
+  async testEnsembleModel() {
+    this.result = await this.api.testEnsembleModel({
       data: [this.testForm.get('inputs').value],
       features: this.parsedFeatures
     });
