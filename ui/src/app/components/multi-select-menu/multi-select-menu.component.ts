@@ -118,7 +118,7 @@ export class MultiSelectMenuComponent {
 
     const features = JSON.stringify(
       [...new Set(
-        this.selected.map(model => this.parseFeatures(model.selected_features))
+        this.selected.map(model => this.parseFeatures(model.selected_features)).flat()
       )]
     );
 

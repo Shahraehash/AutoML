@@ -280,21 +280,24 @@ def ensemble(jobid):
 
     total_models = int(request.form['total_models'])
     for x in range(total_models):
-      generalization_result = create_model(
-          request.form['model' + str(x) + '_key'],
-          ast.literal_eval(request.form['model' + str(x) + '_parameters']),
-          ast.literal_eval(request.form['model' + str(x) + '_features']),
-          dataset_folder,
-          dataset_metadata['label'],
-          job_folder
-      )
+        generalization_result = create_model(
+            request.form['model' + str(x) + '_key'],
+            ast.literal_eval(request.form['model' + str(x) + '_parameters']),
+            ast.literal_eval(request.form['model' + str(x) + '_features']),
+            dataset_folder,
+            dataset_metadata['label'],
+            job_folder
+        )
 
-      with open(job_folder + '/ensemble' + str(x) + '_features.json', 'w') as model_features:
-          json.dump(ast.literal_eval(request.form['model' + str(x) + '_features']), model_features)
+        with open(job_folder + '/ensemble' + str(x) + '_features.json', 'w') as model_features:
+            json.dump(ast.literal_eval(request.form['model' + str(x) + '_features']), model_features)
 
-      copyfile(job_folder + '/pipeline.joblib', job_folder + '/ensemble' + str(x) + '.joblib')
-      copyfile(job_folder + '/pipeline.pmml', job_folder + '/ensemble' + str(x) +'.pmml')
-      copyfile(job_folder + '/pipeline.json', job_folder + '/ensemble' + str(x) +'.json')
+        copyfile(job_folder + '/pipeline.joblib', job_folder + '/ensemble' + str(x) + '.joblib')
+        copyfile(job_folder + '/pipeline.pmml', job_folder + '/ensemble' + str(x) +'.pmml')
+        copyfile(job_folder + '/pipeline.json', job_folder + '/ensemble' + str(x) +'.json')
+
+    with open(job_folder + '/ensemble.json', 'w') as model_details:
+        json.dump({'total_models': total_models}, model_details)
 
     return jsonify({
         'generalization': generalization_result
