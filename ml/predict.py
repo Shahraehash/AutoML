@@ -52,7 +52,6 @@ def predict_ensemble(data, path='.', vote_type='soft'):
         predicted = np.apply_along_axis(
             lambda x: np.argmax(np.bincount(x)), axis=1, arr=predictions.astype('int')
         )
-    
 
     return {
         'predicted': predicted.tolist(),

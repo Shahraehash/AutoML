@@ -380,7 +380,7 @@ def test_ensemble(jobid):
     payload = json.loads(request.data)
     data = pd.DataFrame(payload['data'], columns=payload['features'])
 
-    reply = predict_ensemble(data, folder)
+    reply = predict_ensemble(data, folder, payload['vote_type'])
 
     reply['target'] = metadata['label']
 

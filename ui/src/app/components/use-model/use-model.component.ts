@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { parse, unparse } from 'papaparse';
 import { of } from 'rxjs';
@@ -19,6 +19,7 @@ export class UseModelComponent implements OnInit {
   @Input() publishName: string;
   @Input() type: string;
   parsedFeatures: string[];
+  voteControl: FormControl;
   testForm: FormGroup;
   result: TestReply;
   isDragging = false;
@@ -33,6 +34,8 @@ export class UseModelComponent implements OnInit {
 
   ngOnInit() {
     this.parsedFeatures = JSON.parse(this.features.replace(/'/g, '"'));
+
+    this.voteControl = this.formBuilder.control('soft');
 
     this.testForm = this.formBuilder.group({
       inputs: this.formBuilder.array(
@@ -83,7 +86,8 @@ export class UseModelComponent implements OnInit {
   async testEnsembleModel() {
     this.result = await this.api.testEnsembleModel({
       data: [this.testForm.get('inputs').value],
-      features: this.parsedFeatures
+      features: this.parsedFeatures,
+      vote_type: this.voteControl.value
     });
   }
 

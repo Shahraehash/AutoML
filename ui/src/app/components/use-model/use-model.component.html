@@ -6,17 +6,27 @@
     <ion-title>
       {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : type ? 'Use Selected ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Model' : 'Use Selected Model'}}
     </ion-title>
-    <ion-buttons slot='end' class='ion-padding-end' *ngIf='!type'>
-      <ion-button fill='solid' color='primary' (click)='exportPMML()'>
-        <ion-icon class='ion-hide-sm-down' name='code-download' slot='start'></ion-icon><span
-          class='ion-hide-sm-down'>PMML</span>
-        <ion-icon class='ion-hide-sm-up' name='code-download' slot='icon-only'></ion-icon>
-      </ion-button>
-      <ion-button fill='solid' color='primary' (click)='exportModel()'>
-        <ion-icon class='ion-hide-sm-down' name='download' slot='start'></ion-icon><span
-          class='ion-hide-sm-down'>Download</span>
-        <ion-icon class='ion-hide-sm-up' name='download' slot='icon-only'></ion-icon>
-      </ion-button>
+    <ion-buttons slot='end' class='ion-padding-end'>
+      <ng-container *ngIf='type; else singleModelHeader'>
+        <ion-select [formControl]='voteControl'>
+          <ion-select-option value='soft'>Soft</ion-select-option>
+          <ion-select-option value='hard'>Hard</ion-select-option>
+        </ion-select>
+      </ng-container>
+
+      <ng-template #singleModelHeader>
+        <ion-button fill='solid' color='primary' (click)='exportPMML()'>
+          <ion-icon class='ion-hide-sm-down' name='code-download' slot='start'></ion-icon><span
+            class='ion-hide-sm-down'>PMML</span>
+          <ion-icon class='ion-hide-sm-up' name='code-download' slot='icon-only'></ion-icon>
+        </ion-button>
+        <ion-button fill='solid' color='primary' (click)='exportModel()'>
+          <ion-icon class='ion-hide-sm-down' name='download' slot='start'></ion-icon><span
+            class='ion-hide-sm-down'>Download</span>
+          <ion-icon class='ion-hide-sm-up' name='download' slot='icon-only'></ion-icon>
+        </ion-button>
+      </ng-template>
+
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
