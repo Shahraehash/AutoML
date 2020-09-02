@@ -6,6 +6,7 @@
   "scripts": {
     "build-ui": "cd ui && npm run build",
     "open-browser": "sleep 15s && open http://localhost:4200",
+    "docs": "cd docs && npm run dev",
     "serve": "npm run serve-all",
     "serve-all": "concurrently 'npm run serve-api' 'cd ui && npm run start' 'npm run rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
     "serve-all-local": "concurrently 'env NO_NETWORK_ALLOWED=true npm run serve-api' 'cd ui && npm run start-local' 'npm run rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
