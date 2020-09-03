@@ -31,7 +31,7 @@ def generalize_ensemble(total_models, job_folder, dataset_folder, label):
 
     return {
         'soft_generalization': generalization_report(['No ' + label, label], y2, soft_result['predicted'], soft_result['probability']),
-        'hard_generalization': generalization_report(['No ' + label, label], y2, hard_result['predicted'], hard_result['probability'])        
+        'hard_generalization': generalization_report(['No ' + label, label], y2, hard_result['predicted'], hard_result['probability'])
     }
 
 def generalization_report(labels, y2, predictions, probabilities):
