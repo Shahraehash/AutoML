@@ -93,6 +93,64 @@ export class UseModelComponent implements OnInit {
     });
   }
 
+  async generalize(event, type?) {
+    event.preventDefault();
+    this.endDrag();
+
+    const files = type === 'drop' ? event.dataTransfer.files : event.target.files;
+
+    if (!files.length) {
+      return;
+    }
+
+    if (files.length > 1) {
+      event.target.value = '';
+      this.showError('Only one file may be selected at a time.');
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: 'Calculating performance...'
+    });
+    await loading.present();
+
+    const file = files[0];
+    parse(file, {
+      dynamicTyping: true,
+      worker: true,
+      skipEmptyLines: true,
+      complete: async reply => {
+        event.target.value = '';
+        const header = reply.data.shift();
+
+        header.forEach((element, index, arr) => {
+          arr[index] = element.trim();
+        });
+
+        if (!this.parsedFeatures.every(item => header.includes(item))) {
+          await loading.dismiss();
+          this.showError('Incoming values do not match expected values. ' +
+            'Please check to ensure the required features are included.');
+          return;
+        }
+
+        this.generalization = await this.api.generalize({
+          data: reply.data,
+          columns: header,
+          features: this.parsedFeatures
+        });
+
+        await loading.dismiss();
+      },
+      error: async () => {
+        event.target.value = '';
+
+        await loading.dismiss();
+        this.showError('Unable to parse the CSV. Please verify a CSV was selected and try again.');
+      }
+    });
+  }
+
   async batchTest(event, type?) {
     event.preventDefault();
     this.endDrag();

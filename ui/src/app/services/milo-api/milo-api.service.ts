@@ -176,6 +176,13 @@ export class MiloApiService {
     );
   }
 
+  async generalize(data) {
+    return await (await this.request<RefitGeneralization>(
+      'post',
+      `/jobs/${this.currentJobId}/generalize`,
+      data
+    )).toPromise();
+  }
 
   async testTandemModel(data) {
     return await (await this.request<TestReply>(
