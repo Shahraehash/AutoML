@@ -23,13 +23,9 @@ def predict(data, path='.'):
         'probability': [sublist[predicted[index]] for index, sublist in enumerate(probability)]
     }
 
-def predict_ensemble(data, path='.', vote_type='soft'):
+def predict_ensemble(total_models, data, path='.', vote_type='soft'):
     """Predicts against the provided data by creating an ensemble of the selected models"""
 
-    with open(path + '/ensemble.json') as details:
-        model_details = json.load(details)
-
-    total_models = model_details['total_models']
     probabilities = []
     predictions = []
 

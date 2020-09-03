@@ -21,13 +21,13 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
 
     return generalization_report(labels, y2, predictions, probabilities)
 
-def generalize_ensemble(job_folder, dataset_folder, label):
+def generalize_ensemble(total_models, job_folder, dataset_folder, label):
     x2, y2, feature_names, _, _ = import_csv(dataset_folder + '/test.csv', label)
 
     data = pd.DataFrame(x2, columns=feature_names)
 
-    soft_result = predict_ensemble(data, job_folder, 'soft')
-    hard_result = predict_ensemble(data, job_folder, 'hard')
+    soft_result = predict_ensemble(total_models, data, job_folder, 'soft')
+    hard_result = predict_ensemble(total_models, data, job_folder, 'hard')
 
     return {
         'soft_generalization': generalization_report(['No ' + label, label], y2, soft_result['predicted'], soft_result['probability']),

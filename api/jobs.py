@@ -296,13 +296,13 @@ def ensemble(jobid):
         copyfile(job_folder + '/pipeline.pmml', job_folder + '/ensemble' + str(x) +'.pmml')
         copyfile(job_folder + '/pipeline.json', job_folder + '/ensemble' + str(x) +'.json')
 
-    result = generalize_ensemble(job_folder, dataset_folder, dataset_metadata['label'])
-    result['total_models'] = total_models
+    reply = generalize_ensemble(total_models, job_folder, dataset_folder, dataset_metadata['label'])
+    reply['total_models'] = total_models
 
     with open(job_folder + '/ensemble.json', 'w') as model_details:
-        json.dump(result, model_details)
+        json.dump(reply, model_details)
 
-    return jsonify(result)
+    return jsonify(reply)
 
 def test(jobid):
     """Tests the selected model against the provided data"""
@@ -382,7 +382,10 @@ def test_ensemble(jobid):
     payload = json.loads(request.data)
     data = pd.DataFrame(payload['data'], columns=payload['features'])
 
-    reply = predict_ensemble(data, folder, payload['vote_type'])
+    with open(folder + '/ensemble.json') as details:
+        model_details = json.load(details)
+
+    reply = predict_ensemble(model_details['total_models'], data, folder, payload['vote_type'])
 
     reply['target'] = metadata['label']
 
