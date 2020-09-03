@@ -110,7 +110,7 @@ export class MultiSelectMenuComponent {
     try {
       reply = await this.api.createEnsembleModel(formData);
     } catch (err) {
-      await this.showError('Unable to create tandem model');
+      await this.showError('Unable to create ensemble model');
       return;
     } finally {
       await loading.dismiss();
