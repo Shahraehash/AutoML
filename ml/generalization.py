@@ -2,10 +2,13 @@
 Generalization of a provided model using a secondary test set.
 """
 
+import pandas as pd
 from sklearn.metrics import roc_auc_score, accuracy_score,\
     confusion_matrix, classification_report, f1_score, roc_curve
 
 from .preprocess import preprocess
+from .predict import predict_ensemble
+from .import_data import import_csv
 from .stats import clopper_pearson, roc_auc_ci
 
 def generalize(features, model, pipeline, x2, y2, labels=None):
@@ -15,6 +18,23 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
     x2 = preprocess(features, pipeline, x2)
     predictions = model.predict(x2)
     probabilities = model.predict_proba(x2)[:, 1]
+
+    return generalization_report(labels, y2, predictions, probabilities)
+
+def generalize_ensemble(job_folder, dataset_folder, label):
+    x2, y2, feature_names, _, _ = import_csv(dataset_folder + '/test.csv', label)
+
+    data = pd.DataFrame(x2, columns=feature_names)
+
+    soft_result = predict_ensemble(data, job_folder, 'soft')
+    hard_result = predict_ensemble(data, job_folder, 'hard')
+
+    return {
+        'soft_generalization': generalization_report(['No ' + label, label], y2, soft_result['predicted'], soft_result['probability']),
+        'hard_generalization': generalization_report(['No ' + label, label], y2, hard_result['predicted'], hard_result['probability'])        
+    }
+
+def generalization_report(labels, y2, predictions, probabilities):
     print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
 
     print('\tGeneralization:')

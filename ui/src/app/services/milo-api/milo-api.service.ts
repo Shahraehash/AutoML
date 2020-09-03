@@ -134,7 +134,12 @@ export class MiloApiService {
   }
 
   async createEnsembleModel(formData) {
-    return await (await this.request('post', `/jobs/${this.currentJobId}/ensemble`, formData)).toPromise();
+    return await (
+      await this.request<{
+        hard_generalization: RefitGeneralization,
+        soft_generalization: RefitGeneralization
+      }>('post', `/jobs/${this.currentJobId}/ensemble`, formData)
+    ).toPromise();
   }
 
   publishModel(name, formData) {

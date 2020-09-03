@@ -3,7 +3,7 @@ import { PopoverController, LoadingController, ToastController, ModalController 
 
 import { environment } from '../../../environments/environment';
 import { MiloApiService } from '../../services';
-import { GeneralizationResult } from '../../interfaces';
+import { GeneralizationResult, RefitGeneralization } from '../../interfaces';
 import { UseModelComponent } from '../use-model/use-model.component';
 
 @Component({
@@ -106,8 +106,9 @@ export class MultiSelectMenuComponent {
 
     formData.append('total_models', x.toString());
 
+    let reply: {hard_generalization: RefitGeneralization, soft_generalization: RefitGeneralization};
     try {
-      await this.api.createEnsembleModel(formData);
+      reply = await this.api.createEnsembleModel(formData);
     } catch (err) {
       await this.showError('Unable to create tandem model');
       return;
@@ -125,7 +126,12 @@ export class MultiSelectMenuComponent {
     const modal = await this.modalController.create({
       component: UseModelComponent,
       cssClass: 'test-modal',
-      componentProps: {features, type: 'ensemble'}
+      componentProps: {
+        features,
+        type: 'ensemble',
+        softGeneralization: reply.soft_generalization,
+        hardGeneralization: reply.hard_generalization
+      }
     });
 
     await modal.present();

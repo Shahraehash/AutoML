@@ -16,6 +16,8 @@ import { RefitGeneralization, TestReply } from '../../interfaces';
 export class UseModelComponent implements OnInit {
   @Input() features: string;
   @Input() generalization: RefitGeneralization;
+  @Input() softGeneralization: RefitGeneralization;
+  @Input() hardGeneralization: RefitGeneralization;
   @Input() publishName: string;
   @Input() type: string;
   parsedFeatures: string[];

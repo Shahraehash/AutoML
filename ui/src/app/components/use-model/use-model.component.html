@@ -73,7 +73,7 @@
             confidence in the prediction.
           </p>
         </div>
-        <app-model-statistics *ngIf='!type' [generalization]='generalization'></app-model-statistics>
+        <ng-container *ngTemplateOutlet='modelStats'></ng-container>
       </div>
       <div class='inputs ion-padding' formArrayName='inputs'>
         <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
@@ -93,7 +93,7 @@
       <div class='ion-padding ion-text-center batch-details'>
         Drag and drop your CSV or select the button below to open a file picker.
 
-        <app-model-statistics *ngIf='!type' [generalization]='generalization'></app-model-statistics>
+        <ng-container *ngTemplateOutlet='modelStats'></ng-container>
       </div>
     </div>
     <ion-grid class='ion-no-padding'>
@@ -115,3 +115,7 @@
     <input #fileInput type='file' class='hidden' (change)='batchTest($event)' accept='.csv, text/csv'>
   </ng-template>
 </ion-content>
+
+<ng-template #modelStats>
+  <app-model-statistics *ngIf="type !== 'tandem'" [generalization]="type === 'ensemble' ? (voteControl.value === 'hard' ? hardGeneralization : softGeneralization) : generalization"></app-model-statistics>
+</ng-template>

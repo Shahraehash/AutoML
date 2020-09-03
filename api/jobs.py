@@ -14,6 +14,7 @@ import pandas as pd
 
 from ml.create_model import create_model
 from ml.list_pipelines import list_pipelines
+from ml.generalization import generalize_ensemble
 from ml.predict import predict, predict_ensemble
 from worker import queue_training
 
@@ -279,7 +280,7 @@ def ensemble(jobid):
 
     total_models = int(request.form['total_models'])
     for x in range(total_models):
-        generalization_result = create_model(
+        create_model(
             request.form['model' + str(x) + '_key'],
             ast.literal_eval(request.form['model' + str(x) + '_parameters']),
             ast.literal_eval(request.form['model' + str(x) + '_features']),
@@ -295,12 +296,13 @@ def ensemble(jobid):
         copyfile(job_folder + '/pipeline.pmml', job_folder + '/ensemble' + str(x) +'.pmml')
         copyfile(job_folder + '/pipeline.json', job_folder + '/ensemble' + str(x) +'.json')
 
-    with open(job_folder + '/ensemble.json', 'w') as model_details:
-        json.dump({'total_models': total_models}, model_details)
+    result = generalize_ensemble(job_folder, dataset_folder, dataset_metadata['label'])
+    result['total_models'] = total_models
 
-    return jsonify({
-        'generalization': generalization_result
-    })
+    with open(job_folder + '/ensemble.json', 'w') as model_details:
+        json.dump(result, model_details)
+
+    return jsonify(result)
 
 def test(jobid):
     """Tests the selected model against the provided data"""
