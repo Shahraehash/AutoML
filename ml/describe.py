@@ -19,7 +19,7 @@ def parse_csv(csv_file, label):
 
     csv = pd.read_csv(csv_file)
     csv_clean = csv.apply(pd.to_numeric, errors='coerce').dropna()
-    histogram = {key:[i.tolist() for i in np.histogram(list(value.values()), bins='auto', range=(1,100))] for (key,value) in csv_clean.to_dict().items()}
+    histogram = {key:[i.tolist() for i in np.histogram(list(value.values()), bins='auto')] for (key,value) in csv_clean.to_dict().items()}
     histogram[label] = [i.tolist() for i in np.histogram(csv_clean[label].to_list(), bins='auto')]
 
     return {
