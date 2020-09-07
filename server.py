@@ -101,6 +101,7 @@ APP.add_url_rule('/published/<string:name>', 'published-add', published.add, met
 APP.add_url_rule('/published/<string:name>', 'published-delete', published.delete, methods=['DELETE'])
 APP.add_url_rule('/published/<string:name>/rename', 'published-rename', published.rename, methods=['POST'])
 APP.add_url_rule('/published/<string:name>/test', 'published-test', published.test, methods=['POST'])
+APP.add_url_rule('/published/<string:name>/generalize', 'published-generalize', published.generalize, methods=['POST'])
 APP.add_url_rule('/published/<string:name>/export-model', 'published-export-model', published.export_model)
 APP.add_url_rule('/published/<string:name>/export-pmml', 'published-export-pmml', published.export_pmml)
 APP.add_url_rule('/published/<string:name>/features', 'published-features', published.features)

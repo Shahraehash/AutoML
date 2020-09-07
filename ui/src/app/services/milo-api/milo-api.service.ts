@@ -184,6 +184,14 @@ export class MiloApiService {
     )).toPromise();
   }
 
+  async generalizePublished(data, publishName) {
+    return await (await this.request<RefitGeneralization>(
+      'post',
+      `/published/${publishName}/generalize`,
+      data
+    )).toPromise();
+  }
+
   async testTandemModel(data) {
     return await (await this.request<TestReply>(
       'post',

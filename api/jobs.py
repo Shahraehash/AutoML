@@ -9,13 +9,12 @@ import time
 import uuid
 from shutil import copyfile, rmtree
 
-from joblib import load
 from flask import abort, g, jsonify, request, send_file, url_for
 import pandas as pd
 
 from ml.create_model import create_model
 from ml.list_pipelines import list_pipelines
-from ml.generalization import generalize_ensemble, generalization_report
+from ml.generalization import generalize_ensemble, generalize_model
 from ml.predict import predict, predict_ensemble
 from worker import queue_training
 
@@ -409,18 +408,8 @@ def generalize(jobid):
     with open(dataset_folder + '/metadata.json') as metafile:
         dataset_metadata = json.load(metafile)
 
-    payload = json.loads(request.data)
-
-    data = pd.DataFrame(payload['data'], columns=payload['columns']).dropna()
-    x = data[payload['features']].to_numpy()
-    y = data[dataset_metadata['label']]
-
-    pipeline = load(folder + '/pipeline.joblib')
-    predictions = pipeline.predict(x)
-    probabilities = pipeline.predict_proba(x)[:, 1]
-
     return jsonify(
-        generalization_report(['No ' + dataset_metadata['label'], dataset_metadata['label']], y, predictions, probabilities)
+        generalize_model(json.loads(request.data), dataset_metadata['label'], folder + '/pipeline')
     )
 
 def export(jobid):

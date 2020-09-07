@@ -2,6 +2,7 @@
 Generalization of a provided model using a secondary test set.
 """
 
+from joblib import load
 import pandas as pd
 from sklearn.metrics import roc_auc_score, accuracy_score,\
     confusion_matrix, classification_report, f1_score, roc_curve
@@ -20,6 +21,17 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
     probabilities = model.predict_proba(x2)[:, 1]
 
     return generalization_report(labels, y2, predictions, probabilities)
+
+def generalize_model(payload, label, folder):
+    data = pd.DataFrame(payload['data'], columns=payload['columns']).dropna()
+    x = data[payload['features']].to_numpy()
+    y = data[label]
+
+    pipeline = load(folder + '.joblib')
+    predictions = pipeline.predict(x)
+    probabilities = pipeline.predict_proba(x)[:, 1]
+
+    return generalization_report(['No ' + label, label], y, predictions, probabilities)
 
 def generalize_ensemble(total_models, job_folder, dataset_folder, label):
     x2, y2, feature_names, _, _ = import_csv(dataset_folder + '/test.csv', label)

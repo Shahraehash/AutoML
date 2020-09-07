@@ -134,11 +134,15 @@ export class UseModelComponent implements OnInit {
           return;
         }
 
-        this.generalization = await this.api.generalize({
+        const payload = {
           data: reply.data,
           columns: header,
           features: this.parsedFeatures
-        });
+        };
+
+        this.generalization = await (
+          this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload)
+        );
 
         await loading.dismiss();
       },

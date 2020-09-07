@@ -9,9 +9,11 @@ import time
 import uuid
 from shutil import copyfile
 
+import pandas as pd
 from flask import abort, g, jsonify, request, send_file
 
 from ml.predict import predict
+from ml.generalization import generalize_model
 from .jobs import refit
 
 PUBLISHED_MODELS = 'data/published-models.json'
@@ -112,6 +114,33 @@ def test(name):
     reply['target'] = metadata['label']
 
     return jsonify(reply)
+
+def generalize(name):
+    """Generalize the published model against the provided data"""
+
+    if not os.path.exists(PUBLISHED_MODELS):
+        abort(400)
+        return
+
+    with open(PUBLISHED_MODELS) as published_file:
+        published = json.load(published_file)
+
+    if name not in published:
+        abort(400)
+        return
+
+    folder = published[name]['path'][:published[name]['path'].rfind('/')]
+
+    if not os.path.exists(folder + '/metadata.json'):
+        abort(400)
+        return
+
+    with open(folder + '/metadata.json') as metafile:
+        metadata = json.load(metafile)
+
+    return jsonify(
+        generalize_model(json.loads(request.data), metadata['label'], published[name]['path'])
+    )
 
 def features(name):
     """Returns the features for a published model"""
