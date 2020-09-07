@@ -237,7 +237,7 @@ export class UseModelComponent implements OnInit {
           finalize(() => loading.dismiss())
         ).subscribe(
           (result) => {
-            header = this.parsedFeatures;
+            header = [...this.parsedFeatures];
             header.push('prediction', 'probability');
             const mappedData = data.map((i, index) => [...i, result.predicted[index], result.probability[index]]);
             mappedData.unshift(header);
