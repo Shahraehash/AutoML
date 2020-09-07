@@ -140,9 +140,13 @@ export class UseModelComponent implements OnInit {
           features: this.parsedFeatures
         };
 
-        this.generalization = await (
-          this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload)
-        );
+        try {
+          this.generalization = await (
+            this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload)
+          );
+        } catch (err) {
+          this.showError('Unable to assess model performance. Please ensure the target column is present.');
+        }
 
         await loading.dismiss();
       },
