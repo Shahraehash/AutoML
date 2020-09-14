@@ -15,7 +15,7 @@ skip this section.
 
 ```sh
 # Install dependencies
-apt install build-essential nodejs libpython3.7-dev python-virtualenv rabbitmq-server
+apt install build-essential nodejs libpython3.7-dev python-virtualenv rabbitmq-server libomp-dev
 
 # Setup virtual environment
 virtualenv -p python3 milo-env
