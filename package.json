@@ -9,8 +9,8 @@
     "docs": "cd docs && npm run dev",
     "serve": "npm run serve-all",
     "serve-all": "concurrently 'npm run serve-api' 'cd ui && npm run start' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
-    "serve-all-local": "concurrently 'cross-env NO_NETWORK_ALLOWED=true npm run serve-api' 'cd ui && npm run start-local' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
-    "serve-app-local": "concurrently 'cross-env NO_NETWORK_ALLOWED=true python -u server.py' 'cd ui && npx ng serve -c=local --disable-host-check --host 0.0.0.0' 'celery -E -A worker -c 1 worker'",
+    "serve-all-local": "concurrently 'env NO_NETWORK_ALLOWED=true npm run serve-api' 'cd ui && npm run start-local' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
+    "serve-app-local": "concurrently 'env NO_NETWORK_ALLOWED=true python -u server.py' 'cd ui && npx ng serve -c=local --disable-host-check --host 0.0.0.0' 'celery -E -A worker -c 1 worker'",
     "serve-api": "watchmedo auto-restart -d . -R -p \"*.py\" -- python -u server.py",
     "serve-worker": "watchmedo auto-restart -d . -R -p \"*.py\" -- celery -E -A worker -c 1 worker",
     "start": "npm run serve-all",
@@ -32,7 +32,6 @@
   "author": "Samer Albahra",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^5.0.2",
-    "cross-env": "^7.0.2"
+    "concurrently": "^5.0.2"
   }
 }
