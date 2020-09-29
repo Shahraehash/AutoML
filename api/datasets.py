@@ -132,7 +132,7 @@ def process_files(folder, label_column):
     clean_csv_headers(folder + '/test.csv', label_column)
 
     valid_train = import_csv(folder + '/train.csv', label_column)[0].shape[0]
-    if valid_train <= 50:
+    if valid_train < 50:
         raise ValueError('Insufficient rows for training')
 
     metadata = {
