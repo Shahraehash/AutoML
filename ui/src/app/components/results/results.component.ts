@@ -5,6 +5,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AlertController, LoadingController, ModalController, ToastController, PopoverController } from '@ionic/angular';
+import { saveAs } from 'file-saver';
+import * as JSZip from 'jszip';
 import * as saveSvgAsPng from 'save-svg-as-png';
 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
@@ -463,11 +465,20 @@ export class ResultsComponent implements OnInit {
     }
   }
 
-  saveCurves() {
-    document.querySelectorAll('app-roc-chart').forEach(ele => {
-      const name = ele.getAttribute('mode');
-      saveSvgAsPng.saveSvgAsPng(ele.querySelector('.roc'), name, {backgroundColor: 'white'});
-    });
+  async saveCurves() {
+    const curves = document.querySelectorAll('app-roc-chart');
+    const zip = new JSZip();
+
+    for (let i = 0; i < curves.length; i++) {
+      const name = curves[i].getAttribute('mode');
+      const image = await saveSvgAsPng.svgAsPngUri(curves[i].querySelector('.roc'), {backgroundColor: 'white'});
+      zip.file(name + '.png', image.split(',')[1], {base64: true});
+    }
+
+    saveAs(
+      await zip.generateAsync({type: 'blob'}),
+      `${this.sortedData[this.activeRow].key}_graphs.zip`
+    );
   }
 
   private calculateArea(tpr, fpr) {
