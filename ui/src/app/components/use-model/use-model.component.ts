@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { LoadingController, ModalController, ToastController } from '@ionic/angular';
+import { saveAs } from 'file-saver';
 import { parse, unparse } from 'papaparse';
 import { of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -231,7 +232,13 @@ export class UseModelComponent implements OnInit {
         } else if (this.type === 'tandem') {
           observable = of(await this.api.testTandemModel({
             data,
-            features: header
+            features: this.parsedFeatures
+          }));
+        } else if (this.type === 'ensemble') {
+          observable = of(await this.api.testEnsembleModel({
+            data,
+            features: this.parsedFeatures,
+            vote_type: this.voteControl.value
           }));
         } else {
           observable = await this.api.testModel(data);
@@ -245,7 +252,7 @@ export class UseModelComponent implements OnInit {
             header.push('prediction', 'probability');
             const mappedData = data.map((i, index) => [...i, result.predicted[index], result.probability[index]]);
             mappedData.unshift(header);
-            this.saveCSV(unparse(mappedData));
+            saveAs(new Blob([unparse(mappedData)], {type: 'text/csv'}), 'results.csv');
           },
           () => {
             this.showError('Unable to test the data, please validate the data and try again.');
@@ -262,8 +269,8 @@ export class UseModelComponent implements OnInit {
   }
 
   async exportBatchTemplate() {
-    this.saveCSV(
-      unparse([this.parsedFeatures]),
+    saveAs(
+      new Blob([unparse([this.parsedFeatures])], {type: 'text/csv'}),
       'batch_template.csv'
     );
   }
@@ -294,19 +301,5 @@ export class UseModelComponent implements OnInit {
     });
 
     await toast.present();
-  }
-
-  private saveCSV(csvString, fileName?) {
-    const blob = new Blob([csvString]);
-    if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(blob, fileName ?? 'results.csv');
-    } else {
-        const a = window.document.createElement('a');
-        a.href = window.URL.createObjectURL(blob);
-        a.download = fileName ?? 'results.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
   }
 }
