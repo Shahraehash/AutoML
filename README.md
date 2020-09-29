@@ -13,9 +13,11 @@ Debian based machine. The below steps are based on a fresh Debian 10.1
 install. If you already have a working Python environment, you can
 skip this section.
 
+### Linux (Debian)
+
 ```sh
 # Install dependencies
-apt install build-essential nodejs libpython3.7-dev python-virtualenv rabbitmq-server
+apt install build-essential nodejs libpython3.7-dev python-virtualenv rabbitmq-server libomp-dev
 
 # Setup virtual environment
 virtualenv -p python3 milo-env
@@ -25,6 +27,26 @@ source milo-env/bin/activate
 
 # Always source this environment (optional)
 printf "\nsource /home/<username>/milo-env/bin/activate" >> .bashrc
+```
+
+### MacOSX
+
+```sh
+# Install brew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+
+# Install dependencies
+brew install rabbitmq gcc freetype node
+pip3 install virtualenv
+
+# Setup virtual environment
+virtualenv -p python3 milo-env
+
+# Change to this environment
+source milo-env/bin/activate
+
+# Always source this environment (optional)
+printf "\nsource /home/<username>/milo-env/bin/activate" >> .bash_profile
 ```
 
 ## Install
