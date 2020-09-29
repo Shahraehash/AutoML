@@ -12,6 +12,7 @@ import pandas as pd
 from flask import abort, g, jsonify, request
 
 from ml.describe import describe as Describe
+from ml.import_data import import_csv
 
 def get():
     """Get all the datasets for a given user ID"""
@@ -78,7 +79,11 @@ def add():
     train.save(folder + '/train.csv')
     test.save(folder + '/test.csv')
 
-    process_files(folder, request.form['label_column'])
+    try:
+        process_files(folder, request.form['label_column'])
+    except ValueError:
+        rmtree(folder)
+        abort(406)
 
     return jsonify({'id': datasetid})
 
@@ -125,6 +130,11 @@ def process_files(folder, label_column):
 
     features = clean_csv_headers(folder + '/train.csv', label_column)
     clean_csv_headers(folder + '/test.csv', label_column)
+
+    valid_train = import_csv(folder + '/train.csv', label_column)[0].shape[0]
+    if valid_train < 50:
+        raise ValueError('Insufficient rows for training')
+
     metadata = {
         'label': label_column,
         'features': features

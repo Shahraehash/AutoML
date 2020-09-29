@@ -77,10 +77,11 @@ export class UploadComponent implements OnInit, OnDestroy {
       () => {
         this.stepFinished.emit({nextStep: 'explore'});
       },
-      async () => {
+      async error => {
         const alert = await this.alertController.create({
           header: 'Unable to Upload Data',
-          message: 'Please make sure the backend is reachable and try again.',
+          message: error.status === 406 ?
+            'Insufficient training data. Please verify at least 50 complete rows of data are present.' : 'Please make sure the backend is reachable and try again.',
           buttons: ['Dismiss']
         });
 
