@@ -9,7 +9,7 @@ import time
 import uuid
 from shutil import copyfile, rmtree
 
-from flask import abort, g, jsonify, request, send_file, url_for
+from flask import Response, abort, g, jsonify, request, send_file, url_for
 import pandas as pd
 
 from ml.create_model import create_model
@@ -425,7 +425,11 @@ def export(jobid):
         abort(400)
         return
 
-    return send_file(folder + '/report.csv', as_attachment=True, cache_timeout=-1)
+    return Response(
+      pd.read_csv(folder + '/report.csv').drop(['test_fpr', 'test_tpr', 'generalization_fpr', 'generalization_tpr', 'fop', 'mpv'], axis=1).to_csv(),
+      mimetype='text/csv',
+      headers={'Content-Disposition':'attachment;filename=report.csv'}
+    )
 
 def export_pmml(jobid):
     """Export the selected model's PMML"""
