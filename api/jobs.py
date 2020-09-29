@@ -293,7 +293,6 @@ def ensemble(jobid):
             json.dump(ast.literal_eval(request.form['model' + str(x) + '_features']), model_features)
 
         copyfile(job_folder + '/pipeline.joblib', job_folder + '/ensemble' + str(x) + '.joblib')
-        copyfile(job_folder + '/pipeline.pmml', job_folder + '/ensemble' + str(x) +'.pmml')
         copyfile(job_folder + '/pipeline.json', job_folder + '/ensemble' + str(x) +'.json')
 
     reply = generalize_ensemble(total_models, job_folder, dataset_folder, dataset_metadata['label'])
