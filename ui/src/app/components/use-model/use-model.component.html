@@ -8,7 +8,7 @@
     </ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
       <ng-container *ngIf='type; else singleModelHeader'>
-        <ion-select [formControl]='voteControl'>
+        <ion-select [formControl]='voteControl' *ngIf='type === "ensemble"'>
           <ion-select-option value='soft'>Soft</ion-select-option>
           <ion-select-option value='hard'>Hard</ion-select-option>
         </ion-select>
