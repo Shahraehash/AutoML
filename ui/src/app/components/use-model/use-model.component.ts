@@ -231,7 +231,13 @@ export class UseModelComponent implements OnInit {
         } else if (this.type === 'tandem') {
           observable = of(await this.api.testTandemModel({
             data,
-            features: header
+            features: this.parsedFeatures
+          }));
+        } else if (this.type === 'ensemble') {
+          observable = of(await this.api.testEnsembleModel({
+            data,
+            features: this.parsedFeatures,
+            vote_type: this.voteControl.value
           }));
         } else {
           observable = await this.api.testModel(data);
