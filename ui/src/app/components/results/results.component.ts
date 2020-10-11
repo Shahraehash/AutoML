@@ -11,7 +11,7 @@ import * as saveSvgAsPng from 'save-svg-as-png';
 
 import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
-import { GeneralizationResult, MetaData, RefitGeneralization } from '../../interfaces';
+import { GeneralizationResult, MetaData, RefitGeneralization, Results } from '../../interfaces';
 import { MultiSelectMenuComponent } from '../multi-select-menu/multi-select-menu.component';
 import { TrainComponent } from '../train/train.component';
 import { UseModelComponent } from '../use-model/use-model.component';
@@ -131,31 +131,38 @@ export class ResultsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    (await this.api.getResults()).subscribe(
-      data => {
-        this.data = data.results;
-        this.metadata = data.metadata;
-        this.results = new MatTableDataSource(data.results);
-        setTimeout(() => {
-          this.results.sort = this.sort;
-          this.results.paginator = this.paginator;
-          this.results.filterPredicate = this.filter.bind(this);
-        }, 1);
+    let data: Results;
+    const loading = await this.loadingController.create({
+      message: 'Loading results...'
+    });
+    await loading.present();
 
-        this.results.connect().subscribe(d => {
-          this.sortedData = d;
-        });
-     },
-      async () => {
-        const alert = await this.alertController.create({
-          header: 'Unable to Load Results',
-          message: 'Please make sure the backend is reachable and try again.',
-          buttons: ['Dismiss']
-        });
+    try {
+      data = await (await this.api.getResults()).toPromise();
+    } catch (err) {
+      const alert = await this.alertController.create({
+        header: 'Unable to Load Results',
+        message: 'Please make sure the backend is reachable and try again.',
+        buttons: ['Dismiss']
+      });
 
-        await alert.present();
-      }
-    );
+      await loading.dismiss();
+      await alert.present();
+    }
+
+    this.data = data.results;
+    this.metadata = data.metadata;
+    this.results = new MatTableDataSource(data.results);
+    setTimeout(async () => {
+      this.results.sort = this.sort;
+      this.results.paginator = this.paginator;
+      this.results.filterPredicate = this.filter.bind(this);
+      await loading.dismiss();
+    }, 1);
+
+    this.results.connect().subscribe(d => {
+      this.sortedData = d;
+    });
 
     this.updateStarredModels();
   }
