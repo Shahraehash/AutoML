@@ -30,8 +30,13 @@ export class ExploreComponent implements OnInit {
       return;
     }
 
-    (await this.api.getDataAnalysis()).subscribe(data => this.analysis = data);
+    const loading = await this.loadingController.create({
+      message: 'Generating feature analysis...'
+    });
+    await loading.present();
+    this.analysis = await (await this.api.getDataAnalysis()).toPromise();
     this.updateJobs();
+    await loading.dismiss();
   }
 
   getValue(job, column) {
