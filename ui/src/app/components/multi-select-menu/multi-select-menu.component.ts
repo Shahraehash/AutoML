@@ -142,8 +142,8 @@ export class MultiSelectMenuComponent {
   }
 
   private getNamedTandem() {
-    const npvModel = this.selected.find(item => item.npv >= .95);
-    const ppvModel = this.selected.find(item => item.ppv >= .95);
+    const npvModel = this.selected.find(item => item.npv >= .8);
+    const ppvModel = this.selected.find(item => item.ppv >= .8);
     return {npvModel, ppvModel};
   }
 
