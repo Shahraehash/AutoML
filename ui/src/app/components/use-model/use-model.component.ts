@@ -23,11 +23,11 @@ export class UseModelComponent implements OnInit {
   @Input() publishName: string;
   @Input() type: string;
   parsedFeatures: string[];
-  voteControl: FormControl;
   testForm: FormGroup;
   result: TestReply;
   isDragging = false;
   threshold = .5;
+  voteType = 'soft';
 
   constructor(
     public modalController: ModalController,
@@ -40,8 +40,6 @@ export class UseModelComponent implements OnInit {
 
   ngOnInit() {
     this.parsedFeatures = JSON.parse(this.features.replace(/'/g, '"'));
-
-    this.voteControl = this.formBuilder.control('soft');
 
     this.testForm = this.formBuilder.group({
       inputs: this.formBuilder.array(
@@ -93,7 +91,7 @@ export class UseModelComponent implements OnInit {
     this.result = await this.api.testEnsembleModel({
       data: [this.testForm.get('inputs').value],
       features: this.parsedFeatures,
-      vote_type: this.voteControl.value
+      vote_type: this.voteType
     });
   }
 
@@ -241,7 +239,7 @@ export class UseModelComponent implements OnInit {
           observable = of(await this.api.testEnsembleModel({
             data,
             features: this.parsedFeatures,
-            vote_type: this.voteControl.value
+            vote_type: this.voteType
           }));
         } else {
           observable = await this.api.testModel(data);
@@ -301,13 +299,22 @@ export class UseModelComponent implements OnInit {
     const popover = await this.popoverController.create({
       cssClass: 'fit-content',
       component: TuneModelComponent,
-      componentProps: {threshold: this.threshold},
+      componentProps: {
+        threshold: this.threshold,
+        voteType: this.type === 'ensemble' ? this.voteType : undefined
+      },
       event
     });
     await popover.present();
     const { data } = await popover.onWillDismiss();
     if (data) {
-      this.threshold = data.threshold;
+      if (data.threshold) {
+        this.threshold = data.threshold;
+      }
+
+      if (data.voteType) {
+        this.voteType = data.voteType;
+      }
     }
   }
 

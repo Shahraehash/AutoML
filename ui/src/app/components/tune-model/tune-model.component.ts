@@ -7,13 +7,17 @@ import { PopoverController } from '@ionic/angular';
   styleUrls: ['./tune-model.component.scss'],
 })
 export class TuneModelComponent {
-  @Input() threshold = .5;
+  @Input() threshold: number;
+  @Input() voteType: string;
 
   constructor(
     public popoverController: PopoverController
   ) {}
 
   submit() {
-    this.popoverController.dismiss({threshold: this.threshold});
+    this.popoverController.dismiss({
+      threshold: this.threshold,
+      voteType: this.voteType
+    });
   }
 }
