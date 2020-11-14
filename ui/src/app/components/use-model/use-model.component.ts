@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { LoadingController, ModalController, ToastController } from '@ionic/angular';
+import { LoadingController, ModalController, PopoverController, ToastController } from '@ionic/angular';
 import { saveAs } from 'file-saver';
 import { parse, unparse } from 'papaparse';
 import { of } from 'rxjs';
@@ -8,6 +8,7 @@ import { finalize } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { RefitGeneralization, TestReply } from '../../interfaces';
+import { TuneModelComponent } from '../tune-model/tune-model.component';
 
 @Component({
   selector: 'app-use-model',
@@ -26,9 +27,11 @@ export class UseModelComponent implements OnInit {
   testForm: FormGroup;
   result: TestReply;
   isDragging = false;
+  threshold = .5;
 
   constructor(
     public modalController: ModalController,
+    private popoverController: PopoverController,
     private api: MiloApiService,
     private formBuilder: FormBuilder,
     private loadingController: LoadingController,
@@ -292,6 +295,15 @@ export class UseModelComponent implements OnInit {
 
   endDrag() {
     this.isDragging = false;
+  }
+
+  async tuneModel(event) {
+    const popover = await this.popoverController.create({
+      component: TuneModelComponent,
+      componentProps: {threshold: this.threshold},
+      event
+    });
+    await popover.present();
   }
 
   private async showError(message: string) {
