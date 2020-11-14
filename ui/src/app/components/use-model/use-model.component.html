@@ -47,6 +47,7 @@
   <ng-container *ngIf='segment.value === "single"'>
     <div class='container'>
       <div class='results ion-padding'>
+        <div *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</div>
         <div *ngIf='!result' class='ion-margin-top'>
           <div *ngIf='publishName; else testDetail'>
             Please enter your values and press predict to test the model against your sample data. You may
@@ -92,6 +93,8 @@
     <div class='container' (drop)='batchTest($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()'
       [ngClass]='{"overlay": isDragging}'>
       <div class='ion-padding ion-text-center batch-details'>
+        <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span><br><br>
+
         Drag and drop your CSV or select the button below to open a file picker.
 
         <ng-container *ngTemplateOutlet='modelStats'></ng-container>
@@ -120,6 +123,8 @@
     <div class='container' (drop)='generalize($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()'
       [ngClass]='{"overlay": isDragging}'>
       <div class='ion-padding ion-text-center batch-details'>
+        <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span><br><br>
+
         Drag and drop your CSV or select the button below to open a file picker.
 
         <ng-container *ngTemplateOutlet='modelStats'></ng-container>
