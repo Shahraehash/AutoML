@@ -75,8 +75,10 @@
   --width: 400px;
 }
 
-.popover-content {
-  --width: fit-content;
+.fit-content {
+  .popover-content {
+    --width: fit-content;
+  }
 }
 
 .mat-checkbox-disabled .mat-checkbox-label {

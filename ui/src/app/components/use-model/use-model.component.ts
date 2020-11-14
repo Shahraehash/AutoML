@@ -299,6 +299,7 @@ export class UseModelComponent implements OnInit {
 
   async tuneModel(event) {
     const popover = await this.popoverController.create({
+      cssClass: 'fit-content',
       component: TuneModelComponent,
       componentProps: {threshold: this.threshold},
       event
