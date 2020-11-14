@@ -67,7 +67,10 @@ export class UseModelComponent implements OnInit {
     if (this.publishName) {
       observable = await this.api.testPublishedModel([this.testForm.get('inputs').value], this.publishName);
     } else {
-      observable = await this.api.testModel([this.testForm.get('inputs').value]);
+      observable = await this.api.testModel({
+        data: [this.testForm.get('inputs').value],
+        threshold: this.threshold
+      });
     }
 
     observable.subscribe(
@@ -311,6 +314,9 @@ export class UseModelComponent implements OnInit {
       if (data.threshold) {
         this.threshold = data.threshold;
         this.updateGeneralization();
+        if (this.result) {
+          this.testModel();
+        }
       }
 
       if (data.voteType) {
@@ -329,6 +335,11 @@ export class UseModelComponent implements OnInit {
   }
 
   private async updateGeneralization() {
+    const loading = await this.loadingController.create({
+      message: 'Calculating performance...'
+    });
+    await loading.present();
     this.generalization = await this.api.generalize({features: this.parsedFeatures}, this.threshold);
+    await loading.dismiss();
   }
 }

@@ -22,14 +22,14 @@ def generalize(features, model, pipeline, x2, y2, labels=None):
 
     return generalization_report(labels, y2, predictions, probabilities)
 
-def generalize_model(payload, label, folder):
+def generalize_model(payload, label, folder, threshold=.5):
     data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
     x = data[payload['features']].to_numpy()
     y = data[label]
 
     pipeline = load(folder + '.joblib')
-    predictions = pipeline.predict(x)
     probabilities = pipeline.predict_proba(x)[:, 1]
+    predictions = (probabilities > threshold).astype(int)
 
     return generalization_report(['No ' + label, label], y, predictions, probabilities)
 

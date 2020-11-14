@@ -315,9 +315,12 @@ def test(jobid):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
+    payload = json.loads(request.data)
+
     reply = predict(
-        json.loads(request.data),
-        folder + '/pipeline'
+        payload['data'],
+        folder + '/pipeline',
+        payload['threshold']
     )
 
     reply['target'] = metadata['label']
@@ -415,7 +418,7 @@ def generalize(jobid):
         payload['data']['columns'] = test_data.columns
 
     return jsonify(
-        generalize_model(payload['data'], dataset_metadata['label'], folder + '/pipeline')
+        generalize_model(payload['data'], dataset_metadata['label'], folder + '/pipeline', payload['threshold'])
     )
 
 def export(jobid):

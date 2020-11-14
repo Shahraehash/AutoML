@@ -45,7 +45,8 @@
 }
 
 .test-modal {
-  --min-width: 60%;
+  --min-width: 80%;
+  --min-height: 60%;
 
   .modal-only {
     display: initial;
