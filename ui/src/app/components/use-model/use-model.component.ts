@@ -304,6 +304,10 @@ export class UseModelComponent implements OnInit {
       event
     });
     await popover.present();
+    const { data } = await popover.onWillDismiss();
+    if (data) {
+      this.threshold = data.threshold;
+    }
   }
 
   private async showError(message: string) {
