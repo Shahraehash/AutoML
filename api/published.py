@@ -9,7 +9,6 @@ import time
 import uuid
 from shutil import copyfile
 
-import pandas as pd
 from flask import abort, g, jsonify, request, send_file
 
 from ml.predict import predict

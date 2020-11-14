@@ -7,7 +7,7 @@
       {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : type ? 'Selected ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Model' : 'Selected Model'}}
     </ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
-      <ion-button fill='solid' color='primary' (click)='tuneModel($event)'>
+      <ion-button fill='solid' color='primary' (click)='tuneModel($event)' *ngIf='!publishName'>
         <ion-icon class='ion-hide-sm-down' name='options' slot='start'></ion-icon><span class='ion-hide-sm-down'>Tune Model</span>
         <ion-icon class='ion-hide-sm-up' name='options' slot='icon-only'></ion-icon>
       </ion-button>

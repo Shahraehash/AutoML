@@ -176,11 +176,11 @@ export class MiloApiService {
     );
   }
 
-  async generalize(data) {
+  async generalize(data, threshold) {
     return await (await this.request<RefitGeneralization>(
       'post',
       `/jobs/${this.currentJobId}/generalize`,
-      data
+      {data, threshold},
     )).toPromise();
   }
 

@@ -144,7 +144,7 @@ export class UseModelComponent implements OnInit {
 
         try {
           this.generalization = await (
-            this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload)
+            this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload, this.threshold)
           );
         } catch (err) {
           this.showError('Unable to assess model performance. Please ensure the target column is present.');
@@ -300,7 +300,7 @@ export class UseModelComponent implements OnInit {
       cssClass: 'fit-content',
       component: TuneModelComponent,
       componentProps: {
-        threshold: this.threshold,
+        threshold: this.type ? undefined : this.threshold,
         voteType: this.type === 'ensemble' ? this.voteType : undefined
       },
       event
@@ -310,6 +310,7 @@ export class UseModelComponent implements OnInit {
     if (data) {
       if (data.threshold) {
         this.threshold = data.threshold;
+        this.updateGeneralization();
       }
 
       if (data.voteType) {
@@ -325,5 +326,9 @@ export class UseModelComponent implements OnInit {
     });
 
     await toast.present();
+  }
+
+  private async updateGeneralization() {
+    this.generalization = await this.api.generalize({features: this.parsedFeatures}, this.threshold);
   }
 }

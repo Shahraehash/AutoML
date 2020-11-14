@@ -1,4 +1,4 @@
 {
-    "python.dataScience.changeDirOnImportExport": false,
-    "python.linting.pylintEnabled": true
+    "python.linting.pylintEnabled": true,
+    "jupyter.changeDirOnImportExport": false
 }
