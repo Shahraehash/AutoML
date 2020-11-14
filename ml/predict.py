@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import json
 
-def predict(data, path='.'):
+def predict(data, path='.', threshold=.5):
     """Predicts against the provided data"""
 
     # Load the pipeline
@@ -15,12 +15,12 @@ def predict(data, path='.'):
 
     data = pd.DataFrame(data).dropna().values
 
-    predicted = pipeline.predict(data).tolist()
-    probability = pipeline.predict_proba(data).tolist()
+    probability = pipeline.predict_proba(data)
+    predicted = (probability[:,1] >= threshold).astype(int)
 
     return {
-        'predicted': predicted,
-        'probability': [sublist[predicted[index]] for index, sublist in enumerate(probability)]
+        'predicted': predicted.tolist(),
+        'probability': [sublist[predicted[index]] for index, sublist in enumerate(probability.tolist())]
     }
 
 def predict_ensemble(total_models, data, path='.', vote_type='soft'):
