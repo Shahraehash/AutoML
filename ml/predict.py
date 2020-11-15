@@ -16,7 +16,10 @@ def predict(data, path='.', threshold=.5):
     data = pd.DataFrame(data).dropna().values
 
     probability = pipeline.predict_proba(data)
-    predicted = (probability[:, 1] > threshold).astype(int)
+    if threshold == .5:
+      predicted = pipeline.predict(data)
+    else:
+      predicted = (probability[:, 1] >= threshold).astype(int)
 
     return {
         'predicted': predicted.tolist(),

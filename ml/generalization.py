@@ -29,7 +29,10 @@ def generalize_model(payload, label, folder, threshold=.5):
 
     pipeline = load(folder + '.joblib')
     probabilities = pipeline.predict_proba(x)[:, 1]
-    predictions = (probabilities > threshold).astype(int)
+    if threshold == .5:
+      predictions = pipeline.predict(x)
+    else:
+      predictions = (probabilities >= threshold).astype(int)
 
     return generalization_report(['No ' + label, label], y, predictions, probabilities)
 
