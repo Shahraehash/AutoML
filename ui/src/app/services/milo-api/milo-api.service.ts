@@ -118,7 +118,7 @@ export class MiloApiService {
   }
 
   getModelFeatures(model: string) {
-    return this.request<{features: string; generalization: RefitGeneralization}>('get', `/published/${model}/features`);
+    return this.request<{features: string; generalization: RefitGeneralization; threshold: number}>('get', `/published/${model}/features`);
   }
 
   createModel(formData) {

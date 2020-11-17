@@ -107,7 +107,8 @@ def test(name):
 
     reply = predict(
         json.loads(request.data),
-        published[name]['path']
+        published[name]['path'],
+        published[name]['threshold']
     )
 
     reply['target'] = metadata['label']
@@ -164,7 +165,8 @@ def features(name):
 
     return jsonify({
         'features': published[name]['features'],
-        'generalization': generalization
+        'generalization': generalization,
+        'threshold': published[name]['threshold'] if 'threshold' in published[name] else .5
     })
 
 def export_pmml(name):
@@ -237,7 +239,8 @@ def add(name):
     published[name] = {
         'date': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
         'features': request.form['features'],
-        'path': model_path
+        'path': model_path,
+        'threshold': float(request.form['threshold'])
     }
 
     with open(PUBLISHED_MODELS, 'w') as published_file:

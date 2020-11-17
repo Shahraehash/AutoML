@@ -300,6 +300,13 @@ export class ResultsComponent implements OnInit {
           name: 'name',
           type: 'text',
           placeholder: 'Enter the name of your model'
+        },
+        {
+          name: 'threshold',
+          type: 'number',
+          min: .3,
+          max: .7,
+          placeholder: 'Decision threshold (.5 default)'
         }
       ],
       buttons: [
@@ -312,7 +319,12 @@ export class ResultsComponent implements OnInit {
               return false;
             }
 
-            this.publishModel(model, data.name);
+            if (data.threshold && (data.threshold < .3 || data.threshold > .7)) {
+              this.showError('Invalid threshold detected, please use a value between .3 and .7.');
+              return false;
+            }
+
+            this.publishModel(model, data.name, data.threshold || .5);
           }
         }
       ]
@@ -321,13 +333,14 @@ export class ResultsComponent implements OnInit {
     alert.present();
   }
 
-  async publishModel(model, name) {
+  async publishModel(model, name, threshold) {
     await this.presentLoading();
     const formData = new FormData();
     formData.append('key', model.key);
     formData.append('parameters', model.best_params);
     formData.append('features', model.selected_features);
     formData.append('job', this.api.currentJobId);
+    formData.append('threshold', threshold);
 
     (await this.api.publishModel(name, formData)).subscribe(
       async () => {

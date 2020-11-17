@@ -22,11 +22,11 @@ export class UseModelComponent implements OnInit {
   @Input() hardGeneralization: RefitGeneralization;
   @Input() publishName: string;
   @Input() type: string;
+  @Input() threshold = .5;
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
   isDragging = false;
-  threshold = .5;
   voteType = 'soft';
 
   constructor(
