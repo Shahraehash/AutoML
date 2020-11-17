@@ -245,7 +245,10 @@ export class UseModelComponent implements OnInit {
             vote_type: this.voteType
           }));
         } else {
-          observable = await this.api.testModel(data);
+          observable = await this.api.testModel({
+            data,
+            threshold: this.threshold
+          });
         }
 
         observable.pipe(
