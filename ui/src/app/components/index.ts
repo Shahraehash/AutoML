@@ -20,6 +20,7 @@ import { ResultsComponent } from './results/results.component';
 import { RocChartComponent } from './roc-chart/roc-chart.component';
 import { TextareaModalComponent } from './textarea-modal/textarea-modal.component';
 import { TrainComponent } from './train/train.component';
+import { TuneModelComponent } from './tune-model/tune-model.component';
 import { UploadComponent } from './upload/upload.component';
 import { UseModelModule } from './use-model/use-model.module';
 
@@ -36,6 +37,7 @@ import { UseModelModule } from './use-model/use-model.module';
     RocChartComponent,
     TextareaModalComponent,
     TrainComponent,
+    TuneModelComponent,
     UploadComponent
   ],
   exports: [
@@ -50,6 +52,7 @@ import { UseModelModule } from './use-model/use-model.module';
     RocChartComponent,
     TextareaModalComponent,
     TrainComponent,
+    TuneModelComponent,
     UploadComponent
   ],
   imports: [

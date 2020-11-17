@@ -179,7 +179,7 @@ def get_pipelines(jobid):
 
     return jsonify(list_pipelines(metadata['parameters']))
 
-def refit(jobid):
+def refit(jobid, threshold=.5):
     """Create a static copy of the selected model"""
 
     if g.uid is None:
@@ -202,7 +202,8 @@ def refit(jobid):
         ast.literal_eval(request.form['features']),
         dataset_folder,
         dataset_metadata['label'],
-        job_folder
+        job_folder,
+        threshold
     )
 
     return jsonify({'generalization': generalization_result})
@@ -315,9 +316,12 @@ def test(jobid):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
+    payload = json.loads(request.data)
+
     reply = predict(
-        json.loads(request.data),
-        folder + '/pipeline'
+        payload['data'],
+        folder + '/pipeline',
+        payload['threshold']
     )
 
     reply['target'] = metadata['label']
@@ -407,8 +411,15 @@ def generalize(jobid):
     with open(dataset_folder + '/metadata.json') as metafile:
         dataset_metadata = json.load(metafile)
 
+    payload = json.loads(request.data)
+
+    if 'data' not in payload['data']:
+        test_data = pd.read_csv(dataset_folder + '/test.csv')
+        payload['data']['data'] = test_data
+        payload['data']['columns'] = test_data.columns
+
     return jsonify(
-        generalize_model(json.loads(request.data), dataset_metadata['label'], folder + '/pipeline')
+        generalize_model(payload['data'], dataset_metadata['label'], folder + '/pipeline', payload['threshold'])
     )
 
 def export(jobid):

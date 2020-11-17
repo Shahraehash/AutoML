@@ -9,7 +9,6 @@ import time
 import uuid
 from shutil import copyfile
 
-import pandas as pd
 from flask import abort, g, jsonify, request, send_file
 
 from ml.predict import predict
@@ -108,7 +107,8 @@ def test(name):
 
     reply = predict(
         json.loads(request.data),
-        published[name]['path']
+        published[name]['path'],
+        published[name]['threshold']
     )
 
     reply['target'] = metadata['label']
@@ -165,7 +165,8 @@ def features(name):
 
     return jsonify({
         'features': published[name]['features'],
-        'generalization': generalization
+        'generalization': generalization,
+        'threshold': published[name]['threshold'] if 'threshold' in published[name] else .5
     })
 
 def export_pmml(name):
@@ -216,7 +217,9 @@ def add(name):
         abort(401)
         return
 
-    refit(uuid.UUID(request.form['job']))
+    threshold = float(request.form['threshold'])
+
+    refit(uuid.UUID(request.form['job']), threshold)
 
     job_folder = 'data/users/' + g.uid + '/jobs/' + request.form['job']
     model_path = job_folder + '/' + name
@@ -238,7 +241,8 @@ def add(name):
     published[name] = {
         'date': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
         'features': request.form['features'],
-        'path': model_path
+        'path': model_path,
+        'threshold': threshold
     }
 
     with open(PUBLISHED_MODELS, 'w') as published_file:

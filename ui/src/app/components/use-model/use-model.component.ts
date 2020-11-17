@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { LoadingController, ModalController, ToastController } from '@ionic/angular';
+import { LoadingController, ModalController, PopoverController, ToastController } from '@ionic/angular';
 import { saveAs } from 'file-saver';
 import { parse, unparse } from 'papaparse';
 import { of } from 'rxjs';
@@ -8,6 +8,7 @@ import { finalize } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { RefitGeneralization, TestReply } from '../../interfaces';
+import { TuneModelComponent } from '../tune-model/tune-model.component';
 
 @Component({
   selector: 'app-use-model',
@@ -21,14 +22,16 @@ export class UseModelComponent implements OnInit {
   @Input() hardGeneralization: RefitGeneralization;
   @Input() publishName: string;
   @Input() type: string;
+  @Input() threshold = .5;
   parsedFeatures: string[];
-  voteControl: FormControl;
   testForm: FormGroup;
   result: TestReply;
   isDragging = false;
+  voteType = 'soft';
 
   constructor(
     public modalController: ModalController,
+    private popoverController: PopoverController,
     private api: MiloApiService,
     private formBuilder: FormBuilder,
     private loadingController: LoadingController,
@@ -37,8 +40,6 @@ export class UseModelComponent implements OnInit {
 
   ngOnInit() {
     this.parsedFeatures = JSON.parse(this.features.replace(/'/g, '"'));
-
-    this.voteControl = this.formBuilder.control('soft');
 
     this.testForm = this.formBuilder.group({
       inputs: this.formBuilder.array(
@@ -66,7 +67,10 @@ export class UseModelComponent implements OnInit {
     if (this.publishName) {
       observable = await this.api.testPublishedModel([this.testForm.get('inputs').value], this.publishName);
     } else {
-      observable = await this.api.testModel([this.testForm.get('inputs').value]);
+      observable = await this.api.testModel({
+        data: [this.testForm.get('inputs').value],
+        threshold: this.threshold
+      });
     }
 
     observable.subscribe(
@@ -90,7 +94,7 @@ export class UseModelComponent implements OnInit {
     this.result = await this.api.testEnsembleModel({
       data: [this.testForm.get('inputs').value],
       features: this.parsedFeatures,
-      vote_type: this.voteControl.value
+      vote_type: this.voteType
     });
   }
 
@@ -143,7 +147,7 @@ export class UseModelComponent implements OnInit {
 
         try {
           this.generalization = await (
-            this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload)
+            this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload, this.threshold)
           );
         } catch (err) {
           this.showError('Unable to assess model performance. Please ensure the target column is present.');
@@ -238,10 +242,13 @@ export class UseModelComponent implements OnInit {
           observable = of(await this.api.testEnsembleModel({
             data,
             features: this.parsedFeatures,
-            vote_type: this.voteControl.value
+            vote_type: this.voteType
           }));
         } else {
-          observable = await this.api.testModel(data);
+          observable = await this.api.testModel({
+            data,
+            threshold: this.threshold
+          });
         }
 
         observable.pipe(
@@ -294,6 +301,33 @@ export class UseModelComponent implements OnInit {
     this.isDragging = false;
   }
 
+  async tuneModel(event) {
+    const popover = await this.popoverController.create({
+      cssClass: 'fit-content',
+      component: TuneModelComponent,
+      componentProps: {
+        threshold: this.type ? undefined : this.threshold,
+        voteType: this.type === 'ensemble' ? this.voteType : undefined
+      },
+      event
+    });
+    await popover.present();
+    const { data } = await popover.onWillDismiss();
+    if (data) {
+      if (data.threshold) {
+        this.threshold = data.threshold;
+        this.updateGeneralization();
+        if (this.result) {
+          this.testModel();
+        }
+      }
+
+      if (data.voteType) {
+        this.voteType = data.voteType;
+      }
+    }
+  }
+
   private async showError(message: string) {
     const toast = await this.toastController.create({
       message,
@@ -301,5 +335,14 @@ export class UseModelComponent implements OnInit {
     });
 
     await toast.present();
+  }
+
+  private async updateGeneralization() {
+    const loading = await this.loadingController.create({
+      message: 'Calculating performance...'
+    });
+    await loading.present();
+    this.generalization = await this.api.generalize({features: this.parsedFeatures}, this.threshold);
+    await loading.dismiss();
   }
 }

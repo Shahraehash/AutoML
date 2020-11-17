@@ -118,7 +118,7 @@ export class MiloApiService {
   }
 
   getModelFeatures(model: string) {
-    return this.request<{features: string; generalization: RefitGeneralization}>('get', `/published/${model}/features`);
+    return this.request<{features: string; generalization: RefitGeneralization; threshold: number}>('get', `/published/${model}/features`);
   }
 
   createModel(formData) {
@@ -176,11 +176,11 @@ export class MiloApiService {
     );
   }
 
-  async generalize(data) {
+  async generalize(data, threshold) {
     return await (await this.request<RefitGeneralization>(
       'post',
       `/jobs/${this.currentJobId}/generalize`,
-      data
+      {data, threshold},
     )).toPromise();
   }
 

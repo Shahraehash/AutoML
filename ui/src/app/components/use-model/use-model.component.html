@@ -4,17 +4,15 @@
       <ion-button (click)='modalController.dismiss()'><ion-icon slot='icon-only' name='close'></ion-icon></ion-button>
     </ion-buttons>
     <ion-title>
-      {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : type ? 'Use Selected ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Model' : 'Use Selected Model'}}
+      {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : type ? 'Selected ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Model' : 'Selected Model'}}
     </ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
-      <ng-container *ngIf='type; else singleModelHeader'>
-        <ion-select [formControl]='voteControl' *ngIf='type === "ensemble"'>
-          <ion-select-option value='soft'>Soft</ion-select-option>
-          <ion-select-option value='hard'>Hard</ion-select-option>
-        </ion-select>
-      </ng-container>
+      <ion-button fill='solid' color='primary' (click)='tuneModel($event)' *ngIf='!publishName'>
+        <ion-icon class='ion-hide-sm-down' name='options' slot='start'></ion-icon><span class='ion-hide-sm-down'>Tune Model</span>
+        <ion-icon class='ion-hide-sm-up' name='options' slot='icon-only'></ion-icon>
+      </ion-button>
 
-      <ng-template #singleModelHeader>
+      <ng-container *ngIf='!type'>
         <ion-button fill='solid' color='primary' (click)='exportPMML()'>
           <ion-icon class='ion-hide-sm-down' name='code-download' slot='start'></ion-icon><span
             class='ion-hide-sm-down'>PMML</span>
@@ -25,7 +23,7 @@
             class='ion-hide-sm-down'>Download</span>
           <ion-icon class='ion-hide-sm-up' name='download' slot='icon-only'></ion-icon>
         </ion-button>
-      </ng-template>
+      </ng-container>
 
     </ion-buttons>
   </ion-toolbar>
@@ -49,6 +47,7 @@
   <ng-container *ngIf='segment.value === "single"'>
     <div class='container'>
       <div class='results ion-padding'>
+        <div *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</div>
         <div *ngIf='!result' class='ion-margin-top'>
           <div *ngIf='publishName; else testDetail'>
             Please enter your values and press predict to test the model against your sample data. You may
@@ -94,6 +93,8 @@
     <div class='container' (drop)='batchTest($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()'
       [ngClass]='{"overlay": isDragging}'>
       <div class='ion-padding ion-text-center batch-details'>
+        <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span><br><br>
+
         Drag and drop your CSV or select the button below to open a file picker.
 
         <ng-container *ngTemplateOutlet='modelStats'></ng-container>
@@ -122,6 +123,8 @@
     <div class='container' (drop)='generalize($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()'
       [ngClass]='{"overlay": isDragging}'>
       <div class='ion-padding ion-text-center batch-details'>
+        <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span><br><br>
+
         Drag and drop your CSV or select the button below to open a file picker.
 
         <ng-container *ngTemplateOutlet='modelStats'></ng-container>
@@ -142,5 +145,5 @@
 </ion-content>
 
 <ng-template #modelStats>
-  <app-model-statistics *ngIf="type !== 'tandem'" [generalization]="type === 'ensemble' ? (voteControl.value === 'hard' ? hardGeneralization : softGeneralization) : generalization"></app-model-statistics>
+  <app-model-statistics *ngIf="type !== 'tandem'" [generalization]="type === 'ensemble' ? (voteType === 'hard' ? hardGeneralization : softGeneralization) : generalization"></app-model-statistics>
 </ng-template>

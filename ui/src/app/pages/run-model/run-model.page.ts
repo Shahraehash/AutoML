@@ -13,6 +13,7 @@ export class RunModelPage {
   id: string;
   features: string;
   generalization: RefitGeneralization;
+  threshold: number;
   error = false;
 
   constructor(
@@ -26,6 +27,7 @@ export class RunModelPage {
           this.error = false;
           this.features = reply.features;
           this.generalization = reply.generalization;
+          this.threshold = reply.threshold;
         },
         () => this.error = true
       );
