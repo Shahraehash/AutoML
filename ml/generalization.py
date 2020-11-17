@@ -12,13 +12,16 @@ from .predict import predict_ensemble
 from .import_data import import_csv
 from .stats import clopper_pearson, roc_auc_ci
 
-def generalize(features, model, pipeline, x2, y2, labels=None):
+def generalize(features, model, pipeline, x2, y2, labels=None, threshold=.5):
     """"Generalize method"""
 
     # Process test data based on pipeline
     x2 = preprocess(features, pipeline, x2)
-    predictions = model.predict(x2)
     probabilities = model.predict_proba(x2)[:, 1]
+    if threshold == .5:
+      predictions = model.predict(x2)
+    else:
+      predictions = (probabilities >= threshold).astype(int)
 
     return generalization_report(labels, y2, predictions, probabilities)
 

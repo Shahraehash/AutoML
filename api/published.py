@@ -217,7 +217,9 @@ def add(name):
         abort(401)
         return
 
-    refit(uuid.UUID(request.form['job']))
+    threshold = float(request.form['threshold'])
+
+    refit(uuid.UUID(request.form['job']), threshold)
 
     job_folder = 'data/users/' + g.uid + '/jobs/' + request.form['job']
     model_path = job_folder + '/' + name
@@ -240,7 +242,7 @@ def add(name):
         'date': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
         'features': request.form['features'],
         'path': model_path,
-        'threshold': float(request.form['threshold'])
+        'threshold': threshold
     }
 
     with open(PUBLISHED_MODELS, 'w') as published_file:

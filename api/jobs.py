@@ -179,7 +179,7 @@ def get_pipelines(jobid):
 
     return jsonify(list_pipelines(metadata['parameters']))
 
-def refit(jobid):
+def refit(jobid, threshold=.5):
     """Create a static copy of the selected model"""
 
     if g.uid is None:
@@ -202,7 +202,8 @@ def refit(jobid):
         ast.literal_eval(request.form['features']),
         dataset_folder,
         dataset_metadata['label'],
-        job_folder
+        job_folder,
+        threshold
     )
 
     return jsonify({'generalization': generalization_result})

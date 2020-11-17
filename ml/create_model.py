@@ -18,7 +18,7 @@ from .generalization import generalize
 from .model import generate_model
 from .utils import explode_key
 
-def create_model(key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.'):
+def create_model(key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.', threshold=.5):
     """Refits the requested model and pickles it for export"""
 
     if dataset_path is None:
@@ -66,7 +66,7 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
       pipeline = Pipeline(pipeline.steps[:-1] + [('estimator', pickled_estimator)])
 
     # Assess the model performance and store the results
-    generalization_result = generalize(model['features'], pipeline['estimator'], pipeline, x2, y2, ['No ' + label_column, label_column])
+    generalization_result = generalize(model['features'], pipeline['estimator'], pipeline, x2, y2, ['No ' + label_column, label_column], threshold)
     with open(output_path + '/pipeline.json', 'w') as statsfile:
         json.dump(generalization_result, statsfile)
 
