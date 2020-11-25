@@ -129,7 +129,7 @@ export class UseModelComponent implements OnInit {
         const header = reply.data.shift();
 
         header.forEach((element, index, arr) => {
-          arr[index] = element.trim();
+          arr[index] = element.toString().trim();
         });
 
         if (!this.parsedFeatures.every(item => header.includes(item))) {
@@ -197,7 +197,7 @@ export class UseModelComponent implements OnInit {
         if (!header) {
           header = row.data;
           header.forEach((element, index, arr) => {
-            arr[index] = element.trim();
+            arr[index] = element.toString().trim();
           });
 
           if (!this.parsedFeatures.every(item => header.includes(item))) {
