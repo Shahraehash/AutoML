@@ -6,16 +6,16 @@ The data "type" compatible within MILO needs to be a numerical dataset (non-imag
 
 The data "shape" compatible within MILO needs to be in the form of a csv file (easily made within one's Excel dataset file by saving the single Excel sheet as a csv file). This csv file will need to include a set of features and a single binary target to map the features to. An example of the features columns in an Acute kidney Injury (AKI) dataset (as shown below) is the "BNP", "Urine-output", and "Cr-serum" while the target column will be the cases that are AKI positive (i.e. 1) versus AKI negative (i.e. 0).
 
-In summary, the following 3 things are required for getting started in MILO:
+In summary, the following two things are required for getting started in MILO:
 
-1. 2 numerical csv datasets
+1. Two numerical csv datasets
 
-- one for training/initial validation and
-- the second for the generalization/ secondary testing of models
+    - one for training/initial validation
+    - and another for the generalization/secondary testing of models
 
 1. A binary target within this dataset
 
-- e.g. AKI versus No-AKI cases which are shown as 1s and 0s)
+    - e.g. AKI versus No-AKI cases which are shown as 1s and 0s)
 
 This guide will walk you through those steps to quickly prepare your own unique data within your datasets.
 
