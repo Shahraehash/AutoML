@@ -1,6 +1,23 @@
 # Dataset Preparation
 
-Data can come in all shapes and sizes however in order for your data to be used with MILO it needs to first be compatible and second structured in a specific way. This guide will walk you through those steps to quickly prepare your data.
+Data can come in all types, shapes and sizes (numbers, images, texts), however in order for your data to be used within MILO, it needs to first be compatible and second structured in a specific way.
+
+The data "type" compatible within MILO needs to be a numerical dataset (non-image and non-text). If the dataset includes text (e.g. Yes vs No or Male vs Female, etc.), that text will first need to be converted into a numerical value so that it is MILO-compatible.
+
+The data "shape" compatible within MILO needs to be in the form of a csv file (easily made within one's Excel dataset file by saving the single Excel sheet as a csv file). This csv file will need to include a set of features and a single binary target to map the features to. An example of the features columns in an Acute kidney Injury (AKI) dataset (as shown below) is the "BNP", "Urine-output", and "Cr-serum" while the target column will be the cases that are AKI positive (i.e. 1) versus AKI negative (i.e. 0).
+
+In summary, the following 3 things are required for getting started in MILO:
+
+1. 2 numerical csv datasets
+
+- one for training/initial validation and
+- the second for the generalization/ secondary testing of models
+
+1. A binary target within this dataset
+
+- e.g. AKI versus No-AKI cases which are shown as 1s and 0s)
+
+This guide will walk you through those steps to quickly prepare your own unique data within your datasets.
 
 ## Types of compatible data
 
