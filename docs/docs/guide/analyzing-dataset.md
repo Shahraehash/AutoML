@@ -27,3 +27,7 @@ As shown in the image above, you may delete a run by hitting the red trash can i
 ## Deleting a dataset
 
 Additionally, you may delete the entire dataset using the red `Delete Dataset` button as shown above.
+
+## Viewing run results
+
+If you have a completed run in your previous runs list, you can click the blue document icon to open the results.
