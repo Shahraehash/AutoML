@@ -10,12 +10,14 @@
   "repository": "https://albahra@dev.azure.com/albahra/AutoML/_git/AutoML/",
   "scripts": {
     "dev": "vuepress dev docs",
-    "build": "vuepress build docs"
+    "build": "vuepress build docs",
+    "export-pdf": "vuepress export docs"
   },
   "license": "MIT",
   "devDependencies": {
-    "vuepress": "^1.3.1",
+    "@snowdog/vuepress-plugin-pdf-export": "^1.1.0",
     "@vuepress/plugin-back-to-top": "^1.3.1",
-    "@vuepress/plugin-medium-zoom": "^1.3.1"
+    "@vuepress/plugin-medium-zoom": "^1.3.1",
+    "vuepress": "^1.3.1"
   }
 }
