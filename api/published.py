@@ -225,7 +225,10 @@ def add(name):
     model_path = job_folder + '/' + name
 
     copyfile(job_folder + '/pipeline.joblib', model_path + '.joblib')
-    copyfile(job_folder + '/pipeline.pmml', model_path + '.pmml')
+    try:
+        copyfile(job_folder + '/pipeline.pmml', model_path + '.pmml')
+    except:
+        pass
     copyfile(job_folder + '/pipeline.json', model_path + '.json')
 
     if os.path.exists(PUBLISHED_MODELS):
