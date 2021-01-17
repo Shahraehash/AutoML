@@ -3,7 +3,7 @@
 The "Train" page is the brain of MILO and gives rise to the large number of ML pipelines (combinations of the various ML elements and steps shown below, such as algorithms, scalers, feature selectors, searchers and scorers) that ultimately allows MILO to build the thousands of ML models of interest.
 
 ![Training Page](./images/image17.png)
-![Training Step](./images/images18.png)
+![Training Step](./images/image18.png)
 
 Before a new run can begin, some options must be configured which will be explained in this section. Keep in mind the default configuration is to enable all options and is the recommended approach. Removing any of the pre-selected options will reduce the chance of finding one’s best model. Although it will speed up the run since less ML pipelines (i.e., combinations of each algorithm with their respective scaler, feature selector, hyperparameter searcher and scorer) are constructed.
 
