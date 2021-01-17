@@ -56,7 +56,8 @@ module.exports = {
             'test-model',
             'publish-model',
             'conclusion',
-            'glossary-terms'
+            'glossary-terms',
+            'sample-datasets'
           ]
         }
       ],
