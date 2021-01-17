@@ -9,7 +9,7 @@ from .pipeline import generate_pipeline
 from .refit import refit_model
 
 # Load the test data
-LABEL_COLUMN = 'AKI'
+LABEL_COLUMN = 'Cancer'
 
 # Import data
 X_TRAIN, X_TEST, Y_TRAIN, Y_TEST, X2, Y2, FEATURE_NAMES, _ = import_data(
@@ -28,98 +28,98 @@ def test_logistic_regression():
     """Test LR"""
 
     generalization = run_pipeline('none', 'none', 'lr', 'accuracy', 'grid', False)
-    assert generalization['accuracy'] == 0.3725
-    assert generalization['avg_sn_sp'] == 0.6
-    assert generalization['f1'] == 0.3704
+    assert generalization['accuracy'] == 0.9933
+    assert generalization['avg_sn_sp'] == 0.9961
+    assert generalization['f1'] == 0.9861
     assert generalization['sensitivity'] == 1.0
-    assert generalization['specificity'] == 0.2
+    assert generalization['specificity'] == 0.9922
 
 def test_logistic_regression_with_standard_scaler():
     """Test LR with Standard Scaler"""
 
     generalization = run_pipeline('std', 'none', 'lr', 'accuracy', 'grid', False)
-    assert generalization['accuracy'] == 0.4902
-    assert generalization['avg_sn_sp'] == 0.675
-    assert generalization['f1'] == 0.4884
+    assert generalization['accuracy'] == 0.9933
+    assert generalization['avg_sn_sp'] == 0.9961
+    assert generalization['f1'] == 0.9861
     assert generalization['sensitivity'] == 1.0
-    assert generalization['specificity'] == 0.35
+    assert generalization['specificity'] == 0.9922
 
 def test_logistic_regression_with_standard_scaler_with_select_75():
     """Test LR with standard scaler and select percentile 75"""
 
     generalization = run_pipeline('std', 'select-75', 'lr', 'accuracy', 'grid', False)
-    assert generalization['accuracy'] == 0.3529
-    assert generalization['avg_sn_sp'] == 0.5875
-    assert generalization['f1'] == 0.3489
+    assert generalization['accuracy'] == 0.9966
+    assert generalization['avg_sn_sp'] == 0.998
+    assert generalization['f1'] == 0.9930
     assert generalization['sensitivity'] == 1.0
-    assert generalization['specificity'] == 0.175
+    assert generalization['specificity'] == 0.9961
 
 def test_k_nearest_neighbor():
     """Test KNN"""
 
     generalization = run_pipeline('none', 'none', 'knn', 'accuracy', 'grid', False)
-    assert generalization['accuracy'] == 0.3922
-    assert generalization['avg_sn_sp'] == 0.6125
-    assert generalization['f1'] == 0.3912
+    assert generalization['accuracy'] == 0.9899
+    assert generalization['avg_sn_sp'] == 0.9941
+    assert generalization['f1'] == 0.9794
     assert generalization['sensitivity'] == 1.0
-    assert generalization['specificity'] == 0.225
+    assert generalization['specificity'] == 0.9883
 
 def test_k_nearest_neighbor_with_standard_scaler():
     """Test KNN with standard scaler"""
 
     generalization = run_pipeline('std', 'none', 'knn', 'accuracy', 'grid', False)
-    assert generalization['accuracy'] == 0.5490
-    assert generalization['avg_sn_sp'] == 0.6795
-    assert generalization['f1'] == 0.5376
-    assert generalization['sensitivity'] == 0.9091
-    assert generalization['specificity'] == 0.45
+    assert generalization['accuracy'] == 0.9933
+    assert generalization['avg_sn_sp'] == 0.9961
+    assert generalization['f1'] == 0.9861
+    assert generalization['sensitivity'] == 1.0
+    assert generalization['specificity'] == 0.9922
 
 def test_k_nearest_neighbor_with_standard_scaler_with_select_75():
     """Test KNN with standard scaler and select percentile 75%"""
 
     generalization = run_pipeline('std', 'select-75', 'knn', 'accuracy', 'grid', False)
-    assert generalization['accuracy'] == 0.4902
-    assert generalization['avg_sn_sp'] == 0.675
-    assert generalization['f1'] == 0.4884
+    assert generalization['accuracy'] == 0.9865
+    assert generalization['avg_sn_sp'] == 0.9922
+    assert generalization['f1'] == 0.9728
     assert generalization['sensitivity'] == 1.0
-    assert generalization['specificity'] == 0.35
+    assert generalization['specificity'] == 0.9844
 
 def test_support_vector_machine():
     """Test SVM"""
 
     generalization = run_pipeline('none', 'none', 'svm', 'accuracy', 'grid', False)
-    assert generalization['accuracy'] == 0.2549
-    assert generalization['avg_sn_sp'] == 0.4920
-    assert generalization['f1'] == 0.2406
-    assert generalization['sensitivity'] == 0.9091
-    assert generalization['specificity'] == 0.075
+    assert generalization['accuracy'] == 0.9865
+    assert generalization['avg_sn_sp'] == 0.9922
+    assert generalization['f1'] == 0.9728
+    assert generalization['sensitivity'] == 1.0
+    assert generalization['specificity'] == 0.9844
 
 def test_support_vector_machine_with_standard_scaler():
     """Test SVM with standard scaler"""
 
     generalization = run_pipeline('std', 'none', 'svm', 'accuracy', 'grid', False)
-    assert generalization['accuracy'] == 0.4118
-    assert generalization['avg_sn_sp'] == 0.625
-    assert generalization['f1'] == 0.4115
+    assert generalization['accuracy'] == 0.9899
+    assert generalization['avg_sn_sp'] == 0.9941
+    assert generalization['f1'] == 0.9794
     assert generalization['sensitivity'] == 1.0
-    assert generalization['specificity'] == 0.25
+    assert generalization['specificity'] == 0.9883
 
 def test_support_vector_machine_with_standard_scaler_and_roc_auc():
     """Test SVM with standard scaler and ROC AUC scoring"""
 
     generalization = run_pipeline('std', 'none', 'svm', 'roc_auc', 'grid', False)
-    assert generalization['accuracy'] == 0.7059
-    assert generalization['avg_sn_sp'] == 0.6807
-    assert generalization['f1'] == 0.6386
-    assert generalization['sensitivity'] == 0.6364
-    assert generalization['specificity'] == 0.725
+    assert generalization['accuracy'] == 0.9865
+    assert generalization['avg_sn_sp'] == 0.9922
+    assert generalization['f1'] == 0.9728
+    assert generalization['sensitivity'] == 1.0
+    assert generalization['specificity'] == 0.9844
 
 def test_support_vector_machine_with_standard_scaler_with_select_75():
     """Test SVM with standard scaler and select percentile 75%"""
 
     generalization = run_pipeline('std', 'select-75', 'svm', 'accuracy', 'grid', False)
-    assert generalization['accuracy'] == 0.2353
-    assert generalization['avg_sn_sp'] == 0.5125
-    assert generalization['f1'] == 0.2047
+    assert generalization['accuracy'] == 0.9832
+    assert generalization['avg_sn_sp'] == 0.9902
+    assert generalization['f1'] == 0.9663
     assert generalization['sensitivity'] == 1.0
-    assert generalization['specificity'] == 0.025
+    assert generalization['specificity'] == 0.9805
