@@ -12,7 +12,7 @@ This step-by-step guide will enable you to use your own datasets in creating pre
 
 Before starting this tutorial, we recommend the following steps that will hopefully enhance your overall MILO experience.
 
-**1st**: We recommend reading the following two articles before getting started within MILO. The first is a supervised machine learning review article and the second (published in Nature’s Scientific Reports) highlights the use of MILO as an example for building ML models that can serve a particular need (e.g., help with Sepsis prediction). The review article not only gives one a more detailed look of the various supervised machine learning methods employed within MILO, but it also brings some insight into ML best practices and study design. A pdf copy of this review article and the Nature’s Scientific Reports article are also provided for your convenience (please see "ML Articles" section). You can also access these articles directly through the following links (see below):
+**1st**: We recommend reading the following two articles before getting started within MILO. The first is a supervised machine learning review article and the second (published in Nature’s Scientific Reports) highlights the use of MILO as an example for building ML models that can serve a particular need (e.g., help with Sepsis prediction). The review article not only gives one a more detailed look of the various supervised machine learning methods employed within MILO, but it also brings some insight into ML best practices and study design. You can also access these articles directly through the following links (see below):
 
 <https://journals.sagepub.com/doi/full/10.1177/2374289519873088>
 
