@@ -1,12 +1,12 @@
-# Analyzing your dataset
+# Step 2: "Explore" (Analyzing your data before the machine learning steps)
 
-After uploading your data, MILO will proceed to the next step which will show a simple statistical analysis of both datasets uploaded side by side allowing you to compare the data distribution between the two.
+After uploading your data, MILO will proceed to step 2 (the "Explore" step) which will show a simple statistical analysis of both datasets uploaded side by side allowing you to compare the data distribution between the two imported datasets and within each of their features and target (see below).
 
-This step also allows you to manage runs for a particular dataset and delete a dataset.
+![Explore Step](./images/image15.png)
 
 ## Simple statistical overview
 
-A two column approach is taken to show both training and generalization datasets. The target (top) and features (subsequent) will be listed under each column for each dataset, displaying as:
+A two-column approach is taken to show both training and generalization datasets (as shown above). The target (top) and features (subsequent) will be listed under each column for each dataset, displaying as:
 
 ![Statistical Overview](./images/statistical-overview.png)
 
@@ -14,20 +14,8 @@ Each card displays a histogram for general distribution understanding as well as
 
 ## Adding additional runs and deleting runs
 
-To start a new run, look for the `Continue Training` button:
+This step also allows you to manage runs for a particular dataset , delete a dataset and most importantly moving to the next step (step 3: "Train") by clicking the "Continue Training" button (as shown below).
 
-![Continue Training](./images/continue-training.png)
+![Histogram](./images/image16.png)
 
-If you have a previous run for a given dataset, you will instead start a new run using the `Previous Runs` column using the `New Run` button:
-
-![Previous Runs](./images/previous-runs.png)
-
-As shown in the image above, you may delete a run by hitting the red trash can icon.
-
-## Deleting a dataset
-
-Additionally, you may delete the entire dataset using the red `Delete Dataset` button as shown above.
-
-## Viewing run results
-
-If you have a completed run in your previous runs list, you can click the blue document icon to open the results.
+Note: If you have a previous run for a given dataset, you will instead start a new run using the `Previous Runs` column using the `New Run` button.

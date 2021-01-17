@@ -45,14 +45,17 @@ module.exports = {
           collapsable: false,
           children: [
             '',
+            'get-started',
             'dataset-preparation',
+            'homepage',
             'selecting-dataset',
             'analyzing-dataset',
             'model-building',
             'run-status',
             'model-results',
             'test-model',
-            'publish-model'
+            'publish-model',
+            'conclusion'
           ]
         }
       ],

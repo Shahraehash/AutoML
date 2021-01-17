@@ -2,40 +2,34 @@
 
 Testing a model allows you to provide additional input data and get a predication from the selected model.
 
-## Manual entry
+Data can be input ad hoc using the `Single` entry fields allowing a prediction to be calculated on the entered data. The result will be displayed in the window on the right upper hand side along with a graphic displaying the prediction result (i.e., positive or negative). Once a predication is made, the right hand side will not only show the predicated outcome but also the probability of this outcome (as shown in the images below).
 
-Data can be input ad hoc using the `Single` entry fields allowing a predication to be calculated on the entered data. The result will be displayed in the modal on the right hand side along with a graphic indicating positive or negative.
-
-![Single test](./images/single-test.png)
-
-Once a predication is made, the right hand side will show the predicated outcome and the probability of the outcome.
+![Test Entry](./images/image25.png)
+![Test Entry](./images/image26.png)
 
 ## Decision Threshold
 
-Every model defaults to using 0.5 as the decision threshold meaning if the probability for an outcome is below 50% then the prediction is negative versus 50% or greater is marked as positive.
+Every model defaults to the standard 0.5 decision threshold meaning if the probability for an outcome is below 50% then the prediction is negative versus 50% or greater is marked as positive.
 
-The decision threshold can be adjusted between a range of 0.3 to 0.7. This allows predicated outcomes to reflect this new decision threshold.
+The decision threshold can be adjusted between a range of 0.3 to 0.7 within the MILO platform as a way to fine tune the model if needed to further enhance its prediction performance. The new decision threshold ultimately allows a potentially modified outcome (i.e. predictions) that reflect the model’s new settings and capabilities.
 
-The `Tune Model` button allows you to adjust model characteristics including the decision threshold. This will show a modal as shown here:
+The `Tune Model` button allows you to adjust model characteristics including the decision threshold, as shown in the images below:
 
+![Tune Model Button](./images/image27.png)
 ![Tune Model](./images/tune-model.png)
 
 ## Batch entry
 
-Additionally, you may provide a spreadsheet of data for use in the `Batch` mode. This allows the model to predict on every row of data and adds a new column at the end which contains the target column and the predicated outcome. An additional column is also added to show the probability of each outcome.
+Additionally, you may provide a dataset to use for more detailed group testing through MILO’s `Batch` mode (this dataset should have similar features as the ones that were used to build the models). This allows the model to predict on every row of the data and adds a new column at the end which contains the target column (the new prediction). An additional column is also added to show the probability of each of these outcomes.
 
-![Batch Test](./images/batch-test.png)
+![Batch Segment](./images/image28.png)
 
 ## Additional Generalization
 
-Lastly, you may pass labeled data (similar to the generalization data set uploaded in [Step 1](./selecting-dataset.md)) and have the `Model Performance` be re-calculated for the provided dataset. The result will be shown in the modal replacing the previous performance.
-
-![Additional Generalization](./images/additional-generalization.png)
-
-## Download PMML
-
-Predictive Model Markup Language (PMML) is an interchange format using XML allowing a model to be exported out of MILO and used in an outside scope (e.g. Epic EHR). To download the PMML if your model, simply use the `PMML` button in the header of the modal.
+Lastly, you may pass a new dataset with similar features to the generalization data set that was uploaded in Step 1 "Select" page and have the model performance be re-calculated for the provided new dataset. The result will be shown in the window replacing the previous performance.
 
 ## Download joblib
 
-An addition to PMML export of a model, you may also export a pickled version of the model which can be used in Python applications to directly restore the model into memory. To download the pickled model, simply use the `Download` button in the header of the modal.
+You may also export a pickled (fixed) version of the model which can be used in Python applications to directly restore the model into memory. To download the pickled model, simply use the `Download` button in the header of the modal (as highlighted below).
+
+![Download Button](./images/image29.png)
