@@ -32,4 +32,4 @@ Lastly, you may pass a new dataset with similar features to the generalization d
 
 You may also export a pickled (fixed) version of the model which can be used in Python applications to directly restore the model into memory. To download the pickled model, simply use the `Download` button in the header of the modal (as highlighted below).
 
-![Download Button](./images/image29.png)
+![Download Button](./images/image30.png)

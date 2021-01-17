@@ -55,7 +55,8 @@ module.exports = {
             'model-results',
             'test-model',
             'publish-model',
-            'conclusion'
+            'conclusion',
+            'glossary-terms'
           ]
         }
       ],
