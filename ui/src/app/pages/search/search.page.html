@@ -16,6 +16,9 @@
         <ion-icon slot='start' name='download'></ion-icon>
         Export
       </ion-button>
+      <ion-button href='/docs/index.html' target='_blank' *ngIf='isDocker'>
+        <ion-icon slot='icon-only' name='help' color='primary'></ion-icon>
+      </ion-button>
       <ion-button (click)='signOut()' *ngIf='afAuth.auth.currentUser'>
         <ion-icon color='danger' slot='icon-only' name='log-out'></ion-icon>
       </ion-button>

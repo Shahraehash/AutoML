@@ -11,6 +11,7 @@ import { PendingTasksComponent } from '../../components/pending-tasks/pending-ta
 import { TrainComponent } from '../../components/train/train.component';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { PendingTasks } from '../../interfaces';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-search',
@@ -38,6 +39,10 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
     private popoverController: PopoverController,
     private router: Router
   ) {}
+
+  get isDocker() {
+    return environment.name === 'docker';
+  }
 
   async ngOnInit() {
     timer(0, 5000).pipe(
