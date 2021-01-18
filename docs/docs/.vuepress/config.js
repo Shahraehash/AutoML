@@ -6,7 +6,7 @@ module.exports = {
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#title
    */
-  title: 'MILO: Machine Learning Intelligence Optimizer Documentation',
+  title: 'MILO: Machine Intelligence Learning Optimizer Documentation',
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#description
    */

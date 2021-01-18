@@ -8,5 +8,4 @@ features:
 - title: No machine learning or statistics expertise needed
 - title: No software engineering expertise needed
 - title: No programming required
-footer: Made by Samer Albahra with ❤️
 ---
