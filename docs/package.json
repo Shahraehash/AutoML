@@ -9,9 +9,9 @@
   },
   "repository": "https://albahra@dev.azure.com/albahra/AutoML/_git/AutoML/",
   "scripts": {
-    "dev": "vuepress dev docs",
-    "build": "vuepress build docs",
-    "export-pdf": "vuepress export docs"
+    "dev": "vuepress dev src",
+    "build": "vuepress build src",
+    "export-pdf": "vuepress export src"
   },
   "license": "MIT",
   "devDependencies": {
