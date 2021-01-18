@@ -21,23 +21,31 @@ ENV PATH="/home/milo/.local/bin:${PATH}"
 # set the working directory in the container
 WORKDIR /milo
 
+# create data directory
+RUN mkdir data
+
+# copy the Python dependencies to the working directory
+COPY --chown=milo requirements.txt .
+
+# install Python requirements
+RUN pip install -r requirements.txt
+
 # copy the dependencies file to the working directory
 COPY --chown=milo package.json .
 COPY --chown=milo package-lock.json .
-COPY --chown=milo requirements.txt .
+
+# install app dependencies
+RUN npm install --ignore-scripts
+
+# copy remaining Python code
 COPY --chown=milo server.py .
 COPY --chown=milo worker.py .
-COPY --chown=milo static/ static/
 COPY --chown=milo ml/ ml/
 COPY --chown=milo common/ common/
 COPY --chown=milo api/ api/
 
-# create data directory
-RUN mkdir data
+# copy static assets (UI and documentation)
+COPY --chown=milo static/ static/
 
-# install app dependencies
-RUN npm install --ignore-scripts
-RUN pip install -r requirements.txt
-
-# command to run on container start
+# start the application
 CMD [ "npm", "run", "run-docker" ]
