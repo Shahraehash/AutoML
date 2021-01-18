@@ -9,6 +9,7 @@
     "start-local": "ng serve -c=local",
     "serve": "ng serve",
     "build": "ng build --outputPath ../static --prod",
+    "build-docker": "ng build --outputPath ../static --configuration=docker",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
