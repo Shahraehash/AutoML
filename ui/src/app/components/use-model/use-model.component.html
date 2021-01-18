@@ -13,11 +13,11 @@
       </ion-button>
 
       <ng-container *ngIf='!type'>
-        <ion-button fill='solid' color='primary' (click)='exportPMML()'>
+        <!-- <ion-button fill='solid' color='primary' (click)='exportPMML()'>
           <ion-icon class='ion-hide-sm-down' name='code-download' slot='start'></ion-icon><span
             class='ion-hide-sm-down'>PMML</span>
           <ion-icon class='ion-hide-sm-up' name='code-download' slot='icon-only'></ion-icon>
-        </ion-button>
+        </ion-button> -->
         <ion-button fill='solid' color='primary' (click)='exportModel()'>
           <ion-icon class='ion-hide-sm-down' name='download' slot='start'></ion-icon><span
             class='ion-hide-sm-down'>Download</span>
@@ -54,7 +54,7 @@
             also
             batch test multiple values by using the 'Batch' button.
             <br><br>
-            If you wish you may download a copy of the model or it's PMML representation from the header
+            If you wish you may download a copy of the model <!-- or it's PMML representation --> from the header
             buttons above.
           </div>
           <ng-template #testDetail>Please enter the values you wish to test or use the batch test to upload a
