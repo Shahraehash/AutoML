@@ -7,6 +7,7 @@ import { PopoverController } from '@ionic/angular';
 import { timer, of, ReplaySubject } from 'rxjs';
 import { filter, catchError, takeUntil } from 'rxjs/operators';
 
+import { version } from '../../../../../package.json';
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { TrainComponent } from '../../components/train/train.component';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
@@ -30,6 +31,7 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
   pendingTasks: PendingTasks;
   pauseUpdates = false;
   trainCompleted = false;
+  version = version;
 
   constructor(
     public activatedRoute: ActivatedRoute,
