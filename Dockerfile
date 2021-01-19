@@ -1,7 +1,7 @@
 # set base image (host OS)
 FROM python:3.7
 
-# Expose ports
+# expose ports
 EXPOSE 5000
 
 # install OS dependencies

@@ -7,6 +7,11 @@ ion-spinner {
     color: var(--ion-text-color);
 }
 
+.version {
+  font-size: 8px;
+  vertical-align: super;
+}
+
 ::ng-deep {
     mat-horizontal-stepper,
     .mat-horizontal-stepper-content {

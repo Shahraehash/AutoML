@@ -7,10 +7,12 @@ import { PopoverController } from '@ionic/angular';
 import { timer, of, ReplaySubject } from 'rxjs';
 import { filter, catchError, takeUntil } from 'rxjs/operators';
 
+import { version } from '../../../../../package.json';
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { TrainComponent } from '../../components/train/train.component';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { PendingTasks } from '../../interfaces';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-search',
@@ -29,6 +31,7 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
   pendingTasks: PendingTasks;
   pauseUpdates = false;
   trainCompleted = false;
+  version = version;
 
   constructor(
     public activatedRoute: ActivatedRoute,
@@ -38,6 +41,10 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
     private popoverController: PopoverController,
     private router: Router
   ) {}
+
+  get isDocker() {
+    return environment.name === 'docker';
+  }
 
   async ngOnInit() {
     timer(0, 5000).pipe(
