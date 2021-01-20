@@ -1,8 +1,8 @@
 # Test model
 
-Testing a model allows you to provide additional input data and get a predication from the selected model.
+Testing a model allows you to provide additional input data and get a prediction from the selected model.
 
-Data can be input ad hoc using the `Single` entry fields allowing a prediction to be calculated on the entered data. The result will be displayed in the window on the right upper hand side along with a graphic displaying the prediction result (i.e., positive or negative). Once a predication is made, the right hand side will not only show the predicated outcome but also the probability of this outcome (as shown in the images below).
+Data can be input ad hoc using the `Single` entry fields allowing a prediction to be calculated on the entered data. The result will be displayed in the window on the right upper hand side along with a graphic displaying the prediction result (i.e., positive or negative). Once a prediction is made, the right hand side will not only show the predicted outcome but also the probability of this outcome (as shown in the images below).
 
 ![Test Entry](./images/image25.png)
 ![Test Entry](./images/image26.png)
