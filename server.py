@@ -16,6 +16,7 @@ import api.datasets as datasets
 import api.jobs as jobs
 import api.published as published
 import api.tasks as tasks
+import api.licensing as licensing
 
 load_dotenv()
 
@@ -39,6 +40,15 @@ def page_not_found(_):
     """Redirect all invalid pages back to the root index"""
 
     return load_ui()
+
+@APP.before_request
+def validate_license():
+    """Ensures the license is active before fulfilling the API request"""
+
+    if request.path.startswith('/datasets') or request.path.startswith('/jobs') or\
+       request.path.startswith('/tasks') or request.path.startswith('/published'):
+        if not licensing.is_license_valid():
+            raise licensing.PaymentRequired
 
 @APP.before_request
 def parse_auth():
