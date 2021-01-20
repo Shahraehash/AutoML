@@ -1,0 +1,10 @@
+{
+  "extends": "../ui/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./lib",
+    "module": "commonjs",
+    "types": []
+  },
+  "files": ["src/index.ts"],
+  "include": ["src/**/*.d.ts"]
+}
