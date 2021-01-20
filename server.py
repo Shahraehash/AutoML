@@ -45,6 +45,9 @@ def page_not_found(_):
 def validate_license():
     """Ensures the license is active before fulfilling the API request"""
 
+    if request.method == 'OPTIONS':
+        return
+
     if request.path.startswith('/datasets') or request.path.startswith('/jobs') or\
        request.path.startswith('/tasks') or request.path.startswith('/published'):
         if not licensing.is_license_valid():
