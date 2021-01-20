@@ -38,6 +38,10 @@ const routes: Routes = [
     data: { authGuardPipe: redirectUnauthorizedToLogin },
     loadChildren: () => import('./pages/run-model/run-model.module').then(m => m.RunModelPageModule)
   },
+  {
+    path: 'update-license',
+    loadChildren: () => import('./pages/update-license/update-license.module').then( m => m.UpdateLicensePageModule)
+  },
   { path: '**', redirectTo: 'search' }
 ];
 

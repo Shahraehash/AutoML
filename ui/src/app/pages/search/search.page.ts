@@ -55,6 +55,12 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
         catchError(() => of({active: [], scheduled: []}))
       ).subscribe(pending => this.pendingTasks = pending);
     });
+
+    this.api.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
+      if (event === 'license_error') {
+        this.router.navigate(['update-license']);
+      }
+    });
   }
 
   ngOnDestroy() {

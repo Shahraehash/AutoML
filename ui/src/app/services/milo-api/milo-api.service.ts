@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
 import {
@@ -23,6 +25,7 @@ export class MiloApiService {
   currentJobId: string;
   currentDatasetId: string;
   localUser: string;
+  events = new EventEmitter<string>();
 
   constructor(
     private afAuth: AngularFireAuth,
@@ -256,6 +259,10 @@ export class MiloApiService {
     return `${environment.apiUrl}/published/${publishName}/export-pmml?${await this.getURLAuth()}`;
   }
 
+  async activateLicense(license: string) {
+    return await (await this.request<void>('post', '/license/activate', {license})).toPromise();
+  }
+
   private async request<T>(method: string, url: string, body?: any) {
     return this.http.request<T>(
       method,
@@ -264,7 +271,13 @@ export class MiloApiService {
         body,
         headers: await this.getHttpHeaders()
       }
-    );
+    ).pipe(catchError(error => {
+      if (error.status === 402) {
+        this.events.emit('license_error');
+      }
+
+      return throwError(error);
+    }));
   }
 
   private async getHttpHeaders(): Promise<HttpHeaders> {

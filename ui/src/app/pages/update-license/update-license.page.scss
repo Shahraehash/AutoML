@@ -1,0 +1,16 @@
+.version {
+  font-size: 8px;
+  vertical-align: super;
+}
+
+div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  ion-card {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
