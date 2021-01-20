@@ -13,6 +13,8 @@ __pycache__/
 .firebase
 firebase-debug.log
 serviceAccountKey.json
+.runtimeconfig.json
+ui-debug.log
 
 # Installer logs
 pip-log.txt
