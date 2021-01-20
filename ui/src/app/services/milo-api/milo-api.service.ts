@@ -260,7 +260,7 @@ export class MiloApiService {
   }
 
   async activateLicense(license: string) {
-    return await (await this.request<void>('post', '/license/activate', {license})).toPromise();
+    return await (await this.request<void>('post', `/license/${license}`)).toPromise();
   }
 
   private async request<T>(method: string, url: string, body?: any) {

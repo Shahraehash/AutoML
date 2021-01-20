@@ -5,6 +5,7 @@ Handle license related tasks
 import os
 
 import requests
+from flask import jsonify, abort
 from licensing.models import LicenseKey
 from licensing.methods import Helpers
 from werkzeug.exceptions import HTTPException
@@ -12,20 +13,26 @@ from werkzeug.exceptions import HTTPException
 def activate(license_code):
     """Activates a provided license key"""
 
+    global LICENSE
+
     result = requests.post(
         'https://us-central1-milo-ml.cloudfunctions.net/activate',
         json={'machine_code': Helpers.GetMachineCode(), 'license_code': license_code}
-    ).json()
+    )
 
-    if result is not None:
+    if result.ok:
+        result = result.json()
+
         with open('data/licensefile.skm', 'w') as file:
             file.write(result['license'])
 
         with open('data/license.pub', 'w') as file:
             file.write(result['public_key'])
 
-    _license = parse_license(result['public_key'], result['license'])
-    return _license
+        LICENSE = parse_license(result['public_key'], result['license'])
+        return jsonify({'success': True})
+    else:
+        abort(400)
 
 def get_license():
     """Get the license of the current installation"""
@@ -47,7 +54,7 @@ def get_license():
 def is_license_valid():
     """Ensures a valid license is cached"""
 
-    return True if _license else False
+    return True if LICENSE else False
 
 def parse_license(public_key, license_key):
     """Parses a license string into a license object"""
@@ -59,4 +66,4 @@ class PaymentRequired(HTTPException):
     code = 402
     description = 'No valid license detected'
 
-_license = get_license()
+LICENSE = get_license()
