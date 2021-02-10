@@ -12,7 +12,7 @@ exports.activate = functions.https.onRequest(async (req, res) => {
 
   let license;
   try {
-    license = await Key.Activate(cryptolens.token, cryptolens.key, cryptolens.product, req.body.license_code, req.body.machine_code);
+    license = await Key.Activate(cryptolens.token, cryptolens.key, cryptolens.product, req.body.license_code, req.body.machine_code, req.body.fields_to_return, req.body.metadata, req.body.floating_time_interval, req.body.max_overdraft);
   } catch(err) {
     res.status(500).send('Internal server error')
     return;

@@ -17,7 +17,11 @@ def activate():
 
     result = requests.post(
         'https://us-central1-milo-ml.cloudfunctions.net/activate',
-        json={'machine_code': Helpers.GetMachineCode(), 'license_code': request.get_json()['license']}
+        json={
+            'machine_code': Helpers.GetMachineCode(),
+            'license_code': request.get_json()['license'],
+            'floating_time_interval': 300
+        }
     )
 
     if result.ok:
@@ -44,7 +48,8 @@ def get_license():
         with open('data/licensefile.skm', 'r') as file:
             license_key = parse_license(public_key, file.read())
 
-            if license_key is None or not Helpers.IsOnRightMachine(license_key):
+            if license_key is None or not Helpers.IsOnRightMachine(
+                    license_key, is_floating_license=True):
                 return None
             else:
                 return license_key
@@ -59,7 +64,8 @@ def is_license_valid():
 def parse_license(public_key, license_key):
     """Parses a license string into a license object"""
 
-    return LicenseKey.load_from_string(public_key, license_key, 365)
+    # Allows an offline license to be valid for up to 30 days
+    return LicenseKey.load_from_string(public_key, license_key, 30)
 
 class PaymentRequired(HTTPException):
     """HTTP Error for invalid license"""
