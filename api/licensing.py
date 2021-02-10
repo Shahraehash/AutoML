@@ -5,19 +5,19 @@ Handle license related tasks
 import os
 
 import requests
-from flask import jsonify, abort
+from flask import jsonify, abort, request
 from licensing.models import LicenseKey
 from licensing.methods import Helpers
 from werkzeug.exceptions import HTTPException
 
-def activate(license_code):
+def activate():
     """Activates a provided license key"""
 
     global LICENSE
 
     result = requests.post(
         'https://us-central1-milo-ml.cloudfunctions.net/activate',
-        json={'machine_code': Helpers.GetMachineCode(), 'license_code': license_code}
+        json={'machine_code': Helpers.GetMachineCode(), 'license_code': request.get_json()['license']}
     )
 
     if result.ok:

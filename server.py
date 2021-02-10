@@ -120,7 +120,7 @@ APP.add_url_rule('/published/<string:name>/export-pmml', 'published-export-pmml'
 APP.add_url_rule('/published/<string:name>/features', 'published-features', published.features)
 
 # Licensing
-APP.add_url_rule('/license/<string:license_code>', 'license-activate', licensing.activate, methods=['POST'])
+APP.add_url_rule('/license', 'license-activate', licensing.activate, methods=['POST'])
 
 if __name__ == "__main__":
     APP.run()
