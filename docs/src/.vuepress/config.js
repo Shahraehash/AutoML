@@ -1,4 +1,5 @@
 const { description } = require('../../package')
+const { version } = require('../../../package')
 
 module.exports = {
   base: '/docs/',
@@ -6,7 +7,7 @@ module.exports = {
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#title
    */
-  title: 'MILO: Machine Intelligence Learning Optimizer Documentation',
+  title: `MILO: Machine Intelligence Learning Optimizer Documentation (v${version})`,
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#description
    */

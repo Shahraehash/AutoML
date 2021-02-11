@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title class='ion-hide-sm-up' [class.ion-hide]='stepper?.selectedIndex'>MILO</ion-title>
-    <ion-title class='ion-hide-sm-down'>MILO: Machine Intelligence Learning Optimizer</ion-title>
+    <ion-title class='ion-hide-sm-down'>MILO: Machine Intelligence Learning Optimizer <span class='version'>v{{version}}</span></ion-title>
     <ion-buttons slot='end'>
       <ng-container *ngIf='pendingTasks'>
         <ion-button fill='solid' color='primary' (click)='openPendingTasks($event, pendingTasks)' *ngIf='pendingTasks.active.length || pendingTasks.scheduled.length'>
@@ -15,6 +15,9 @@
       <ion-button fill="solid" color='primary' (click)='exportCSV()' *ngIf='stepper?.selectedIndex === 3'>
         <ion-icon slot='start' name='download'></ion-icon>
         Export
+      </ion-button>
+      <ion-button href='/docs/index.html' target='_blank' *ngIf='isDocker'>
+        <ion-icon slot='icon-only' name='help' color='primary'></ion-icon>
       </ion-button>
       <ion-button (click)='signOut()' *ngIf='afAuth.auth.currentUser'>
         <ion-icon color='danger' slot='icon-only' name='log-out'></ion-icon>

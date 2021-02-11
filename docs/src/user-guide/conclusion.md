@@ -2,7 +2,7 @@
 
 This concludes our step-by-step overview of MILO.
 
-Hopefully, the above documentation has been helpful in your model building journey within MILO. For additional tutorials, please also play our step-by-step video tutorials which give you a better big picture view of the various details mentioned above. For further questions please visit our website <https://miloml.com>.
+Hopefully, the above documentation has been helpful in your model building journey within MILO. For further questions please visit our website <https://miloml.com>.
 
 Sincerely,
 
