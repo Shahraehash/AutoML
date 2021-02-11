@@ -40,22 +40,9 @@ module.exports = {
       {
         text: 'User Guide',
         link: '/user-guide/',
-      },
-      {
-        text: 'Install Guide',
-        link: '/install-guide/'
       }
     ],
     sidebar: [
-      {
-        title: 'Install Guide',
-        path: '/install-guide/',
-        collapsable: false,
-        children: [
-          '/install-guide/',
-          '/install-guide/docker'
-        ]
-      },
       {
         title: 'User Guide',
         path: '/user-guide/',
