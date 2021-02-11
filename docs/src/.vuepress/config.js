@@ -40,33 +40,32 @@ module.exports = {
     nav: [
       {
         text: 'User Guide',
-        link: '/guide/',
+        link: '/user-guide/',
       }
     ],
-    sidebar: {
-      '/guide/': [
-        {
-          title: 'Guide',
-          collapsable: false,
-          children: [
-            '',
-            'get-started',
-            'dataset-preparation',
-            'homepage',
-            'selecting-dataset',
-            'analyzing-dataset',
-            'model-building',
-            'run-status',
-            'model-results',
-            'test-model',
-            'publish-model',
-            'conclusion',
-            'glossary-terms',
-            'sample-datasets'
-          ]
-        }
-      ],
-    }
+    sidebar: [
+      {
+        title: 'User Guide',
+        path: '/user-guide/',
+        collapsable: false,
+        children: [
+          '/user-guide/',
+          '/user-guide/get-started',
+          '/user-guide/dataset-preparation',
+          '/user-guide/homepage',
+          '/user-guide/selecting-dataset',
+          '/user-guide/analyzing-dataset',
+          '/user-guide/model-building',
+          '/user-guide/run-status',
+          '/user-guide/model-results',
+          '/user-guide/test-model',
+          '/user-guide/publish-model',
+          '/user-guide/conclusion',
+          '/user-guide/glossary-terms',
+          '/user-guide/sample-datasets'
+        ]
+      }
+    ]
   },
 
   /**
