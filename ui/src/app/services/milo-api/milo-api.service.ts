@@ -259,8 +259,8 @@ export class MiloApiService {
     return `${environment.apiUrl}/published/${publishName}/export-pmml?${await this.getURLAuth()}`;
   }
 
-  async activateLicense(license: string) {
-    return await (await this.request<void>('post', `/license`, {license})).toPromise();
+  async activateLicense(license_code: string) {
+    return await (await this.request<void>('post', `/license`, {license_code})).toPromise();
   }
 
   private async request<T>(method: string, url: string, body?: any) {

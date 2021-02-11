@@ -19,8 +19,7 @@ def activate():
         'https://us-central1-milo-ml.cloudfunctions.net/activate',
         json={
             'machine_code': Helpers.GetMachineCode(),
-            'license_code': request.get_json()['license'],
-            'floating_time_interval': 300
+            'license_code': request.get_json()['license_code']
         }
     )
 
@@ -32,6 +31,9 @@ def activate():
 
         with open('data/license.pub', 'w') as file:
             file.write(result['public_key'])
+
+        with open('data/license.code', 'w') as file:
+            file.write(request.get_json()['license_code'])
 
         LICENSE = parse_license(result['public_key'], result['license'])
         return jsonify({'success': True})
@@ -64,8 +66,8 @@ def is_license_valid():
 def parse_license(public_key, license_key):
     """Parses a license string into a license object"""
 
-    # Allows an offline license to be valid for up to 30 days
-    return LicenseKey.load_from_string(public_key, license_key, 30)
+    # Allows an offline license to be valid for up to 365 days
+    return LicenseKey.load_from_string(public_key, license_key, 365)
 
 class PaymentRequired(HTTPException):
     """HTTP Error for invalid license"""
