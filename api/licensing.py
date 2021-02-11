@@ -32,9 +32,6 @@ def activate():
         with open('data/license.pub', 'w') as file:
             file.write(result['public_key'])
 
-        with open('data/license.code', 'w') as file:
-            file.write(request.get_json()['license_code'])
-
         LICENSE = parse_license(result['public_key'], result['license'])
         return jsonify({'success': True})
     else:
