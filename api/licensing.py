@@ -50,11 +50,10 @@ def get_license():
         with open('data/licensefile.skm', 'r') as file:
             license_key = parse_license(public_key, file.read())
 
-            if license_key is None or not Helpers.IsOnRightMachine(
-                    license_key, is_floating_license=True):
-                return None
-            else:
-                return license_key
+        if license_key is None or not Helpers.IsOnRightMachine(license_key):
+            return None
+        else:
+            return license_key
     else:
         return None
 
