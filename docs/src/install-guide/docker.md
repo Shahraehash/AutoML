@@ -11,7 +11,7 @@ Please contact us to get a download link to our docker image. The file downloade
 Docker Desktop does not currently provide a way to import an image but fortunately also installs Docker CLI. In this section, we will use Docker CLI
 to import the MILO docker image.
 
-Please open any shell and run the following command:
+Please open any terminal and run the following command:
 
 ```sh
 # Replace the file name with the one you downloaded
