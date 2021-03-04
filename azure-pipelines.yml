@@ -38,6 +38,10 @@ steps:
     npm run build-ui
   displayName: 'Build Angular SPA'
 
+- script: |
+    npm --prefix functions run compile
+  displayName: 'Build Firebase Function'
+
 - task: CopyFiles@2
   displayName: 'Copy Firebase configuration to staging'
   inputs:
@@ -65,7 +69,13 @@ steps:
     replaceExistingArchive: true
 
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Firebase artifact'
+  displayName: 'Publish Firebase hosting artifact'
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)/firebase.zip' 
     artifactName: 'static'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Firebase function artifact'
+  inputs:
+    pathtoPublish: '$(Build.SourcesDirectory)/functions' 
+    artifactName: 'functions'
