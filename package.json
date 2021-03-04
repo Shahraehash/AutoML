@@ -1,6 +1,6 @@
 {
   "name": "auto-ml",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AutoML integration containing both the backend (Python) and frontend (TypeScript)",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "serve-api": "watchmedo auto-restart -d . -R -p \"*.py\" -- python -u server.py",
     "serve-worker": "watchmedo auto-restart -d . -R -p \"*.py\" -- celery -E -A worker -c 1 worker",
     "start": "npm run serve-all",
-    "postinstall": "pip install -r requirements.txt && cd ui && npm install && cd ../docs && npm install",
+    "postinstall": "pip install -r requirements.txt && cd ui && npm install && cd ../docs && npm install && cd ../functions && npm install",
     "test": "pytest ml/unit_test.py",
     "update": "git pull && npm install"
   },
