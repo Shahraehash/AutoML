@@ -7,85 +7,110 @@ trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
-strategy:
-  matrix:
-    Python37:
-      python.version: '3.7'
+  vmImage: 'ubuntu-20.04'
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+jobs:
+- job: Functions
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.x'
+    displayName: 'Install Node.js'
 
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
+  - script: |
+      npm --prefix functions install
+    displayName: 'Install dependencies'
 
-- script: |
-    python -m pip install --upgrade pip
-    npm install
-  displayName: 'Install dependencies'
+  - script: |
+      npm --prefix functions run compile
+    displayName: 'Build Firebase functions'
 
-- script: |
-    npm --prefix functions run compile
-  displayName: 'Build Firebase functions'
+  - task: CopyFiles@2
+    displayName: 'Copy Firebase functions configuration'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/functions'
+      Contents: |
+        package-lock.json
+        package.json
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/functions'
 
-- task: CopyFiles@2
-  displayName: 'Copy Firebase functions to staging directory'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/functions'
-    Contents: |
-      lib
-      package-lock.json
-      package.json
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/functions'
+  - task: CopyFiles@2
+    displayName: 'Copy compiled functions'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/functions/lib'
+      Contents: '**'
+      TargetFolder: '$(build.ArtifactStagingDirectory)/functions/lib'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Firebase functions artifact'
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)/functions' 
-    artifactName: 'functions'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Firebase functions artifact'
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/functions' 
+      artifactName: 'functions'
 
-- script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'ML Module Unit Test'
+- job: ML
+  strategy:
+    matrix:
+      Python37:
+        python.version: '3.7'
 
-- script: |
-    npm run build-ui
-  displayName: 'Build Angular SPA'
+  steps:
+    - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+    displayName: 'Use Python $(python.version)'
 
-- task: CopyFiles@2
-  displayName: 'Copy Firebase configuration to staging'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: |
-      firebase.json
-      firestore.rules
-      firestore.indexes.json
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/firebase'
+  - script: |
+      python -m pip install --upgrade pip
+    displayName: 'Install dependencies'
 
-- task: CopyFiles@2
-  displayName: 'Copy SPA to staging'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/static'
-    Contents: '**'
-    TargetFolder: '$(build.artifactstagingdirectory)/firebase/static'
+  - script: |
+      pip install pytest pytest-azurepipelines
+      pytest
+    displayName: 'ML Module Unit Test'
 
-- task: ArchiveFiles@2
-  displayName: 'Create Firebase artifact'
-  inputs:
-    rootFolderOrFile: '$(build.artifactstagingdirectory)/firebase'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/firebase.zip'
-    replaceExistingArchive: true
+- job: SPA
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.x'
+    displayName: 'Install Node.js'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Firebase hosting artifact'
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)/firebase.zip' 
-    artifactName: 'static'
+  - script: |
+      npm --prefix ui install
+    displayName: 'Install dependencies'
+
+  - script: |
+      npm run build-ui
+    displayName: 'Build Angular SPA'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Firebase configuration to staging'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)'
+      Contents: |
+        firebase.json
+        firestore.rules
+        firestore.indexes.json
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/firebase'
+
+  - task: CopyFiles@2
+    displayName: 'Copy SPA to staging'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/static'
+      Contents: '**'
+      TargetFolder: '$(build.artifactstagingdirectory)/firebase/static'
+
+  - task: ArchiveFiles@2
+    displayName: 'Create Firebase artifact'
+    inputs:
+      rootFolderOrFile: '$(build.artifactstagingdirectory)/firebase'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/firebase.zip'
+      replaceExistingArchive: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Firebase hosting artifact'
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/firebase.zip' 
+      artifactName: 'static'
