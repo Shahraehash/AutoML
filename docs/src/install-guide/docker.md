@@ -6,7 +6,7 @@ MILO's docker image hosts everything needed to get up and running with MILO.
 
 Download [Docker Desktop](https://www.docker.com/products/docker-desktop) and follow the instructions from the installer to get it installed on your system.
 
-## 2) Configure Docker
+## 2) Open Docker Dashboard and Configuring Docker
 
 This is a one time step after installing Docker to ensure enough resources are allocated for MILO. This is done using the Docker Desktop Dashboard launched as shown here:
 
@@ -22,11 +22,11 @@ This will navigate to a settings page which has sections on the left hand side. 
 
 Here, please adjust the settings to maximize the available CPU and memory to meet at least 4 CPUs and at least 8GB of RAM.
 
-## 3) Download Image
+## 3) Download MILO Image
 
 Please contact us to get a download link to our docker image. The file downloaded by the link provided will be a TAR file which should not need to be extracted.
 
-## 4) Import Image
+## 4) Import MILO Image
 
 Docker Desktop does not currently provide a way to import an image but fortunately also installs Docker CLI. In this section, we will use Docker CLI
 to import the MILO docker image.
