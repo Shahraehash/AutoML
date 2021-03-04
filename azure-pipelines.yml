@@ -7,65 +7,119 @@ trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
-strategy:
-  matrix:
-    Python37:
-      python.version: '3.7'
+  vmImage: 'ubuntu-20.04'
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+jobs:
+- job: Functions
+  steps:
+  - script: |
+      npm --prefix functions install
+    displayName: 'Install dependencies'
 
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
+  - script: |
+      npm --prefix functions run compile
+    displayName: 'Build Firebase functions'
 
-- script: |
-    python -m pip install --upgrade pip
-    npm install
-  displayName: 'Install dependencies'
+  - task: ArchiveFiles@2
+    displayName: 'Create Firebase artifact'
+    inputs:
+      rootFolderOrFile: '$(Build.SourcesDirectory)/functions'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/payload.zip'
+      replaceExistingArchive: true
 
-- script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'ML Module Unit Test'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Firebase functions artifact'
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
+      artifactName: 'functions'
 
-- script: |
-    npm run build-ui
-  displayName: 'Build Angular SPA'
+- job: ML
+  strategy:
+    matrix:
+      Python37:
+        python.version: '3.7'
 
-- task: CopyFiles@2
-  displayName: 'Copy Firebase configuration to staging'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: |
-      firebase.json
-      firestore.rules
-      firestore.indexes.json
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/firebase'
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+    displayName: 'Use Python $(python.version)'
 
-- task: CopyFiles@2
-  displayName: 'Copy SPA to staging'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/static'
-    Contents: '**'
-    TargetFolder: '$(build.artifactstagingdirectory)/firebase/static'
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
 
-- task: ArchiveFiles@2
-  displayName: 'Create Firebase artifact'
-  inputs:
-    rootFolderOrFile: '$(build.artifactstagingdirectory)/firebase'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/firebase.zip'
-    replaceExistingArchive: true
+  - script: |
+      pip install pytest pytest-azurepipelines
+      pytest
+    displayName: 'ML Module Unit Test'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Firebase artifact'
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)/firebase.zip' 
-    artifactName: 'static'
+- job: SPA
+  steps:
+  - script: |
+      npm --prefix ui install
+    displayName: 'Install dependencies'
+
+  - script: |
+      npm run build-ui
+    displayName: 'Build Angular SPA'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Firebase configuration to staging'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)'
+      Contents: |
+        firebase.json
+        firestore.rules
+        firestore.indexes.json
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/firebase'
+
+  - task: CopyFiles@2
+    displayName: 'Copy SPA to staging'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/static'
+      Contents: '**'
+      TargetFolder: '$(build.ArtifactStagingDirectory)/firebase/static'
+
+  - task: ArchiveFiles@2
+    displayName: 'Create Firebase artifact'
+    inputs:
+      rootFolderOrFile: '$(build.ArtifactStagingDirectory)/firebase'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/payload.zip'
+      replaceExistingArchive: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Firebase hosting artifact'
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
+      artifactName: 'static'
+
+- job: Documentation
+  steps:
+  - script: |
+      npm --prefix docs install
+    displayName: 'Install dependencies'
+
+  - script: |
+      npm --prefix docs run build
+    displayName: 'Build documentation'
+
+  - task: ArchiveFiles@2
+    displayName: 'Create documentation artifact'
+    inputs:
+      rootFolderOrFile: '$(Build.SourcesDirectory)/static/docs'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/payload.zip'
+      replaceExistingArchive: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish documentation artifact'
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
+      artifactName: 'documentation'
