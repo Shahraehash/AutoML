@@ -73,9 +73,3 @@ steps:
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)/firebase.zip' 
     artifactName: 'static'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Firebase function artifact'
-  inputs:
-    pathtoPublish: '$(Build.SourcesDirectory)/functions' 
-    artifactName: 'functions'
