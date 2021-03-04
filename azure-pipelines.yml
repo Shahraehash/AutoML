@@ -25,26 +25,19 @@ jobs:
       npm --prefix functions run compile
     displayName: 'Build Firebase functions'
 
-  - task: CopyFiles@2
-    displayName: 'Copy Firebase functions configuration'
+  - task: ArchiveFiles@2
+    displayName: 'Create Firebase artifact'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)/functions'
-      Contents: |
-        package-lock.json
-        package.json
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/functions'
-
-  - task: CopyFiles@2
-    displayName: 'Copy compiled functions'
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)/functions/lib'
-      Contents: '**'
-      TargetFolder: '$(build.ArtifactStagingDirectory)/functions/lib'
+      rootFolderOrFile: '$(Build.SourcesDirectory)/functions'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/payload.zip'
+      replaceExistingArchive: true
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Firebase functions artifact'
     inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)/functions' 
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
       artifactName: 'functions'
 
 - job: ML
@@ -99,19 +92,19 @@ jobs:
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/static'
       Contents: '**'
-      TargetFolder: '$(build.artifactstagingdirectory)/firebase/static'
+      TargetFolder: '$(build.ArtifactStagingDirectory)/firebase/static'
 
   - task: ArchiveFiles@2
     displayName: 'Create Firebase artifact'
     inputs:
-      rootFolderOrFile: '$(build.artifactstagingdirectory)/firebase'
+      rootFolderOrFile: '$(build.ArtifactStagingDirectory)/firebase'
       includeRootFolder: false
       archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/firebase.zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/payload.zip'
       replaceExistingArchive: true
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Firebase hosting artifact'
     inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)/firebase.zip' 
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
       artifactName: 'static'
