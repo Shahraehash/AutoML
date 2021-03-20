@@ -8,7 +8,7 @@ in medicine (eg. disease or no disease).
 
 ## Environment Setup
 
-Below are the steps to setup a new environment for running MILO on a
+Below are the steps to setup a new environment for running MILO-ML on a
 Debian based machine. The below steps are based on a fresh Debian 10.1
 install. If you already have a working Python environment, you can
 skip this section.

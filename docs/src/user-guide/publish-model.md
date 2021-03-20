@@ -2,7 +2,7 @@
 
 ![Model Deployment](./images/image31.png)
 
-A published model allows users to visit a dedicated page for the model and perform tests against the model. Simply put, it is ready to use for making predictions on your MILO homepage.
+A published model allows users to visit a dedicated page for the model and perform tests against the model. Simply put, it is ready to use for making predictions on your MILO-ML homepage.
 
 ## Publish new model
 
@@ -14,11 +14,11 @@ When you successfully create a model, you will be provided a URL to access the p
 
 ![Published](./images/published.png)
 
-You will notice a link to access your published model which corresponds to the current host being used to access MILO combined with `model/<name>` where `<name>` is the name of the published model you provided in the creation step. This is the URL you can provide to stakeholders to test the model published.
+You will notice a link to access your published model which corresponds to the current host being used to access MILO-ML combined with `model/<name>` where `<name>` is the name of the published model you provided in the creation step. This is the URL you can provide to stakeholders to test the model published.
 
 ## Delete published model
 
-Removing a published model can be done on the home page of the MILO application (also referred to as [Step 1](./selecting-dataset.md)).
+Removing a published model can be done on the home page of the MILO-ML application (also referred to as [Step 1](./selecting-dataset.md)).
 
 If you have a published model, you will see a new section at the bottom of the page, shown below:
 

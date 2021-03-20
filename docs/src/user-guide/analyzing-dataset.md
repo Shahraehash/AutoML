@@ -1,6 +1,6 @@
 # Step 2: "Explore" (Analyzing your data before the machine learning steps)
 
-After uploading your data, MILO will proceed to step 2 (the "Explore" step) which will show a simple statistical analysis of both datasets uploaded side by side allowing you to compare the data distribution between the two imported datasets and within each of their features and target (see below).
+After uploading your data, MILO-ML will proceed to step 2 (the "Explore" step) which will show a simple statistical analysis of both datasets uploaded side by side allowing you to compare the data distribution between the two imported datasets and within each of their features and target (see below).
 
 ![Explore Step](./images/image15.png)
 
