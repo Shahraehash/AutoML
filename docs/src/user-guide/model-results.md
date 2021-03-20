@@ -26,13 +26,13 @@ Next to the graphs, you will see a save icon (highlighted with the red box in th
 
 ![Export Graphs](./images/image21.png)
 
-Additionally, there is an export button (highlighted with the red box in the image below) at the top header which allows a CSV export of the entire table of results for viewing in any spreadsheet editor (e.g., Excel). This highlights the transparency of the MILO platform and will not only allow you to further explore the models and their results but will also allow one to independently verify the MILO results (if you choose to do so).
+Additionally, there is an export button (highlighted with the red box in the image below) at the top header which allows a CSV export of the entire table of results for viewing in any spreadsheet editor (e.g., Excel). This highlights the transparency of the MILO-ML platform and will not only allow you to further explore the models and their results but will also allow one to independently verify the MILO-ML results (if you choose to do so).
 
 ![Export Data](./images/image22.png)
 
 ## Run details
 
-In order to see details about the MILO run (e.g., how many models were built and evaluated, how many pipelines and what combination was employed, etc.), you may select one of the two blue buttons located in the middle right side (between the table and the graphs). The first button, `Parameters` allows you to see which pipeline elements were selected during step 3 (i.e., Train step). The second button, `Details` (highlighted with the red box in the image below) gives you some basic information about the number of models built within each algorithm along with what was ingested within the MILO run, as shown below.
+In order to see details about the MILO-ML run (e.g., how many models were built and evaluated, how many pipelines and what combination was employed, etc.), you may select one of the two blue buttons located in the middle right side (between the table and the graphs). The first button, `Parameters` allows you to see which pipeline elements were selected during step 3 (i.e., Train step). The second button, `Details` (highlighted with the red box in the image below) gives you some basic information about the number of models built within each algorithm along with what was ingested within the MILO-ML run, as shown below.
 
 ![Run Details Button](./images/image23.png)
 ![Run Details](./images/run-details.png)
@@ -49,7 +49,7 @@ Each row of a model will also have a blue upload button (highlighted by the red 
 
 ![Publish Model Button](./images/image32.png)
 
-Once the model of interest is selected (grey highlighted row in the table as shown above), the blue cloud button can be clicked (as highlighted by the red box in the image above) to name and ultimately publish this model on your MILO homepage. You will first be presented with a new window to name your model (no spaces allowed in naming the new model) and if desired, change the default decision threshold (leave empty to use the default value of .5) as shown below.
+Once the model of interest is selected (grey highlighted row in the table as shown above), the blue cloud button can be clicked (as highlighted by the red box in the image above) to name and ultimately publish this model on your MILO-ML homepage. You will first be presented with a new window to name your model (no spaces allowed in naming the new model) and if desired, change the default decision threshold (leave empty to use the default value of .5) as shown below.
 
 ![Publish Model Modal](./images/image32.png)
 ![Publish Model Modal](./images/publish-modal.png)

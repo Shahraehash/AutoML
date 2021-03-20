@@ -1,7 +1,7 @@
 {
   "name": "milo-docs",
   "version": "0.0.1",
-  "description": "MILO documentation",
+  "description": "MILO-ML documentation",
   "main": "index.js",
   "authors": {
     "name": "Samer Albahra",

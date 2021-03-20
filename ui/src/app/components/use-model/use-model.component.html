@@ -4,7 +4,7 @@
       <ion-button (click)='modalController.dismiss()'><ion-icon slot='icon-only' name='close'></ion-icon></ion-button>
     </ion-buttons>
     <ion-title>
-      {{publishName ? 'MILO: Machine Intelligence Learning Optimizer' : type ? 'Selected ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Model' : 'Selected Model'}}
+      {{publishName ? 'MILO-ML: Machine Intelligence Learning Optimizer' : type ? 'Selected ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Model' : 'Selected Model'}}
     </ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
       <ion-button fill='solid' color='primary' (click)='tuneModel($event)' *ngIf='!publishName'>

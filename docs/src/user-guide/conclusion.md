@@ -1,12 +1,12 @@
 # Conclusion
 
-This concludes our step-by-step overview of MILO.
+This concludes our step-by-step overview of MILO-ML.
 
-Hopefully, the above documentation has been helpful in your model building journey within MILO. For further questions please visit our website <https://miloml.com>.
+Hopefully, the above documentation has been helpful in your model building journey within MILO-ML. For further questions please visit our website <https://miloml.com>.
 
 Sincerely,
 
-THE MILO TEAM
+THE MILO-ML TEAM
 
 ## References
 

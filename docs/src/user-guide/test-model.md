@@ -11,7 +11,7 @@ Data can be input ad hoc using the `Single` entry fields allowing a prediction t
 
 Every model defaults to the standard 0.5 decision threshold meaning if the probability for an outcome is below 50% then the prediction is negative versus 50% or greater is marked as positive.
 
-The decision threshold can be adjusted between a range of 0.3 to 0.7 within the MILO platform as a way to fine tune the model if needed to further enhance its prediction performance. The new decision threshold ultimately allows a potentially modified outcome (i.e. predictions) that reflect the model’s new settings and capabilities.
+The decision threshold can be adjusted between a range of 0.3 to 0.7 within the MILO-ML platform as a way to fine tune the model if needed to further enhance its prediction performance. The new decision threshold ultimately allows a potentially modified outcome (i.e. predictions) that reflect the model’s new settings and capabilities.
 
 The `Tune Model` button allows you to adjust model characteristics including the decision threshold, as shown in the images below:
 
@@ -20,7 +20,7 @@ The `Tune Model` button allows you to adjust model characteristics including the
 
 ## Batch entry
 
-Additionally, you may provide a dataset to use for more detailed group testing through MILO’s `Batch` mode (this dataset should have similar features as the ones that were used to build the models). This allows the model to predict on every row of the data and adds a new column at the end which contains the target column (the new prediction). An additional column is also added to show the probability of each of these outcomes.
+Additionally, you may provide a dataset to use for more detailed group testing through MILO-ML’s `Batch` mode (this dataset should have similar features as the ones that were used to build the models). This allows the model to predict on every row of the data and adds a new column at the end which contains the target column (the new prediction). An additional column is also added to show the probability of each of these outcomes.
 
 ![Batch Segment](./images/image28.png)
 

@@ -1,6 +1,6 @@
 # Step 3: "Train"
 
-The "Train" page is the brain of MILO and gives rise to the large number of ML pipelines (combinations of the various ML elements and steps shown below, such as algorithms, scalers, feature selectors, searchers and scorers) that ultimately allows MILO to build the thousands of ML models of interest.
+The "Train" page is the brain of MILO-ML and gives rise to the large number of ML pipelines (combinations of the various ML elements and steps shown below, such as algorithms, scalers, feature selectors, searchers and scorers) that ultimately allows MILO-ML to build the thousands of ML models of interest.
 
 ![Training Page](./images/image17.png)
 ![Training Step](./images/image18.png)
