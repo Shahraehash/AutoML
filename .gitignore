@@ -43,6 +43,7 @@ coverage.xml
 report.txt
 report.csv
 metadata.json
+models/
 
 # Flask stuff:
 instance/
