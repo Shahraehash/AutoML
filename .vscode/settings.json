@@ -1,4 +1,7 @@
 {
     "python.linting.pylintEnabled": true,
-    "jupyter.changeDirOnImportExport": false
+    "jupyter.changeDirOnImportExport": false,
+    "eslint.workingDirectories": [
+      "ui"
+    ]
 }
