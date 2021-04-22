@@ -1,12 +1,12 @@
 import { Component, Input, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
 import { ReplaySubject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { TaskAdded } from '../../interfaces';
-import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
+import * as pipelineOptions from '../../data/pipeline.processors.json';
 import { TextareaModalComponent } from '../../components/textarea-modal/textarea-modal.component';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one-checked.validator';
@@ -24,7 +24,7 @@ export class TrainComponent implements OnDestroy, OnInit {
 
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   allPipelines;
-  showAdvanced = !environment.production;
+  showAdvanced = !environment.production && !this.api.isTrial;
   defaultHyperParameters = {grid: {}, random: {}};
   training = false;
   trainForm: FormGroup;
@@ -38,11 +38,35 @@ export class TrainComponent implements OnDestroy, OnInit {
     private toastController: ToastController
   ) {
     this.trainForm = this.formBuilder.group({
-      estimators: this.formBuilder.array(this.pipelineProcessors.estimators, requireAtLeastOneCheckedValidator()),
-      scalers: this.formBuilder.array(this.pipelineProcessors.scalers, requireAtLeastOneCheckedValidator()),
-      featureSelectors: this.formBuilder.array(this.pipelineProcessors.featureSelectors, requireAtLeastOneCheckedValidator()),
-      searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
-      scorers: this.formBuilder.array(this.pipelineProcessors.scorers),
+      estimators: this.formBuilder.array(
+        this.pipelineProcessors.estimators.map(item => {
+          return new FormControl({value: !this.api.isTrial || item.trial, disabled: this.api.isTrial && !item.trial});
+        }),
+        requireAtLeastOneCheckedValidator()
+      ),
+      scalers: this.formBuilder.array(
+        this.pipelineProcessors.scalers.map(item => {
+          return new FormControl({value: !this.api.isTrial || item.trial, disabled: this.api.isTrial && !item.trial});
+        }),
+        requireAtLeastOneCheckedValidator()
+      ),
+      featureSelectors: this.formBuilder.array(
+        this.pipelineProcessors.featureSelectors.map(item => {
+          return new FormControl({value: !this.api.isTrial || item.trial, disabled: this.api.isTrial && !item.trial});
+        }),
+        requireAtLeastOneCheckedValidator()
+      ),
+      searchers: this.formBuilder.array(
+        this.pipelineProcessors.searchers.map(item => {
+          return new FormControl({value: !this.api.isTrial || item.trial, disabled: this.api.isTrial && !item.trial});
+        }),
+        requireAtLeastOneCheckedValidator()
+      ),
+      scorers: this.formBuilder.array(
+        this.pipelineProcessors.scorers.map(item => {
+          return new FormControl({value: !this.api.isTrial || item.trial, disabled: this.api.isTrial && !item.trial});
+        })
+      ),
       shuffle: [true],
       hyperParameters: {...this.defaultHyperParameters}
     });
