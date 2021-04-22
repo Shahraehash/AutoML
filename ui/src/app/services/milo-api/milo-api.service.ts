@@ -41,7 +41,7 @@ export class MiloApiService {
 
       /** If the environment is setup for local user, log out the user */
       if (environment.localUser) {
-        this.afAuth.auth.signOut();
+        this.afAuth.signOut();
       }
     });
 
@@ -292,12 +292,12 @@ export class MiloApiService {
   private async getHttpHeaders(): Promise<HttpHeaders> {
     return environment.localUser ?
       new HttpHeaders().set('LocalUserID', this.localUser) :
-      new HttpHeaders().set('Authorization', `Bearer ${await this.afAuth.auth.currentUser.getIdToken()}`);
+      new HttpHeaders().set('Authorization', `Bearer ${await (await this.afAuth.currentUser).getIdToken()}`);
   }
 
   private async getURLAuth(): Promise<string> {
     return environment.localUser ?
       `localUser=${this.localUser}` :
-      `currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
+      `currentUser=${await (await this.afAuth.currentUser).getIdToken()}`;
   }
 }

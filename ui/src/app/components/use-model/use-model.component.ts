@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoadingController, ModalController, PopoverController, ToastController } from '@ionic/angular';
 import { saveAs } from 'file-saver';
 import { parse, unparse } from 'papaparse';
@@ -120,7 +120,7 @@ export class UseModelComponent implements OnInit {
     await loading.present();
 
     const file = files[0];
-    parse(file, {
+    parse<string[]>(file, {
       dynamicTyping: true,
       worker: true,
       skipEmptyLines: true,

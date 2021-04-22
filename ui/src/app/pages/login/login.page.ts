@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { Router, ActivatedRoute } from '@angular/router';
-import { auth } from 'firebase/app';
+import firebase from 'firebase';
+import 'firebase/auth';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +19,7 @@ export class LoginPage {
 
   async login() {
     const redirect = this.route.snapshot.params.redirectTo;
-    await this.afAuth.auth.signInWithPopup(new auth.GoogleAuthProvider());
+    await this.afAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
     this.router.navigateByUrl(redirect ? redirect : '/search');
   }
 }
