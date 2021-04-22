@@ -47,13 +47,11 @@ export class TrainComponent implements OnDestroy, OnInit {
       hyperParameters: {...this.defaultHyperParameters}
     });
 
+    this.updateForTrial();
+
     this.api.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
-      if (event === 'trial_update' && this.api.isTrial) {
-        this.setValues('estimators', this.pipelineProcessors.estimators.filter(i => !i.trial).map(i => i.value));
-        this.setValues('scalers', this.pipelineProcessors.scalers.filter(i => !i.trial).map(i => i.value));
-        this.setValues('featureSelectors', this.pipelineProcessors.featureSelectors.filter(i => !i.trial).map(i => i.value));
-        this.setValues('searchers', this.pipelineProcessors.searchers.filter(i => !i.trial).map(i => i.value));
-        this.setValues('scorers', this.pipelineProcessors.scorers.filter(i => !i.trial).map(i => i.value));
+      if (event === 'trial_update') {
+        this.updateForTrial();
       }
     });
   }
@@ -216,6 +214,16 @@ export class TrainComponent implements OnDestroy, OnInit {
     this.trainForm.get(key).setValue(
       this.pipelineProcessors[key].map(i => !array.includes(i.value))
     );
+  }
+
+  private updateForTrial() {
+    if (this.api.isTrial) {
+      this.setValues('estimators', this.pipelineProcessors.estimators.filter(i => !i.trial).map(i => i.value));
+      this.setValues('scalers', this.pipelineProcessors.scalers.filter(i => !i.trial).map(i => i.value));
+      this.setValues('featureSelectors', this.pipelineProcessors.featureSelectors.filter(i => !i.trial).map(i => i.value));
+      this.setValues('searchers', this.pipelineProcessors.searchers.filter(i => !i.trial).map(i => i.value));
+      this.setValues('scorers', this.pipelineProcessors.scorers.filter(i => !i.trial).map(i => i.value));
+    }
   }
 
   private async checkStatus(taskId) {
