@@ -1,6 +1,6 @@
 {
   "name": "auto-ml",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "AutoML integration containing both the backend (Python) and frontend (TypeScript)",
   "main": "index.js",
   "scripts": {
