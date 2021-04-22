@@ -51,7 +51,7 @@ def append_license(response):
     if request.path.startswith('/datasets') or request.path.startswith('/jobs') or\
         request.path.startswith('/tasks') or request.path.startswith('/published'):
         response.headers['access-control-expose-headers'] = 'MILO-Trial'
-        response.headers['MILO-Trial'] = str(licensing.LICENSE.f2).lower()
+        response.headers['MILO-Trial'] = str(licensing.LICENSE.f2 if licensing.LICENSE else True).lower()
 
     return response
 
