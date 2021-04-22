@@ -13,7 +13,6 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { MiloApiService } from './services/milo-api/milo-api.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -39,8 +38,7 @@ import { MiloApiService } from './services/milo-api/milo-api.service';
     })
   ],
   providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    MiloApiService
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]
 })

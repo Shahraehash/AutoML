@@ -283,7 +283,12 @@ export class MiloApiService {
         return throwError(error);
       }),
       map(response => {
-        this.isTrial = response.headers.get('MILO-Trial') === 'true';
+        const isTrial = response.headers.get('MILO-Trial') === 'true';
+        if (isTrial !== this.isTrial) {
+          this.isTrial = isTrial;
+          this.events.emit('trial_update');
+        }
+
         return response.body;
       })
     );
