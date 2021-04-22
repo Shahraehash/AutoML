@@ -9,7 +9,7 @@
     "open-browser": "sleep 15s && open http://localhost:4200",
     "docs": "cd docs && npm run dev",
     "build-docker": "cd ui && npm run build-docker && cd .. && npm run build-docs && docker build -t milo .",
-    "run-docker": "concurrently 'sudo rabbitmq-server' 'cross-env NO_NETWORK_ALLOWED=true FLASK_APP=server.py flask run --host=0.0.0.0' 'celery -E -A worker -c 1 worker'",
+    "run-docker": "concurrently 'sudo rabbitmq-server' 'cross-env NO_NETWORK_ALLOWED=true uwsgi --ini uwsgi.ini' 'celery -E -A worker -c 1 worker'",
     "serve": "npm run serve-all",
     "serve-all": "concurrently 'npm run serve-api' 'cd ui && npm run start' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
     "serve-all-local": "concurrently 'cross-env NO_NETWORK_ALLOWED=true npm run serve-api' 'cd ui && npm run start-local' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
