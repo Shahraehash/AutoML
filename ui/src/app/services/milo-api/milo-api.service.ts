@@ -22,6 +22,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class MiloApiService {
+  isTrial = false;
   currentJobId: string;
   currentDatasetId: string;
   localUser: string;
@@ -73,12 +74,13 @@ export class MiloApiService {
   }
 
   async createJob() {
-    return (await this.request<{id: string}>(
+    return (await this.request<{id: string; isTrial: boolean}>(
       'post',
       `/jobs`,
       {datasetid: this.currentDatasetId}
     )).toPromise().then(reply => {
       this.currentJobId = reply.id;
+      this.isTrial = reply.isTrial;
     });
   }
 

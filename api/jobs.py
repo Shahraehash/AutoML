@@ -12,6 +12,7 @@ from shutil import copyfile, rmtree
 from flask import Response, abort, g, jsonify, request, send_file, url_for
 import pandas as pd
 
+from . import licensing
 from ml.create_model import create_model
 from ml.list_pipelines import list_pipelines
 from ml.generalization import generalize_ensemble, generalize_model
@@ -84,7 +85,7 @@ def add():
     with open(folder + '/metadata.json', 'w') as metafile:
         json.dump(metadata, metafile)
 
-    return jsonify({'id': jobid})
+    return jsonify({'id': jobid, 'isTrial': licensing.LICENSE.f2})
 
 def delete(jobid):
     """Deletes a previous job"""
