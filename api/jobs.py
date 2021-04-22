@@ -85,7 +85,7 @@ def add():
     with open(folder + '/metadata.json', 'w') as metafile:
         json.dump(metadata, metafile)
 
-    return jsonify({'id': jobid, 'isTrial': licensing.LICENSE.f2})
+    return jsonify({'id': jobid})
 
 def delete(jobid):
     """Deletes a previous job"""

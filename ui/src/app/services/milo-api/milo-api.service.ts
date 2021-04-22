@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
@@ -271,15 +271,22 @@ export class MiloApiService {
       environment.apiUrl + url,
       {
         body,
-        headers: await this.getHttpHeaders()
+        headers: await this.getHttpHeaders(),
+        observe: 'response'
       }
-    ).pipe(catchError(error => {
-      if (error.status === 402) {
-        this.events.emit('license_error');
-      }
+    ).pipe(
+      catchError(error => {
+        if (error.status === 402) {
+          this.events.emit('license_error');
+        }
 
-      return throwError(error);
-    }));
+        return throwError(error);
+      }),
+      map(response => {
+        this.isTrial = response.headers.get('MILO-Trial') === 'true';
+        return response.body;
+      })
+    );
   }
 
   private async getHttpHeaders(): Promise<HttpHeaders> {

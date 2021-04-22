@@ -41,6 +41,20 @@ def page_not_found(_):
 
     return load_ui()
 
+@APP.after_request
+def append_license(response):
+    """Appends the license capability of the API"""
+
+    if request.method == 'OPTIONS':
+        return response
+
+    if request.path.startswith('/datasets') or request.path.startswith('/jobs') or\
+        request.path.startswith('/tasks') or request.path.startswith('/published'):
+        response.headers['access-control-expose-headers'] = 'MILO-Trial'
+        response.headers['MILO-Trial'] = str(licensing.LICENSE.f2).lower()
+
+    return response
+
 @APP.before_request
 def validate_license():
     """Ensures the license is active before fulfilling the API request"""
