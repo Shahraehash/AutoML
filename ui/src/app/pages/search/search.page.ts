@@ -32,11 +32,12 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   pauseUpdates = false;
   trainCompleted = false;
   version = version;
+  localUser = environment.localUser;
 
   constructor(
     public activatedRoute: ActivatedRoute,
-    public afAuth: AngularFireAuth,
     public api: MiloApiService,
+    private afAuth: AngularFireAuth,
     private element: ElementRef,
     private popoverController: PopoverController,
     private router: Router
