@@ -27,7 +27,7 @@
   mat-checkbox {
     display: block;
 
-    &.mat-checkbox-disabled {
+    &.mat-checkbox-disabled:not(.mat-checkbox-checked) {
       ::ng-deep {
         .mat-checkbox-label {
           text-decoration: line-through;
