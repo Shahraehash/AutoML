@@ -33,7 +33,7 @@ def activate():
         with open('data/license.pub', 'w') as file:
             file.write(result['public_key'])
 
-        LICENSE = parse_license(result['public_key'], result['license'])
+        LICENSE = LicenseKey.load_from_string(result['public_key'], result['license'])
         return jsonify({'success': True})
     else:
         abort(400)
@@ -46,7 +46,7 @@ def get_license():
             public_key = file.read()
 
         with open('data/licensefile.skm', 'r') as file:
-            license_key = parse_license(public_key, file.read())
+            license_key = LicenseKey.load_from_string(public_key, file.read())
 
         if license_key is None or not Helpers.IsOnRightMachine(license_key):
             return None
@@ -62,12 +62,6 @@ def is_license_valid():
     """Ensures a valid license is cached"""
 
     return True if LICENSE else False
-
-def parse_license(public_key, license_key):
-    """Parses a license string into a license object"""
-
-    # Allows an offline license to be valid for up to 365 days
-    return LicenseKey.load_from_string(public_key, license_key, 365)
 
 class PaymentRequired(HTTPException):
     """HTTP Error for invalid license"""
