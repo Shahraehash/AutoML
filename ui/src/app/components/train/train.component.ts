@@ -253,9 +253,9 @@ export class TrainComponent implements OnDestroy, OnInit {
           });
 
           await alert.present();
-          this.reset.emit();
+          this.resetState.emit();
         } else if (status.state === 'REVOKED') {
-          this.reset.emit();
+          this.resetState.emit();
         }
       });
     });

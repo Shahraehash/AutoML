@@ -89,7 +89,7 @@ export class ExploreComponent implements OnInit {
             });
             await loading.present();
             await (await this.api.deleteDataset(this.api.currentDatasetId)).toPromise();
-            this.reset.emit();
+            this.resetState.emit();
             await loading.dismiss();
           }
         }
