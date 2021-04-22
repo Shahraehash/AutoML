@@ -2,6 +2,7 @@
 Handle license related tasks
 """
 
+from datetime import datetime
 import os
 
 import requests
@@ -50,7 +51,10 @@ def get_license():
         if license_key is None or not Helpers.IsOnRightMachine(license_key):
             return None
         else:
-            return license_key
+            if license_key.expires >= datetime.now():
+                return license_key
+            else:
+                return None
     else:
         return None
 
