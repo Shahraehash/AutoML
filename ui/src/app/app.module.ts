@@ -32,9 +32,9 @@ import { AppRoutingModule } from './app-routing.module';
 
       /**
        * Register the ServiceWorker as soon as the app is stable
-       * or after 30 seconds (whichever comes first).
+       * or after 10 seconds (whichever comes first).
        */
-      registrationStrategy: 'registerWhenStable:30000'
+      registrationStrategy: 'registerWhenStable:10000'
     })
   ],
   providers: [
