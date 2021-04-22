@@ -31,8 +31,8 @@ export class TrainComponent implements OnDestroy, OnInit {
   pipelineProcessors = (pipelineOptions as any).default;
 
   constructor(
+    public api: MiloApiService,
     private alertController: AlertController,
-    private api: MiloApiService,
     private formBuilder: FormBuilder,
     private modalController: ModalController,
     private toastController: ToastController

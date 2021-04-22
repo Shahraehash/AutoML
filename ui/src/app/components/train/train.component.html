@@ -5,7 +5,7 @@
       <ion-card-title>Pipeline Elements</ion-card-title>
     </ion-card-header>
 
-    <div class='pipeline-selection'>
+    <div class='pipeline-selection' [class.trial]='api.isTrial'>
       <div formArrayName='estimators'>
         <h6>Algorithms</h6>
         <mat-checkbox *ngFor='let estimator of pipelineProcessors.estimators; let i=index' [formControlName]='i'>
