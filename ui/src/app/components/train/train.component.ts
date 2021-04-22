@@ -19,7 +19,7 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
 export class TrainComponent implements OnDestroy, OnInit {
   @Input() featureCount;
   @Input() parameters;
-  @Output() reset = new EventEmitter();
+  @Output() resetState = new EventEmitter();
   @Output() stepFinished = new EventEmitter();
 
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();

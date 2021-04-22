@@ -22,7 +22,7 @@ import { environment } from '../../../environments/environment';
     provide: STEPPER_GLOBAL_OPTIONS, useValue: {showError: true}
   }]
 })
-export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
+export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('stepper') stepper: MatStepper;
   @ViewChild('train') train: TrainComponent;
 

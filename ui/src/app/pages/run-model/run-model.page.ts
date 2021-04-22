@@ -9,7 +9,7 @@ import { RefitGeneralization } from '../../interfaces';
   templateUrl: './run-model.page.html',
   styleUrls: ['./run-model.page.scss'],
 })
-export class RunModelPage {
+export class RunModelPageComponent {
   id: string;
   features: string;
   generalization: RefitGeneralization;

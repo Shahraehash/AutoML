@@ -9,7 +9,7 @@ import 'firebase/auth';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage {
+export class LoginPageComponent {
 
   constructor(
     private route: ActivatedRoute,

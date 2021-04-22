@@ -6,7 +6,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
-import { SearchPage } from './search.page';
+import { SearchPageComponent } from './search.page';
 import {
   ComponentsModule,
   PendingTasksComponent,
@@ -18,7 +18,7 @@ import {
 const routes: Routes = [
   {
     path: '',
-    component: SearchPage
+    component: SearchPageComponent
   }
 ];
 
@@ -40,7 +40,7 @@ const routes: Routes = [
     RouterModule.forChild(routes)
   ],
   declarations: [
-    SearchPage
+    SearchPageComponent
   ]
 })
 export class SearchPageModule {}
