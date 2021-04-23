@@ -126,6 +126,7 @@ export class TrainComponent implements OnDestroy, OnInit {
           buttons: ['Dismiss']
         });
 
+        this.resetState.emit();
         await alert.present();
       }
     );
