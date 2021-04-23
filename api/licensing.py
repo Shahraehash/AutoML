@@ -14,8 +14,6 @@ from werkzeug.exceptions import HTTPException
 def activate():
     """Activates a provided license key"""
 
-    global LICENSE
-
     result = requests.post(
         'https://us-central1-milo-ml.cloudfunctions.net/activate',
         json={
@@ -33,7 +31,6 @@ def activate():
         with open('data/license.pub', 'w') as file:
             file.write(result['public_key'])
 
-        LICENSE = LicenseKey.load_from_string(result['public_key'], result['license'])
         return jsonify({'success': True})
     else:
         abort(400)
@@ -61,11 +58,9 @@ def get_license():
 def is_license_valid():
     """Ensures a valid license is cached"""
 
-    return True if LICENSE else False
+    return True if get_license() else False
 
 class PaymentRequired(HTTPException):
     """HTTP Error for invalid license"""
     code = 402
     description = 'No valid license detected'
-
-LICENSE = get_license()

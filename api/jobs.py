@@ -113,7 +113,8 @@ def train(jobid):
 
     parameters = request.form.to_dict()
 
-    if licensing.LICENSE.f2 and \
+    active_license = licensing.get_license()
+    if active_license.f2 and \
         not (
           all(x in parameters.get('ignore_estimator', '') for x in ['mlp', 'gb', 'rf', 'svm']) and \
           all(x in parameters.get('ignore_feature_selector', '') for x in ['select-25', 'select-50', 'select-75', 'pca-80', 'pca-90', 'rf-25', 'rf-50', 'rf-75']) and \
