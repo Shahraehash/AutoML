@@ -12,7 +12,7 @@ from ml import search
 if len(sys.argv) < 4:
     TRAIN_SET = 'sample-data/train.csv'
     TEST_SET = 'sample-data/test.csv'
-    LABEL_COLUMN = 'AKI'
+    LABEL_COLUMN = 'Cancer'
 else:
     TRAIN_SET = sys.argv[1]
     TEST_SET = sys.argv[2]
