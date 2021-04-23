@@ -418,6 +418,10 @@ export class ResultsComponent implements OnInit {
             </ion-list>
           </ion-item>
           <ion-item>
+            <ion-label>Target Column</ion-label>
+            <ion-note slot='end'>${this.metadata.label}</ion-note>
+          </ion-item>
+          <ion-item>
             <ion-label>Training Positive Cases</ion-label>
             <ion-note slot='end'>${this.metadata.train_positive_count}</ion-note>
           </ion-item>
