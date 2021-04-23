@@ -23,7 +23,7 @@ export class UpdateService {
       const alert = await this.alertController.create({
         header: 'Update Available',
         subHeader: 'An update is available',
-        message: 'An update to the web application is now ready and can be applied by clicking the update button below.\n\nThe page will reload in it\'s current location quickly after clicking update.',
+        message: 'An update to the web application is now ready and can be applied by clicking the update button below.<br><br>The page will reload in it\'s current location quickly after clicking update.',
         buttons: [
           'Dismiss',
           {

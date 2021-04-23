@@ -7,7 +7,7 @@
     <div slot='end'>
       <span *ngIf='task.time && task.state !== "REVOKED"' class='status-text ion-padding-end'>
         <ng-container *ngIf='task.current === 0 && task.total === 1; else percentProgress'>
-          <ion-spinner color='light' name='lines-small'></ion-spinner>
+          <ion-spinner color='medium' name='lines-small'></ion-spinner>
         </ng-container>
         <ng-template #percentProgress>
           {{((task.current / task.total) * 100) | number:'1.0-0'}}% Completed
