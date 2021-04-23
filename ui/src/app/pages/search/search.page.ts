@@ -4,8 +4,8 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { MatStepper } from '@angular/material/stepper';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
-import { timer, of, ReplaySubject } from 'rxjs';
-import { filter, catchError, takeUntil } from 'rxjs/operators';
+import { ReplaySubject } from 'rxjs';
+import { takeUntil, tap, delay, repeat } from 'rxjs/operators';
 
 import { version } from '../../../../../package.json';
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
@@ -29,7 +29,6 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   featureCount: number;
   pendingTasks: PendingTasks;
-  pauseUpdates = false;
   trainCompleted = false;
   version = version;
   localUser = environment.localUser;
@@ -48,14 +47,12 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    timer(0, 5000).pipe(
-      filter(() => !this.pauseUpdates),
-      takeUntil(this.destroy$)
-    ).subscribe(async _ => {
-      (await this.api.getPendingTasks()).pipe(
-        catchError(() => of({active: [], scheduled: []}))
-      ).subscribe(pending => this.pendingTasks = pending);
-    });
+    (await this.api.getPendingTasks()).pipe(
+      takeUntil(this.destroy$),
+      tap(pending => this.pendingTasks = pending),
+      delay(5000),
+      repeat()
+    ).subscribe();
 
     this.api.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
       if (event === 'license_error') {
@@ -66,7 +63,6 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
-    this.destroy$.unsubscribe();
   }
 
   ngAfterViewInit() {
@@ -115,7 +111,7 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async openPendingTasks(event, pendingTasks) {
-    this.pauseUpdates = true;
+    this.ngOnDestroy();
     const popover = await this.popoverController.create({
       cssClass: 'wide-popover',
       component: PendingTasksComponent,
@@ -126,7 +122,7 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     await popover.present();
     await popover.onDidDismiss();
-    this.pauseUpdates = false;
+    this.ngOnInit();
   }
 
   stepFinished(event) {

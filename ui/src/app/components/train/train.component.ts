@@ -1,8 +1,8 @@
 import { Component, Input, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
-import { ReplaySubject, timer } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { ReplaySubject } from 'rxjs';
+import { delay, repeat, takeUntil, tap } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { TaskAdded } from '../../interfaces';
@@ -228,10 +228,9 @@ export class TrainComponent implements OnDestroy, OnInit {
   }
 
   private async checkStatus(taskId) {
-    timer(1000, 5000).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(async _ => {
-      (await this.api.getTaskStatus(taskId)).subscribe(async (status) => {
+    (await this.api.getTaskStatus(taskId)).pipe(
+      takeUntil(this.destroy$),
+      tap(async (status) => {
         if (typeof status === 'boolean') {
           return;
         }
@@ -252,8 +251,10 @@ export class TrainComponent implements OnDestroy, OnInit {
         } else if (status.state === 'REVOKED') {
           this.resetState.emit();
         }
-      });
-    });
+      }),
+      delay(5000),
+      repeat()
+    ).subscribe();
   }
 
   private async showError(message) {
