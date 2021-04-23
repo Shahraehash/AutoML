@@ -80,7 +80,6 @@ export class MiloApiService {
       {datasetid: this.currentDatasetId}
     )).toPromise().then(reply => {
       this.currentJobId = reply.id;
-      this.isTrial = reply.isTrial;
     });
   }
 

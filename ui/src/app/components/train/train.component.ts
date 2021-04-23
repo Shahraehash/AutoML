@@ -47,8 +47,6 @@ export class TrainComponent implements OnDestroy, OnInit {
       hyperParameters: {...this.defaultHyperParameters}
     });
 
-    this.updateForTrial();
-
     this.api.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
       if (event === 'trial_update') {
         this.updateForTrial();
@@ -78,6 +76,8 @@ export class TrainComponent implements OnDestroy, OnInit {
         this.trainForm.setValue(options);
       } catch (err) {}
     }
+
+    this.updateForTrial();
 
     if (this.featureCount && this.featureCount < 3) {
       const features = this.trainForm.get('featureSelectors');
