@@ -1,8 +1,8 @@
 import { Component, Input, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
-import { ReplaySubject } from 'rxjs';
-import { delay, repeat, takeUntil, tap } from 'rxjs/operators';
+import { of, ReplaySubject } from 'rxjs';
+import { catchError, delay, repeat, takeUntil, tap } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { TaskAdded } from '../../interfaces';
@@ -92,7 +92,6 @@ export class TrainComponent implements OnDestroy, OnInit {
 
   ngOnDestroy() {
     this.destroy$.next(true);
-    this.destroy$.unsubscribe();
   }
 
   async startTraining() {
@@ -229,6 +228,7 @@ export class TrainComponent implements OnDestroy, OnInit {
 
   private async checkStatus(taskId) {
     (await this.api.getTaskStatus(taskId)).pipe(
+      catchError(_ => of(false)),
       takeUntil(this.destroy$),
       tap(async (status) => {
         if (typeof status === 'boolean') {

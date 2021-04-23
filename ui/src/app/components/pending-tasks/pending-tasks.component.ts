@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { AlertController, ModalController, LoadingController } from '@ionic/angular';
-import { ReplaySubject } from 'rxjs';
-import { delay, repeat, tap, takeUntil } from 'rxjs/operators';
+import { of, ReplaySubject } from 'rxjs';
+import { delay, repeat, tap, takeUntil, catchError } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { PendingTasks } from '../../interfaces';
@@ -26,8 +26,13 @@ export class PendingTasksComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     (await this.api.getPendingTasks()).pipe(
+      catchError(_ => of(false)),
       takeUntil(this.destroy$),
       tap(pending => {
+        if (typeof pending === 'boolean') {
+          return;
+        }
+
         if (!this.pendingTasks) {
           this.pendingTasks = pending;
         } else {

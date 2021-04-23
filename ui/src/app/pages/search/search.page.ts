@@ -4,8 +4,8 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { MatStepper } from '@angular/material/stepper';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
-import { ReplaySubject } from 'rxjs';
-import { takeUntil, tap, delay, repeat } from 'rxjs/operators';
+import { of, ReplaySubject } from 'rxjs';
+import { takeUntil, tap, delay, repeat, catchError } from 'rxjs/operators';
 
 import { version } from '../../../../../package.json';
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
@@ -50,8 +50,15 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$ = new ReplaySubject<boolean>();
 
     (await this.api.getPendingTasks()).pipe(
+      catchError(_ => of(false)),
       takeUntil(this.destroy$),
-      tap(pending => this.pendingTasks = pending),
+      tap(pending => {
+        if (typeof pending === 'boolean') {
+          return;
+        }
+
+        this.pendingTasks = pending;
+      }),
       delay(5000),
       repeat()
     ).subscribe();
