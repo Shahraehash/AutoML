@@ -43,6 +43,7 @@ COPY --chown=milo worker.py .
 COPY --chown=milo ml/ ml/
 COPY --chown=milo common/ common/
 COPY --chown=milo api/ api/
+COPY --chown=milo uwsgi.ini .
 
 # copy static assets (UI and documentation)
 COPY --chown=milo static/ static/

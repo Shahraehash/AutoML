@@ -1,5 +1,5 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { RadialDendrogramComponent } from './radial-dendrogram.component';
 
@@ -7,7 +7,7 @@ describe('RadialDendrogramComponent', () => {
   let component: RadialDendrogramComponent;
   let fixture: ComponentFixture<RadialDendrogramComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ RadialDendrogramComponent ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],

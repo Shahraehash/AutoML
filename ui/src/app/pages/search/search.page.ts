@@ -4,8 +4,8 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { MatStepper } from '@angular/material/stepper';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
-import { timer, of, ReplaySubject } from 'rxjs';
-import { filter, catchError, takeUntil } from 'rxjs/operators';
+import { of, ReplaySubject } from 'rxjs';
+import { takeUntil, tap, delay, repeat, catchError } from 'rxjs/operators';
 
 import { version } from '../../../../../package.json';
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
@@ -22,21 +22,21 @@ import { environment } from '../../../environments/environment';
     provide: STEPPER_GLOBAL_OPTIONS, useValue: {showError: true}
   }]
 })
-export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
+export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('stepper') stepper: MatStepper;
   @ViewChild('train') train: TrainComponent;
 
-  destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
+  destroy$: ReplaySubject<boolean>;
   featureCount: number;
   pendingTasks: PendingTasks;
-  pauseUpdates = false;
   trainCompleted = false;
   version = version;
+  localUser = environment.localUser;
 
   constructor(
     public activatedRoute: ActivatedRoute,
-    public afAuth: AngularFireAuth,
     public api: MiloApiService,
+    private afAuth: AngularFireAuth,
     private element: ElementRef,
     private popoverController: PopoverController,
     private router: Router
@@ -47,14 +47,21 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    timer(0, 5000).pipe(
-      filter(() => !this.pauseUpdates),
-      takeUntil(this.destroy$)
-    ).subscribe(async _ => {
-      (await this.api.getPendingTasks()).pipe(
-        catchError(() => of({active: [], scheduled: []}))
-      ).subscribe(pending => this.pendingTasks = pending);
-    });
+    this.destroy$ = new ReplaySubject<boolean>();
+
+    (await this.api.getPendingTasks()).pipe(
+      catchError(_ => of(false)),
+      takeUntil(this.destroy$),
+      tap(pending => {
+        if (typeof pending === 'boolean') {
+          return;
+        }
+
+        this.pendingTasks = pending;
+      }),
+      delay(5000),
+      repeat()
+    ).subscribe();
 
     this.api.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
       if (event === 'license_error') {
@@ -65,7 +72,6 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroy$.next(true);
-    this.destroy$.unsubscribe();
   }
 
   ngAfterViewInit() {
@@ -114,7 +120,7 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async openPendingTasks(event, pendingTasks) {
-    this.pauseUpdates = true;
+    this.ngOnDestroy();
     const popover = await this.popoverController.create({
       cssClass: 'wide-popover',
       component: PendingTasksComponent,
@@ -125,7 +131,7 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
 
     await popover.present();
     await popover.onDidDismiss();
-    this.pauseUpdates = false;
+    this.ngOnInit();
   }
 
   stepFinished(event) {
@@ -144,7 +150,7 @@ export class SearchPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async signOut() {
-    await this.afAuth.auth.signOut();
+    await this.afAuth.signOut();
     this.router.navigateByUrl('/login');
   }
 }

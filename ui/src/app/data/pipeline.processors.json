@@ -1,0 +1,131 @@
+{
+    "estimators": [
+      {
+        "label": "K-nearest Neighbor",
+        "value": "knn",
+        "trial": true
+      },
+      {
+        "label": "Logistic Regression",
+        "value": "lr",
+        "trial": true
+      },
+      {
+        "label": "Neural Network",
+        "value": "mlp",
+        "trial": false
+      },
+      {
+        "label": "naive Bayes",
+        "value": "nb",
+        "trial": true
+      },
+      {
+        "label": "Gradient Boosting Machine",
+        "value": "gb",
+        "trial": false
+      },
+      {
+        "label": "Random Forest",
+        "value": "rf",
+        "trial": false
+      },
+      {
+        "label": "Support Vector Machine",
+        "value": "svm",
+        "trial": false
+      }
+    ],
+    "scalers": [
+      {
+        "label": "None",
+        "value": "none",
+        "trial": true
+      },
+      {
+        "label": "Standard",
+        "value": "std",
+        "trial": true
+      },
+      {
+        "label": "Min Max",
+        "value": "minmax",
+        "trial": false
+      }
+    ],
+    "featureSelectors": [
+      {
+        "label": "None",
+        "value": "none",
+        "trial": true
+      },
+      {
+        "label": "Select Percentile (25%)",
+        "value": "select-25",
+        "trial": false
+      },
+      {
+        "label": "Select Percentile (50%)",
+        "value": "select-50"
+      },
+      {
+        "label": "Select Percentile (75%)",
+        "value": "select-75",
+        "trial": false
+      },
+      {
+        "label": "Principal Component Analysis (80%)",
+        "value": "pca-80",
+        "trial": false
+      },
+      {
+        "label": "Principal Component Analysis (90%)",
+        "value": "pca-90",
+        "trial": false
+      },
+      {
+        "label": "Random Forest Importance (25%)",
+        "value": "rf-25",
+        "trial": false
+      },
+      {
+        "label": "Random Forest Importance (50%)",
+        "value": "rf-50",
+        "trial": false
+      },
+      {
+        "label": "Random Forest Importance (75%)",
+        "value": "rf-75",
+        "trial": false
+      }
+    ],
+    "searchers": [
+      {
+        "label": "Grid",
+        "value": "grid",
+        "trial": true
+      },
+      {
+        "label": "Random",
+        "value": "random",
+        "trial": true
+      },
+      {
+        "label": "Random 2",
+        "value": "random2",
+        "trial": false
+      }
+    ],
+    "scorers": [
+      {
+        "label": "Accuracy",
+        "value": "accuracy",
+        "trial": true
+      },
+      {
+        "label": "F1",
+        "value": "f1_macro",
+        "trial": false
+      }
+    ]
+  }

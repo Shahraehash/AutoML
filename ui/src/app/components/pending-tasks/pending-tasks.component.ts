@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { AlertController, ModalController, LoadingController } from '@ionic/angular';
-import { timer, of, ReplaySubject } from 'rxjs';
-import { catchError, takeUntil } from 'rxjs/operators';
+import { of, ReplaySubject } from 'rxjs';
+import { delay, repeat, tap, takeUntil, catchError } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { PendingTasks } from '../../interfaces';
@@ -12,7 +12,7 @@ import { TrainComponent } from '../train/train.component';
   templateUrl: './pending-tasks.component.html',
   styleUrls: ['./pending-tasks.component.scss'],
 })
-export class PendingTasksComponent implements OnInit {
+export class PendingTasksComponent implements OnInit, OnDestroy {
   @Input() firstViewData: PendingTasks;
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   pendingTasks: PendingTasks;
@@ -25,14 +25,33 @@ export class PendingTasksComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    timer(0, 5000).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(async _ => {
-      (await this.api.getPendingTasks()).pipe(
-        catchError(() => of({active: [], scheduled: []}))
-      ).subscribe(pending => this.pendingTasks = pending);
-    });
+    (await this.api.getPendingTasks()).pipe(
+      catchError(_ => of(false)),
+      takeUntil(this.destroy$),
+      tap(pending => {
+        if (typeof pending === 'boolean') {
+          return;
+        }
 
+        if (!this.pendingTasks) {
+          this.pendingTasks = pending;
+        } else {
+          this.pendingTasks.scheduled = pending.scheduled;
+          pending.active.forEach(item => {
+            if (item.state === 'PENDING' && item.current === 0 && item.total === 1) {
+              return;
+            }
+            this.pendingTasks.active[this.pendingTasks.active.findIndex(task => task.id === item.id)] = item;
+          });
+        }
+      }),
+      delay(5000),
+      repeat()
+    ).subscribe();
+  }
+
+  async ngOnDestroy() {
+    this.destroy$.next(true);
   }
 
   async cancelTask(event: Event, id) {

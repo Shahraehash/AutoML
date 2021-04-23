@@ -6,13 +6,13 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 
-import { RunModelPage } from './run-model.page';
+import { RunModelPageComponent } from './run-model.page';
 import { UseModelModule } from '../../components/use-model/use-model.module';
 
 const routes: Routes = [
   {
     path: '',
-    component: RunModelPage
+    component: RunModelPageComponent
   }
 ];
 
@@ -26,6 +26,6 @@ const routes: Routes = [
     UseModelModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [RunModelPage]
+  declarations: [RunModelPageComponent]
 })
 export class RunModelPageModule {}

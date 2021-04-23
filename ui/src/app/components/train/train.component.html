@@ -5,10 +5,10 @@
       <ion-card-title>Pipeline Elements</ion-card-title>
     </ion-card-header>
 
-    <div class='pipeline-selection'>
+    <div class='pipeline-selection' [class.trial]='api.isTrial'>
       <div formArrayName='estimators'>
         <h6>Algorithms</h6>
-        <mat-checkbox *ngFor='let estimator of pipelineProcessors.estimators; let i=index' [formControlName]='i'>
+        <mat-checkbox *ngFor='let estimator of pipelineProcessors.estimators; let i=index' [formControlName]='i' [disabled]='api.isTrial && !estimator.trial'>
           {{estimator.label}}
           <ion-icon
             *ngIf='showAdvanced'
@@ -22,22 +22,22 @@
       </div>
       <div formArrayName='scalers'>
         <h6>Scalers</h6>
-        <mat-checkbox *ngFor='let scaler of pipelineProcessors.scalers; let i=index' [formControlName]='i'>{{scaler.label}}</mat-checkbox>
+        <mat-checkbox *ngFor='let scaler of pipelineProcessors.scalers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !scaler.trial'>{{scaler.label}}</mat-checkbox>
       </div>
       <div formArrayName='featureSelectors'>
         <h6>Feature Selectors</h6>
-        <mat-checkbox *ngFor='let featureSelector of pipelineProcessors.featureSelectors; let i=index' [formControlName]='i'>{{featureSelector.label}}</mat-checkbox>
+        <mat-checkbox *ngFor='let featureSelector of pipelineProcessors.featureSelectors; let i=index' [formControlName]='i' [disabled]='api.isTrial && !featureSelector.trial'>{{featureSelector.label}}</mat-checkbox>
       </div>
       <div formArrayName='searchers'>
         <h6>Searchers</h6>
-        <mat-checkbox *ngFor='let searcher of pipelineProcessors.searchers; let i=index' [formControlName]='i'>{{searcher.label}}</mat-checkbox>
+        <mat-checkbox *ngFor='let searcher of pipelineProcessors.searchers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !searcher.trial'>{{searcher.label}}</mat-checkbox>
       </div>
       <div formArrayName='scorers'>
         <h6>Scorers</h6>
 
         <!-- Manually add ROC AUC since it's required by the UI -->
         <mat-checkbox disabled='disabled' checked='checked'>ROC AUC</mat-checkbox>
-        <mat-checkbox *ngFor='let scorer of pipelineProcessors.scorers; let i=index' [formControlName]='i'>{{scorer.label}}</mat-checkbox>
+        <mat-checkbox *ngFor='let scorer of pipelineProcessors.scorers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !scorer.trial'>{{scorer.label}}</mat-checkbox>
       </div>
     </div>
   </ion-card>

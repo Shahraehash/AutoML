@@ -13,7 +13,7 @@ import { DataAnalysisReply, Jobs } from '../../interfaces';
 })
 export class ExploreComponent implements OnInit {
   @Output() stepFinished = new EventEmitter();
-  @Output() reset = new EventEmitter();
+  @Output() resetState = new EventEmitter();
 
   analysis: DataAnalysisReply;
   jobs: MatTableDataSource<Jobs>;
@@ -89,7 +89,7 @@ export class ExploreComponent implements OnInit {
             });
             await loading.present();
             await (await this.api.deleteDataset(this.api.currentDatasetId)).toPromise();
-            this.reset.emit();
+            this.resetState.emit();
             await loading.dismiss();
           }
         }

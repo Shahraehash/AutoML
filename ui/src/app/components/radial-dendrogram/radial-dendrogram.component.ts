@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 @Component({
   selector: 'app-radial-dendrogram',
   styleUrls: ['radial-dendrogram.component.scss'],
-  template: '<svg class="radial" viewBox="0 0 1664 1664" height="100%" [ngClass]="{\'training\': training}"></svg>'
+  templateUrl: 'radial-dendrogram.component.html'
 })
 export class RadialDendrogramComponent implements OnInit, OnChanges {
   @Input() data;

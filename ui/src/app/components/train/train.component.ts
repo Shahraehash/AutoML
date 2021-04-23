@@ -1,12 +1,12 @@
 import { Component, Input, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
-import { ReplaySubject, timer } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { of, ReplaySubject } from 'rxjs';
+import { catchError, delay, repeat, takeUntil, tap } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { TaskAdded } from '../../interfaces';
-import * as pipelineOptions from '../../interfaces/pipeline.processors.json';
+import * as pipelineOptions from '../../data/pipeline.processors.json';
 import { TextareaModalComponent } from '../../components/textarea-modal/textarea-modal.component';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one-checked.validator';
@@ -19,20 +19,20 @@ import { requireAtLeastOneCheckedValidator } from '../../validators/at-least-one
 export class TrainComponent implements OnDestroy, OnInit {
   @Input() featureCount;
   @Input() parameters;
-  @Output() reset = new EventEmitter();
+  @Output() resetState = new EventEmitter();
   @Output() stepFinished = new EventEmitter();
 
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   allPipelines;
-  showAdvanced = !environment.production;
+  showAdvanced = !environment.production && !this.api.isTrial;
   defaultHyperParameters = {grid: {}, random: {}};
   training = false;
   trainForm: FormGroup;
   pipelineProcessors = (pipelineOptions as any).default;
 
   constructor(
+    public api: MiloApiService,
     private alertController: AlertController,
-    private api: MiloApiService,
     private formBuilder: FormBuilder,
     private modalController: ModalController,
     private toastController: ToastController
@@ -45,6 +45,12 @@ export class TrainComponent implements OnDestroy, OnInit {
       scorers: this.formBuilder.array(this.pipelineProcessors.scorers),
       shuffle: [true],
       hyperParameters: {...this.defaultHyperParameters}
+    });
+
+    this.api.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
+      if (event === 'trial_update') {
+        this.updateForTrial();
+      }
     });
   }
 
@@ -71,6 +77,8 @@ export class TrainComponent implements OnDestroy, OnInit {
       } catch (err) {}
     }
 
+    this.updateForTrial();
+
     if (this.featureCount && this.featureCount < 3) {
       const features = this.trainForm.get('featureSelectors');
       const disabledValues = new Array(features.value.length).fill(0);
@@ -84,7 +92,6 @@ export class TrainComponent implements OnDestroy, OnInit {
 
   ngOnDestroy() {
     this.destroy$.next(true);
-    this.destroy$.unsubscribe();
   }
 
   async startTraining() {
@@ -118,6 +125,7 @@ export class TrainComponent implements OnDestroy, OnInit {
           buttons: ['Dismiss']
         });
 
+        this.resetState.emit();
         await alert.present();
       }
     );
@@ -208,11 +216,21 @@ export class TrainComponent implements OnDestroy, OnInit {
     );
   }
 
+  private updateForTrial() {
+    if (this.api.isTrial) {
+      this.setValues('estimators', this.pipelineProcessors.estimators.filter(i => !i.trial).map(i => i.value));
+      this.setValues('scalers', this.pipelineProcessors.scalers.filter(i => !i.trial).map(i => i.value));
+      this.setValues('featureSelectors', this.pipelineProcessors.featureSelectors.filter(i => !i.trial).map(i => i.value));
+      this.setValues('searchers', this.pipelineProcessors.searchers.filter(i => !i.trial).map(i => i.value));
+      this.setValues('scorers', this.pipelineProcessors.scorers.filter(i => !i.trial).map(i => i.value));
+    }
+  }
+
   private async checkStatus(taskId) {
-    timer(1000, 5000).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(async _ => {
-      (await this.api.getTaskStatus(taskId)).subscribe(async (status) => {
+    (await this.api.getTaskStatus(taskId)).pipe(
+      catchError(_ => of(false)),
+      takeUntil(this.destroy$),
+      tap(async (status) => {
         if (typeof status === 'boolean') {
           return;
         }
@@ -229,12 +247,14 @@ export class TrainComponent implements OnDestroy, OnInit {
           });
 
           await alert.present();
-          this.reset.emit();
+          this.resetState.emit();
         } else if (status.state === 'REVOKED') {
-          this.reset.emit();
+          this.resetState.emit();
         }
-      });
-    });
+      }),
+      delay(5000),
+      repeat()
+    ).subscribe();
   }
 
   private async showError(message) {

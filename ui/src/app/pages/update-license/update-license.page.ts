@@ -12,7 +12,7 @@ import { MiloApiService } from '../../services';
   templateUrl: './update-license.page.html',
   styleUrls: ['./update-license.page.scss'],
 })
-export class UpdateLicensePage {
+export class UpdateLicensePageComponent {
   version = version;
   license = new FormControl('', [Validators.required]);
 

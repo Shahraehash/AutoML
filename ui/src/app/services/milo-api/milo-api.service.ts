@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
@@ -22,6 +22,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class MiloApiService {
+  isTrial = false;
   currentJobId: string;
   currentDatasetId: string;
   localUser: string;
@@ -40,7 +41,7 @@ export class MiloApiService {
 
       /** If the environment is setup for local user, log out the user */
       if (environment.localUser) {
-        this.afAuth.auth.signOut();
+        this.afAuth.signOut();
       }
     });
 
@@ -73,7 +74,7 @@ export class MiloApiService {
   }
 
   async createJob() {
-    return (await this.request<{id: string}>(
+    return (await this.request<{id: string; isTrial: boolean}>(
       'post',
       `/jobs`,
       {datasetid: this.currentDatasetId}
@@ -269,26 +270,41 @@ export class MiloApiService {
       environment.apiUrl + url,
       {
         body,
-        headers: await this.getHttpHeaders()
+        headers: await this.getHttpHeaders(),
+        observe: 'response'
       }
-    ).pipe(catchError(error => {
-      if (error.status === 402) {
-        this.events.emit('license_error');
-      }
+    ).pipe(
+      catchError(error => {
+        if (error.status === 402) {
+          this.events.emit('license_error');
+        }
 
-      return throwError(error);
-    }));
+        return throwError(error);
+      }),
+      map(response => {
+        const trialHeader = response.headers.get('MILO-Trial');
+        if (trialHeader !== null) {
+          const isTrial = trialHeader === 'true';
+          if (isTrial !== this.isTrial) {
+            this.isTrial = isTrial;
+            this.events.emit('trial_update');
+          }
+        }
+
+        return response.body;
+      })
+    );
   }
 
   private async getHttpHeaders(): Promise<HttpHeaders> {
     return environment.localUser ?
       new HttpHeaders().set('LocalUserID', this.localUser) :
-      new HttpHeaders().set('Authorization', `Bearer ${await this.afAuth.auth.currentUser.getIdToken()}`);
+      new HttpHeaders().set('Authorization', `Bearer ${await (await this.afAuth.currentUser).getIdToken()}`);
   }
 
   private async getURLAuth(): Promise<string> {
     return environment.localUser ?
       `localUser=${this.localUser}` :
-      `currentUser=${await this.afAuth.auth.currentUser.getIdToken()}`;
+      `currentUser=${await (await this.afAuth.currentUser).getIdToken()}`;
   }
 }

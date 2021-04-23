@@ -12,6 +12,7 @@ from shutil import copyfile, rmtree
 from flask import Response, abort, g, jsonify, request, send_file, url_for
 import pandas as pd
 
+from . import licensing
 from ml.create_model import create_model
 from ml.list_pipelines import list_pipelines
 from ml.generalization import generalize_ensemble, generalize_model
@@ -111,6 +112,18 @@ def train(jobid):
         return
 
     parameters = request.form.to_dict()
+
+    active_license = licensing.get_license()
+    if active_license.f2 and \
+        not (
+          all(x in parameters.get('ignore_estimator', '') for x in ['mlp', 'gb', 'rf', 'svm']) and \
+          all(x in parameters.get('ignore_feature_selector', '') for x in ['select-25', 'select-50', 'select-75', 'pca-80', 'pca-90', 'rf-25', 'rf-50', 'rf-75']) and \
+          all(x in parameters.get('ignore_scaler', '') for x in ['minmax']) and \
+          all(x in parameters.get('ignore_searcher', '') for x in ['random2']) and \
+          all(x in parameters.get('ignore_scorer', '') for x in ['f1_macro'])
+        ):
+        abort(405)
+
     pipelines = list_pipelines(parameters)
 
     job_folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]

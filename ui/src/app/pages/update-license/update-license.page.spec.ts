@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { UpdateLicensePage } from './update-license.page';
@@ -7,7 +7,7 @@ describe('UpdateLicensePage', () => {
   let component: UpdateLicensePage;
   let fixture: ComponentFixture<UpdateLicensePage>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ UpdateLicensePage ],
       imports: [IonicModule.forRoot()]

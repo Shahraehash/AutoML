@@ -6,7 +6,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { UpdateLicensePageRoutingModule } from './update-license-routing.module';
 
-import { UpdateLicensePage } from './update-license.page';
+import { UpdateLicensePageComponent } from './update-license.page';
 
 @NgModule({
   imports: [
@@ -16,6 +16,6 @@ import { UpdateLicensePage } from './update-license.page';
     IonicModule,
     UpdateLicensePageRoutingModule
   ],
-  declarations: [UpdateLicensePage]
+  declarations: [UpdateLicensePageComponent]
 })
 export class UpdateLicensePageModule {}
