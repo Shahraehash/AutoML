@@ -26,7 +26,7 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('stepper') stepper: MatStepper;
   @ViewChild('train') train: TrainComponent;
 
-  destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
+  destroy$: ReplaySubject<boolean>;
   featureCount: number;
   pendingTasks: PendingTasks;
   trainCompleted = false;
@@ -47,6 +47,8 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
+    this.destroy$ = new ReplaySubject<boolean>();
+
     (await this.api.getPendingTasks()).pipe(
       takeUntil(this.destroy$),
       tap(pending => this.pendingTasks = pending),

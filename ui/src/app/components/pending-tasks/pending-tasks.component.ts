@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { AlertController, ModalController, LoadingController } from '@ionic/angular';
 import { ReplaySubject } from 'rxjs';
 import { delay, repeat, tap, takeUntil } from 'rxjs/operators';
@@ -12,7 +12,7 @@ import { TrainComponent } from '../train/train.component';
   templateUrl: './pending-tasks.component.html',
   styleUrls: ['./pending-tasks.component.scss'],
 })
-export class PendingTasksComponent implements OnInit {
+export class PendingTasksComponent implements OnInit, OnDestroy {
   @Input() firstViewData: PendingTasks;
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   pendingTasks: PendingTasks;
@@ -27,10 +27,26 @@ export class PendingTasksComponent implements OnInit {
   async ngOnInit() {
     (await this.api.getPendingTasks()).pipe(
       takeUntil(this.destroy$),
-      tap(pending => this.pendingTasks = pending),
+      tap(pending => {
+        if (!this.pendingTasks) {
+          this.pendingTasks = pending;
+        } else {
+          this.pendingTasks.scheduled = pending.scheduled;
+          pending.active.forEach(item => {
+            if (item.state === 'PENDING' && item.current === 0 && item.total === 1) {
+              return;
+            }
+            this.pendingTasks.active[this.pendingTasks.active.findIndex(task => task.id === item.id)] = item;
+          });
+        }
+      }),
       delay(5000),
       repeat()
     ).subscribe();
+  }
+
+  async ngOnDestroy() {
+    this.destroy$.next(true);
   }
 
   async cancelTask(event: Event, id) {
