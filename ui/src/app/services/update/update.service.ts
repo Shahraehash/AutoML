@@ -11,11 +11,15 @@ export class UpdateService {
     private swUpdate: SwUpdate,
     private alertController: AlertController
   ) {
+    if (!this.swUpdate.isEnabled) {
+      return;
+    }
+
     timer(0, 1 * 60 * 60 * 1000).subscribe(() => {
       this.swUpdate.checkForUpdate();
     });
 
-    this.swUpdate.available.subscribe(async event => {
+    this.swUpdate.available.subscribe(async () => {
       const alert = await this.alertController.create({
         header: 'Update Available',
         subHeader: 'An update is available',
