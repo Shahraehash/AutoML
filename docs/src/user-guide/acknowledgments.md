@@ -1,6 +1,6 @@
 # Acknowledgments
 
-## Third Party Software Licenses
+## Open Source Software Licenses
 
 This list is not exhaustive as not all development dependencies are listed here.
 
