@@ -4,7 +4,7 @@ export const environment = {
   production: false,
   firebase: {
     apiKey: 'AIzaSyC3mSDzUoZsTGsQpvRddhI_88R8UqUA6l8',
-    authDomain: 'milo-ml.firebaseapp.com',
+    authDomain: 'auth.milo-ml.com',
     databaseURL: 'https://milo-ml.firebaseio.com',
     projectId: 'milo-ml',
     storageBucket: 'milo-ml.appspot.com',

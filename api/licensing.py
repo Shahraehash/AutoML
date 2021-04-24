@@ -15,7 +15,7 @@ def activate():
     """Activates a provided license key"""
 
     result = requests.post(
-        'https://us-central1-milo-ml.cloudfunctions.net/activate',
+        'https://cloud.api.milo-ml.com/licensing/activate',
         json={
             'machine_code': Helpers.GetMachineCode(),
             'license_code': request.get_json()['license_code']
