@@ -18,26 +18,39 @@
             (click)='adjustEstimator($event, estimator)'
             [color]='areHyperParametersSet(estimator.value) ? "success" : ""'
           ></ion-icon>
+          <ion-chip *ngIf='api.isTrial && !estimator.trial' routerLink='/update-license'>Upgrade</ion-chip>
         </mat-checkbox>
       </div>
       <div formArrayName='scalers'>
         <h6>Scalers</h6>
-        <mat-checkbox *ngFor='let scaler of pipelineProcessors.scalers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !scaler.trial'>{{scaler.label}}</mat-checkbox>
+        <mat-checkbox *ngFor='let scaler of pipelineProcessors.scalers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !scaler.trial'>
+          {{scaler.label}}
+          <ion-chip *ngIf='api.isTrial && !scaler.trial' routerLink='/update-license'>Upgrade</ion-chip>
+        </mat-checkbox>
       </div>
       <div formArrayName='featureSelectors'>
         <h6>Feature Selectors</h6>
-        <mat-checkbox *ngFor='let featureSelector of pipelineProcessors.featureSelectors; let i=index' [formControlName]='i' [disabled]='api.isTrial && !featureSelector.trial'>{{featureSelector.label}}</mat-checkbox>
+        <mat-checkbox *ngFor='let featureSelector of pipelineProcessors.featureSelectors; let i=index' [formControlName]='i' [disabled]='api.isTrial && !featureSelector.trial'>
+          {{featureSelector.label}}
+          <ion-chip *ngIf='api.isTrial && !featureSelector.trial' routerLink='/update-license'>Upgrade</ion-chip>
+        </mat-checkbox>
       </div>
       <div formArrayName='searchers'>
         <h6>Searchers</h6>
-        <mat-checkbox *ngFor='let searcher of pipelineProcessors.searchers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !searcher.trial'>{{searcher.label}}</mat-checkbox>
+        <mat-checkbox *ngFor='let searcher of pipelineProcessors.searchers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !searcher.trial'>
+          {{searcher.label}}
+          <ion-chip *ngIf='api.isTrial && !searcher.trial' routerLink='/update-license'>Upgrade</ion-chip>
+        </mat-checkbox>
       </div>
       <div formArrayName='scorers'>
         <h6>Scorers</h6>
 
         <!-- Manually add ROC AUC since it's required by the UI -->
         <mat-checkbox disabled='disabled' checked='checked'>ROC AUC</mat-checkbox>
-        <mat-checkbox *ngFor='let scorer of pipelineProcessors.scorers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !scorer.trial'>{{scorer.label}}</mat-checkbox>
+        <mat-checkbox *ngFor='let scorer of pipelineProcessors.scorers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !scorer.trial'>
+          {{scorer.label}}
+          <ion-chip *ngIf='api.isTrial && !scorer.trial' routerLink='/update-license'>Upgrade</ion-chip>
+        </mat-checkbox>
       </div>
     </div>
   </ion-card>

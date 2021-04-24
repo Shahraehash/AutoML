@@ -29,20 +29,18 @@
   }
 
   &.trial {
+    ion-chip {
+      font-size: 8px;
+      padding: 4px;
+      border-radius: 12px;
+      position: absolute;
+      margin: 4px 0 0 4px;
+      height: auto;
+    }
     .mat-checkbox-disabled:not(.mat-checkbox-checked) {
       ::ng-deep {
         .mat-checkbox-label {
           text-decoration: line-through;
-
-          &::after {
-            content: 'Pro';
-            position: absolute;
-            font-size: smaller;
-            padding: 0 6px;
-            background-color: #eee;
-            border-radius: 8px;
-            margin-left: 2px;
-          }
         }
       }
     }

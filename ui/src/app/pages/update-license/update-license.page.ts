@@ -17,7 +17,7 @@ export class UpdateLicensePageComponent {
   license = new FormControl('', [Validators.required]);
 
   constructor(
-    private api: MiloApiService,
+    public api: MiloApiService,
     private router: Router,
     private alertController: AlertController
   ) {}
