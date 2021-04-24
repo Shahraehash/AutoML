@@ -9,3 +9,7 @@ features:
 - title: No software engineering expertise needed
 - title: No programming required
 ---
+
+<p style='text-align: center'>
+  For more about MILO visit us at <a href='https://milo-ml.com' target='_blank'>milo-ml.com</a>
+</p>

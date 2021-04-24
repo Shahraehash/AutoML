@@ -2,7 +2,7 @@
   "name": "milo-app",
   "version": "0.0.0",
   "author": "Samer Albahra",
-  "homepage": "https://miloml.com/",
+  "homepage": "https://milo-ml.com/",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

@@ -37,11 +37,30 @@ export class PendingTasksComponent implements OnInit, OnDestroy {
           this.pendingTasks = pending;
         } else {
           this.pendingTasks.scheduled = pending.scheduled;
+          
+          /** Filter the tasks which are no longer active */
+          this.pendingTasks.active = this.pendingTasks.active.filter(item => pending.active.find(q => q.id === item.id))
+
           pending.active.forEach(item => {
+
+            /**
+             * If the item has no progress information, skip the update. This is done
+             * to maintain the currently displayed percentage rather then reverting to
+             * a zero percent status.
+             */
             if (item.state === 'PENDING' && item.current === 0 && item.total === 1) {
               return;
             }
-            this.pendingTasks.active[this.pendingTasks.active.findIndex(task => task.id === item.id)] = item;
+
+            /** Find the current index of the matching item */
+            const currentIndex = this.pendingTasks.active.findIndex(task => task.id === item.id);
+            if (currentIndex === -1) {
+
+              /** If a match is not found, this is a new item and should be added to the list */
+              this.pendingTasks.active.push(item);
+            } else {
+              this.pendingTasks.active[currentIndex] = item;
+            }
           });
         }
       }),
