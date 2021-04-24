@@ -22,7 +22,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class MiloApiService {
-  isTrial = true;
+  isTrial = false;
   currentJobId: string;
   currentDatasetId: string;
   localUser: string;
@@ -286,7 +286,7 @@ export class MiloApiService {
         if (trialHeader !== null) {
           const isTrial = trialHeader === 'true';
           if (isTrial !== this.isTrial) {
-//            this.isTrial = isTrial;
+            this.isTrial = isTrial;
             this.events.emit('trial_update');
           }
         }
