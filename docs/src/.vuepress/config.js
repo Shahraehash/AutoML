@@ -54,7 +54,8 @@ module.exports = {
         collapsable: false,
         children: [
           '/install-guide/',
-          '/install-guide/docker'
+          '/install-guide/docker',
+          '/install-guide/firewall'
         ]
       },
       {
