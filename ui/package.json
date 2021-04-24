@@ -12,7 +12,10 @@
     "build-docker": "ng build --output-path ../static --configuration=docker",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "docs:json": "compodoc -p ./tsconfig.json -e json -d .",
+    "storybook": "npm run docs:json && start-storybook -p 6006",
+    "build-storybook": "npm run docs:json && build-storybook"
   },
   "private": true,
   "dependencies": {
@@ -57,7 +60,13 @@
     "@angular/compiler": "^11.2.11",
     "@angular/compiler-cli": "^11.2.11",
     "@angular/language-service": "^11.2.11",
+    "@babel/core": "^7.13.16",
+    "@compodoc/compodoc": "^1.1.11",
     "@ionic/angular-toolkit": "^3.1.1",
+    "@storybook/addon-actions": "^6.2.9",
+    "@storybook/addon-essentials": "^6.2.9",
+    "@storybook/addon-links": "^6.2.9",
+    "@storybook/angular": "^6.2.9",
     "@types/d3": "^6.3.0",
     "@types/file-saver": "^2.0.2",
     "@types/jasmine": "~3.6.0",
@@ -66,6 +75,7 @@
     "@types/papaparse": "^5.2.5",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
+    "babel-loader": "^8.2.2",
     "eslint": "^7.6.0",
     "jasmine-core": "^3.7.1",
     "jasmine-spec-reporter": "^7.0.0",
