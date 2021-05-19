@@ -244,8 +244,8 @@ export class MiloApiService {
     return `${environment.apiUrl}/jobs/${this.currentJobId}/export?${await this.getURLAuth()}`;
   }
 
-  async exportModel() {
-    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model?${await this.getURLAuth()}`;
+  async exportModel(threshold: number) {
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model?${await this.getURLAuth()}&threshold=${threshold}`;
   }
 
   async exportPMML() {

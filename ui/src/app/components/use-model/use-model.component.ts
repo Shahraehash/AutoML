@@ -288,7 +288,7 @@ export class UseModelComponent implements OnInit {
   }
 
   async exportModel() {
-    window.open(await (this.publishName ? this.api.exportPublishedModel(this.publishName) : this.api.exportModel()), '_self');
+    window.open(await (this.publishName ? this.api.exportPublishedModel(this.publishName) : this.api.exportModel(this.threshold)), '_self');
   }
 
   async exportPMML() {
