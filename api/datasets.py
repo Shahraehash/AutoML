@@ -131,9 +131,20 @@ def process_files(folder, label_column):
     features = clean_csv_headers(folder + '/train.csv', label_column)
     clean_csv_headers(folder + '/test.csv', label_column)
 
-    valid_train = import_csv(folder + '/train.csv', label_column)[0].shape[0]
-    if valid_train < 50:
+    train = import_csv(folder + '/train.csv', label_column)[0]
+    test = import_csv(folder + '/test.csv', label_column)[0]
+
+    if train.shape[0] < 50:
         raise ValueError('Insufficient rows for training')
+
+    if train.shape[0] > 5000:
+        raise ValueError('Too many rows for training')
+
+    if train.shape[1] > 1000:
+        raise ValueError('Too many features for training')
+
+    if test.shape[0] > 20000:
+        raise ValueError('Too many rows for generalization')
 
     metadata = {
         'label': label_column,
