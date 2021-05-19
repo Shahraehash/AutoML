@@ -28,6 +28,7 @@ export class UseModelComponent implements OnInit {
   result: TestReply;
   isDragging = false;
   voteType = 'soft';
+  invalidCases;
 
   constructor(
     public modalController: ModalController,
@@ -149,6 +150,7 @@ export class UseModelComponent implements OnInit {
           this.generalization = await (
             this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload, this.threshold)
           );
+          this.invalidCases = reply.data.length - (this.generalization.tp + this.generalization.fp + this.generalization.tn + this.generalization.fn);
         } catch (err) {
           this.showError('Unable to assess model performance. Please ensure the target column is present.');
         }
@@ -187,6 +189,7 @@ export class UseModelComponent implements OnInit {
 
     const file = files[0];
     const data = [];
+    this.invalidCases = 0;
     let header;
     let headerMapping;
     parse(file, {
@@ -216,6 +219,8 @@ export class UseModelComponent implements OnInit {
         } else {
           if (row.data.every(i => typeof i === 'number')) {
             data.push(headerMapping.map(key => row.data[key]));
+          } else {
+            this.invalidCases++;
           }
         }
       },
