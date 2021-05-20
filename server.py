@@ -8,7 +8,7 @@ using an Angular SPA.
 import os
 
 from firebase_admin import auth, credentials, initialize_app
-from flask import Flask, g, request, send_from_directory
+from flask import Flask, g, request, send_from_directory, abort
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -76,11 +76,17 @@ def parse_auth():
     current_user = request.args.get('currentUser')
 
     if bearer is not None:
-        g.uid = auth.verify_id_token(bearer.split()[1])['uid']
+        try:
+            g.uid = auth.verify_id_token(bearer.split()[1])['uid']
+        except auth.ExpiredIdTokenError:
+            abort(401)
         return
 
     if current_user is not None:
-        g.uid = auth.verify_id_token(current_user)['uid']
+        try:
+            g.uid = auth.verify_id_token(current_user)['uid']
+        except auth.ExpiredIdTokenError:
+            abort(401)
         return
 
     local_user = request.headers.get('LocalUserID', request.args.get('localUser'))
