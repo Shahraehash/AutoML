@@ -126,7 +126,7 @@
       <div class='ion-padding ion-text-center batch-details'>
         <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span>
         <br><br>
-        <span *ngIf='invalidCases'>Invalid case(s) dropped from testing: {{invalidCases}}</span>
+        <ion-text color='danger' *ngIf='invalidCases'>Invalid case(s) dropped from testing: {{invalidCases}}</ion-text>
         <br><br>
         Drag and drop your CSV or select the button below to open a file picker.
         <ng-container *ngTemplateOutlet='modelStats'></ng-container>
