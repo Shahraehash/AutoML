@@ -21,6 +21,14 @@
             padding: 10px;
         }
     }
+
+    .feature-details {
+      height: 100%;
+
+      ion-row {
+        height: 100%;
+      }
+    }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -49,14 +57,6 @@
                 > ion-col {
                     overflow: scroll;
                     height: 100%;
-
-                    ion-grid {
-                      height: 100%;
-
-                      ion-row {
-                        height: 100%;
-                      }
-                    }
                 }
             }
         }
