@@ -78,10 +78,28 @@ export class UploadComponent implements OnInit, OnDestroy {
         this.stepFinished.emit({nextStep: 'explore'});
       },
       async error => {
+        let message = 'Please make sure the backend is reachable and try again.';
+
+        if (error.status === 406) {
+          switch (error.error.reason) {
+            case 'training_rows_insufficient':
+              message = 'Insufficient training data. Please verify at least 50 complete rows of data are present.';
+              break;
+            case 'training_rows_excess':
+              message = 'Excess rows in the training data. Please verify less than 50000 rows of data are present.';
+              break;
+            case 'training_features_excess':
+              message = 'Excess features in the training data. Please verify less than 1000 features are present.';
+              break;
+            case 'test_rows_excess':
+              message = 'Excess rows in the generalization data. Please verify less than 20000 rows of data are present.';
+              break;
+          }
+        }
+
         const alert = await this.alertController.create({
           header: 'Unable to Upload Data',
-          message: error.status === 406 ?
-            'Insufficient training data. Please verify at least 50 complete rows of data are present.' : 'Please make sure the backend is reachable and try again.',
+          message,
           buttons: ['Dismiss']
         });
 

@@ -32,7 +32,7 @@
 <ion-content class='ion-padding' [formGroup]='testForm' [ngClass]='{"page-view": publishName}'>
   <h4 *ngIf='publishName' class='ion-padding-bottom ion-text-center'>{{publishName}} Model</h4>
 
-  <ion-segment value='single' #segment>
+  <ion-segment value='single' #segment (ionChange)='invalidCases = undefined'>
     <ion-segment-button value='single'>
       <ion-label>Single</ion-label>
     </ion-segment-button>
@@ -93,10 +93,11 @@
     <div class='container' (drop)='batchTest($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()'
       [ngClass]='{"overlay": isDragging}'>
       <div class='ion-padding ion-text-center batch-details'>
-        <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span><br><br>
-
+        <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span>
+        <br><br>
+        <ion-text color='danger' *ngIf='invalidCases'>Invalid case(s) dropped from testing: {{invalidCases}}</ion-text>
+        <br><br>
         Drag and drop your CSV or select the button below to open a file picker.
-
         <ng-container *ngTemplateOutlet='modelStats'></ng-container>
       </div>
     </div>
@@ -123,10 +124,11 @@
     <div class='container' (drop)='generalize($event, "drop")' (dragover)='startDrag($event)' (dragleave)='endDrag()'
       [ngClass]='{"overlay": isDragging}'>
       <div class='ion-padding ion-text-center batch-details'>
-        <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span><br><br>
-
+        <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span>
+        <br><br>
+        <ion-text color='danger' *ngIf='invalidCases'>Invalid case(s) dropped from testing: {{invalidCases}}</ion-text>
+        <br><br>
         Drag and drop your CSV or select the button below to open a file picker.
-
         <ng-container *ngTemplateOutlet='modelStats'></ng-container>
       </div>
     </div>

@@ -8,15 +8,18 @@ import json
 import time
 import uuid
 from shutil import copyfile, rmtree
+from joblib import load, dump
 
 from flask import Response, abort, g, jsonify, request, send_file, url_for
 import pandas as pd
+from sklearn.pipeline import Pipeline
 
 from . import licensing
 from ml.create_model import create_model
 from ml.list_pipelines import list_pipelines
 from ml.generalization import generalize_ensemble, generalize_model
 from ml.predict import predict, predict_ensemble
+from ml.processors.threshold import Threshold
 from worker import queue_training
 
 def get():
@@ -476,13 +479,18 @@ def export_model(jobid):
         abort(401)
         return
 
+    threshold = float(request.args.get('threshold', .5))
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
 
     if not os.path.exists(folder + '/pipeline.joblib'):
         abort(400)
         return
 
-    return send_file(folder + '/pipeline.joblib', as_attachment=True, cache_timeout=-1)
+    pipeline = load(folder + '/pipeline.joblib')
+    pipeline = Pipeline(pipeline.steps[:-1] + [('estimator', Threshold(pipeline.steps[-1][1], threshold))])
+    dump(pipeline, folder + '/exported-pipeline.joblib')
+
+    return send_file(folder + '/exported-pipeline.joblib', as_attachment=True, cache_timeout=-1)
 
 def star_models(jobid):
     """Marks the selected models as starred"""

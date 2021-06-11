@@ -81,9 +81,11 @@ def add():
 
     try:
         process_files(folder, request.form['label_column'])
-    except ValueError:
+    except ValueError as reason:
         rmtree(folder)
-        abort(406)
+        abort(406, jsonify({
+          'reason': reason
+        }))
 
     return jsonify({'id': datasetid})
 
@@ -131,9 +133,20 @@ def process_files(folder, label_column):
     features = clean_csv_headers(folder + '/train.csv', label_column)
     clean_csv_headers(folder + '/test.csv', label_column)
 
-    valid_train = import_csv(folder + '/train.csv', label_column)[0].shape[0]
-    if valid_train < 50:
-        raise ValueError('Insufficient rows for training')
+    train = import_csv(folder + '/train.csv', label_column)[0]
+    test = import_csv(folder + '/test.csv', label_column)[0]
+
+    if train.shape[0] < 50:
+        raise ValueError('training_rows_insufficient')
+
+    if train.shape[0] > 5000:
+        raise ValueError('training_rows_excess')
+
+    if train.shape[1] > 1000:
+        raise ValueError('training_features_excess')
+
+    if test.shape[0] > 20000:
+        raise ValueError('test_rows_excess')
 
     metadata = {
         'label': label_column,
