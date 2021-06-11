@@ -1,12 +1,27 @@
 <h4 class='ion-text-center'>{{type}} Description</h4>
-<app-feature-analysis
-  *ngFor='let feature of data?.summary | keyvalue:preventSort'
-  [summary]='feature.value'
-  [mode]='data.mode[feature.key]'
-  [median]='data.median[feature.key]'
-  [nullCount]='data.null'
-  [isInvalid]='data.invalid.includes(feature.key)'
-  [histogram]='data.histogram[feature.key]'
-  [name]='feature.key'
-  [class.active]='feature.key === label'
-></app-feature-analysis>
+
+<ion-content>
+  <app-feature-analysis
+    [summary]='data.summary[label]'
+    [mode]='data.mode[label]'
+    [median]='data.median[label]'
+    [nullCount]='data.null'
+    [isInvalid]='data.invalid.includes(label)'
+    [histogram]='data.histogram[label]'
+    [name]='label'
+  ></app-feature-analysis>
+
+  <ion-virtual-scroll [items]='features' approxItemHeight='544px'>
+    <div *virtualItem='let feature'>
+      <app-feature-analysis
+        [summary]='data.summary[feature]'
+        [mode]='data.mode[feature]'
+        [median]='data.median[feature]'
+        [nullCount]='data.null'
+        [isInvalid]='data.invalid.includes(feature)'
+        [histogram]='data.histogram[feature]'
+        [name]='feature'
+      ></app-feature-analysis>
+    </div>
+  </ion-virtual-scroll>  
+</ion-content>
