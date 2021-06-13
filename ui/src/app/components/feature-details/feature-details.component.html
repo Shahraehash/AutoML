@@ -1,6 +1,6 @@
 <h4 class='ion-text-center'>{{type}} Description</h4>
 
-<ion-content>
+<ion-content #content [scrollEvents]='true' (ionScroll)='contentScroll.emit($event)'>
   <app-feature-analysis
     [summary]='data.summary[label]'
     [mode]='data.mode[label]'
