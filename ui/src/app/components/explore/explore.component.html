@@ -1,6 +1,6 @@
 <ion-grid class='ion-text-center'>
   <ion-row>
-    <ion-col size-xs='12' size-lg='9' class='analysis' *ngIf='analysis' [ngClass]='{"expand": !jobs?.data.length}'>
+    <ion-col size-xs='12' size-md='9' class='analysis' *ngIf='analysis' [ngClass]='{"expand": !jobs?.data.length}'>
       <ion-button (click)='newJob()' *ngIf='!jobs?.data.length'>Continue Training</ion-button>
       <ion-button color='danger' (click)='deleteDataset()' *ngIf='!jobs?.data.length'>
         <ion-icon slot='start' name='trash'></ion-icon>
@@ -18,7 +18,7 @@
       </ion-grid>
     </ion-col>
 
-    <ion-col size-xs='12' size-lg='3' class='runs' *ngIf='jobs?.data.length'>
+    <ion-col size-xs='12' size-md='3' class='runs' *ngIf='jobs?.data.length'>
       <h4 class='ion-text-center'>Previous Runs</h4>
 
       <ion-button size='small' (click)='newJob()' class='ion-margin-end'>
