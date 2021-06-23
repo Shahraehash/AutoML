@@ -18,8 +18,8 @@ export class ExploreComponent implements OnInit {
   analysis: DataAnalysisReply;
   jobs: MatTableDataSource<Jobs>;
   columns = ['Date', 'Status', 'Actions'];
-  currentTab = 'previous';
   singleColumn = window.innerWidth < 991;
+  currentTab = this.singleColumn ? 'analysis' : 'previous';
 
   constructor(
     public api: MiloApiService,
