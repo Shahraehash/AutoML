@@ -139,10 +139,10 @@ def process_files(folder, label_column):
     if train.shape[0] < 50:
         raise ValueError('training_rows_insufficient')
 
-    if train.shape[0] > 5000:
+    if train.shape[0] > 20000:
         raise ValueError('training_rows_excess')
 
-    if train.shape[1] > 1000:
+    if train.shape[1] > 5000:
         raise ValueError('training_features_excess')
 
     if test.shape[0] > 20000:
