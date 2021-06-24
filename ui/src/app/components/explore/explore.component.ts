@@ -19,7 +19,7 @@ export class ExploreComponent implements OnInit {
   jobs: MatTableDataSource<Jobs>;
   columns = ['Date', 'Status', 'Actions'];
   singleColumn = window.innerWidth < 991;
-  currentTab = this.singleColumn ? 'analysis' : 'previous';
+  currentTab = 'previous';
 
   constructor(
     public api: MiloApiService,
@@ -121,5 +121,6 @@ export class ExploreComponent implements OnInit {
     this.jobs = new MatTableDataSource(
       (await (await this.api.getJobs()).toPromise()).filter(job => job.metadata.datasetid === this.api.currentDatasetId)
     );
+    this.currentTab = this.jobs.data.length ? 'previous' : 'analysis';
   }
 }
