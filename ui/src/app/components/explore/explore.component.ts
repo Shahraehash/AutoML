@@ -18,6 +18,9 @@ export class ExploreComponent implements OnInit {
   analysis: DataAnalysisReply;
   jobs: MatTableDataSource<Jobs>;
   columns = ['Date', 'Status', 'Actions'];
+  singleColumn = window.innerWidth < 991;
+  currentTab = 'previous';
+
   constructor(
     public api: MiloApiService,
     private alertController: AlertController,
@@ -34,6 +37,11 @@ export class ExploreComponent implements OnInit {
       message: 'Generating feature analysis...'
     });
     await loading.present();
+
+    window.matchMedia('(max-width: 991px)').addEventListener('change', event => {
+      this.singleColumn = event.matches;
+    });
+
     this.analysis = await (await this.api.getDataAnalysis()).toPromise();
     this.updateJobs();
     await loading.dismiss();
@@ -113,5 +121,6 @@ export class ExploreComponent implements OnInit {
     this.jobs = new MatTableDataSource(
       (await (await this.api.getJobs()).toPromise()).filter(job => job.metadata.datasetid === this.api.currentDatasetId)
     );
+    this.currentTab = this.jobs.data.length ? 'previous' : 'analysis';
   }
 }

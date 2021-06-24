@@ -1,56 +1,73 @@
 :host {
-    .expand {
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
-    }
+  > ion-grid {
+    height: 100%;
 
-    table {
-        width: 100%;
+    > ion-row {
+      height: 100%;
 
-        ion-icon {
-            cursor: pointer;
-        }
 
-        td, th {
-            padding: 16px 0;
-        }
-    }
-
-    .runs {
+      .runs {
         h4 {
-            padding: 10px;
+          padding: 10px;
         }
+
+        table {
+          width: 100%;
+      
+          ion-icon {
+            cursor: pointer;
+          }
+      
+          td,
+          th {
+            padding: 16px 0;
+          }
+        }
+      }
+
+      .analysis {
+        &.expand {
+          max-width: 100% !important;
+          flex: 0 0 100% !important;
+        }
+
+        .feature-details {
+          height: 100%;
+      
+          ion-row {
+            height: 100%;
+          }
+        }
+      }
     }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
-    :host {
-        color: white;
-    }
+  :host {
+    color: white;
+  }
 }
 
-@media (max-width: 992px) {
-    :host {
-        .analysis {
-            order: 1;
-        }
+@media (max-width: 991px) {
+  :host {
+    .analysis {
+      order: 1;
     }
+  }
 }
 
 @media (min-width: 992px) {
-    :host {
-        > ion-grid {
-            overflow: hidden;
-            height: 100%;
-    
-            > ion-row {
-                height: 100%;
-    
-                > ion-col {
-                    overflow: scroll;
-                    height: 100%;
-                }
-            }
+  :host {
+    > ion-grid {
+      overflow: hidden;
+
+      > ion-row {
+        > ion-col {
+          overflow: scroll;
+          height: 100%;
         }
+      }
     }
+  }
 }
