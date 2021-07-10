@@ -145,7 +145,7 @@ def process_files(folder, label_column):
     if train.shape[1] > 5000:
         raise ValueError('training_features_excess')
 
-    if test.shape[0] > 20000:
+    if test.shape[0] > 100000:
         raise ValueError('test_rows_excess')
 
     metadata = {
