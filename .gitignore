@@ -24,6 +24,10 @@ pip-delete-this-directory.txt
 data/*
 !data/.gitkeep
 
+# Data
+build/*
+!build/.gitkeep
+
 # UI build
 static/
 *.joblib

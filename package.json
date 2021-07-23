@@ -1,6 +1,6 @@
 {
   "name": "auto-ml",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "AutoML integration containing both the backend (Python) and frontend (TypeScript)",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,7 @@
     "open-browser": "sleep 15s && open http://localhost:4200",
     "docs": "cd docs && npm run dev",
     "build-docker": "cd ui && npm run build-docker && cd .. && npm run build-docs && docker build -t milo .",
+    "save-docker": "docker save milo:latest | gzip > build/milo-$npm_package_version.tar.gz",
     "run-docker": "concurrently 'sudo rabbitmq-server' 'uwsgi --ini uwsgi.ini' 'celery -E -A worker -c 1 worker'",
     "serve": "npm run serve-all",
     "serve-all": "concurrently 'npm run serve-api' 'cd ui && npm run start' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
