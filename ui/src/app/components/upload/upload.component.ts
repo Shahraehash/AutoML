@@ -89,7 +89,7 @@ export class UploadComponent implements OnInit, OnDestroy {
               message = 'Excess rows in the training data. Please verify less than 10000 rows of data are present.';
               break;
             case 'training_features_excess':
-              message = 'Excess features in the training data. Please verify less than 1000 features are present.';
+              message = 'Excess features in the training data. Please verify less than 2000 features are present.';
               break;
             case 'test_rows_excess':
               message = 'Excess rows in the generalization data. Please verify less than 100000 rows of data are present.';
