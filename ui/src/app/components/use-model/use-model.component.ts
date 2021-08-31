@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
-import { RefitGeneralization, TestReply } from '../../interfaces';
+import { AdditionalGeneralization, RefitGeneralization, TestReply } from '../../interfaces';
 import { TuneModelComponent } from '../tune-model/tune-model.component';
 
 @Component({
@@ -23,6 +23,7 @@ export class UseModelComponent implements OnInit {
   @Input() publishName: string;
   @Input() type: string;
   @Input() threshold = .5;
+  @Input() reliability: AdditionalGeneralization['reliability'];
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
@@ -147,9 +148,12 @@ export class UseModelComponent implements OnInit {
         };
 
         try {
-          this.generalization = await (
+          const result = await (
             this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload, this.threshold)
           );
+          this.generalization = result.generalization;
+          this.reliability = result.reliability;
+          
           this.invalidCases = reply.data.length - (this.generalization.tp + this.generalization.fp + this.generalization.tn + this.generalization.fn);
         } catch (err) {
           this.showError('Unable to assess model performance. Please ensure the target column is present.');
@@ -347,7 +351,9 @@ export class UseModelComponent implements OnInit {
       message: 'Calculating performance...'
     });
     await loading.present();
-    this.generalization = await this.api.generalize({features: this.parsedFeatures}, this.threshold);
+    const result = await this.api.generalize({features: this.parsedFeatures}, this.threshold);
+    this.generalization = result.generalization;
+    this.reliability = result.reliability;
     await loading.dismiss();
   }
 }

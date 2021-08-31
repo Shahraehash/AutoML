@@ -13,6 +13,7 @@ import { ExploreComponent } from './explore/explore.component';
 import { FeatureAnalysisComponent } from './feature-analysis/feature-analysis.component';
 import { FeatureDetailsComponent } from './feature-details/feature-details.component';
 import { HistogramComponent } from './histogram/histogram.component';
+import { ModelStatisticsComponent } from './model-statistics/model-statistics.component';
 import { MultiSelectMenuComponent } from './multi-select-menu/multi-select-menu.component';
 import { PendingTasksComponent } from './pending-tasks/pending-tasks.component';
 import { RadialDendrogramComponent } from './radial-dendrogram/radial-dendrogram.component';
@@ -22,7 +23,7 @@ import { TextareaModalComponent } from './textarea-modal/textarea-modal.componen
 import { TrainComponent } from './train/train.component';
 import { TuneModelComponent } from './tune-model/tune-model.component';
 import { UploadComponent } from './upload/upload.component';
-import { UseModelModule } from './use-model/use-model.module';
+import { UseModelComponent } from './use-model/use-model.component';
 
 @NgModule( {
   declarations: [
@@ -30,6 +31,7 @@ import { UseModelModule } from './use-model/use-model.module';
     FeatureAnalysisComponent,
     FeatureDetailsComponent,
     HistogramComponent,
+    ModelStatisticsComponent,
     MultiSelectMenuComponent,
     PendingTasksComponent,
     RadialDendrogramComponent,
@@ -38,13 +40,15 @@ import { UseModelModule } from './use-model/use-model.module';
     TextareaModalComponent,
     TrainComponent,
     TuneModelComponent,
-    UploadComponent
+    UploadComponent,
+    UseModelComponent
   ],
   exports: [
     ExploreComponent,
     FeatureAnalysisComponent,
     FeatureDetailsComponent,
     HistogramComponent,
+    ModelStatisticsComponent,
     MultiSelectMenuComponent,
     PendingTasksComponent,
     RadialDendrogramComponent,
@@ -53,7 +57,8 @@ import { UseModelModule } from './use-model/use-model.module';
     TextareaModalComponent,
     TrainComponent,
     TuneModelComponent,
-    UploadComponent
+    UploadComponent,
+    UseModelComponent
   ],
   imports: [
       CommonModule,
@@ -65,8 +70,7 @@ import { UseModelModule } from './use-model/use-model.module';
       MatInputModule,
       MatPaginatorModule,
       MatTableModule,
-      MatSortModule,
-      UseModelModule
+      MatSortModule
   ],
   providers: [
     DatePipe

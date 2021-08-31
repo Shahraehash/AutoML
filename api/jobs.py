@@ -20,6 +20,7 @@ from ml.list_pipelines import list_pipelines
 from ml.generalization import generalize_ensemble, generalize_model
 from ml.predict import predict, predict_ensemble
 from ml.processors.threshold import Threshold
+from ml.reliability import additional_reliability
 from worker import queue_training
 
 def get():
@@ -434,9 +435,10 @@ def generalize(jobid):
         payload['data']['data'] = test_data
         payload['data']['columns'] = test_data.columns
 
-    return jsonify(
-        generalize_model(payload['data'], dataset_metadata['label'], folder + '/pipeline', payload['threshold'])
-    )
+    return jsonify({
+        'generalization': generalize_model(payload['data'], dataset_metadata['label'], folder + '/pipeline', payload['threshold']),
+        'reliability': additional_reliability(payload['data'], dataset_metadata['label'], folder + '/pipeline')
+    })
 
 def export(jobid):
     """Export the results CSV"""

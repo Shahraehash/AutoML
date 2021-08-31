@@ -3,6 +3,8 @@ Compute reliability curve and Briar score
 """
 
 import numpy as np
+import pandas as pd
+from joblib import load
 
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import brier_score_loss
@@ -35,3 +37,12 @@ def reliability(pipeline, features, model, x_test, y_test):
         'fop': list(fop),
         'mpv': list(mpv)
     }
+
+def additional_reliability(payload, label, folder):
+    data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+    x = data[payload['features']].to_numpy()
+    y = data[label]
+
+    pipeline = load(folder + '.joblib')
+
+    return reliability(pipeline, payload['features'], pipeline.steps[-1][1], x, y)

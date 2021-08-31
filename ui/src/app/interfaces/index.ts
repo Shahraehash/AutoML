@@ -174,3 +174,12 @@ export interface RefitGeneralization {
     fn: number;
     fp: number;
 }
+
+export interface AdditionalGeneralization {
+  generalization: RefitGeneralization,
+  reliability: {
+    brier_score: number;
+    fop: number[];
+    mpv: number[];
+  }
+}

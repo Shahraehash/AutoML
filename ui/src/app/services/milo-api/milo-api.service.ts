@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid';
 
 import {
   ActiveTaskStatus,
+  AdditionalGeneralization,
   DataAnalysisReply,
   DataSets,
   Jobs,
@@ -181,7 +182,7 @@ export class MiloApiService {
   }
 
   async generalize(data, threshold) {
-    return await (await this.request<RefitGeneralization>(
+    return await (await this.request<AdditionalGeneralization>(
       'post',
       `/jobs/${this.currentJobId}/generalize`,
       {data, threshold},
@@ -189,7 +190,7 @@ export class MiloApiService {
   }
 
   async generalizePublished(data, publishName) {
-    return await (await this.request<RefitGeneralization>(
+    return await (await this.request<AdditionalGeneralization>(
       'post',
       `/published/${publishName}/generalize`,
       data

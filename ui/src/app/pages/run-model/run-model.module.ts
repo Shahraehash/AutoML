@@ -7,7 +7,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { RunModelPageComponent } from './run-model.page';
-import { UseModelModule } from '../../components/use-model/use-model.module';
+import { ComponentsModule } from '../../components';
 
 const routes: Routes = [
   {
@@ -23,7 +23,7 @@ const routes: Routes = [
     ReactiveFormsModule,
     MatInputModule,
     IonicModule,
-    UseModelModule,
+    ComponentsModule,
     RouterModule.forChild(routes)
   ],
   declarations: [RunModelPageComponent]
