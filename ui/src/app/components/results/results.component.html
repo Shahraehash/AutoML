@@ -26,20 +26,20 @@
         <app-roc-chart [data]='parse(sortedData[activeRow], "generalization")' mode='generalization'></app-roc-chart>
       </ion-card>
 
+      <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.precision'>
+        <ion-card-header>
+          <ion-card-subtitle>Precision-Recall curve showing the tradeoffs at different thresholds</ion-card-subtitle>
+          <ion-card-title>Generalization Precision-Recall</ion-card-title>
+        </ion-card-header>
+        <app-roc-chart [data]='parse(sortedData[activeRow], "precision")' mode='precision'></app-roc-chart>
+      </ion-card>
+
       <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.mpv'>
         <ion-card-header>
           <ion-card-subtitle>Reliability diagram (calibration curve) for predictions against the generalization dataset</ion-card-subtitle>
           <ion-card-title>Generalization Reliability</ion-card-title>
         </ion-card-header>
         <app-roc-chart [data]='parse(sortedData[activeRow], "reliability")' mode='reliability'></app-roc-chart>
-      </ion-card>
-
-      <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.precision'>
-        <ion-card-header>
-          <ion-card-subtitle>Precision-Recall curve highlighting the tradeoffs at different thresholds</ion-card-subtitle>
-          <ion-card-title>Generalization Precision-Recall</ion-card-title>
-        </ion-card-header>
-        <app-roc-chart [data]='parse(sortedData[activeRow], "precision")' mode='precision'></app-roc-chart>
       </ion-card>
     </div>
 
