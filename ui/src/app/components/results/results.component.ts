@@ -278,7 +278,7 @@ export class ResultsComponent implements OnInit {
     if (mode === 'reliability') {
       textElements.push('Brier Score: ' + object.brier_score.toFixed(4));
     } else if (mode === 'precision') {
-      textElements.push('Precision Score: ' + object.precision_score.toFixed(4));
+      textElements.push('Average Precision Score: ' + object.precision_score.toFixed(4));
     } else {
       textElements.push('AUC = ' + this.calculateArea(tpr, fpr) + (mode === 'mean' ? ' ± ' + object.std_auc.toFixed(4) : ''));
     }
