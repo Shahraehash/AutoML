@@ -258,8 +258,8 @@ export class ResultsComponent implements OnInit {
       fpr = JSON.parse(object.generalization_fpr);
       tpr = JSON.parse(object.generalization_tpr);
     } else if (mode === 'precision') {
-      fpr = JSON.parse(object.precision);
-      tpr = JSON.parse(object.recall);
+      fpr = JSON.parse(object.recall);
+      tpr = JSON.parse(object.precision);
     } else if (mode === 'reliability') {
       fpr = JSON.parse(object.mpv);
       tpr = JSON.parse(object.fop);
