@@ -11,7 +11,7 @@ import * as d3Axis from 'd3-axis';
 })
 export class RocChartComponent implements OnInit, OnChanges {
     @Input() data;
-    @Input() mode: 'mean' | 'test' | 'generalization' | 'reliability';
+    @Input() mode: 'mean' | 'test' | 'generalization' | 'reliability' | 'precision';
 
     private svg;
     private cfg = {
@@ -24,6 +24,28 @@ export class RocChartComponent implements OnInit, OnChanges {
     constructor(
         private element: ElementRef
     ) {}
+
+    get XLabel() {
+      switch (this.mode) {
+        case 'reliability':
+          return 'Predicted Probability';
+        case 'precision':
+          return 'Recall';
+        default:
+        return 'False Positive Rate (1 - Specificity)';
+      }
+    }
+
+    get YLabel() {
+      switch (this.mode) {
+        case 'reliability':
+          return 'Observed Probability';
+        case 'precision':
+          return 'Precision';
+        default:
+        return 'True Positive Rate (Sensitivity)';
+      }
+    }
 
     ngOnInit() {
         this.ngOnChanges();
@@ -73,7 +95,7 @@ export class RocChartComponent implements OnInit, OnChanges {
             .attr('y', 40)
             .style('font-size', '12px')
             .style('text-anchor', 'middle')
-            .text(this.mode === 'reliability' ? 'Predicted Probability' : 'False Positive Rate (1 - Specificity)');
+            .text(this.XLabel);
 
 
         this.svg.append('g')
@@ -85,20 +107,22 @@ export class RocChartComponent implements OnInit, OnChanges {
             .attr('x', 0 - this.cfg.height / 2.8)
             .style('font-size', '12px')
             .style('text-anchor', 'left')
-            .text(this.mode === 'reliability' ? 'Observed Probability' : 'True Positive Rate (Sensitivity)');
+            .text(this.YLabel);
 
-        this.svg.append('line')
-            .attr('class', 'curve')
-            .attr('class', this.mode === 'reliability' ? 'ideal' : 'guess')
-            .attr('x1', 0)
-            .attr('x2', this.cfg.width)
-            .attr('y1', this.cfg.height)
-            .attr('y2', 0)
-            .style('stroke-width', 2)
-            .style('stroke-dasharray', 8)
-            .style('opacity', .4);
+        if (this.mode !== 'precision') {
+          this.svg.append('line')
+              .attr('class', 'curve')
+              .attr('class', this.mode === 'reliability' ? 'ideal' : 'guess')
+              .attr('x1', 0)
+              .attr('x2', this.cfg.width)
+              .attr('y1', this.cfg.height)
+              .attr('y2', 0)
+              .style('stroke-width', 2)
+              .style('stroke-dasharray', 8)
+              .style('opacity', .4);
+        }
 
-        if (this.mode !== 'reliability') {
+        if (this.mode !== 'reliability' && this.mode !== 'precision') {
             this.drawArea(color('0'), x, y, points);
         }
 

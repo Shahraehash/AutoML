@@ -452,7 +452,7 @@ def export(jobid):
         return
 
     return Response(
-      pd.read_csv(folder + '/report.csv').drop(['test_fpr', 'test_tpr', 'generalization_fpr', 'generalization_tpr', 'fop', 'mpv'], axis=1).to_csv(),
+      pd.read_csv(folder + '/report.csv').drop(['test_fpr', 'test_tpr', 'generalization_fpr', 'generalization_tpr', 'fop', 'mpv', 'precision', 'recall'], axis=1).to_csv(),
       mimetype='text/csv',
       headers={'Content-Disposition':'attachment;filename=report.csv'}
     )

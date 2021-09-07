@@ -257,6 +257,9 @@ export class ResultsComponent implements OnInit {
     if (mode === 'generalization') {
       fpr = JSON.parse(object.generalization_fpr);
       tpr = JSON.parse(object.generalization_tpr);
+    } else if (mode === 'precision') {
+      fpr = JSON.parse(object.precision);
+      tpr = JSON.parse(object.recall);
     } else if (mode === 'reliability') {
       fpr = JSON.parse(object.mpv);
       tpr = JSON.parse(object.fop);
@@ -274,6 +277,8 @@ export class ResultsComponent implements OnInit {
 
     if (mode === 'reliability') {
       textElements.push('Brier Score: ' + object.brier_score.toFixed(4));
+    } else if (mode === 'precision') {
+      textElements.push('Precision Score: ' + object.precision_score.toFixed(4));
     } else {
       textElements.push('AUC = ' + this.calculateArea(tpr, fpr) + (mode === 'mean' ? ' ± ' + object.std_auc.toFixed(4) : ''));
     }
