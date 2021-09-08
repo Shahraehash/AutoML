@@ -47,13 +47,21 @@ export class RocChartComponent implements OnInit, OnChanges {
       }
     }
 
+    get graphColor() {
+      switch (this.mode) {
+        case 'precision':
+          return schemeCategory10[1];
+        default:
+          return schemeCategory10[0];
+      }
+    }
+
     ngOnInit() {
         this.ngOnChanges();
     }
 
     ngOnChanges() {
         const format = d3.format('.2');
-        const color = scaleOrdinal(schemeCategory10);
 
         const width = this.cfg.width + this.cfg.margin.left + this.cfg.margin.right;
         const height = this.cfg.height + this.cfg.margin.top + this.cfg.margin.bottom;
@@ -122,14 +130,14 @@ export class RocChartComponent implements OnInit, OnChanges {
               .style('opacity', .4);
         }
 
-        if (this.mode !== 'reliability' && this.mode !== 'precision') {
-            this.drawArea(color('0'), x, y, points);
+        if (this.mode !== 'reliability') {
+            this.drawArea(this.graphColor, x, y, points);
         }
 
         if (sdPoints.length) {
             this.drawDeviation(x, y, sdPoints);
         }
-        this.drawCurve(color('0'), x, y, points);
+        this.drawCurve(this.graphColor, x, y, points);
         this.drawAUCText(this.data.textElements);
     }
 
