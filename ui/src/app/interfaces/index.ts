@@ -73,7 +73,7 @@ export interface GeneralizationResult {
     generalization_tpr: string;
     brier_score: number;
     fop: string;
-    mpv: string;
+    mpv: string
     precision_score: number;
     precision: string;
     recall: string;
