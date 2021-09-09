@@ -22,6 +22,7 @@ from .generalization import generalize
 from .model import generate_model
 from .import_data import import_data
 from .pipeline import generate_pipeline
+from .precision import precision_recall
 from .reliability import reliability
 from .refit import refit_model
 from .roc import roc
@@ -149,6 +150,7 @@ def find_best_model(
                   'generalization_tpr': roc_auc['tpr']
                 })
                 result.update(reliability(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
+                result.update(precision_recall(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
 
                 if not csv_header_written:
                     report_writer.writerow(result.keys())

@@ -1,15 +1,14 @@
 """
-Compute reliability curve and Briar score
+Compute precision recall curve and precision score
 """
 
 import numpy as np
 
-from sklearn.calibration import calibration_curve
-from sklearn.metrics import brier_score_loss
+from sklearn.metrics import precision_recall_curve
 
 from .preprocess import preprocess
 
-def reliability(pipeline, features, model, x_test, y_test):
+def precision_recall(pipeline, features, model, x_test, y_test):
     """Compute reliability curve and Briar score"""
 
     # Transform values based on the pipeline
@@ -27,11 +26,9 @@ def reliability(pipeline, features, model, x_test, y_test):
     else:
         probabilities = model.predict_proba(x_test)[:, 1]
 
-    fop, mpv = calibration_curve(y_test, probabilities, n_bins=10, strategy='quantile')
-    brier_score = brier_score_loss(y_test, probabilities)
+    precision, recall, _ = precision_recall_curve(y_test, probabilities)
 
     return {
-        'brier_score': round(brier_score, 4),
-        'fop': list(fop),
-        'mpv': list(mpv)
+        'precision': list(precision),
+        'recall': list(recall)
     }
