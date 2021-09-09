@@ -142,7 +142,7 @@ def find_best_model(
                 result.update({
                   'test_fpr': roc_auc['fpr'],
                   'test_tpr': roc_auc['tpr'],
-                  'auc_delta': abs(roc_auc['roc_auc'] - result['roc_auc'])
+                  'training_roc_auc': roc_auc['roc_auc']
                 })
                 roc_auc = roc(pipeline[0], model['features'], candidate['best_estimator'], x2, y2)
                 result.update({
