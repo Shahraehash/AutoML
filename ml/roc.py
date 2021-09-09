@@ -2,11 +2,11 @@
 Compute receiver operating characteristic
 """
 
-from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_curve, roc_auc_score
 
 from .preprocess import preprocess
 
-def roc(pipeline, features, model, x_test, y_test, key_prefix):
+def roc(pipeline, features, model, x_test, y_test):
     """Generate the ROC values"""
 
     # Transform values based on the pipeline
@@ -16,6 +16,7 @@ def roc(pipeline, features, model, x_test, y_test, key_prefix):
     fpr, tpr, _ = roc_curve(y_test, probabilities[:, 1])
 
     return {
-        key_prefix + '_fpr': list(fpr),
-        key_prefix + '_tpr': list(tpr)
+        'fpr': list(fpr),
+        'tpr': list(tpr),
+        'roc_auc': roc_auc_score(y_test, probabilities[:, 1])
     }

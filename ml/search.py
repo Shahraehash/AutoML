@@ -138,8 +138,17 @@ def find_best_model(
                     'selected_features': list(model['selected_features']),
                     'best_params': candidate['best_params']
                 })
-                result.update(roc(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test, 'test'))
-                result.update(roc(pipeline[0], model['features'], candidate['best_estimator'], x2, y2, 'generalization'))
+                roc_auc = roc(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test)
+                result.update({
+                  'test_fpr': roc_auc['fpr'],
+                  'test_tpr': roc_auc['tpr'],
+                  'training_roc_auc': roc_auc['roc_auc']
+                })
+                roc_auc = roc(pipeline[0], model['features'], candidate['best_estimator'], x2, y2)
+                result.update({
+                  'generalization_fpr': roc_auc['fpr'],
+                  'generalization_tpr': roc_auc['tpr']
+                })
                 result.update(reliability(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
                 result.update(precision_recall(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
 
