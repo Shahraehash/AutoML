@@ -51,6 +51,10 @@ export class RocChartComponent implements OnInit, OnChanges {
       switch (this.mode) {
         case 'precision':
           return schemeCategory10[1];
+        case 'test':
+          return schemeCategory10[7];
+        case 'reliability':
+          return schemeCategory10[9];
         default:
           return schemeCategory10[0];
       }
