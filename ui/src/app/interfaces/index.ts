@@ -46,7 +46,7 @@ export interface GeneralizationResult {
     scorer: string;
     accuracy: number;
     acc_95_ci: number[];
-    auc: number;
+    roc_auc: number;
     f1: number;
     sensitivity: number;
     sn_95_ci: number[];
@@ -76,6 +76,7 @@ export interface GeneralizationResult {
     mpv: string
     precision: string;
     recall: string;
+    training_roc_auc: number;
 }
 
 export interface SearchParameters {
