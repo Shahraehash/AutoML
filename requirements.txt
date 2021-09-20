@@ -35,7 +35,6 @@ pytest-openfiles==0.3.2
 pytest-remotedata==0.3.1
 pytest==5.0.1
 python-dotenv==0.10.3
-rdp==0.8
 requests==2.23.0
 scikit-image==0.15.0
 scikit-learn==0.21.2
