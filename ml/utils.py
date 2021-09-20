@@ -2,6 +2,8 @@
 Utilities
 """
 
+from rdp import rdp
+
 from .processors.estimators import ESTIMATOR_NAMES
 from .processors.feature_selection import FEATURE_SELECTOR_NAMES
 from .processors.scalers import SCALER_NAMES
@@ -23,3 +25,8 @@ def explode_key(key):
     """Split apart a key into it's separate components"""
 
     return (key.split('__') + [None])[:5]
+
+def decimate_points(x, y):
+    """Removes unneeded points from a curve"""
+
+    return list(zip(*rdp(list(zip(x, y)))))
