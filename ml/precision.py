@@ -29,6 +29,6 @@ def precision_recall(pipeline, features, model, x_test, y_test):
     precision, recall, _ = precision_recall_curve(y_test, probabilities)
 
     return {
-        'precision': list(precision),
-        'recall': list(recall)
+        'precision': [round(num, 4) for num in list(precision)],
+        'recall': [round(num, 4) for num in list(recall)]
     }
