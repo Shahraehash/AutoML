@@ -32,6 +32,6 @@ def reliability(pipeline, features, model, x_test, y_test):
 
     return {
         'brier_score': round(brier_score, 4),
-        'fop': list(fop),
-        'mpv': list(mpv)
+        'fop': [round(num, 4) for num in list(fop)],
+        'mpv': [round(num, 4) for num in list(mpv)]
     }
