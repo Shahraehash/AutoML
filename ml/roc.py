@@ -16,7 +16,7 @@ def roc(pipeline, features, model, x_test, y_test):
     fpr, tpr, _ = roc_curve(y_test, probabilities[:, 1])
 
     return {
-        'fpr': list(fpr),
-        'tpr': list(tpr),
+        'fpr': [round(num, 4) for num in list(fpr)],
+        'tpr': [round(num, 4) for num in list(tpr)],
         'roc_auc': roc_auc_score(y_test, probabilities[:, 1])
     }

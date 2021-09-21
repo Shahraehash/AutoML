@@ -29,13 +29,13 @@ def reliability(pipeline, features, model, x_test, y_test):
     else:
         probabilities = model.predict_proba(x_test)[:, 1]
 
-    fop, mpv = calibration_curve(y_test, probabilities, n_bins=10, strategy='quantile')
+    fop, mpv = calibration_curve(y_test, probabilities, n_bins=10, strategy='uniform')
     brier_score = brier_score_loss(y_test, probabilities)
 
     return {
         'brier_score': round(brier_score, 4),
-        'fop': list(fop),
-        'mpv': list(mpv)
+        'fop': [round(num, 4) for num in list(fop)],
+        'mpv': [round(num, 4) for num in list(mpv)]
     }
 
 def additional_reliability(payload, label, folder):

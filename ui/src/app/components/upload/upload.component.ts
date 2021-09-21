@@ -67,7 +67,9 @@ export class UploadComponent implements OnInit, OnDestroy {
     this.destroy$.unsubscribe();
   }
 
-  onSubmit() {
+  async onSubmit() {
+    const loading = await this.loadingController.create({message: 'Uploading dataset...'});
+    await loading.present();
     const formData = new FormData();
     formData.append('train', this.uploadForm.get('train').value);
     formData.append('test', this.uploadForm.get('test').value);
@@ -105,7 +107,7 @@ export class UploadComponent implements OnInit, OnDestroy {
 
         await alert.present();
       }
-    );
+    ).finally(() => loading.dismiss());
 
     return false;
   }
