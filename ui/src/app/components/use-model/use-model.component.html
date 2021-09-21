@@ -130,14 +130,20 @@
         <br><br>
         Drag and drop your CSV or select the button below to open a file picker.
         <ion-grid>
-          <ion-row>
+          <ion-row class='ion-align-items-center'>
             <ion-col>
               <ng-container *ngTemplateOutlet='modelStats'></ng-container>
-              <app-roc-chart class='large' *ngIf='rocAuc' [data]='{fpr: rocAuc.fpr, tpr: rocAuc.tpr, textElements: ["AUC: " + generalization.roc_auc.toFixed(4)]}' mode='generalization'></app-roc-chart>
             </ion-col>
             <ion-col *ngIf='reliability'>
-              <app-roc-chart class='small' [data]='{fpr: reliability.mpv, tpr: reliability.fop, textElements: ["Brier Score: " + reliability.brier_score.toFixed(4)]}' mode='reliability'></app-roc-chart>
-              <app-roc-chart class='large' [data]='{fpr: precisionRecall.recall, tpr: precisionRecall.precision, textElements: ["F1: " + generalization.f1.toFixed(4)]}' mode='precision'></app-roc-chart>
+              <app-roc-chart [data]='{fpr: reliability.mpv, tpr: reliability.fop, textElements: ["Brier Score: " + reliability.brier_score.toFixed(4)]}' mode='reliability'></app-roc-chart>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf='rocAuc && precisionRecall'>
+            <ion-col>
+              <app-roc-chart [data]='{fpr: rocAuc.fpr, tpr: rocAuc.tpr, textElements: ["AUC: " + generalization.roc_auc.toFixed(4)]}' mode='generalization'></app-roc-chart>
+            </ion-col>
+            <ion-col>
+              <app-roc-chart [data]='{fpr: precisionRecall.recall, tpr: precisionRecall.precision, textElements: ["F1: " + generalization.f1.toFixed(4)]}' mode='precision'></app-roc-chart>
             </ion-col>
           </ion-row>
         </ion-grid>

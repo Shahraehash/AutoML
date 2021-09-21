@@ -13,18 +13,6 @@ ion-content {
 
   app-roc-chart {
     display: block;
-
-    .small {
-      svg {
-        max-height: 400px;
-      }
-    }
-
-    .large {
-      svg {
-        max-height: 600px;
-      }
-    }
   }
 
   .inputs {
