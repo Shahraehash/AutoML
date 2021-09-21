@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, OnInit, OnChanges } from '@angular/core';
 import * as d3 from 'd3';
 import { schemeCategory10 } from 'd3-scale-chromatic';
-import { scaleLinear, scaleOrdinal } from 'd3-scale';
+import { scaleLinear } from 'd3-scale';
 import * as d3Axis from 'd3-axis';
 
 @Component({
