@@ -32,6 +32,7 @@ export class UseModelComponent implements OnInit {
   isDragging = false;
   voteType = 'soft';
   invalidCases;
+  fileName;
 
   constructor(
     public modalController: ModalController,
@@ -124,6 +125,7 @@ export class UseModelComponent implements OnInit {
     await loading.present();
 
     const file = files[0];
+    this.fileName = file.name;
     parse<string[]>(file, {
       dynamicTyping: true,
       worker: true,

@@ -125,6 +125,8 @@
       [ngClass]='{"overlay": isDragging}'>
       <div class='ion-padding ion-text-center batch-details'>
         <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span>
+        <br>
+        <span *ngIf='fileName'>Filename: {{fileName}}</span>
         <br><br>
         <ion-text color='danger' *ngIf='invalidCases'>Invalid case(s) dropped from testing: {{invalidCases}}</ion-text>
         <br><br>
