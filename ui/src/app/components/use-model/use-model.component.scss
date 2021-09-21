@@ -1,37 +1,53 @@
 ion-content {
-    --overflow: hidden;
+  --overflow: hidden;
 }
 
 .mat-form-field {
-    display: block;
+  display: block;
 }
 
 .container {
-    display: flex;
-    overflow-y: hidden;
-    height: calc(100% - 80px);
+  display: flex;
+  overflow-y: hidden;
+  height: calc(100% - 80px);
 
-    .inputs {
-      order: 1;
-      overflow-y: scroll;
-      width: 100%;
-      max-width: 500px;
-      min-width: 140px;
-    }
+  app-roc-chart {
+    display: block;
 
-    .results {
-      order: 2;
-      width: 100%;
-      overflow-y: scroll;
-
-      .label {
-          font-weight: 700;
-      }
-
-      .indicator {
-          vertical-align: middle;
+    .small {
+      svg {
+        max-height: 400px;
       }
     }
+
+    .large {
+      svg {
+        max-height: 600px;
+      }
+    }
+  }
+
+  .inputs {
+    order: 1;
+    overflow-y: scroll;
+    width: 100%;
+    max-width: 500px;
+    min-width: 140px;
+  }
+
+  .results {
+    order: 2;
+    width: 100%;
+    overflow-y: scroll;
+
+    .label {
+      font-weight: 700;
+    }
+
+    .indicator {
+      vertical-align: middle;
+    }
+  }
 
   .batch-details {
     flex: 1;
@@ -39,38 +55,38 @@ ion-content {
   }
 
   &.overlay {
-    border: rgb(6,103,250) 4px solid;
+    border: rgb(6, 103, 250) 4px solid;
     border-radius: 16px;
-    background-color: rgba(6,103,250,.25);
+    background-color: rgba(6, 103, 250, 0.25);
   }
 }
 
 .page-view {
-    height: calc(100% - 46px);
+  height: calc(100% - 46px);
 
-    &.ios {
-        height: calc(100% - 30px);
-        overflow-y: hidden;
-    }
+  &.ios {
+    height: calc(100% - 30px);
+    overflow-y: hidden;
+  }
 
-    .container {
-        height: calc(100% - 160px);
-    }
+  .container {
+    height: calc(100% - 160px);
+  }
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
-@media(max-width: 550px) {
+@media (max-width: 550px) {
   .container {
     display: block;
     overflow-y: scroll;
   }
 }
 
-@media(max-height: 600px) {
+@media (max-height: 600px) {
   .modal-only {
     display: initial !important;
-  }  
+  }
 }

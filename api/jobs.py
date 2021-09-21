@@ -3,6 +3,8 @@ Search for the best model for a given dataset
 """
 
 import ast
+from ml.roc import additional_roc
+from ml.precision import additional_precision
 import os
 import json
 import time
@@ -437,7 +439,9 @@ def generalize(jobid):
 
     return jsonify({
         'generalization': generalize_model(payload['data'], dataset_metadata['label'], folder + '/pipeline', payload['threshold']),
-        'reliability': additional_reliability(payload['data'], dataset_metadata['label'], folder + '/pipeline')
+        'reliability': additional_reliability(payload['data'], dataset_metadata['label'], folder + '/pipeline'),
+        'precision_recall': additional_precision(payload['data'], dataset_metadata['label'], folder + '/pipeline'),
+        'roc_auc': additional_roc(payload['data'], dataset_metadata['label'], folder + '/pipeline')
     })
 
 def export(jobid):

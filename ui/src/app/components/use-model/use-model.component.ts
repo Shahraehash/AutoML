@@ -24,6 +24,8 @@ export class UseModelComponent implements OnInit {
   @Input() type: string;
   @Input() threshold = .5;
   @Input() reliability: AdditionalGeneralization['reliability'];
+  @Input() precisionRecall: AdditionalGeneralization['precision_recall'];
+  @Input() rocAuc: AdditionalGeneralization['roc_auc'];
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
@@ -153,6 +155,8 @@ export class UseModelComponent implements OnInit {
           );
           this.generalization = result.generalization;
           this.reliability = result.reliability;
+          this.precisionRecall = result.precision_recall;
+          this.rocAuc = result.roc_auc;
           
           this.invalidCases = reply.data.length - (this.generalization.tp + this.generalization.fp + this.generalization.tn + this.generalization.fn);
         } catch (err) {
@@ -354,6 +358,8 @@ export class UseModelComponent implements OnInit {
     const result = await this.api.generalize({features: this.parsedFeatures}, this.threshold);
     this.generalization = result.generalization;
     this.reliability = result.reliability;
+    this.precisionRecall = result.precision_recall;
+    this.rocAuc = result.roc_auc;
     await loading.dismiss();
   }
 }
