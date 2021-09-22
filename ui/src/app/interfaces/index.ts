@@ -177,3 +177,21 @@ export interface RefitGeneralization {
     fn: number;
     fp: number;
 }
+
+export interface AdditionalGeneralization {
+  generalization: RefitGeneralization,
+  reliability: {
+    brier_score: number;
+    fop: number[];
+    mpv: number[];
+  };
+  precision_recall: {
+    precision: number[];
+    recall: number[];
+  };
+  roc_auc: {
+    fpr: number[];
+    tpr: number[];
+    roc_auc: number[];
+  }
+}

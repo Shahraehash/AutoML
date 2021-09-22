@@ -2,6 +2,9 @@
 Compute receiver operating characteristic
 """
 
+import pandas as pd
+from joblib import load
+
 from sklearn.metrics import roc_curve, roc_auc_score
 
 from .preprocess import preprocess
@@ -26,3 +29,12 @@ def roc(pipeline, features, model, x_test, y_test):
         'tpr': list(tpr),
         'roc_auc': roc_auc_score(y_test, probabilities[:, 1])
     }
+
+def additional_roc(payload, label, folder):
+    data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+    x = data[payload['features']].to_numpy()
+    y = data[label]
+
+    pipeline = load(folder + '.joblib')
+
+    return roc(pipeline, payload['features'], pipeline.steps[-1][1], x, y)

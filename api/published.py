@@ -13,6 +13,9 @@ from flask import abort, g, jsonify, request, send_file
 
 from ml.predict import predict
 from ml.generalization import generalize_model
+from ml.reliability import additional_reliability
+from ml.roc import additional_roc
+from ml.precision import additional_precision
 from .jobs import refit
 
 PUBLISHED_MODELS = 'data/published-models.json'
@@ -138,9 +141,12 @@ def generalize(name):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    return jsonify(
-        generalize_model(json.loads(request.data), metadata['label'], published[name]['path'])
-    )
+    return jsonify({
+        'generalization': generalize_model(json.loads(request.data), metadata['label'], published[name]['path'], published[name]['threshold']),
+        'reliability': additional_reliability(json.loads(request.data), metadata['label'], published[name]['path']),
+        'precision_recall': additional_precision(json.loads(request.data), metadata['label'], published[name]['path']),
+        'roc_auc': additional_roc(json.loads(request.data), metadata['label'], published[name]['path'])
+    })
 
 def features(name):
     """Returns the features for a published model"""

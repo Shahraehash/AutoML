@@ -3,6 +3,8 @@ Compute precision recall curve and precision score
 """
 
 import numpy as np
+import pandas as pd
+from joblib import load
 
 from sklearn.metrics import precision_recall_curve
 
@@ -10,7 +12,7 @@ from .preprocess import preprocess
 from .utils import decimate_points
 
 def precision_recall(pipeline, features, model, x_test, y_test):
-    """Compute reliability curve and Briar score"""
+    """Compute precision recall curve"""
 
     # Transform values based on the pipeline
     x_test = preprocess(features, pipeline, x_test)
@@ -38,3 +40,14 @@ def precision_recall(pipeline, features, model, x_test, y_test):
         'precision': list(precision),
         'recall': list(recall)
     }
+
+def additional_precision(payload, label, folder):
+    """Return additional precision recall curve"""
+
+    data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+    x = data[payload['features']].to_numpy()
+    y = data[label]
+
+    pipeline = load(folder + '.joblib')
+
+    return precision_recall(pipeline, payload['features'], pipeline.steps[-1][1], x, y)

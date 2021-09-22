@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
-import { RefitGeneralization, TestReply } from '../../interfaces';
+import { AdditionalGeneralization, RefitGeneralization, TestReply } from '../../interfaces';
 import { TuneModelComponent } from '../tune-model/tune-model.component';
 
 @Component({
@@ -23,12 +23,16 @@ export class UseModelComponent implements OnInit {
   @Input() publishName: string;
   @Input() type: string;
   @Input() threshold = .5;
+  @Input() reliability: AdditionalGeneralization['reliability'];
+  @Input() precisionRecall: AdditionalGeneralization['precision_recall'];
+  @Input() rocAuc: AdditionalGeneralization['roc_auc'];
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
   isDragging = false;
   voteType = 'soft';
   invalidCases;
+  fileName;
 
   constructor(
     public modalController: ModalController,
@@ -121,6 +125,7 @@ export class UseModelComponent implements OnInit {
     await loading.present();
 
     const file = files[0];
+    this.fileName = file.name;
     parse<string[]>(file, {
       dynamicTyping: true,
       worker: true,
@@ -147,9 +152,14 @@ export class UseModelComponent implements OnInit {
         };
 
         try {
-          this.generalization = await (
+          const result = await (
             this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload, this.threshold)
           );
+          this.generalization = result.generalization;
+          this.reliability = result.reliability;
+          this.precisionRecall = result.precision_recall;
+          this.rocAuc = result.roc_auc;
+          
           this.invalidCases = reply.data.length - (this.generalization.tp + this.generalization.fp + this.generalization.tn + this.generalization.fn);
         } catch (err) {
           this.showError('Unable to assess model performance. Please ensure the target column is present.');
@@ -321,6 +331,7 @@ export class UseModelComponent implements OnInit {
     if (data) {
       if (data.threshold) {
         this.threshold = data.threshold;
+        delete this.fileName;
         this.updateGeneralization();
         if (this.result) {
           this.testModel();
@@ -347,7 +358,11 @@ export class UseModelComponent implements OnInit {
       message: 'Calculating performance...'
     });
     await loading.present();
-    this.generalization = await this.api.generalize({features: this.parsedFeatures}, this.threshold);
+    const result = await this.api.generalize({features: this.parsedFeatures}, this.threshold);
+    this.generalization = result.generalization;
+    this.reliability = result.reliability;
+    this.precisionRecall = result.precision_recall;
+    this.rocAuc = result.roc_auc;
     await loading.dismiss();
   }
 }
