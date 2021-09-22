@@ -279,8 +279,10 @@ export class ResultsComponent implements OnInit {
       textElements.push('Brier Score: ' + object.brier_score.toFixed(4));
     } else if (mode === 'precision') {
       textElements.push('F1: ' + object.f1.toFixed(4));
-    } else {
-      textElements.push('AUC = ' + this.calculateArea(tpr, fpr) + (mode === 'mean' ? ' ± ' + object.std_auc.toFixed(4) : ''));
+    } else if (mode === 'generalization') {
+      textElements.push('AUC: ' + object.roc_auc.toFixed(4));
+    } else if (mode === 'test') {
+      textElements.push('AUC: ' + object.training_roc_auc.toFixed(4));
     }
 
     return {
@@ -508,16 +510,6 @@ export class ResultsComponent implements OnInit {
       await zip.generateAsync({type: 'blob'}),
       `${this.sortedData[this.activeRow].key}_graphs.zip`
     );
-  }
-
-  private calculateArea(tpr, fpr) {
-    let area = 0.0;
-    tpr.forEach((_, i) => {
-      if ('undefined' !== typeof fpr[i - 1]) {
-        area += (fpr[i] - fpr[i - 1]) * (tpr[i - 1] + tpr[i]) / 2;
-      }
-    });
-    return area.toFixed(4);
   }
 
   private async updateStarredModels() {

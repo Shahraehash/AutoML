@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.metrics import precision_recall_curve
 
 from .preprocess import preprocess
+from .utils import decimate_points
 
 def precision_recall(pipeline, features, model, x_test, y_test):
     """Compute reliability curve and Briar score"""
@@ -28,7 +29,12 @@ def precision_recall(pipeline, features, model, x_test, y_test):
 
     precision, recall, _ = precision_recall_curve(y_test, probabilities)
 
+    recall, precision = decimate_points(
+      [round(num, 4) for num in list(recall)],
+      [round(num, 4) for num in list(precision)]
+    )
+
     return {
-        'precision': [round(num, 4) for num in list(precision)],
-        'recall': [round(num, 4) for num in list(recall)]
+        'precision': list(precision),
+        'recall': list(recall)
     }
