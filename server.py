@@ -9,6 +9,7 @@ import os
 
 from firebase_admin import auth, credentials, initialize_app
 from flask import Flask, g, request, send_from_directory, abort
+from flask_compress import Compress
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -23,6 +24,7 @@ load_dotenv()
 APP = Flask(__name__, static_url_path='')
 APP.config['JSON_SORT_KEYS'] = False
 CORS(APP)
+Compress(APP)
 
 if os.path.exists('serviceAccountKey.json'):
     initialize_app(
