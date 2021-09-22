@@ -331,6 +331,13 @@ export class UseModelComponent implements OnInit {
     if (data) {
       if (data.threshold) {
         this.threshold = data.threshold;
+
+        /** Since the model has been tuned/adjusted, remove all current additional generalization data */
+        delete this.fileName;
+        delete this.reliability;
+        delete this.rocAuc;
+        delete this.precisionRecall;
+
         this.updateGeneralization();
         if (this.result) {
           this.testModel();
