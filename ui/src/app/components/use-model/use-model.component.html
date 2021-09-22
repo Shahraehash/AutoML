@@ -126,11 +126,12 @@
       <div class='ion-padding ion-text-center batch-details'>
         <span *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</span>
         <br>
-        <span *ngIf='fileName'>Filename: {{fileName}}</span>
+        <span *ngIf='fileName; else defaultName'>Filename: {{fileName}}</span>
+        <ng-template #defaultName>Original Generalization Dataset</ng-template>
         <br><br>
         <ion-text color='danger' *ngIf='invalidCases'>Invalid case(s) dropped from testing: {{invalidCases}}</ion-text>
         <br><br>
-        Drag and drop your CSV or select the button below to open a file picker.
+        <span *ngIf='generalization'>Drag and drop your CSV or select the button below to open a file picker.</span>
         <ion-grid class='ion-no-padding output'>
           <ion-row class='ion-align-items-center'>
             <ion-col class='ion-no-padding'>
