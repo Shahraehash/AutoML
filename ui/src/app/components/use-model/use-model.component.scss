@@ -11,8 +11,15 @@ ion-content {
   overflow-y: hidden;
   height: calc(100% - 80px);
 
-  app-roc-chart {
-    display: block;
+  .output {
+    max-width: 1200px;
+    margin: 0 auto;
+
+    app-roc-chart {
+      display: block;
+      max-width: 450px;
+      margin: 0 auto;
+    }
   }
 
   .inputs {

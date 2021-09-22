@@ -92,7 +92,10 @@ export class RocChartComponent implements OnInit, OnChanges {
         this.svg = d3.select(this.element.nativeElement).select('svg');
         this.svg.selectAll('*').remove();
 
-        this.svg = this.svg.attr('viewBox', `0 0 ${width} ${height}`).append('g')
+        this.svg = this.svg
+          .attr('viewBox', `0 0 ${width} ${height}`)
+          .attr('preserveAspectRatio', 'xMinYMin meet')
+          .append('g')
             .attr('transform', 'translate(' + this.cfg.margin.left + ',' + this.cfg.margin.top + ')');
 
         x.domain([0, 1]);

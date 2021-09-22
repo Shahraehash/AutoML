@@ -131,21 +131,21 @@
         <ion-text color='danger' *ngIf='invalidCases'>Invalid case(s) dropped from testing: {{invalidCases}}</ion-text>
         <br><br>
         Drag and drop your CSV or select the button below to open a file picker.
-        <ion-grid>
+        <ion-grid class='ion-no-padding output'>
           <ion-row class='ion-align-items-center'>
-            <ion-col>
+            <ion-col class='ion-no-padding'>
               <ng-container *ngTemplateOutlet='modelStats'></ng-container>
             </ion-col>
-            <ion-col *ngIf='reliability'>
-              <app-roc-chart [data]='{fpr: reliability.mpv, tpr: reliability.fop, textElements: ["Brier Score: " + reliability.brier_score.toFixed(4)]}' mode='reliability'></app-roc-chart>
+            <ion-col class='ion-no-padding' *ngIf='reliability'>
+              <app-roc-chart [data]='{fpr: rocAuc.fpr, tpr: rocAuc.tpr, textElements: ["AUC: " + generalization.roc_auc.toFixed(4)]}' mode='generalization'></app-roc-chart>
             </ion-col>
           </ion-row>
           <ion-row *ngIf='rocAuc && precisionRecall'>
-            <ion-col>
-              <app-roc-chart [data]='{fpr: rocAuc.fpr, tpr: rocAuc.tpr, textElements: ["AUC: " + generalization.roc_auc.toFixed(4)]}' mode='generalization'></app-roc-chart>
-            </ion-col>
-            <ion-col>
+            <ion-col class='ion-no-padding'>
               <app-roc-chart [data]='{fpr: precisionRecall.recall, tpr: precisionRecall.precision, textElements: ["F1: " + generalization.f1.toFixed(4)]}' mode='precision'></app-roc-chart>
+            </ion-col>
+            <ion-col class='ion-no-padding'>
+              <app-roc-chart [data]='{fpr: reliability.mpv, tpr: reliability.fop, textElements: ["Brier Score: " + reliability.brier_score.toFixed(4)]}' mode='reliability'></app-roc-chart>
             </ion-col>
           </ion-row>
         </ion-grid>
