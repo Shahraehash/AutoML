@@ -8,6 +8,7 @@ from joblib import load
 from sklearn.metrics import roc_curve, roc_auc_score
 
 from .preprocess import preprocess
+from .utils import decimate_points
 
 def roc(pipeline, features, model, x_test, y_test):
     """Generate the ROC values"""
@@ -18,9 +19,14 @@ def roc(pipeline, features, model, x_test, y_test):
     probabilities = model.predict_proba(x_test)
     fpr, tpr, _ = roc_curve(y_test, probabilities[:, 1])
 
+    fpr, tpr = decimate_points(
+      [round(num, 4) for num in list(fpr)],
+      [round(num, 4) for num in list(tpr)]
+    )
+
     return {
-        'fpr': [round(num, 4) for num in list(fpr)],
-        'tpr': [round(num, 4) for num in list(tpr)],
+        'fpr': list(fpr),
+        'tpr': list(tpr),
         'roc_auc': roc_auc_score(y_test, probabilities[:, 1])
     }
 
