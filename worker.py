@@ -11,7 +11,7 @@ from celery.task.control import revoke
 
 from ml import search
 
-CELERY = Celery(__name__, backend='rpc://', broker='pyamqp://guest@localhost//')
+CELERY = Celery(__name__, backend='rpc://', broker='pyamqp://guest@127.0.0.1//')
 CELERY.conf.update(task_track_started=True)
 
 def fix_celery_solo(userid, jobid):

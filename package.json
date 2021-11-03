@@ -6,7 +6,7 @@
   "scripts": {
     "build-ui": "cd ui && npm run build",
     "build-docs": "cd docs && npm run build",
-    "open-browser": "sleep 15 && open http://localhost:4200",
+    "open-browser": "sleep 15 && open http://127.0.0.1:4200",
     "docs": "cd docs && npm run dev",
     "build-docker": "cd ui && npm run build-docker && cd .. && npm run build-docs && docker build -t milo .",
     "save-docker": "docker save milo:latest | gzip > build/milo-$npm_package_version.tar.gz",

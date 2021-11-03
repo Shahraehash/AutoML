@@ -71,7 +71,7 @@ After you start MILO-ML, you should see some output similar to the following:
 ![Docker Running](./images/docker-running.png)
 
 This informs you that MILO-ML is ready to start processing requests and you can now launch your browser and navigating
-to the following URL: <http://localhost:5000>.
+to the following URL: <http://127.0.0.1:5000>.
 
 ## Stopping MILO-ML
 

@@ -3,10 +3,11 @@ FROM python:3.7
 
 # expose ports
 EXPOSE 5000
+EXPOSE 8443
 
 # install OS dependencies
 RUN apt-get update
-RUN apt-get -y install curl gnupg sudo
+RUN apt-get -y install curl gnupg sudo libssl-dev openssl
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get -y install nodejs rabbitmq-server
 
@@ -23,6 +24,7 @@ WORKDIR /milo
 
 # create data directory
 RUN mkdir data
+RUN mkdir ssl
 
 # copy the Python dependencies to the working directory
 COPY --chown=milo requirements.txt .
@@ -47,6 +49,15 @@ COPY --chown=milo uwsgi.ini .
 
 # copy static assets (UI and documentation)
 COPY --chown=milo static/ static/
+
+# generate SSL certificate
+RUN openssl req -x509 -nodes \
+    -subj  "/CN=localhost" \
+    -addext "subjectAltName = DNS:localhost" \
+    -addext "keyUsage = digitalSignature" \
+    -addext "extendedKeyUsage = serverAuth" \
+    -newkey rsa:2048 -keyout ssl/milo.key \
+    -out ssl/milo.crt
 
 # start the application
 CMD [ "npm", "run", "run-docker" ]
