@@ -9,7 +9,7 @@ This package contains the exported model along with the files needed to predict 
 - `requirements.txt`: The Python dependencies to properly run the model
 - `README.md`: This help file
 
-## Requirements
+## Setup Requirements
 
 Please ensure all Python requirements are installed using:
 
