@@ -500,6 +500,7 @@ def export_model(jobid):
         file.write(contents)
 
     copyfile(folder + '/pipeline.joblib', 'client/pipeline.joblib')
+    copyfile(folder + '/input.csv', 'client/input.csv')
 
     memory_file = BytesIO()
     with zipfile.ZipFile(memory_file, 'w') as zf:

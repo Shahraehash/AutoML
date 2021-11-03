@@ -32,6 +32,7 @@ build/*
 static/
 *.joblib
 *.pmml
+input.csv
 
 # Unit test / coverage reports
 htmlcov/

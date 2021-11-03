@@ -73,7 +73,7 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
 
     # Dump the pipeline to a file
     dump(pipeline, output_path + '/pipeline.joblib')
-    pd.DataFrame([selected_features]).to_csv(output_path + 'input.csv', index=False, header=False)
+    pd.DataFrame([selected_features]).to_csv(output_path + '/input.csv', index=False, header=False)
 
     # Export the model as a PMML
     try:
