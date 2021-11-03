@@ -3,25 +3,25 @@ Search for the best model for a given dataset
 """
 
 import ast
-from ml.roc import additional_roc
-from ml.precision import additional_precision
 import os
 import json
+import re
 import time
 import uuid
+import zipfile
+from io import BytesIO
 from shutil import copyfile, rmtree
-from joblib import load, dump
 
 from flask import Response, abort, g, jsonify, request, send_file, url_for
 import pandas as pd
-from sklearn.pipeline import Pipeline
 
 from . import licensing
 from ml.create_model import create_model
 from ml.list_pipelines import list_pipelines
 from ml.generalization import generalize_ensemble, generalize_model
 from ml.predict import predict, predict_ensemble
-from ml.processors.threshold import Threshold
+from ml.roc import additional_roc
+from ml.precision import additional_precision
 from ml.reliability import additional_reliability
 from worker import queue_training
 
@@ -492,11 +492,25 @@ def export_model(jobid):
         abort(400)
         return
 
-    pipeline = load(folder + '/pipeline.joblib')
-    pipeline = Pipeline(pipeline.steps[:-1] + [('estimator', Threshold(pipeline.steps[-1][1], threshold))])
-    dump(pipeline, folder + '/exported-pipeline.joblib')
+    with open('client/predict.py', 'r+') as file:
+        contents = file.read()
+        contents = re.sub(r'THRESHOLD = [\d.]+', 'THRESHOLD = ' + str(threshold), contents)
+        file.seek(0)
+        file.truncate()
+        file.write(contents)
 
-    return send_file(folder + '/exported-pipeline.joblib', as_attachment=True, cache_timeout=-1)
+    copyfile(folder + '/pipeline.joblib', 'client/pipeline.joblib')
+    copyfile(folder + '/input.csv', 'client/input.csv')
+
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w') as zf:
+        files = os.listdir('client')
+        for individualFile in files:
+          filePath = os.path.join('client', individualFile)
+          zf.write(filePath, individualFile)
+    memory_file.seek(0)
+
+    return send_file(memory_file, attachment_filename='model.zip', as_attachment=True, cache_timeout=-1)
 
 def star_models(jobid):
     """Marks the selected models as starred"""
