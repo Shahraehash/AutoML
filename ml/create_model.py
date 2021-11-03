@@ -6,6 +6,7 @@ the key, hyper parameters and features used).
 import os
 import json
 import numpy as np
+import pandas as pd
 from joblib import dump, load
 from nyoka import skl_to_pmml, xgboost_to_pmml
 from sklearn.pipeline import Pipeline
@@ -72,6 +73,7 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
 
     # Dump the pipeline to a file
     dump(pipeline, output_path + '/pipeline.joblib')
+    pd.DataFrame([selected_features]).to_csv(output_path + 'input.csv', index=False, header=False)
 
     # Export the model as a PMML
     try:
