@@ -26,3 +26,21 @@ The configuration is contained within `predict.py` towards the top of the file. 
 - `THRESHOLD`: The threshold at which to consider a result positive (pre-populated when exported)
 
 Please do not edit anything below the configuration as this may result in the script no longer working.
+
+## Data Input
+
+When the model is executed, data is read in from the `DATA_FILE`. In order to predict on new data, please edit this CSV and add the required data.
+
+## Run Model
+
+To run the model, open a Terminal and execute the following command:
+
+```sh
+# Change directory to the extracted folder
+cd model
+
+# Runs the model and outputs to output.csv
+python predict.py
+```
+
+This will result in a new file in the folder called `output.csv` which will have two columns appended to the end for both the prediction and probability of that prediction.
