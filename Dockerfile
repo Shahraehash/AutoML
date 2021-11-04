@@ -50,6 +50,9 @@ COPY --chown=milo uwsgi.ini .
 # copy static assets (UI and documentation)
 COPY --chown=milo static/ static/
 
+# copy client assets
+COPY --chown=milo client/ client/
+
 # generate SSL certificate
 RUN openssl req -x509 -nodes \
     -subj  "/CN=localhost" \
