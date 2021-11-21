@@ -4,9 +4,12 @@ Handle published model requests
 
 import ast
 import os
+import re
 import json
 import time
 import uuid
+import zipfile
+from io import BytesIO
 from shutil import copyfile
 
 from flask import abort, g, jsonify, request, send_file
@@ -214,7 +217,26 @@ def export_model(name):
         abort(400)
         return
 
-    return send_file(published[name]['path'] + '.joblib', as_attachment=True, cache_timeout=-1)
+    threshold = published[name]['threshold'] if 'threshold' in published[name] else .5
+    with open('client/predict.py', 'r+') as file:
+        contents = file.read()
+        contents = re.sub(r'THRESHOLD = [\d.]+', 'THRESHOLD = ' + str(threshold), contents)
+        file.seek(0)
+        file.truncate()
+        file.write(contents)
+
+    copyfile(published[name]['path'] + '.joblib', 'client/pipeline.joblib')
+    copyfile(published[name]['path'] + '.csv', 'client/input.csv')
+
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w') as zf:
+        files = os.listdir('client')
+        for individualFile in files:
+            filePath = os.path.join('client', individualFile)
+            zf.write(filePath, individualFile)
+    memory_file.seek(0)
+
+    return send_file(memory_file, attachment_filename=(name + '.zip'), as_attachment=True, cache_timeout=-1)
 
 def add(name):
     """Refits a model for future use via a published name"""
@@ -231,6 +253,7 @@ def add(name):
     model_path = job_folder + '/' + name
 
     copyfile(job_folder + '/pipeline.joblib', model_path + '.joblib')
+    copyfile(job_folder + '/input.csv', model_path + '.csv')
     try:
         copyfile(job_folder + '/pipeline.pmml', model_path + '.pmml')
     except:
