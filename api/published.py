@@ -217,6 +217,11 @@ def export_model(name):
         abort(400)
         return
 
+    try:
+        copyfile(published[name]['path'] + '.csv', 'client/input.csv')
+    except Exception:
+        return send_file(published[name]['path'] + '.joblib', as_attachment=True, cache_timeout=-1)
+
     threshold = published[name]['threshold'] if 'threshold' in published[name] else .5
     with open('client/predict.py', 'r+') as file:
         contents = file.read()
@@ -226,7 +231,6 @@ def export_model(name):
         file.write(contents)
 
     copyfile(published[name]['path'] + '.joblib', 'client/pipeline.joblib')
-    copyfile(published[name]['path'] + '.csv', 'client/input.csv')
 
     memory_file = BytesIO()
     with zipfile.ZipFile(memory_file, 'w') as zf:
