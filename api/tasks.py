@@ -2,7 +2,6 @@
 API methods for getting data from Celery tasks
 """
 
-import ast
 import json
 
 from flask import abort, g, jsonify
@@ -28,12 +27,7 @@ def pending():
     for worker in scheduled_tasks:
         for task in worker:
             if g.uid in task['request']['args']:
-                try:
-                    args = ast.literal_eval(task['request']['args'])
-                except ValueError:
-                    continue
-
-                job_folder = 'data/users/' + g.uid + '/jobs/' + args[1]
+                job_folder = 'data/users/' + g.uid + '/jobs/' + task['request']['args'][1]
 
                 with open(job_folder + '/metadata.json') as metafile:
                     metadata = json.load(metafile)
@@ -42,9 +36,9 @@ def pending():
                     'id': task['request']['id'],
                     'eta': task['eta'],
                     'datasetid': metadata['datasetid'],
-                    'jobid': args[1],
-                    'label': args[2],
-                    'parameters': args[3],
+                    'jobid': task['request']['args'][1],
+                    'label': task['request']['args'][2],
+                    'parameters': task['request']['args'][3],
                     'state': 'PENDING'
                 })
 
@@ -55,12 +49,7 @@ def pending():
     for worker in active_tasks + reserved_tasks:
         for task in worker:
             if '.queue_training' in task['type'] and g.uid in task['args']:
-                try:
-                    args = ast.literal_eval(task['args'])
-                except ValueError:
-                    continue
-
-                job_folder = 'data/users/' + g.uid + '/jobs/' + args[1]
+                job_folder = 'data/users/' + g.uid + '/jobs/' + task['args'][1]
 
                 with open(job_folder + '/metadata.json') as metafile:
                     metadata = json.load(metafile)
@@ -69,9 +58,9 @@ def pending():
                 task_status.update({
                     'id': task['id'],
                     'datasetid': metadata['datasetid'],
-                    'jobid': args[1],
-                    'label': args[2],
-                    'parameters': args[3],
+                    'jobid': task['args'][1],
+                    'label': task['args'][2],
+                    'parameters': task['args'][3],
                     'time': task['time_start']
                 })
                 active.append(task_status)
