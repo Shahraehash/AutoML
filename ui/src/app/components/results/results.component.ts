@@ -375,6 +375,13 @@ export class ResultsComponent implements OnInit {
     formData.append('parameters', this.sortedData[index].best_params);
     formData.append('features', this.sortedData[index].selected_features);
 
+    let scores;
+    try {
+      scores = JSON.parse(this.sortedData[index].feature_scores);
+    } catch(e) {
+      scores = {};
+    }
+
     (await this.api.createModel(formData)).subscribe(
       async (reply: {generalization: RefitGeneralization}) => {
         const modal = await this.modalController.create({
@@ -382,6 +389,7 @@ export class ResultsComponent implements OnInit {
           cssClass: 'test-modal',
           componentProps: {
             features: this.sortedData[index].selected_features,
+            featureScores: scores,
             generalization: reply.generalization
           }
         });

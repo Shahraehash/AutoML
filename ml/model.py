@@ -43,7 +43,7 @@ def generate_model(pipeline, feature_names, x_train, y_train):
     if feature_scores is not None:
         total_score = feature_scores['scores'].sum()
         feature_scores['scores'] = round(feature_scores['scores'] / total_score, 4)
-        feature_scores = dict(feature_scores['scores'])
+        feature_scores = dict(feature_scores['scores'].sort_values(ascending=False))
 
     print('\tFeatures used: ' + ', '.join(selected_features[:MAX_FEATURES_SHOWN]) +
           ('...' if len(selected_features) > MAX_FEATURES_SHOWN else ''))
