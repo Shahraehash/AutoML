@@ -78,7 +78,7 @@
         <ng-container *ngTemplateOutlet='modelStats'></ng-container>
       </div>
       <div class='inputs ion-padding' formArrayName='inputs'>
-        <p *ngIf='featureScores'>Feature scores are displayed adjacent to feature names indicating its relative influence to the model.</p>
+        <p *ngIf='featureScores'>Feature scores are displayed adjacent to feature names with their relative percent influence.</p>
         <ng-container *ngFor='let feature of parsedFeatures; let i=index'>
           <mat-form-field color='accent'>
             <input matInput type='number' [placeholder]='"Enter " + feature + (featureScores ? " (" + (featureScores[feature] * 100 | number) + "%)" : "")' [formControlName]='i'>
