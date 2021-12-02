@@ -46,7 +46,7 @@ def generate_model(pipeline, feature_names, x_train, y_train):
         feature_scores['scores'] = round(feature_scores['scores'] / total_score, 4)
         feature_scores = json.dumps(dict(feature_scores['scores'].sort_values(ascending=False)))
     else:
-        feature_scores = 'N/A'
+        feature_scores = ""
 
     print('\tFeatures used: ' + ', '.join(selected_features[:MAX_FEATURES_SHOWN]) +
           ('...' if len(selected_features) > MAX_FEATURES_SHOWN else ''))
