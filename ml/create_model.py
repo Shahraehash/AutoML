@@ -59,7 +59,6 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
     # Fit the pipeline using the same training data
     pipeline = Pipeline(steps)
     model = generate_model(pipeline, selected_features, x_train, y_train)
-    print(model['features'])
 
     # If the model is DNN or RF, attempt to swap the estimator for a pickled one
     if os.path.exists(output_path + '/models/' + key + '.joblib'):
