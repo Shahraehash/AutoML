@@ -35,7 +35,7 @@ def generate_model(pipeline, feature_names, x_train, y_train):
             most_important_names =\
                 [feature_names[most_important[i]] for i in range(len(most_important))]
             feature_scores = pipeline.named_steps['feature_selector'].model.feature_importances_
-            feature_scores = pd.DataFrame({'scores': feature_scores, 'selected': (i in most_important_names for i in feature_names)}, index=feature_names)
+            feature_scores = pd.DataFrame({'scores': feature_scores, 'selected': list(i in most_important_names for i in feature_names)}, index=feature_names)
             feature_scores = feature_scores[feature_scores['selected'] == True].drop(columns=['selected'])
             features = pd.Series((i in most_important_names for i in feature_names),
                                  index=feature_names)
