@@ -136,6 +136,7 @@ def find_best_model(
                 result.update(generalize(model['features'], candidate['best_estimator'], pipeline[0], x2, y2, labels))
                 result.update({
                     'selected_features': list(model['selected_features']),
+                    'feature_scores': model['feature_scores'],
                     'best_params': candidate['best_params']
                 })
                 roc_auc = roc(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test)

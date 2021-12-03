@@ -61,6 +61,7 @@ export interface GeneralizationResult {
     fn: number;
     fp: number;
     selected_features: string;
+    feature_scores: string;
     best_params: string;
     std_auc: number;
     mean_fpr: string;

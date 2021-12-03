@@ -17,6 +17,7 @@ import { TuneModelComponent } from '../tune-model/tune-model.component';
 })
 export class UseModelComponent implements OnInit {
   @Input() features: string;
+  @Input() featureScores: {[key: string]: number};
   @Input() generalization: RefitGeneralization;
   @Input() softGeneralization: RefitGeneralization;
   @Input() hardGeneralization: RefitGeneralization;

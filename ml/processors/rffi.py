@@ -2,7 +2,7 @@
 Implements Random Forest Feature Importance as a pipeline step
 """
 
-import math
+from decimal import Decimal, ROUND_HALF_UP
 from sklearn.base import TransformerMixin, BaseEstimator
 
 from .estimators import ESTIMATORS
@@ -24,7 +24,7 @@ class RandomForestFeatureImportanceSelector(BaseEstimator, TransformerMixin):
     def transform(self, x):
         """Drop the 'unimportant' features"""
 
-        total = math.floor(self.percentile * x.shape[1])
+        total = int(Decimal(self.percentile * x.shape[1]).quantize(0, ROUND_HALF_UP))
         self.total = total if total > 1 else 1
         return x[:, self.get_top_features()]
 
