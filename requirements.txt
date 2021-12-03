@@ -5,14 +5,14 @@
 #    pip-compile requirements.txt
 #
 amqp==5.0.6
-astroid==2.8.6
+astroid==2.9.0
 billiard==3.6.4.0
 Brotli==1.0.9
 CacheControl==0.12.10
 cachetools==4.2.4
 celery==5.2.1
 certifi==2021.10.8
-charset-normalizer==2.0.8
+charset-normalizer==2.0.9
 click==8.0.3
 click-didyoumean==0.3.0
 click-plugins==1.1.1
@@ -22,7 +22,7 @@ Flask==2.0.2
 Flask-Compress==1.10.1
 Flask-Cors==3.0.10
 google-api-core==2.2.2
-google-api-python-client==2.31.0
+google-api-python-client==2.32.0
 google-auth==2.3.3
 google-auth-httplib2==0.1.0
 google-cloud-core==2.2.1
@@ -51,12 +51,13 @@ nyoka==5.1.0
 packaging==21.3
 pandas==1.3.4
 platformdirs==2.4.0
-prompt-toolkit==3.0.22
+prompt-toolkit==3.0.23
 proto-plus==1.19.8
 protobuf==3.19.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-pylint==2.11.1
+pylint==2.12.2
+pymongo==4.0
 pyparsing==3.0.6
 python-dateutil==2.8.2
 python-dotenv==0.19.2
@@ -69,7 +70,7 @@ scipy==1.7.3
 six==1.16.0
 threadpoolctl==3.0.0
 toml==0.10.2
-typing_extensions==4.0.0
+typing_extensions==4.0.1
 uritemplate==4.1.1
 urllib3==1.26.7
 uWSGI==2.0.20
