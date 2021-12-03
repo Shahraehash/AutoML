@@ -1,5 +1,5 @@
 # set base image (host OS)
-FROM arm64v8/python:3.9.9
+FROM python:3.9.9
 
 # expose ports
 EXPOSE 5000
