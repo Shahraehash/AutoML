@@ -21,8 +21,9 @@ def generate_model(pipeline, feature_names, x_train, y_train):
 
     if 'feature_selector' in pipeline.named_steps:
         feature_selector_type = pipeline.named_steps['feature_selector'].__class__.__module__
+        print(feature_selector_type)
 
-        if 'sklearn.feature_selection.univariate_selection' in feature_selector_type:
+        if 'univariate_selection' in feature_selector_type:
             feature_scores = pipeline.named_steps['feature_selector'].scores_
             feature_scores = pd.DataFrame({'scores': feature_scores, 'selected': pipeline.named_steps['feature_selector'].get_support()}, index=feature_names)
             feature_scores = feature_scores[feature_scores['selected'] == True].drop(columns=['selected'])
