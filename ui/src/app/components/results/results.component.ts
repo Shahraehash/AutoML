@@ -348,6 +348,7 @@ export class ResultsComponent implements OnInit {
     formData.append('features', model.selected_features);
     formData.append('job', this.api.currentJobId);
     formData.append('threshold', threshold);
+    formData.append('feature_scores', model.feature_scores);
 
     (await this.api.publishModel(name, formData)).subscribe(
       async () => {
