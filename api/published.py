@@ -174,6 +174,7 @@ def features(name):
 
     return jsonify({
         'features': published[name]['features'],
+        'feature_scores': published[name]['feature_scores'],
         'generalization': generalization,
         'threshold': published[name]['threshold'] if 'threshold' in published[name] else .5
     })
@@ -278,7 +279,8 @@ def add(name):
         'date': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
         'features': request.form['features'],
         'path': model_path,
-        'threshold': threshold
+        'threshold': threshold,
+        'feature_scores': request.form['feature_scores']
     }
 
     with open(PUBLISHED_MODELS, 'w') as published_file:

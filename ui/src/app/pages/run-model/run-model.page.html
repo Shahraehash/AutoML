@@ -1,4 +1,4 @@
-<app-use-model *ngIf='features; else noModel' [features]='features' [generalization]='generalization' [publishName]='id' [threshold]='threshold'></app-use-model>
+<app-use-model *ngIf='features; else noModel' [features]='features' [featureScores]='featureScores' [generalization]='generalization' [publishName]='id' [threshold]='threshold'></app-use-model>
 
 <ng-template #noModel>
   <ion-header>

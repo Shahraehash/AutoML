@@ -12,6 +12,7 @@ import { RefitGeneralization } from '../../interfaces';
 export class RunModelPageComponent {
   id: string;
   features: string;
+  featureScores: {[key: string]: number};
   generalization: RefitGeneralization;
   threshold: number;
   error = false;
@@ -28,6 +29,10 @@ export class RunModelPageComponent {
           this.features = reply.features;
           this.generalization = reply.generalization;
           this.threshold = reply.threshold;
+
+          try {
+            this.featureScores = JSON.parse(reply.feature_scores);
+          } catch(e) {}
         },
         () => this.error = true
       );
