@@ -6,10 +6,11 @@
   "scripts": {
     "build-ui": "cd ui && npm run build",
     "build-docs": "cd docs && npm run build",
+    "build-preprocessing": "cd preprocessing-tools && npm run build && docker build -t milo/preprocessing .",
     "open-browser": "sleep 15 && open http://127.0.0.1:4200",
     "docs": "cd docs && npm run dev",
-    "build-docker": "cd ui && npm run build-docker && cd .. && npm run build-docs && docker build -t milo .",
-    "save-docker": "docker save milo:latest | gzip > build/milo-$npm_package_version.tar.gz",
+    "build-docker": "cd ui && npm run build-docker && cd .. && npm run build-docs && docker build -t milo/auto-ml .",
+    "save-docker": "docker save milo/auto-ml:latest | gzip > build/milo-$npm_package_version.tar.gz",
     "run-docker": "concurrently 'sudo rabbitmq-server' 'uwsgi --ini uwsgi.ini' 'celery -E -A worker -c 1 worker'",
     "serve": "npm run serve-all",
     "serve-all": "concurrently 'npm run serve-api' 'cd ui && npm run start' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
@@ -18,7 +19,7 @@
     "serve-api": "watchmedo auto-restart -d . -R -p \"*.py\" -- python -u server.py",
     "serve-worker": "watchmedo auto-restart -d . -R -p \"*.py\" -- celery -E -A worker -c 1 worker",
     "start": "npm run serve-all",
-    "postinstall": "pip install -r requirements.txt && cd ui && npm install && cd ../docs && npm install && cd ../functions && npm install",
+    "postinstall": "pip install -r requirements.txt && cd ui && npm install && cd ../docs && npm install && cd ../functions && npm install && cd ../preprocessing-tools && npm install",
     "test": "pytest ml/unit_test.py",
     "update": "git pull && npm install"
   },
