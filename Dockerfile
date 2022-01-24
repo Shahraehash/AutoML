@@ -46,6 +46,7 @@ COPY --chown=milo ml/ ml/
 COPY --chown=milo common/ common/
 COPY --chown=milo api/ api/
 COPY --chown=milo uwsgi.ini .
+COPY --chown=milo preprocessor/preprocessor_modules/ preprocessor/preprocessor_modules/
 
 # copy static assets (UI and documentation)
 COPY --chown=milo static/ static/
