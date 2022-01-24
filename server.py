@@ -18,11 +18,13 @@ import api.jobs as jobs
 import api.published as published
 import api.tasks as tasks
 import api.licensing as licensing
+import preprocessor.preprocessor_modules.parent_preprocessor as preprocessor
 
 load_dotenv()
 
 APP = Flask(__name__, static_url_path='')
 APP.config['JSON_SORT_KEYS'] = False
+APP.config['UPLOAD_FOLDER'] = 'data/preprocessed'
 CORS(APP)
 Compress(APP)
 
@@ -32,10 +34,10 @@ if os.path.exists('serviceAccountKey.json'):
     )
 
 @APP.route('/')
-def load_ui():
+def load_ui(path='index.html'):
     """Loads `index.html` for the root path"""
 
-    return send_from_directory('static', 'index.html')
+    return send_from_directory('static', path)
 
 @APP.errorhandler(404)
 def page_not_found(_):
@@ -144,6 +146,11 @@ APP.add_url_rule('/published/<string:name>/features', 'published-features', publ
 
 # Licensing
 APP.add_url_rule('/license', 'license-activate', licensing.activate, methods=['POST'])
+
+# Preprocessing Tools
+if not os.path.exists(APP.config['UPLOAD_FOLDER']):
+    os.makedirs(APP.config['UPLOAD_FOLDER'])
+APP.register_blueprint(preprocessor.parent_preprocessor)
 
 if __name__ == "__main__":
     APP.run()
