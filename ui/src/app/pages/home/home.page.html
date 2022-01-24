@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class='ion-hide-sm-up'>MILO-ML</ion-title>
+    <ion-title class='ion-hide-sm-down'>MILO-ML: Machine Intelligence Learning Optimizer <span class='version'>v{{version}}</span></ion-title>
+    <ion-buttons slot='end'>
+      <ion-button href='/docs/index.html' target='_blank' *ngIf='isDocker'>
+        <ion-icon slot='icon-only' name='help' color='primary'></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid style='height:100%'>
+    <ion-row style='height:100%' class='ion-align-items-center'>
+      <ion-col>
+        <ion-button expand='block' color='primary' href='/docs/' target='_blank'>
+          Documentation
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand='block' color='primary' href='/preprocessor/'>
+          Preprocessing Tools
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand='block' color='primary' routerLink='/search'>
+            Automated Machine Learning
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
