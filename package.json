@@ -6,10 +6,10 @@
   "scripts": {
     "build-ui": "cd ui && npm run build",
     "build-docs": "cd docs && npm run build",
-    "build-preprocessing": "cd preprocessing-tools && npm run build && docker build -t milo/preprocessing .",
+    "build-preprocessor": "cd preprocessor && npm run build",
     "open-browser": "sleep 15 && open http://127.0.0.1:4200",
     "docs": "cd docs && npm run dev",
-    "build-docker": "cd ui && npm run build-docker && cd .. && npm run build-docs && docker build -t milo/auto-ml .",
+    "build-docker": "cd ui && npm run build-docker && cd .. && npm run build-docs && npm run build-preprocessor && docker build -t milo/auto-ml .",
     "save-docker": "docker save milo/auto-ml:latest | gzip > build/milo-$npm_package_version.tar.gz",
     "run-docker": "concurrently 'sudo rabbitmq-server' 'uwsgi --ini uwsgi.ini' 'celery -E -A worker -c 1 worker'",
     "serve": "npm run serve-all",
