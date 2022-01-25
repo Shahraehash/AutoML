@@ -18,7 +18,7 @@ import api.jobs as jobs
 import api.published as published
 import api.tasks as tasks
 import api.licensing as licensing
-import preprocessor.preprocessor_modules.parent_preprocessor as preprocessor
+import preprocessor.modules.parent_preprocessor as preprocessor
 
 load_dotenv()
 
