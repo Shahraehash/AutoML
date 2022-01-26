@@ -19,7 +19,7 @@
     "serve-api": "watchmedo auto-restart -d . -R -p \"*.py\" -- python -u server.py",
     "serve-worker": "watchmedo auto-restart -d . -R -p \"*.py\" -- celery -E -A worker -c 1 worker",
     "start": "npm run serve-all",
-    "postinstall": "pip install -r requirements.txt && cd ui && npm install && cd ../docs && npm install && cd ../functions && npm install && cd ../preprocessing-tools && npm install",
+    "postinstall": "pip install -r requirements.txt && cd ui && npm install && cd ../docs && npm install && cd ../functions && npm install && cd ../preprocessor && npm install",
     "test": "pytest ml/unit_test.py",
     "update": "git pull && npm install"
   },
