@@ -6,7 +6,7 @@
   "scripts": {
     "build-ui": "cd ui && npm run build",
     "build-docs": "cd docs && npm run build",
-    "build-preprocessor": "cd preprocessor && npm run build",
+    "build-preprocessor": "cd preprocessor && npm run milo-build",
     "open-browser": "sleep 15 && open http://127.0.0.1:4200",
     "docs": "cd docs && npm run dev",
     "build-docker": "cd ui && npm run build-docker && cd .. && npm run build-docs && npm run build-preprocessor && docker build -t milo/auto-ml .",
