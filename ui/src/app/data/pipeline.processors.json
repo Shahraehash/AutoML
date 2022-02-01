@@ -66,7 +66,8 @@
       },
       {
         "label": "Select Percentile (50%)",
-        "value": "select-50"
+        "value": "select-50",
+        "trial": true
       },
       {
         "label": "Select Percentile (75%)",
