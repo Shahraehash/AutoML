@@ -45,7 +45,7 @@ def get_license():
         with open('data/licensefile.skm', 'r') as file:
             license_key = LicenseKey.load_from_string(public_key, file.read())
 
-        if license_key is None or not Helpers.IsOnRightMachine(license_key):
+        if license_key is None:
             return None
         else:
             if license_key.expires >= datetime.now():
