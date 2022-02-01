@@ -23,6 +23,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class MiloApiService {
+  isEducation = false;
   isTrial = false;
   currentJobId: string;
   currentDatasetId: string;
@@ -289,6 +290,15 @@ export class MiloApiService {
           if (isTrial !== this.isTrial) {
             this.isTrial = isTrial;
             this.events.emit('trial_update');
+          }
+        }
+
+        const educationHeader = response.headers.get('MILO-Education');
+        if (educationHeader !== null) {
+          const isEducation = educationHeader === 'true';
+          if (isEducation !== this.isEducation) {
+            this.isEducation = isEducation;
+            this.events.emit('education_update');
           }
         }
 
