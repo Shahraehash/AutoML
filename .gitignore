@@ -23,6 +23,7 @@ pip-delete-this-directory.txt
 # Data
 data/*
 !data/.gitkeep
+db.json
 
 # Data
 build/*

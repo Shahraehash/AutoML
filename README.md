@@ -114,3 +114,23 @@ VuePress is used to generate the documentation which can be run as follows:
 cd docs
 npm run dev
 ```
+
+## Git Submodules
+
+This repository uses a git submodule.
+
+If you cloned the repository without using `--recursive`, then you can initialize and clone the submodule with the following steps.
+
+1. Init the submodule
+
+    ```bash
+    git submodule init
+    ```
+
+2. Update the submodule
+
+    ```bash
+    git submodule update --remote
+    ```
+
+For more advanced usage, please refer to the git documentation: [https://git-scm.com/book/en/v2/Git-Tools-Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules)

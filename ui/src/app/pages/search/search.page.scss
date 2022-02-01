@@ -3,6 +3,10 @@
     width: 100%;
 }
 
+ion-title {
+  cursor: pointer;
+}
+
 ion-spinner {
     color: var(--ion-text-color);
 }
