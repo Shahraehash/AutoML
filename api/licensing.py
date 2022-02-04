@@ -48,7 +48,10 @@ def get_license():
         if license_key is None:
             return None
         else:
-            if license_key.expires >= datetime.now():
+            # Check if the license is valid for the current machine (except for educational licenses)
+            if not license_key.f3 and not Helpers.IsOnRightMachine(license_key):
+                return None
+            elif license_key.expires >= datetime.now():
                 return license_key
             else:
                 return None
