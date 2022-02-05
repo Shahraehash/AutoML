@@ -70,3 +70,7 @@ venv.bak/
 # macOS meta data file
 .DS_Store
 node_modules
+
+# License files
+license.pub
+licensefile.skm
