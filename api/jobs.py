@@ -123,7 +123,7 @@ def train(jobid):
     if active_license.f2 and \
         not (
           all(x in parameters.get('ignore_estimator', '') for x in ['mlp', 'gb', 'rf', 'svm']) and \
-          all(x in parameters.get('ignore_feature_selector', '') for x in ['select-25', 'select-50', 'select-75', 'pca-80', 'pca-90', 'rf-25', 'rf-50', 'rf-75']) and \
+          all(x in parameters.get('ignore_feature_selector', '') for x in ['select-25', 'select-75', 'pca-80', 'pca-90', 'rf-25', 'rf-50', 'rf-75']) and \
           all(x in parameters.get('ignore_scaler', '') for x in ['minmax']) and \
           all(x in parameters.get('ignore_searcher', '') for x in ['random2']) and \
           all(x in parameters.get('ignore_scorer', '') for x in ['f1_macro'])
