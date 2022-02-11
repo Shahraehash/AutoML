@@ -1,7 +1,12 @@
 <ion-header>
   <ion-toolbar>
     <ion-title class='ion-hide-sm-up'>MILO-ML</ion-title>
-    <ion-title class='ion-hide-sm-down'>MILO-ML: Machine Intelligence Learning Optimizer <span class='version'>v{{version}}</span></ion-title>
+    <ion-title class='ion-hide-sm-down'>
+      MILO-ML: Machine Intelligence Learning Optimizer
+      <span class='version'>
+        v{{version}}{{api.isTrial ? (api.isEducation ? '-education' : '-trial') : ''}}
+      </span>
+    </ion-title>
     <ion-buttons slot='end'>
       <ion-button href='/docs/index.html' target='_blank' *ngIf='isDocker'>
         <ion-icon slot='icon-only' name='help' color='primary'></ion-icon>
