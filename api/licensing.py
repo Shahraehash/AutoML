@@ -14,17 +14,9 @@ from werkzeug.exceptions import HTTPException
 def activate():
     """Activates a provided license key"""
 
-    result = requests.post(
-        'https://cloud.api.milo-ml.com/licensing/activate',
-        json={
-            'machine_code': Helpers.GetMachineCode(),
-            'license_code': request.get_json()['license_code']
-        }
-    )
+    result = request_activation(request.form['license_code'])
 
-    if result.ok:
-        result = result.json()
-
+    if result is not None:
         with open('data/licensefile.skm', 'w') as file:
             file.write(result['license'])
 
@@ -34,6 +26,22 @@ def activate():
         return jsonify({'success': True})
     else:
         abort(400)
+
+def request_activation(license_code):
+    """Request a license key activation"""
+
+    result = requests.post(
+        'https://cloud.api.milo-ml.com/licensing/activate',
+        json={
+            'machine_code': Helpers.GetMachineCode(),
+            'license_code': license_code
+        }
+    )
+
+    if result.ok:
+        return result.json()
+    else:
+        None
 
 def get_license():
     """Get the license of the current installation"""
@@ -45,10 +53,15 @@ def get_license():
         with open('data/licensefile.skm', 'r') as file:
             license_key = LicenseKey.load_from_string(public_key, file.read())
 
-        if license_key is None or not Helpers.IsOnRightMachine(license_key):
+        if license_key is None:
             return None
         else:
-            if license_key.expires >= datetime.now():
+            # If the license is educational, bypass the expiration date and hardware ID check
+            if license_key.f3:
+                return license_key
+
+            # Check if the license is valid for the current machine
+            elif Helpers.IsOnRightMachine(license_key) and license_key.expires >= datetime.now():
                 return license_key
             else:
                 return None

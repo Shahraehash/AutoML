@@ -24,7 +24,7 @@ Here, please adjust the settings to maximize the available CPU and memory to mee
 
 ## 3) Download MILO-ML Image
 
-Please contact us to get a download link to our docker image. The file downloaded by the link provided will be a TAR file which should not need to be extracted.
+Please contact us to get a download link to our docker image. The file downloaded by the link provided will be a GZip file which should not be extracted.
 
 ## 4) Import MILO-ML Image
 
@@ -36,8 +36,12 @@ Please open any terminal and run the following command:
 ```sh
 # Replace the file name with the one you downloaded
 
-docker load -i milo-1.0.0.tar
+docker load -i milo-1.0.0.tar.gz
 ```
+
+::: tip
+You can drag and drop the file onto the terminal window to auto-populate the full file path
+:::
 
 ## 5) First Time Starting MILO-ML
 
@@ -62,6 +66,10 @@ directory is where MILO-ML places input data and results and can be mapped to th
 ::: warning
 License keys are associated to the hardware and therefore will become invalidated as the hardware changes. Keep in mind, each time
 the `Run` button is clicked Docker creates new virtual hardware.
+:::
+
+::: warning
+macOS added an Airplay Receiver service which listens on port 5000 and must either be disabled or we suggest using another port (e.g., 5001).
 :::
 
 ## 6) Start Using MILO-ML

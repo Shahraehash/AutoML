@@ -63,5 +63,9 @@ RUN openssl req -x509 -nodes \
     -newkey rsa:2048 -keyout ssl/milo.key \
     -out ssl/milo.crt
 
+# if present, bundle the educational license
+COPY --chown=milo *license.pub data/
+COPY --chown=milo *licensefile.skm data/
+
 # start the application
 CMD [ "npm", "run", "run-docker" ]
