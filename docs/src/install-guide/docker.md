@@ -33,6 +33,12 @@ to import the MILO-ML docker image.
 
 Please open any terminal and run the following command:
 
+:::tip
+For Windows users, you can search for `Command Prompt` in the search menu.
+
+For macOS users, you can search Spotlight for `Terminal`.
+:::
+
 ```sh
 # Replace the file name with the one you downloaded
 
@@ -40,7 +46,9 @@ docker load -i milo-1.0.0.tar.gz
 ```
 
 ::: tip
-You can drag and drop the file onto the terminal window to auto-populate the full file path
+You can drag and drop the file onto the terminal window to auto-populate the full file path. Start by typing `docker load -i ` (including the space at the end) and end by dragging the file onto the terminal window.
+
+![Docker Load](./images/docker-load.png)
 :::
 
 ## 5) First Time Starting MILO-ML
@@ -51,7 +59,7 @@ To start this image first open the Docker Desktop Dashboard and navigate to the 
 
 ![Docker Images](./images/docker-images.png)
 
-You will see an image named `milo`. If you hover over this two buttons will appear one of which is labeled `Run` as shown here:
+You will see an image name prefixed with `milo/` and will end with the version of MILO loaded (e.g., education, pro, or trial). If you hover over this two buttons will appear one of which is labeled `Run` as shown here:
 
 ![Docker Run Image](./images/docker-image-run.png)
 
