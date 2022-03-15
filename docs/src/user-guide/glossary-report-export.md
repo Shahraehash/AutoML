@@ -6,7 +6,7 @@
 | scaler | Identifies the scaler used within the pipeline |
 | feature_selector | Identifies the feature selector used within the pipeline |
 | algorithm | Identifies the algorithm used within the pipeline |
-| searcher | Identifies the search method used within the pipeline |
+| searcher | Identifies the hyper parameter search method used within the pipeline |
 | scorer | Identifies the scoring method used to assess models within the search |
 | accuracy | The models accuracy against the generalization dataset |
 | acc_95_ci | The models 95% CI for accuracy against the generalization dataset (reported as an array representing lower and upper bounds respectively) |
@@ -37,5 +37,5 @@
 | brier_score | The models Brier score against the generalization dataset |
 | fop | An array representing the fraction of positives at various threshold values (used to plot a reliability curve) for the generalization dataset |
 | mpv | An array representing the mean predicated probability at various threshold values (used to plot a reliability curve) for the generalization dataset |
-| precision | An array representing the precision at various threshold values (used to plot a precision recall curve) for the generalization dataset |
-| recall | An array representing the recall at various threshold values (used to plot a precision recall curve) for the generalization dataset |
+| precision | An array representing the precision (aka positive predictive value) at various threshold values (used to plot a precision recall curve) for the generalization dataset |
+| recall | An array representing the recall (aka sensitivity) at various threshold values (used to plot a precision recall curve) for the generalization dataset |
