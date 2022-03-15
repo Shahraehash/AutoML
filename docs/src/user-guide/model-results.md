@@ -30,6 +30,10 @@ Additionally, there is an export button (highlighted with the red box in the ima
 
 ![Export Data](./images/image22.png)
 
+:::tip
+For details on the exported report, please refer to [Glossary for Report Column Definitions](./glossary-report-export.md)
+:::
+
 ## Run details
 
 In order to see details about the MILO-ML run (e.g., how many models were built and evaluated, how many pipelines and what combination was employed, etc.), you may select one of the two blue buttons located in the middle right side (between the table and the graphs). The first button, `Parameters` allows you to see which pipeline elements were selected during step 3 (i.e., Train step). The second button, `Details` (highlighted with the red box in the image below) gives you some basic information about the number of models built within each algorithm along with what was ingested within the MILO-ML run, as shown below.
