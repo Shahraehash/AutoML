@@ -76,6 +76,7 @@ module.exports = {
           '/user-guide/publish-model',
           '/user-guide/conclusion',
           '/user-guide/glossary-terms',
+          '/user-guide/glossary-report-export',
           '/user-guide/sample-datasets',
           '/user-guide/acknowledgments'
         ]
