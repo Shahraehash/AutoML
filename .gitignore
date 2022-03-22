@@ -13,7 +13,6 @@ __pycache__/
 .firebase
 firebase-debug.log
 serviceAccountKey.json
-serviceAccountKey.json.bak
 .runtimeconfig.json
 ui-debug.log
 
