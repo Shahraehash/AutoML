@@ -18,11 +18,13 @@ import api.jobs as jobs
 import api.published as published
 import api.tasks as tasks
 import api.licensing as licensing
+import preprocessor.modules.parent_preprocessor as preprocessor
 
 load_dotenv()
 
 APP = Flask(__name__, static_url_path='')
 APP.config['JSON_SORT_KEYS'] = False
+APP.config['UPLOAD_FOLDER'] = 'data/preprocessed'
 CORS(APP)
 Compress(APP)
 
@@ -32,10 +34,10 @@ if os.path.exists('serviceAccountKey.json'):
     )
 
 @APP.route('/')
-def load_ui():
+def load_ui(path='index.html'):
     """Loads `index.html` for the root path"""
 
-    return send_from_directory('static', 'index.html')
+    return send_from_directory('static', path)
 
 @APP.errorhandler(404)
 def page_not_found(_):
@@ -52,9 +54,10 @@ def append_license(response):
 
     if request.path.startswith('/datasets') or request.path.startswith('/jobs') or\
         request.path.startswith('/tasks') or request.path.startswith('/published'):
-        response.headers['access-control-expose-headers'] = 'MILO-Trial'
+        response.headers['access-control-expose-headers'] = 'MILO-Trial, MILO-Education'
         active_license = licensing.get_license()
         response.headers['MILO-Trial'] = str(active_license.f2 if active_license else True).lower()
+        response.headers['MILO-Education'] = str(active_license.f3 if active_license else False).lower()
 
     return response
 
@@ -144,6 +147,11 @@ APP.add_url_rule('/published/<string:name>/features', 'published-features', publ
 
 # Licensing
 APP.add_url_rule('/license', 'license-activate', licensing.activate, methods=['POST'])
+
+# Preprocessing Tools
+if not os.path.exists(APP.config['UPLOAD_FOLDER']):
+    os.makedirs(APP.config['UPLOAD_FOLDER'])
+APP.register_blueprint(preprocessor.parent_preprocessor)
 
 if __name__ == "__main__":
     APP.run()

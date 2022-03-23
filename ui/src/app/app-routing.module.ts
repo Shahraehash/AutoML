@@ -42,7 +42,13 @@ const routes: Routes = [
     path: 'update-license',
     loadChildren: () => import('./pages/update-license/update-license.module').then( m => m.UpdateLicensePageModule)
   },
-  { path: '**', redirectTo: 'search' }
+  {
+    path: 'home',
+    ...(environment.localUser ? {} : {canActivate: [AngularFireAuthGuard]}),
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
+    loadChildren: () => import('./pages/home/home.module').then( m => m.HomePageModule)
+  },
+  { path: '**', redirectTo: environment.name === 'docker' ? 'home' : 'search' }
 ];
 
 @NgModule({

@@ -1,7 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title class='ion-hide-sm-up' [class.ion-hide]='stepper?.selectedIndex'>MILO-ML</ion-title>
-    <ion-title class='ion-hide-sm-down'>MILO-ML: Machine Intelligence Learning Optimizer <span class='version'>v{{version}}</span></ion-title>
+    <ion-title class='ion-hide-sm-up' routerLink='/' [class.ion-hide]='stepper?.selectedIndex'>MILO-ML</ion-title>
+    <ion-title class='ion-hide-sm-down' routerLink='/'>
+      MILO-ML: Machine Intelligence Learning Optimizer
+      <span class='version'>
+        v{{version}}{{api.isTrial ? (api.isEducation ? '-education' : '-trial') : ''}}
+      </span>
+    </ion-title>
     <ion-buttons slot='end'>
       <ng-container *ngIf='pendingTasks'>
         <ion-button fill='solid' color='primary' (click)='openPendingTasks($event, pendingTasks)' *ngIf='pendingTasks.active.length || pendingTasks.scheduled.length'>

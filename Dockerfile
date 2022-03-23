@@ -46,6 +46,7 @@ COPY --chown=milo ml/ ml/
 COPY --chown=milo common/ common/
 COPY --chown=milo api/ api/
 COPY --chown=milo uwsgi.ini .
+COPY --chown=milo preprocessor/modules/ preprocessor/modules/
 
 # copy static assets (UI and documentation)
 COPY --chown=milo static/ static/
@@ -61,6 +62,10 @@ RUN openssl req -x509 -nodes \
     -addext "extendedKeyUsage = serverAuth" \
     -newkey rsa:2048 -keyout ssl/milo.key \
     -out ssl/milo.crt
+
+# if present, bundle the educational license
+COPY --chown=milo *license.pub data/
+COPY --chown=milo *licensefile.skm data/
 
 # start the application
 CMD [ "npm", "run", "run-docker" ]
