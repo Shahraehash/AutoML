@@ -14,6 +14,8 @@
     "build-docker-base": "npm run clean-license && cd ui && npm run build-docker && cd .. && npm run build-docs && npm run build-preprocessor",
     "build-education-docker": "npm run build-docker-base && npm run generate-education-license && docker build -t milo/education .",
     "build-docker": "npm run build-docker-base && docker build -t milo/pro .",
+    "build-education-docker-saas": "npm run clean-license && npm run generate-education-license && cd ui && npm run build-saas && cd .. && npm run build-docs && npm run build-preprocessor && docker build -t milo/saas -f Dockerfile-SaaS .",
+    "proxy-education-saas": "ngrok http --region=us --hostname=edu.milo-ml.com 5000",
     "save-docker": "docker save milo/pro:latest | gzip > build/milo-$npm_package_version.tar.gz",
     "save-education-docker": "docker save milo/education:latest | gzip > build/milo-for-education-$npm_package_version.tar.gz",
     "run-docker": "concurrently 'sudo rabbitmq-server' 'uwsgi --ini uwsgi.ini' 'celery -A worker worker'",
