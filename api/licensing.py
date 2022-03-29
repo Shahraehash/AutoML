@@ -14,7 +14,7 @@ from werkzeug.exceptions import HTTPException
 def activate():
     """Activates a provided license key"""
 
-    result = request_activation(request.form['license_code'])
+    result = request_activation(request.json['license_code'])
 
     if result is not None:
         with open('data/licensefile.skm', 'w') as file:
