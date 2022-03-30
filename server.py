@@ -123,6 +123,7 @@ APP.add_url_rule('/jobs/<uuid:jobid>/test-tandem', 'jobs-test-tandem', jobs.test
 APP.add_url_rule('/jobs/<uuid:jobid>/test-ensemble', 'jobs-test-ensemble', jobs.test_ensemble, methods=['POST'])
 APP.add_url_rule('/jobs/<uuid:jobid>/pipelines', 'jobs-pipelines', jobs.get_pipelines)
 APP.add_url_rule('/jobs/<uuid:jobid>/export', 'jobs-export', jobs.export)
+APP.add_url_rule('/jobs/<uuid:jobid>/export-performance', 'jobs-export-performance', jobs.export_performance)
 APP.add_url_rule('/jobs/<uuid:jobid>/export-pmml', 'jobs-export-pmml', jobs.export_pmml)
 APP.add_url_rule('/jobs/<uuid:jobid>/export-model', 'jobs-export-model', jobs.export_model)
 APP.add_url_rule('/jobs/<uuid:jobid>/star-models', 'jobs-get-starred', jobs.get_starred, methods=['GET'])
