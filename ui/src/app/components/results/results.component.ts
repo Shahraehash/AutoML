@@ -465,8 +465,9 @@ export class ResultsComponent implements OnInit {
         buttons: [
           {
             text: 'Download Performance Metrics',
-            handler: async () => {
-              window.open(await this.api.exportPerformanceCSV(), '_self');
+            handler: () => {
+              this.api.exportPerformanceCSV().then(url => window.open(url, '_self'));
+              return false;
             },
             role: 'secondary'
           },
