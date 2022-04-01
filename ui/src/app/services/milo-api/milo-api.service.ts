@@ -246,6 +246,10 @@ export class MiloApiService {
     return `${environment.apiUrl}/jobs/${this.currentJobId}/export?${await this.getURLAuth()}`;
   }
 
+  async exportPerformanceCSV() {
+    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-performance?${await this.getURLAuth()}`;
+  }
+
   async exportModel(threshold: number) {
     return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model?${await this.getURLAuth()}&threshold=${threshold}`;
   }

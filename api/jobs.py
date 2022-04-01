@@ -463,6 +463,21 @@ def export(jobid):
       headers={'Content-Disposition':'attachment;filename=report.csv'}
     )
 
+def export_performance(jobid):
+    """Export the performance result CSV"""
+
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+
+    if not os.path.exists(folder + '/performance_report.csv'):
+        abort(400)
+        return
+
+    return send_file(folder + '/performance_report.csv', as_attachment=True, cache_timeout=-1)
+
 def export_pmml(jobid):
     """Export the selected model's PMML"""
 

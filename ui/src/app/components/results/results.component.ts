@@ -462,7 +462,17 @@ export class ResultsComponent implements OnInit {
 
       alert = await this.alertController.create({
         cssClass: 'wide-alert',
-        buttons: ['Dismiss'],
+        buttons: [
+          {
+            text: 'Download Performance Metrics',
+            handler: () => {
+              this.api.exportPerformanceCSV().then(url => window.open(url, '_self'));
+              return false;
+            },
+            role: 'secondary'
+          },
+          'Dismiss'
+        ],
         header: 'Analysis Details',
         subHeader: 'Provided below are the details from the model training and validation',
         message

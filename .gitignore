@@ -48,6 +48,7 @@ coverage.xml
 .pytest_cache/
 report.txt
 report.csv
+performance_report.csv
 metadata.json
 models/
 

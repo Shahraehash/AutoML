@@ -57,5 +57,6 @@ def generate_model(pipeline, feature_names, x_train, y_train):
     return {
         'features': features,
         'selected_features': selected_features,
-        'feature_scores': feature_scores
+        'feature_scores': feature_scores,
+        'train_time': train_time
     }
