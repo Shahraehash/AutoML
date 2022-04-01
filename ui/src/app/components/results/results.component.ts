@@ -282,7 +282,9 @@ export class ResultsComponent implements OnInit {
     } else if (mode === 'generalization') {
       textElements.push('AUC: ' + object.roc_auc.toFixed(4));
     } else if (mode === 'test') {
-      textElements.push('AUC: ' + object.training_roc_auc.toFixed(4));
+      if (object.training_roc_auc) {
+        textElements.push('AUC: ' + object.training_roc_auc.toFixed(4));
+      }
     }
 
     return {
