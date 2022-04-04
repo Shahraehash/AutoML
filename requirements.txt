@@ -67,7 +67,9 @@ requests==2.26.0
 rsa==4.8
 scikit-learn==1.0.1
 scipy==1.7.3
+simplejson==3.17.6
 six==1.16.0
+tinydb==4.5.1
 threadpoolctl==3.0.0
 toml==0.10.2
 typing_extensions==4.0.1
