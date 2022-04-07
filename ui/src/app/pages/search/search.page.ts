@@ -1,13 +1,13 @@
 import { Component, AfterViewInit, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { Auth, signOut } from '@angular/fire/auth';
 import { MatStepper } from '@angular/material/stepper';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { of, ReplaySubject } from 'rxjs';
 import { takeUntil, tap, delay, repeat, catchError } from 'rxjs/operators';
 
-import { version } from '../../../../../package.json';
+import packageJson from '../../../../../package.json';
 import { PendingTasksComponent } from '../../components/pending-tasks/pending-tasks.component';
 import { TrainComponent } from '../../components/train/train.component';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
@@ -30,13 +30,13 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   featureCount: number;
   pendingTasks: PendingTasks;
   trainCompleted = false;
-  version = version;
+  version = packageJson.version;
   localUser = environment.localUser;
 
   constructor(
     public activatedRoute: ActivatedRoute,
     public api: MiloApiService,
-    private afAuth: AngularFireAuth,
+    private afAuth: Auth,
     private element: ElementRef,
     private popoverController: PopoverController,
     private router: Router
@@ -150,7 +150,7 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async signOut() {
-    await this.afAuth.signOut();
-    this.router.navigateByUrl('/login');
+    await signOut(this.afAuth);
+    this.router.navigateByUrl('/auth/sign-in');
   }
 }
