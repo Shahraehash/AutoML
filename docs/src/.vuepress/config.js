@@ -39,7 +39,7 @@ module.exports = {
     lastUpdated: false,
     nav: [
       {
-        text: 'AutoML Guide',
+        text: 'Auto-ML Guide',
         link: '/auto-ml-guide/',
       },
       {
@@ -69,13 +69,14 @@ module.exports = {
         children: [
           '/processor-guide/',
           '/processor-guide/train-test-builder',
+          '/processor-guide/general',
           '/processor-guide/multicollinearity',
           '/processor-guide/feature-selector',
           '/processor-guide/column-reducer',
         ]
       },
       {
-        title: 'AutoML Guide',
+        title: 'Auto-ML Guide',
         path: '/auto-ml-guide/',
         collapsable: false,
         children: [

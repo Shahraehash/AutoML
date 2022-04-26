@@ -8,7 +8,7 @@ their data for use within the MILO Auto-ML tool. These can be accessed from the 
 The tools include:
 
 - **Train and Test Builder**: Converting a single data file to the necessary two datasets (training / initial
-validation test and generalization test datasets when needed) that is required within the MILO AutoML tool.
+validation test and generalization test datasets when needed) that is required within the MILO Auto-ML tool.
 
 - **Multicollinearity Assessment & Removal Tool**: Allows you to observe and assess the correlations between
 the variables and to remove high correlates when deemed appropriate.
