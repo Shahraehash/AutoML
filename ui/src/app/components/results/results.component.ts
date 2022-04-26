@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver';
 import * as JSZip from 'jszip';
 import * as saveSvgAsPng from 'save-svg-as-png';
 
-import * as pipelineOptions from '../../data/pipeline.processors.json';
+import pipelineOptions from '../../data/pipeline.processors.json';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
 import { GeneralizationResult, MetaData, RefitGeneralization, Results } from '../../interfaces';
 import { MultiSelectMenuComponent } from '../multi-select-menu/multi-select-menu.component';
@@ -282,7 +282,9 @@ export class ResultsComponent implements OnInit {
     } else if (mode === 'generalization') {
       textElements.push('AUC: ' + object.roc_auc.toFixed(4));
     } else if (mode === 'test') {
-      textElements.push('AUC: ' + object.training_roc_auc.toFixed(4));
+      if (object.training_roc_auc) {
+        textElements.push('AUC: ' + object.training_roc_auc.toFixed(4));
+      }
     }
 
     return {
@@ -462,7 +464,17 @@ export class ResultsComponent implements OnInit {
 
       alert = await this.alertController.create({
         cssClass: 'wide-alert',
-        buttons: ['Dismiss'],
+        buttons: [
+          {
+            text: 'Download Performance Metrics',
+            handler: () => {
+              this.api.exportPerformanceCSV().then(url => window.open(url, '_self'));
+              return false;
+            },
+            role: 'secondary'
+          },
+          'Dismiss'
+        ],
         header: 'Analysis Details',
         subHeader: 'Provided below are the details from the model training and validation',
         message

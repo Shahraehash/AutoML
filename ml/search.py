@@ -12,6 +12,7 @@ import itertools
 
 from dotenv import load_dotenv
 from joblib import dump
+from timeit import default_timer as timer
 
 from .processors.estimators import ESTIMATOR_NAMES
 from .processors.feature_selection import FEATURE_SELECTOR_NAMES
@@ -42,6 +43,8 @@ def find_best_model(
         update_function=lambda x, y: None
     ):
     """Generates all possible models and outputs the generalization results"""
+
+    start = timer()
 
     ignore_estimator = [x.strip() for x in parameters.get('ignore_estimator', '').split(',')]
     ignore_feature_selector = \
@@ -88,6 +91,10 @@ def find_best_model(
     report = open(output_path + '/report.csv', 'w+')
     report_writer = csv.writer(report)
 
+    performance_report = open(output_path + '/performance_report.csv', 'w+')
+    performance_report_writer = csv.writer(performance_report)
+    performance_report_writer.writerow(['key', 'train_time (s)'])
+
     for index, (estimator, scaler, feature_selector, searcher) in enumerate(all_pipelines):
 
         # Trigger a callback for task monitoring purposes
@@ -114,6 +121,7 @@ def find_best_model(
 
         # Fit the pipeline
         model = generate_model(pipeline[0], feature_names, x_train, y_train)
+        performance_report_writer.writerow([key, model['train_time']])
 
         for scorer in scorers:
             key += '__' + scorer
@@ -159,7 +167,12 @@ def find_best_model(
 
                 report_writer.writerow(list([str(i) for i in result.values()]))
 
+    train_time = timer() - start
+    print('\tTotal run time is {:.4f} seconds'.format(train_time), '\n')
+    performance_report_writer.writerow(['total', train_time])
+
     report.close()
+    performance_report.close()
     print('Total fits generated', sum(total_fits.values()))
     print_summary(output_path + '/report.csv')
 
