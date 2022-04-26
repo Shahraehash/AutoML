@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@ssh.dev.azure.com:v3/milo-ml/MILO-ML/MILO-ML"
+    "url": "git@ssh.dev.azure.com:v3/milo-ml/MILO-ML/AutoML"
   },
   "keywords": [
     "machine",
