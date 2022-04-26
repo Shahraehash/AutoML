@@ -17,32 +17,32 @@ heat map) is best visualized when the number of features are below 50.
 
 Navigate to the **Preprocessing Tools** from the MILO home page and then select **Multicollinearity Assessment and Removal Tool**.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Multicollinearity Tool](./images/colinearity_screenshot_01.png)
 
 With the target column selected, the correlation can be calculated between all variables by clicking the Generate Correlation
 button.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Target Column](./images/colinearity_screenshot_07.png)
 
 Within this tool, the correlation threshold by default is set to 85% (0.85). This minimum correlation threshold can be adjusted
 and the output is a list of correlated columns meeting that assigned threshold. Clicking on a specific column will select it
 for removal and it will be color coded to identify all associated pairings within the list. The columns selected for removal
 will be down in the dialogue box labeled as "Correlated selected for removal".
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Find Correlations](./images/colinearity_screenshot_08.png)
 
 Note: If less than 50 columns are present in the dataset, a visual representation of the correlation limit (yellow) and those
 pairs which are within 10% of the threshold (blue) will be displayed to help better explore the correlations in the data at
 or near the current threshold. Once done exploring with the columns for removal selected, the Confirm Features for Removal
 button can be clicked to advance to the final step.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Heatmap](./images/colinearity_screenshot_09.png)
 
 In the final step, a summary of the files will be displayed including the number of output columns, rows, and excluded
 missing rows. The rows with missing data can be explored as a separate file under "Additional File Outputs".
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Output Files](./images/colinearity_screenshot_10.png)
 
 Upon clicking Save Files, the file(s) will be exported as a ZIP file and are now ready to be used in MILO.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Download Files](./images/colinearity_screenshot_11.png)

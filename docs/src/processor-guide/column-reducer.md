@@ -16,26 +16,26 @@ modify the dataset for further runs.
 
 Navigate to the **Preprocessing Tools** from the MILO home page and then select **Column Reducer Tool**.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Column Reducer Tool](./images/column_red_01.png)
 
 With the target column selected, the desired columns to keep can be selected by clicking the **Go To Column Selection** button.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Select Target](./images/column_red_07.png)
 
 The desired columns can be selected by pasting in a comma separated list from the clipboard (exported from an earlier MILO
 Auto-ML run) which will automatically be parsed or by manually picking the desired columns from the dropdown (as shown below).
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Column Selection](./images/column_red_08.png)
 
 As noted above, data from a previous MILO run can also be used by importing the report.csv file. This is done by clicking
 on the **import from a MILO results "report.csv" file**.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Import from MILO](./images/column_red_09.png)
 
 This will open a dialogue which will allow for selection of the file.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Import Dialogue](./images/column_red_10.png)
+![File Select](./images/column_red_11.png)
 
 Once the file is imported, the Feature Selector Method can then be picked.
 
@@ -44,17 +44,17 @@ Only **Select Percentile** options are available in this report.csv import file 
 is non-deterministic and could fluctuate on each specific run.
 :::
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Import Columns from MILO](./images/column_red_12.png)
 
 Once the desired columns are selected, click the **Confirm Column Selection** button to finalize the output.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Review Column Selection](./images/column_red_13.png)
 
 In the final step, a summary of the files will be displayed including the number of output columns, rows, and excluded missing rows.
 The rows with missing data can be explored as a separate file under "Additional File Outputs".
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Output Files](./images/column_red_14.png)
 
 Upon clicking **Save Files**, the file(s) will be exported as a ZIP file and are now ready to be used in the MILO Auto-ML tool.
 
-![Preprocessing Tools](./images/colinearity_screenshot_01.png)
+![Download Files](./images/column_red_15.png)
