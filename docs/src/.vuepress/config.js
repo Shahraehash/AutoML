@@ -39,8 +39,12 @@ module.exports = {
     lastUpdated: false,
     nav: [
       {
-        text: 'User Guide',
-        link: '/user-guide/',
+        text: 'Auto-ML Guide',
+        link: '/auto-ml-guide/',
+      },
+      {
+        text: 'Processor Guide',
+        link: '/processor-guide/',
       },
       {
         text: 'Install Guide',
@@ -59,27 +63,40 @@ module.exports = {
         ]
       },
       {
-        title: 'User Guide',
-        path: '/user-guide/',
+        title: 'Processor Guide',
+        path: '/processor-guide/',
         collapsable: false,
         children: [
-          '/user-guide/',
-          '/user-guide/get-started',
-          '/user-guide/dataset-preparation',
-          '/user-guide/homepage',
-          '/user-guide/selecting-dataset',
-          '/user-guide/analyzing-dataset',
-          '/user-guide/model-building',
-          '/user-guide/run-status',
-          '/user-guide/model-results',
-          '/user-guide/test-model',
-          '/user-guide/publish-model',
-          '/user-guide/conclusion',
-          '/user-guide/glossary-terms',
-          '/user-guide/glossary-report-export',
-          '/user-guide/glossary-performance-export',
-          '/user-guide/sample-datasets',
-          '/user-guide/acknowledgments'
+          '/processor-guide/',
+          '/processor-guide/train-test-builder',
+          '/processor-guide/general',
+          '/processor-guide/multicollinearity',
+          '/processor-guide/feature-selector',
+          '/processor-guide/column-reducer',
+        ]
+      },
+      {
+        title: 'Auto-ML Guide',
+        path: '/auto-ml-guide/',
+        collapsable: false,
+        children: [
+          '/auto-ml-guide/',
+          '/auto-ml-guide/get-started',
+          '/auto-ml-guide/dataset-preparation',
+          '/auto-ml-guide/homepage',
+          '/auto-ml-guide/selecting-dataset',
+          '/auto-ml-guide/analyzing-dataset',
+          '/auto-ml-guide/model-building',
+          '/auto-ml-guide/run-status',
+          '/auto-ml-guide/model-results',
+          '/auto-ml-guide/test-model',
+          '/auto-ml-guide/publish-model',
+          '/auto-ml-guide/conclusion',
+          '/auto-ml-guide/glossary-terms',
+          '/auto-ml-guide/glossary-report-export',
+          '/auto-ml-guide/glossary-performance-export',
+          '/auto-ml-guide/sample-datasets',
+          '/auto-ml-guide/acknowledgments'
         ]
       }
     ]
