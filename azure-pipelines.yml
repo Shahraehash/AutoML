@@ -35,7 +35,7 @@ jobs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
       artifactName: 'functions'
 
-- job: ML
+- job: AutoML
   strategy:
     matrix:
       Python37:
@@ -57,15 +57,23 @@ jobs:
       pytest
     displayName: 'ML Module Unit Test'
 
-- job: SPA
+- job: Docker
   steps:
   - script: |
       npm --prefix ui install
     displayName: 'Install dependencies'
 
   - script: |
-      npm run build-ui
+      npm --prefix ui run build-docker
     displayName: 'Build Angular SPA'
+
+  - script: |
+      npm --prefix docs run build
+    displayName: 'Build Documentation'
+
+  - script: |
+      npm --prefix preprocessor run milo-build
+    displayName: 'Build Preprocessor'
 
   - task: CopyFiles@2
     displayName: 'Copy Firebase configuration to staging'
@@ -98,28 +106,3 @@ jobs:
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
       artifactName: 'static'
-
-- job: Documentation
-  steps:
-  - script: |
-      npm --prefix docs install
-    displayName: 'Install dependencies'
-
-  - script: |
-      npm --prefix docs run build
-    displayName: 'Build documentation'
-
-  - task: ArchiveFiles@2
-    displayName: 'Create documentation artifact'
-    inputs:
-      rootFolderOrFile: '$(Build.SourcesDirectory)/static/docs'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/payload.zip'
-      replaceExistingArchive: true
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish documentation artifact'
-    inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
-      artifactName: 'documentation'
