@@ -10,14 +10,12 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  isMaster: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
   containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
   repository: 'milo/pro'
   acr_address: 'miloml.azurecr.io'
 
 jobs:
 - job: Functions
-  condition: and(succeeded(), eq(variables.isMaster, 'true'))
   steps:
   - script: |
       npm --prefix functions install
@@ -43,7 +41,6 @@ jobs:
       artifactName: 'functions'
 
 - job: AutoML
-  condition: and(succeeded(), eq(variables.isMaster, 'true'))
   strategy:
     matrix:
       Python37:
