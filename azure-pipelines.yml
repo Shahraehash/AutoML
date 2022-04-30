@@ -70,7 +70,7 @@ jobs:
   - task: InstallSSHKey@0
     inputs:
       knownHostsEntry: 'ssh.dev.azure.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7Hr1oTWqNqOlzGJOfGJ4NakVyIzf1rXYd4d7wo6jBlkLvCA4odBlL0mDUyZ0/QUfTTqeu+tm22gOsv+VrVTMk6vwRU75gY/y9ut5Mb3bR5BV58dKXyq9A9UeB5Cakehn5Zgm6x1mKoVyf+FFn26iYqXJRgzIZZcZ5V6hrE0Qg39kZm4az48o0AUbf6Sp4SLdvnuMa2sVNwHBboS7EJkm57XQPVU3/QpyNLHbWDdzwtrlS+ez30S3AdYhLKEOxAG8weOnyrtLJAUen9mTkol8oII1edf7mWWbWVf0nBmly21+nZcmCTISQBtdcyPaEno7fFQMDD26/s0lfKob4Kw8H'
-      sshPublicKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC/g//ZTz4PllCKWI7AEC5Qe+94b0P1qhLxA24G5PVopm1it6HXVMiRbSUrjX8anzXfV1dKHLhIYvPF/LA+JQWe0gbeOlayG/IQv1EfbHPr79CfIZj5wcJMpplKUZWu9UaqbTtFBEyRrTDJvgCcbC5ueDDduDiphvlE9Av8ScnZ6yHh8/pX/5PyBvLrAjSph34Fkzbj/L/rEPfTVnW6rlufvCQ+Rg37quezj9Q46sn0wqjLVhgNb33fXz6hb84QtU2D0MhkCmFKWVo2PSIEzVBhgF69/B4Snk8SHi+CJPhbdAuS9UviDqFfkFgI0d6Liptfa5f3eMfhFxJEcx8AMBp7'
+      sshPublicKey: $(sshPublicKey)
       sshKeySecureFile: 'id_rsa'
 
   - task: gitversion/setup@0
