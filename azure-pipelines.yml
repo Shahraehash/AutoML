@@ -106,6 +106,7 @@ jobs:
     inputs:
       containerRegistry: '$(containerRegistry)'
       command: 'login'
+    displayName: Login to ACR
   
   - script: 'docker pull $(acr_address)/$(repository):latest'
     displayName: Pull latest for layer caching
@@ -131,7 +132,7 @@ jobs:
 
   - task: Docker@2
     inputs:
-      command: buildAndPush
+      command: build
       repository: '$(repository)'
       tags: |
         latest
@@ -140,6 +141,16 @@ jobs:
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
     displayName: Build Docker Image
+
+  - task: Docker@2
+    displayName: Push Docker Image to ACR
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: '$(repository)' 
+      tags: |
+        $(GITVERSION_MAJORMINORPATCH)
+        latest
 
   - task: CopyFiles@2
     displayName: 'Copy Firebase configuration to staging'
