@@ -11,7 +11,7 @@ pool:
 
 variables:
   containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
-  repository: 'milo/pro'
+  repository: 'pro'
   acr_address: 'miloml.azurecr.io'
 
 jobs:
@@ -125,7 +125,6 @@ jobs:
       repository: '$(repository)'
       tags: |
         latest
-        amd64
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
@@ -139,7 +138,6 @@ jobs:
       repository: '$(repository)' 
       tags: |
         latest
-        amd64
 
   - script: |
       pip install requests Flask licensing
@@ -149,10 +147,9 @@ jobs:
   - task: Docker@2
     inputs:
       command: build
-      repository: 'milo/education'
+      repository: 'education'
       tags: |
         latest
-        amd64
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
@@ -163,10 +160,9 @@ jobs:
     inputs:
       command: push
       containerRegistry: '$(containerRegistry)'
-      repository: 'milo/education'
+      repository: 'education'
       tags: |
         latest
-        amd64
 
   - task: CopyFiles@2
     displayName: 'Copy Firebase configuration to staging'
