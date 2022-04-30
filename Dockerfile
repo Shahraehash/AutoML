@@ -29,33 +29,33 @@ RUN mkdir data
 RUN mkdir ssl
 
 # copy the Python dependencies to the working directory
-COPY requirements.txt .
+COPY --chown=milo:sudo requirements.txt .
 
 # install Python requirements
 RUN python -m pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # copy the dependencies file to the working directory
-COPY package.json .
-COPY package-lock.json .
+COPY --chown=milo:sudo package.json .
+COPY --chown=milo:sudo package-lock.json .
 
 # install app dependencies
 RUN npm install --ignore-scripts
 
 # copy remaining Python code
-COPY server.py .
-COPY worker.py .
-COPY ml/ ml/
-COPY common/ common/
-COPY api/ api/
-COPY uwsgi.ini .
-COPY preprocessor/modules/ preprocessor/modules/
+COPY --chown=milo:sudo server.py .
+COPY --chown=milo:sudo worker.py .
+COPY --chown=milo:sudo ml/ ml/
+COPY --chown=milo:sudo common/ common/
+COPY --chown=milo:sudo api/ api/
+COPY --chown=milo:sudo uwsgi.ini .
+COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
 
 # copy static assets (UI and documentation)
-COPY static/ static/
+COPY --chown=milo:sudo static/ static/
 
 # copy client assets
-COPY client/ client/
+COPY --chown=milo:sudo client/ client/
 
 # generate SSL certificate
 RUN openssl req -x509 -nodes \
@@ -67,8 +67,8 @@ RUN openssl req -x509 -nodes \
     -out ssl/milo.crt
 
 # if present, bundle the educational license
-COPY *license.pub data/
-COPY *licensefile.skm data/
+COPY --chown=milo:sudo *license.pub data/
+COPY --chown=milo:sudo *licensefile.skm data/
 
 # start the application
 CMD [ "npm", "run", "run-docker" ]
