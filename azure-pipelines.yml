@@ -109,7 +109,7 @@ jobs:
 
   - script: |
       npm --prefix ui run build-docker
-    displayName: 'Build Angular SPA'
+    displayName: 'Build AutoML UI'
 
   - script: |
       npm --prefix docs run build
@@ -179,7 +179,7 @@ jobs:
       TargetFolder: '$(Build.ArtifactStagingDirectory)/firebase'
 
   - task: CopyFiles@2
-    displayName: 'Copy SPA to staging'
+    displayName: 'Copy all front-end to staging'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/static'
       Contents: '**'
