@@ -134,9 +134,7 @@ jobs:
     inputs:
       command: build
       repository: '$(repository)'
-      tags: |
-        latest
-        $(GITVERSION_MAJORMINORPATCH)
+      tags: latest
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
@@ -148,9 +146,7 @@ jobs:
       command: push
       containerRegistry: '$(containerRegistry)'
       repository: '$(repository)' 
-      tags: |
-        $(GITVERSION_MAJORMINORPATCH)
-        latest
+      tags: latest
 
   - task: CopyFiles@2
     displayName: 'Copy Firebase configuration to staging'
