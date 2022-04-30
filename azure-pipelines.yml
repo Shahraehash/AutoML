@@ -69,7 +69,7 @@ jobs:
 
   - task: NodeTool@0
     inputs:
-      versionSpec: '14'
+      versionSpec: '16'
     
   - task: InstallSSHKey@0
     inputs:
