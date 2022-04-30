@@ -75,6 +75,16 @@ jobs:
       npm --prefix preprocessor run milo-build
     displayName: 'Build Preprocessor'
 
+  - task: Docker@2
+    inputs:
+      command: buildAndPush
+      repository: 'milo'
+      dockerfile: '**/Dockerfile'
+      containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
+      tags: |
+        milo/pro
+    displayName: Build Docker Image
+
   - task: CopyFiles@2
     displayName: 'Copy Firebase configuration to staging'
     inputs:
