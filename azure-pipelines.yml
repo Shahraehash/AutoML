@@ -11,6 +11,7 @@ pool:
 
 jobs:
 - job: Functions
+  condition: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
   steps:
   - script: |
       npm --prefix functions install
@@ -36,6 +37,7 @@ jobs:
       artifactName: 'functions'
 
 - job: AutoML
+  condition: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
   strategy:
     matrix:
       Python37:
