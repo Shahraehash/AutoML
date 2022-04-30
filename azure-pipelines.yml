@@ -125,6 +125,7 @@ jobs:
       repository: '$(repository)'
       tags: |
         latest
+        $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
@@ -138,6 +139,7 @@ jobs:
       repository: '$(repository)' 
       tags: |
         latest
+        $(GitVersion.SemVer)
 
   - script: |
       pip install requests Flask licensing
@@ -150,6 +152,7 @@ jobs:
       repository: 'education'
       tags: |
         latest
+        $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
@@ -163,6 +166,7 @@ jobs:
       repository: 'education'
       tags: |
         latest
+        $(GitVersion.SemVer)
 
   - task: CopyFiles@2
     displayName: 'Copy Firebase configuration to staging'
