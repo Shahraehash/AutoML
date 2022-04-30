@@ -94,14 +94,6 @@ jobs:
       sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"$GITVERSION_MAJORMINORPATCH\"|" package.json
     displayName: 'Update package version'
 
-  - task: Cache@2
-    inputs:
-      key: 'npm | "$(Agent.OS)" | package-lock.json'
-      restoreKeys: |
-         npm | "$(Agent.OS)"
-      path: $(Pipeline.Workspace)/.npm
-    displayName: Cache npm
-
   - task: Docker@2
     inputs:
       containerRegistry: '$(containerRegistry)'

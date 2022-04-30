@@ -49,9 +49,6 @@ COPY --chown=milo:sudo api/ api/
 COPY --chown=milo:sudo uwsgi.ini .
 COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
 
-# copy static assets (UI and documentation)
-COPY --chown=milo:sudo static/ static/
-
 # copy client assets
 COPY --chown=milo:sudo client/ client/
 
@@ -63,6 +60,9 @@ RUN openssl req -x509 -nodes \
     -addext "extendedKeyUsage = serverAuth" \
     -newkey rsa:2048 -keyout ssl/milo.key \
     -out ssl/milo.crt
+
+# copy static assets (UI and documentation)
+COPY --chown=milo:sudo static/ static/
 
 # if present, bundle the educational license
 COPY --chown=milo:sudo *licensefile.skm *license.pub .editorconfig data/
