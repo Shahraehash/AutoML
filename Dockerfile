@@ -6,10 +6,9 @@ EXPOSE 5000
 EXPOSE 8443
 
 # install OS dependencies
-RUN apt-get update
-RUN apt-get -y install curl gnupg sudo libssl-dev openssl
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get -y install nodejs rabbitmq-server
+RUN apt-get update
+RUN apt-get -y install curl gnupg sudo libssl-dev openssl nodejs rabbitmq-server
 
 # create user
 RUN useradd -r -m -g sudo milo
