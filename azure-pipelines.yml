@@ -61,6 +61,9 @@ jobs:
 
 - job: Docker
   steps:
+  - checkout: self
+    submodules: true
+
   - task: gitversion/setup@0
     inputs:
       versionSpec: '5.x'
@@ -84,9 +87,9 @@ jobs:
     displayName: Cache npm  
 
   - script: |
-      npm --prefix ui install --cache $(Pipeline.Workspace)/.npm
-      npm --prefix docs install --cache $(Pipeline.Workspace)/.npm
-      npm --prefix preprocessor install --cache $(Pipeline.Workspace)/.npm
+      npm --prefix ui ci --cache $(Pipeline.Workspace)/.npm
+      npm --prefix docs ci --cache $(Pipeline.Workspace)/.npm
+      npm --prefix preprocessor ci --cache $(Pipeline.Workspace)/.npm
     displayName: 'Install dependencies'
 
   - script: |
