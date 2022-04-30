@@ -147,12 +147,21 @@ jobs:
 
   - task: Docker@2
     inputs:
-      command: buildAndPush
+      command: build
       repository: 'milo/education'
       tags: latest
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
-    displayName: Build and Push Educational Docker Image
+      arguments: '--cache-from=$(acr_address)/$(repository):latest' 
+    displayName: Build Docker Image
+
+  - task: Docker@2
+    displayName: Push Docker Image to ACR
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: 'milo/education'
+      tags: latest
 
   - task: CopyFiles@2
     displayName: 'Copy Firebase configuration to staging'
