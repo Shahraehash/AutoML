@@ -133,8 +133,6 @@ jobs:
     inputs:
       command: buildAndPush
       repository: 'milo'
-      tags: |
-        milo/pro:latest
       dockerfile: '**/Dockerfile'
       containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
     displayName: Build Docker Image
