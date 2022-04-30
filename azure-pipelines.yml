@@ -123,8 +123,6 @@ jobs:
       repository: 'milo'
       dockerfile: '**/Dockerfile'
       containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
-      tags: |
-        $GITVERSION_MAJORMINORPATCH
     displayName: Build Docker Image
 
   - task: CopyFiles@2
