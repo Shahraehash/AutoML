@@ -9,9 +9,12 @@ trigger:
 pool:
   vmImage: 'ubuntu-20.04'
 
+variables:
+  isMaster: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
+
 jobs:
 - job: Functions
-  condition: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
+  condition: and(succeeded(), eq(variables.isMaster, 'true'))
   steps:
   - script: |
       npm --prefix functions install
@@ -37,7 +40,7 @@ jobs:
       artifactName: 'functions'
 
 - job: AutoML
-  condition: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
+  condition: and(succeeded(), eq(variables.isMaster, 'true'))
   strategy:
     matrix:
       Python37:
