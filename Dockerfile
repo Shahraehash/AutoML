@@ -15,13 +15,13 @@ RUN useradd -r -m -g sudo milo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER milo
 
-# update path for Python
-ENV PATH="/home/milo/.local/bin:${PATH}"
-
 # set the working directory in the container
 RUN sudo mkdir /milo
 RUN sudo chown -R milo /milo
 WORKDIR /milo
+
+# update path for Python
+ENV PATH="/home/milo/.local/bin:${PATH}"
 
 # create data directory
 RUN mkdir data
