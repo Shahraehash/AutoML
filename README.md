@@ -54,7 +54,7 @@ printf "\nsource /home/<username>/milo-env/bin/activate" >> .bash_profile
 Perform the following steps to install the application:
 
 ```sh
-git clone git@ssh.dev.azure.com:v3/albahra/AutoML/AutoML
+git clone git@ssh.dev.azure.com:v3/milo-ml/MILO-ML/AutoML
 cd AutoML
 npm install
 
