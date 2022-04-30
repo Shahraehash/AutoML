@@ -1,3 +1,3 @@
 [submodule "preprocessor"]
 	path = preprocessor
-	url = git@ssh.dev.azure.com:v3/milo-ml/MILO-ML/Processor%20Tools
+	url = https://milo-ml@dev.azure.com/milo-ml/MILO-ML/_git/Processor%20Tools
