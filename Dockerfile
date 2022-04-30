@@ -65,8 +65,7 @@ RUN openssl req -x509 -nodes \
     -out ssl/milo.crt
 
 # if present, bundle the educational license
-COPY --chown=milo:sudo *license.pub data/
-COPY --chown=milo:sudo *licensefile.skm data/
+COPY --chown=milo:sudo *licensefile.skm *license.pub .editorconfig data/
 
 # start the application
 CMD [ "npm", "run", "run-docker" ]
