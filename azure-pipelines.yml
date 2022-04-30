@@ -101,7 +101,7 @@ jobs:
     displayName: Login to ACR
   
   - script: 'docker pull $(acr_address)/$(repository):latest'
-    displayName: Pull latest for layer caching
+    displayName: Populate Docker Layer Cache
     continueOnError: true
 
   - script: |
