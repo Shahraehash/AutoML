@@ -99,6 +99,18 @@ jobs:
       path: $(Pipeline.Workspace)/.npm
     displayName: Cache npm  
 
+  - task: Cache@2
+    displayName: Cache task
+    inputs:
+      key: 'docker | "$(Agent.OS)" | cache'
+      path: $(Pipeline.Workspace)/docker
+      cacheHitVar: CACHE_RESTORED
+
+  - script: |
+      docker load -i $(Pipeline.Workspace)/docker/cache.tar
+    displayName: Docker Restore
+    condition: and(not(canceled()), eq(variables.CACHE_RESTORED, 'true'))
+
   - script: |
       npm --prefix ui ci --cache $(Pipeline.Workspace)/.npm
       npm --prefix docs ci --cache $(Pipeline.Workspace)/.npm
@@ -126,6 +138,12 @@ jobs:
       dockerfile: '**/Dockerfile'
       containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
     displayName: Build Docker Image
+
+  - script: |
+      mkdir -p $(Pipeline.Workspace)/docker
+      docker save -o $(Pipeline.Workspace)/docker/cache.tar cache
+    displayName: Docker Save
+    condition: and(not(canceled()), or(failed(), ne(variables.CACHE_RESTORED, 'true')))
 
   - task: CopyFiles@2
     displayName: 'Copy Firebase configuration to staging'
