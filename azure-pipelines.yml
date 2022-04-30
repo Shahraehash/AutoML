@@ -120,7 +120,7 @@ jobs:
 
   - script: |
       npm --prefix preprocessor run milo-build
-    displayName: 'Build Preprocessor'
+    displayName: 'Build Preprocessor UI'
 
   - task: Docker@2
     inputs:
