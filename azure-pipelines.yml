@@ -128,7 +128,9 @@ jobs:
         $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
-      arguments: '--cache-from=$(acr_address)/$(repository):latest' 
+      arguments: '--cache-from=$(acr_address)/$(repository):latest'
+      addPipelineData: false
+      addBaseImageData: false
     displayName: Build Docker Image
 
   - task: Docker@2
@@ -137,6 +139,8 @@ jobs:
       command: push
       containerRegistry: '$(containerRegistry)'
       repository: '$(repository)' 
+      addPipelineData: false
+      addBaseImageData: false
       tags: |
         latest
         $(GitVersion.SemVer)
@@ -156,6 +160,8 @@ jobs:
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
+      addPipelineData: false
+      addBaseImageData: false
     displayName: Build Education Docker Image
 
   - task: Docker@2
@@ -164,6 +170,8 @@ jobs:
       command: push
       containerRegistry: '$(containerRegistry)'
       repository: 'education'
+      addPipelineData: false
+      addBaseImageData: false
       tags: |
         latest
         $(GitVersion.SemVer)
