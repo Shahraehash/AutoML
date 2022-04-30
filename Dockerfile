@@ -31,7 +31,6 @@ RUN mkdir ssl
 COPY --chown=milo:sudo requirements.txt .
 
 # install Python requirements
-RUN python -m pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # copy the dependencies file to the working directory
