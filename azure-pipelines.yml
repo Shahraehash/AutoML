@@ -126,7 +126,9 @@ jobs:
     inputs:
       command: build
       repository: '$(repository)'
-      tags: latest
+      tags: |
+        latest
+        amd64
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
@@ -138,7 +140,9 @@ jobs:
       command: push
       containerRegistry: '$(containerRegistry)'
       repository: '$(repository)' 
-      tags: latest
+      tags: |
+        latest
+        amd64
 
   - script: |
       pip install requests Flask licensing
@@ -149,7 +153,9 @@ jobs:
     inputs:
       command: build
       repository: 'milo/education'
-      tags: latest
+      tags: |
+        latest
+        amd64
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
@@ -161,7 +167,9 @@ jobs:
       command: push
       containerRegistry: '$(containerRegistry)'
       repository: 'milo/education'
-      tags: latest
+      tags: |
+        latest
+        amd64
 
   - task: CopyFiles@2
     displayName: 'Copy Firebase configuration to staging'
