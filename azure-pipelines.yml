@@ -39,7 +39,7 @@ jobs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
       artifactName: 'functions'
 
-- job: AutoML
+- job: AutoMLTests
   condition: and(succeeded(), eq(variables.isMaster, 'true'))
   strategy:
     matrix:
@@ -62,7 +62,7 @@ jobs:
       pytest
     displayName: 'ML Module Unit Test'
 
-- job: Docker
+- job: DockerBuild
   steps:
   - checkout: self
     submodules: true
