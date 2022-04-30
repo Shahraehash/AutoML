@@ -82,9 +82,9 @@ jobs:
     displayName: Cache npm  
 
   - script: |
-      npm --prefix ui ci --cache $(Pipeline.Workspace)/.npm
-      npm --prefix docs ci --cache $(Pipeline.Workspace)/.npm
-      npm --prefix preprocessor ci --cache $(Pipeline.Workspace)/.npm
+      npm --prefix ui install --cache $(Pipeline.Workspace)/.npm
+      npm --prefix docs install --cache $(Pipeline.Workspace)/.npm
+      npm --prefix preprocessor install --cache $(Pipeline.Workspace)/.npm
     displayName: 'Install dependencies'
 
   - script: |
