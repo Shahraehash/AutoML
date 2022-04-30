@@ -8,7 +8,7 @@ EXPOSE 8443
 # install OS dependencies
 RUN apt-get update
 RUN apt-get -y install curl gnupg sudo libssl-dev openssl
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get -y install nodejs rabbitmq-server
 
 # create user
@@ -20,6 +20,8 @@ USER milo
 ENV PATH="/home/milo/.local/bin:${PATH}"
 
 # set the working directory in the container
+RUN sudo mkdir /milo
+RUN sudo chown -R milo /milo
 WORKDIR /milo
 
 # create data directory
