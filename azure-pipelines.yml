@@ -16,9 +16,9 @@ parameters:
   default: false
 
 variables:
-  containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
+  containerRegistry: 'Docker Hub'
   repository: 'pro'
-  acr_address: 'miloml.azurecr.io'
+  acr_address: 'samermilo'
 
 jobs:
 - job: Functions
