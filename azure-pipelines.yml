@@ -54,13 +54,12 @@ jobs:
       versionSpec: '$(python.version)'
     displayName: 'Use Python $(python.version)'
 
-  - script: pip show pip
   - task: Cache@2
     inputs:
       key: 'pip | "$(Agent.OS)" | requirements.txt'
       restoreKeys: |
         pip | "$(Agent.OS)"
-      path: $(Pipeline.Workspace)/.pip
+      path: /opt/hostedtoolcache/Python/3.7.12/x64/lib/python3.7/site-packages
     displayName: Cache Python Dependencies
 
   - script: |
