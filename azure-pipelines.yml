@@ -19,7 +19,6 @@ variables:
   containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
   repository: 'pro'
   acr_address: 'miloml.azurecr.io'
-  isLatest: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
 
 jobs:
 - job: Functions
@@ -96,7 +95,7 @@ jobs:
     displayName: ML Module Unit Test
 
 - job: Docker
-  condition: and(succeeded(), or(eq(${{ parameters.forceDockerBuild }}, true), eq(variables.isLatest, 'true')))
+  condition: and(succeeded(), or(eq(${{ parameters.forceDockerBuild }}, true), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
   steps:
   - checkout: self
     submodules: true
@@ -130,12 +129,12 @@ jobs:
     inputs:
       containerRegistry: '$(containerRegistry)'
       command: 'login'
-    condition: eq(variables.isLatest, 'true')
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     displayName: Login to Container Registry
   
   - script: 'docker pull $(acr_address)/$(repository):latest'
     displayName: Populate Docker Layer Cache
-    condition: eq(variables.isLatest, 'true')
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     continueOnError: true
 
   - task: Cache@2
@@ -199,7 +198,8 @@ jobs:
           $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
-      arguments: '--cache-from=$(acr_address)/$(repository):latest'
+      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+        arguments: '--cache-from=$(acr_address)/$(repository):latest'
       addPipelineData: false
       addBaseImageData: false
     displayName: Build Docker Image
@@ -238,7 +238,8 @@ jobs:
           $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
-      arguments: '--cache-from=$(acr_address)/$(repository):latest' 
+      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+        arguments: '--cache-from=$(acr_address)/$(repository):latest' 
       addPipelineData: false
       addBaseImageData: false
     displayName: Build Education Docker Image
