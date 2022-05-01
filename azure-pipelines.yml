@@ -7,21 +7,40 @@ trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-20.04'
+  vmImage: 'ubuntu-latest'
+
+variables:
+  containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
+  repository: 'pro'
+  acr_address: 'miloml.azurecr.io'
 
 jobs:
 - job: Functions
+  condition: succeeded()
   steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '16'
+    displayName: Set Node Version to 16
+    
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | functions/package-lock.json'
+      path: $(System.DefaultWorkingDirectory)/functions/node_modules
+      cacheHitVar: FUNCTIONS_CACHE_RESTORED
+    displayName: Cache Functions Dependencies
+
   - script: |
       npm --prefix functions install
-    displayName: 'Install dependencies'
+    condition: ne(variables.FUNCTIONS_CACHE_RESTORED, 'true')
+    displayName: Install Dependencies
 
   - script: |
       npm --prefix functions run compile
-    displayName: 'Build Firebase functions'
+    displayName: Build Firebase Functions
 
   - task: ArchiveFiles@2
-    displayName: 'Create Firebase artifact'
+    displayName: Create Firebase Functions Artifact
     inputs:
       rootFolderOrFile: '$(Build.SourcesDirectory)/functions'
       includeRootFolder: false
@@ -30,12 +49,13 @@ jobs:
       replaceExistingArchive: true
 
   - task: PublishBuildArtifacts@1
-    displayName: 'Publish Firebase functions artifact'
+    displayName: Publish Firebase Functions Artifact
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
       artifactName: 'functions'
 
-- job: ML
+- job: AutoML
+  condition: succeeded()
   strategy:
     matrix:
       Python37:
@@ -48,27 +68,174 @@ jobs:
     displayName: 'Use Python $(python.version)'
 
   - script: |
+      PACKAGE_LOCATION=$(python -c 'import sys;print(sys.prefix)')
+      echo "##vso[task.setvariable variable=PACKAGE_LOCATION]$PACKAGE_LOCATION"
+    displayName: Get Python Packages Directory
+
+  - task: Cache@2
+    inputs:
+      key: 'pip | "$(Agent.OS)" | requirements.txt'
+      path: $(PACKAGE_LOCATION)
+    displayName: Cache Python Dependencies
+
+  - script: |
       python -m pip install --upgrade pip
       pip install -r requirements.txt
-    displayName: 'Install dependencies'
+    displayName: Install dependencies
 
   - script: |
       pip install pytest pytest-azurepipelines
       pytest
-    displayName: 'ML Module Unit Test'
+    displayName: ML Module Unit Test
 
-- job: SPA
+- job: Docker
+  condition: and(succeeded(), or(eq(variables['BuildDocker'], 'true'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
   steps:
+  - checkout: self
+    submodules: true
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '16'
+    displayName: Set Node Version to 16
+    
+  - task: InstallSSHKey@0
+    inputs:
+      knownHostsEntry: $(knownHostsEntry)
+      sshPublicKey: $(sshPublicKey)
+      sshKeySecureFile: 'id_rsa'
+
+  - task: gitversion/setup@0
+    inputs:
+      versionSpec: '5.x'
+    displayName: 'Install GitVersion'
+
+  - task: gitversion/execute@0
+    inputs:
+      targetPath: '$(System.DefaultWorkingDirectory)'
+    displayName: 'Run GitVersion'
+
+  - script: |
+      sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"$GITVERSION_MAJORMINORPATCH\"|" package.json
+    displayName: 'Update package version'
+
+  - task: Docker@2
+    inputs:
+      containerRegistry: '$(containerRegistry)'
+      command: 'login'
+    displayName: Login to Container Registry
+  
+  - script: 'docker pull $(acr_address)/$(repository):latest'
+    displayName: Populate Docker Layer Cache
+    continueOnError: true
+
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | ui/package-lock.json'
+      path: $(System.DefaultWorkingDirectory)/ui/node_modules
+      cacheHitVar: UI_CACHE_RESTORED
+    displayName: Cache UI Dependencies
+
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | docs/package-lock.json'
+      path: $(System.DefaultWorkingDirectory)/docs/node_modules
+      cacheHitVar: DOCS_CACHE_RESTORED
+    displayName: Cache Docs Dependencies
+
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | preprocessor/package-lock.json'
+      path: $(System.DefaultWorkingDirectory)/preprocessor/node_modules
+      cacheHitVar: PP_CACHE_RESTORED
+    displayName: Cache Preprocessor Dependencies
+
   - script: |
       npm --prefix ui install
-    displayName: 'Install dependencies'
+    condition: ne(variables.UI_CACHE_RESTORED, 'true')
+    displayName: Install UI dependencies
 
   - script: |
-      npm run build-ui
-    displayName: 'Build Angular SPA'
+      npm --prefix docs install
+    condition: ne(variables.DOCS_CACHE_RESTORED, 'true')
+    displayName: Install Docs dependencies
+
+  - script: |
+      npm --prefix preprocessor install
+    condition: ne(variables.PP_CACHE_RESTORED, 'true')
+    displayName: Install Preprocessor dependencies
+
+  - script: |
+      npm --prefix ui run build-docker
+    displayName: Build AutoML UI
+
+  - script: |
+      npm --prefix docs run build
+    displayName: Build Documentation
+
+  - script: |
+      npm --prefix preprocessor run milo-build
+    displayName: Build Preprocessor UI
+
+  - task: Docker@2
+    inputs:
+      command: build
+      repository: '$(repository)'
+      tags: |
+        latest
+        $(GitVersion.SemVer)
+      dockerfile: '**/Dockerfile'
+      containerRegistry: '$(containerRegistry)'
+      arguments: '--cache-from=$(acr_address)/$(repository):latest'
+      addPipelineData: false
+      addBaseImageData: false
+    displayName: Build Docker Image
+
+  - task: Docker@2
+    displayName: Push Docker Image to Container Registry
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: '$(repository)' 
+      addPipelineData: false
+      addBaseImageData: false
+      tags: |
+        latest
+        $(GitVersion.SemVer)
+
+  - script: |
+      pip install requests Flask licensing
+      npm run generate-education-license
+    displayName: Create Education License
+
+  - task: Docker@2
+    inputs:
+      command: build
+      repository: 'education'
+      tags: |
+        latest
+        $(GitVersion.SemVer)
+      dockerfile: '**/Dockerfile'
+      containerRegistry: '$(containerRegistry)'
+      arguments: '--cache-from=$(acr_address)/$(repository):latest' 
+      addPipelineData: false
+      addBaseImageData: false
+    displayName: Build Education Docker Image
+
+  - task: Docker@2
+    displayName: Push Education Docker Image to Container Registry
+    inputs:
+      command: push
+      containerRegistry: '$(containerRegistry)'
+      repository: 'education'
+      addPipelineData: false
+      addBaseImageData: false
+      tags: |
+        latest
+        $(GitVersion.SemVer)
 
   - task: CopyFiles@2
-    displayName: 'Copy Firebase configuration to staging'
+    displayName: Copy Firebase Configuration to Staging
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)'
       Contents: |
@@ -78,14 +245,14 @@ jobs:
       TargetFolder: '$(Build.ArtifactStagingDirectory)/firebase'
 
   - task: CopyFiles@2
-    displayName: 'Copy SPA to staging'
+    displayName: Copy Front-End to Staging
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/static'
       Contents: '**'
       TargetFolder: '$(build.ArtifactStagingDirectory)/firebase/static'
 
   - task: ArchiveFiles@2
-    displayName: 'Create Firebase artifact'
+    displayName: Create Firebase Artifact
     inputs:
       rootFolderOrFile: '$(build.ArtifactStagingDirectory)/firebase'
       includeRootFolder: false
@@ -94,32 +261,7 @@ jobs:
       replaceExistingArchive: true
 
   - task: PublishBuildArtifacts@1
-    displayName: 'Publish Firebase hosting artifact'
+    displayName: Publish Firebase Hosting Artifact
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
       artifactName: 'static'
-
-- job: Documentation
-  steps:
-  - script: |
-      npm --prefix docs install
-    displayName: 'Install dependencies'
-
-  - script: |
-      npm --prefix docs run build
-    displayName: 'Build documentation'
-
-  - task: ArchiveFiles@2
-    displayName: 'Create documentation artifact'
-    inputs:
-      rootFolderOrFile: '$(Build.SourcesDirectory)/static/docs'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/payload.zip'
-      replaceExistingArchive: true
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish documentation artifact'
-    inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
-      artifactName: 'documentation'
