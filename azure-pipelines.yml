@@ -19,6 +19,10 @@ variables:
   containerRegistry: 'Docker Hub'
   repository: 'pro'
   eduRepository: 'education'
+  ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+    tag: 'latest'
+  ${{ else }}:
+    tag: 'beta'
 
 jobs:
 - job: Functions
@@ -129,7 +133,7 @@ jobs:
       command: 'login'
     displayName: Login to Container Registry
   
-  - script: 'docker pull $(acr_address)/$(repository):latest'
+  - script: 'docker pull $(acr_address)/$(repository):$(tag)'
     displayName: Populate Docker Layer Cache
     continueOnError: true
 
@@ -185,16 +189,12 @@ jobs:
     inputs:
       command: build
       repository: '$(acr_address)/$(repository)'
-      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
-        tags: |
-          latest
-          $(GitVersion.SemVer)
-      ${{ else }}:
-        tags: |
-          $(GitVersion.SemVer)
+      tags: |
+        $(tag)
+        $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
-      arguments: '--cache-from=$(acr_address)/$(repository):latest'
+      arguments: '--cache-from=$(acr_address)/$(repository):$(tag)'
       addPipelineData: false
       addBaseImageData: false
     displayName: Build Docker Image
@@ -207,13 +207,9 @@ jobs:
       repository: '$(acr_address)/$(repository)' 
       addPipelineData: false
       addBaseImageData: false
-      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
-        tags: |
-          latest
-          $(GitVersion.SemVer)
-      ${{ else }}:
-        tags: |
-          $(GitVersion.SemVer)
+      tags: |
+        $(tag)
+        $(GitVersion.SemVer)
 
   - script: |
       pip install requests Flask licensing
@@ -224,16 +220,12 @@ jobs:
     inputs:
       command: build
       repository: '$(acr_address)/$(eduRepository)'
-      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
-        tags: |
-          latest
-          $(GitVersion.SemVer)
-      ${{ else }}:
-        tags: |
-          $(GitVersion.SemVer)
+      tags: |
+        $(tag)
+        $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
-      arguments: '--cache-from=$(acr_address)/$(repository):latest' 
+      arguments: '--cache-from=$(acr_address)/$(repository):$(tag)' 
       addPipelineData: false
       addBaseImageData: false
     displayName: Build Education Docker Image
@@ -246,13 +238,9 @@ jobs:
       repository: '$(acr_address)/$(eduRepository)'
       addPipelineData: false
       addBaseImageData: false
-      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
-        tags: |
-          latest
-          $(GitVersion.SemVer)
-      ${{ else }}:
-        tags: |
-          $(GitVersion.SemVer)
+      tags: |
+        $(tag)
+        $(GitVersion.SemVer)
 
   - task: CopyFiles@2
     displayName: Copy Firebase Configuration to Staging
