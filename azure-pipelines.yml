@@ -62,12 +62,18 @@ jobs:
       versionSpec: '$(python.version)'
     displayName: 'Use Python $(python.version)'
 
+  - script: |
+      PACKAGE_LOCATION=$(python3 -c "import sysconfig; print(sysconfig.get_path('purelib'))")
+      echo "##vso[task.setvariable variable=PACKAGE_LOCATION]$PACKAGE_LOCATION"
+      echo "$PACKAGE_LOCATION"
+    displayName: Get Python Packages Directory
+
   - task: Cache@2
     inputs:
       key: 'pip | "$(Agent.OS)" | requirements.txt'
       restoreKeys: |
         pip | "$(Agent.OS)"
-      path: $(python3 -c "import sysconfig; print(sysconfig.get_path('purelib'))")
+      path: $(PACKAGE_LOCATION)
     displayName: Cache Python Dependencies
 
   - script: |
