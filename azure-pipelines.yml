@@ -186,7 +186,7 @@ jobs:
   - task: Docker@2
     inputs:
       command: build
-      repository: '$(repository)'
+      repository: '$(acr_address)/$(repository)'
       ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
         tags: |
           latest
@@ -225,7 +225,7 @@ jobs:
   - task: Docker@2
     inputs:
       command: build
-      repository: 'education'
+      repository: '$(acr_address)/education'
       ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
         tags: |
           latest
@@ -245,7 +245,7 @@ jobs:
     inputs:
       command: push
       containerRegistry: '$(containerRegistry)'
-      repository: 'education'
+      repository: '$(acr_address)/education'
       addPipelineData: false
       addBaseImageData: false
       ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
