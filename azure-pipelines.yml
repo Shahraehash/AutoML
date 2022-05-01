@@ -130,17 +130,17 @@ jobs:
     displayName: Cache Preprocessor Dependencies
 
   - script: |
-      npm --prefix ui ci
+      npm --prefix ui install
     condition: ne(variables.UI_CACHE_RESTORED, 'true')
     displayName: Install UI dependencies
 
   - script: |
-      npm --prefix docs ci
+      npm --prefix docs install
     condition: ne(variables.DOCS_CACHE_RESTORED, 'true')
     displayName: Install Docs dependencies
 
   - script: |
-      npm --prefix preprocessor ci
+      npm --prefix preprocessor install
     condition: ne(variables.PP_CACHE_RESTORED, 'true')
     displayName: Install Preprocessor dependencies
 
