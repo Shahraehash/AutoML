@@ -70,7 +70,6 @@ jobs:
   - script: |
       PACKAGE_LOCATION=$(python -c 'import sys;print(sys.prefix)')
       echo "##vso[task.setvariable variable=PACKAGE_LOCATION]$PACKAGE_LOCATION"
-      echo "$PACKAGE_LOCATION"
     displayName: Get Python Packages Directory
 
   - task: Cache@2
