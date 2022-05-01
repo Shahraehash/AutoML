@@ -19,6 +19,7 @@ variables:
   containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
   repository: 'pro'
   acr_address: 'miloml.azurecr.io'
+  isLatest: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
 
 jobs:
 - job: Functions
@@ -65,7 +66,7 @@ jobs:
   strategy:
     matrix:
       Python37:
-        python.version: '3.9'
+        python.version: '3.7'
 
   steps:
   - task: UsePythonVersion@0
@@ -95,7 +96,7 @@ jobs:
     displayName: ML Module Unit Test
 
 - job: Docker
-  condition: and(succeeded(), or(eq(${{ parameters.forceDockerBuild }}, true), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  condition: and(succeeded(), or(eq(${{ parameters.forceDockerBuild }}, true), eq(variables.isLatest, 'true')))
   steps:
   - checkout: self
     submodules: true
@@ -129,10 +130,12 @@ jobs:
     inputs:
       containerRegistry: '$(containerRegistry)'
       command: 'login'
+    condition: eq(variables.isLatest, 'true')
     displayName: Login to Container Registry
   
   - script: 'docker pull $(acr_address)/$(repository):latest'
     displayName: Populate Docker Layer Cache
+    condition: eq(variables.isLatest, 'true')
     continueOnError: true
 
   - task: Cache@2
