@@ -18,7 +18,7 @@ parameters:
 variables:
   containerRegistry: 'Docker Hub'
   repository: 'pro'
-  acr_address: 'samermilo'
+  eduRepository: 'education'
 
 jobs:
 - job: Functions
@@ -225,7 +225,7 @@ jobs:
   - task: Docker@2
     inputs:
       command: build
-      repository: '$(acr_address)/education'
+      repository: '$(acr_address)/$(eduRepository)'
       ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
         tags: |
           latest
@@ -245,7 +245,7 @@ jobs:
     inputs:
       command: push
       containerRegistry: '$(containerRegistry)'
-      repository: '$(acr_address)/education'
+      repository: '$(acr_address)/$(eduRepository)'
       addPipelineData: false
       addBaseImageData: false
       ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
