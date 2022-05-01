@@ -181,10 +181,13 @@ jobs:
     inputs:
       command: build
       repository: '$(repository)'
-      tags: |
-        ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+        tags: |
           latest
-        $(GitVersion.SemVer)
+          $(GitVersion.SemVer)
+      ${{ else }}:
+        tags: |
+          $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest'
@@ -200,10 +203,13 @@ jobs:
       repository: '$(repository)' 
       addPipelineData: false
       addBaseImageData: false
-      tags: |
-        ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+        tags: |
           latest
-        $(GitVersion.SemVer)
+          $(GitVersion.SemVer)
+      ${{ else }}:
+        tags: |
+          $(GitVersion.SemVer)
 
   - script: |
       pip install requests Flask licensing
@@ -214,10 +220,13 @@ jobs:
     inputs:
       command: build
       repository: 'education'
-      tags: |
-        ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+        tags: |
           latest
-        $(GitVersion.SemVer)
+          $(GitVersion.SemVer)
+      ${{ else }}:
+        tags: |
+          $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
       arguments: '--cache-from=$(acr_address)/$(repository):latest' 
@@ -233,10 +242,13 @@ jobs:
       repository: 'education'
       addPipelineData: false
       addBaseImageData: false
-      tags: |
-        ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+        tags: |
           latest
-        $(GitVersion.SemVer)
+          $(GitVersion.SemVer)
+      ${{ else }}:
+        tags: |
+          $(GitVersion.SemVer)
 
   - task: CopyFiles@2
     displayName: Copy Firebase Configuration to Staging
