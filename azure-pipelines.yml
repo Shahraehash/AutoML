@@ -71,8 +71,6 @@ jobs:
   - task: Cache@2
     inputs:
       key: 'pip | "$(Agent.OS)" | requirements.txt'
-      restoreKeys: |
-        pip | "$(Agent.OS)"
       path: $(PACKAGE_LOCATION)
     displayName: Cache Python Dependencies
 
