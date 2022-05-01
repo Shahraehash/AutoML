@@ -102,11 +102,47 @@ jobs:
     displayName: Populate Docker Layer Cache
     continueOnError: true
 
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | ui/package-lock.json'
+      restoreKeys: |
+       npm | "$(Agent.OS)"
+      path: $(System.DefaultWorkingDirectory)/ui/node_modules
+      cacheHitVar: UI_CACHE_RESTORED
+    displayName: Cache UI Dependencies
+
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | docs/package-lock.json'
+      restoreKeys: |
+        npm | "$(Agent.OS)"
+      path: $(System.DefaultWorkingDirectory)/docs/node_modules
+      cacheHitVar: DOCS_CACHE_RESTORED
+    displayName: Cache Docs Dependencies
+
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | preprocessor/package-lock.json'
+      restoreKeys: |
+        npm | "$(Agent.OS)"
+      path: $(System.DefaultWorkingDirectory)/preprocessor/node_modules
+      cacheHitVar: PP_CACHE_RESTORED
+    displayName: Cache Preprocessor Dependencies
+
   - script: |
-      npm --prefix ui ci --cache $(Pipeline.Workspace)/.npm
-      npm --prefix docs ci --cache $(Pipeline.Workspace)/.npm
-      npm --prefix preprocessor ci --cache $(Pipeline.Workspace)/.npm
-    displayName: Install dependencies
+      npm --prefix ui ci
+    condition: ne(variables.UI_CACHE_RESTORED, 'true')
+    displayName: Install UI dependencies
+
+  - script: |
+      npm --prefix docs ci
+    condition: ne(variables.DOCS_CACHE_RESTORED, 'true')
+    displayName: Install Docs dependencies
+
+  - script: |
+      npm --prefix preprocessor ci
+    condition: ne(variables.PP_CACHE_RESTORED, 'true')
+    displayName: Install Preprocessor dependencies
 
   - script: |
       npm --prefix ui run build-docker
