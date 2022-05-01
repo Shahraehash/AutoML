@@ -22,7 +22,6 @@ variables:
 
 jobs:
 - job: Functions
-  condition: succeeded()
   steps:
   - task: NodeTool@0
     inputs:
@@ -38,7 +37,7 @@ jobs:
 
   - script: |
       npm --prefix functions install
-    condition: ne(variables.FUNCTIONS_CACHE_RESTORED, 'true')
+    condition: and(succeeded(), ne(variables.FUNCTIONS_CACHE_RESTORED, 'true'))
     displayName: Install Dependencies
 
   - script: |
@@ -61,7 +60,6 @@ jobs:
       artifactName: 'functions'
 
 - job: AutoML
-  condition: succeeded()
   strategy:
     matrix:
       Python37:
@@ -158,17 +156,17 @@ jobs:
 
   - script: |
       npm --prefix ui install
-    condition: ne(variables.UI_CACHE_RESTORED, 'true')
+    condition: and(succeeded(), ne(variables.UI_CACHE_RESTORED, 'true'))
     displayName: Install UI dependencies
 
   - script: |
       npm --prefix docs install
-    condition: ne(variables.DOCS_CACHE_RESTORED, 'true')
+    condition: and(succeeded(), ne(variables.DOCS_CACHE_RESTORED, 'true'))
     displayName: Install Docs dependencies
 
   - script: |
       npm --prefix preprocessor install
-    condition: ne(variables.PP_CACHE_RESTORED, 'true')
+    condition: and(succeeded(), ne(variables.PP_CACHE_RESTORED, 'true'))
     displayName: Install Preprocessor dependencies
 
   - script: |
