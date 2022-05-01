@@ -206,7 +206,7 @@ jobs:
     inputs:
       command: push
       containerRegistry: '$(containerRegistry)'
-      repository: '$(repository)' 
+      repository: '$(acr_address)/$(repository)' 
       addPipelineData: false
       addBaseImageData: false
       ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
