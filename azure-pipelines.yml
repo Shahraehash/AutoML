@@ -105,8 +105,6 @@ jobs:
   - task: Cache@2
     inputs:
       key: 'npm | "$(Agent.OS)" | ui/package-lock.json'
-      restoreKeys: |
-       npm | "$(Agent.OS)"
       path: $(System.DefaultWorkingDirectory)/ui/node_modules
       cacheHitVar: UI_CACHE_RESTORED
     displayName: Cache UI Dependencies
@@ -114,8 +112,6 @@ jobs:
   - task: Cache@2
     inputs:
       key: 'npm | "$(Agent.OS)" | docs/package-lock.json'
-      restoreKeys: |
-        npm | "$(Agent.OS)"
       path: $(System.DefaultWorkingDirectory)/docs/node_modules
       cacheHitVar: DOCS_CACHE_RESTORED
     displayName: Cache Docs Dependencies
@@ -123,8 +119,6 @@ jobs:
   - task: Cache@2
     inputs:
       key: 'npm | "$(Agent.OS)" | preprocessor/package-lock.json'
-      restoreKeys: |
-        npm | "$(Agent.OS)"
       path: $(System.DefaultWorkingDirectory)/preprocessor/node_modules
       cacheHitVar: PP_CACHE_RESTORED
     displayName: Cache Preprocessor Dependencies
