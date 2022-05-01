@@ -228,7 +228,7 @@ export class UseModelComponent implements OnInit {
             return result;
           }, []);
         } else {
-          if (row.data.every(i => typeof i === 'number')) {
+          if ((row.data as any[]).every(i => typeof i === 'number')) {
             data.push(headerMapping.map(key => row.data[key]));
           } else {
             this.invalidCases++;
