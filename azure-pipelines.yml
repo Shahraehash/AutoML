@@ -18,7 +18,6 @@ jobs:
 - job: Functions
   condition: succeeded()
   steps:
-  - script: pip show pip
   - script: |
       npm --prefix functions install
     displayName: Install Dependencies
@@ -55,6 +54,7 @@ jobs:
       versionSpec: '$(python.version)'
     displayName: 'Use Python $(python.version)'
 
+  - script: pip show pip
   - task: Cache@2
     inputs:
       key: 'pip | "$(Agent.OS)" | requirements.txt'
