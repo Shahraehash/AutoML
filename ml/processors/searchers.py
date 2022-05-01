@@ -38,7 +38,6 @@ def make_grid_search(estimator, scoring, shuffle, custom_hyper_parameters, _):
             scoring=scoring,
             refit=False,
             n_jobs=-1,
-            iid=True,
             return_train_score=False
         ),
         len(list(ParameterGrid(parameter_range))) *\
@@ -81,7 +80,6 @@ def make_random_search(estimator, scoring, shuffle, custom_hyper_parameters, y_t
             refit=False,
             n_iter=iterations,
             n_jobs=-1,
-            iid=True,
             return_train_score=False
         ),
         iterations * cv.get_n_splits()
