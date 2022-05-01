@@ -27,6 +27,15 @@ ENV PATH="/home/milo/.local/bin:${PATH}"
 RUN mkdir data
 RUN mkdir ssl
 
+# generate SSL certificate
+RUN openssl req -x509 -nodes \
+    -subj  "/CN=localhost" \
+    -addext "subjectAltName = DNS:localhost" \
+    -addext "keyUsage = digitalSignature" \
+    -addext "extendedKeyUsage = serverAuth" \
+    -newkey rsa:2048 -keyout ssl/milo.key \
+    -out ssl/milo.crt
+
 # copy the Python dependencies to the working directory
 COPY --chown=milo:sudo requirements.txt .
 
@@ -52,20 +61,11 @@ COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
 # copy client assets
 COPY --chown=milo:sudo client/ client/
 
-# generate SSL certificate
-RUN openssl req -x509 -nodes \
-    -subj  "/CN=localhost" \
-    -addext "subjectAltName = DNS:localhost" \
-    -addext "keyUsage = digitalSignature" \
-    -addext "extendedKeyUsage = serverAuth" \
-    -newkey rsa:2048 -keyout ssl/milo.key \
-    -out ssl/milo.crt
+# if present, bundle the educational license
+COPY --chown=milo:sudo *licensefile.skm *license.pub .editorconfig data/
 
 # copy static assets (UI and documentation)
 COPY --chown=milo:sudo static/ static/
-
-# if present, bundle the educational license
-COPY --chown=milo:sudo *licensefile.skm *license.pub .editorconfig data/
 
 # if present, bundle the Google service account key
 COPY --chown=milo:sudo *serviceAccountKey.json .
