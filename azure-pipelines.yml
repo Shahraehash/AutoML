@@ -182,7 +182,8 @@ jobs:
       command: build
       repository: '$(repository)'
       tags: |
-        latest
+        ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+          latest
         $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
@@ -200,7 +201,8 @@ jobs:
       addPipelineData: false
       addBaseImageData: false
       tags: |
-        latest
+        ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+          latest
         $(GitVersion.SemVer)
 
   - script: |
@@ -213,7 +215,8 @@ jobs:
       command: build
       repository: 'education'
       tags: |
-        latest
+        ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+          latest
         $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
@@ -231,7 +234,8 @@ jobs:
       addPipelineData: false
       addBaseImageData: false
       tags: |
-        latest
+        ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
+          latest
         $(GitVersion.SemVer)
 
   - task: CopyFiles@2
