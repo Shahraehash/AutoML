@@ -18,8 +18,16 @@ jobs:
 - job: Functions
   condition: succeeded()
   steps:
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | functions/package-lock.json'
+      path: $(System.DefaultWorkingDirectory)/functions/node_modules
+      cacheHitVar: FUNCTIONS_CACHE_RESTORED
+    displayName: Cache Functions Dependencies
+
   - script: |
       npm --prefix functions install
+    condition: ne(variables.FUNCTIONS_CACHE_RESTORED, 'true')
     displayName: Install Dependencies
 
   - script: |
