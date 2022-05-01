@@ -16,13 +16,16 @@ parameters:
   default: false
 
 variables:
-  containerRegistry: '19eea2be-7bf2-46b9-b811-c43de32d2911'
+  containerRegistry: 'Docker Hub'
   repository: 'pro'
-  acr_address: 'miloml.azurecr.io'
+  eduRepository: 'education'
+  ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+    tag: 'latest'
+  ${{ else }}:
+    tag: 'beta'
 
 jobs:
 - job: Functions
-  condition: succeeded()
   steps:
   - task: NodeTool@0
     inputs:
@@ -38,7 +41,7 @@ jobs:
 
   - script: |
       npm --prefix functions install
-    condition: ne(variables.FUNCTIONS_CACHE_RESTORED, 'true')
+    condition: and(succeeded(), ne(variables.FUNCTIONS_CACHE_RESTORED, 'true'))
     displayName: Install Dependencies
 
   - script: |
@@ -61,7 +64,6 @@ jobs:
       artifactName: 'functions'
 
 - job: AutoML
-  condition: succeeded()
   strategy:
     matrix:
       Python37:
@@ -131,7 +133,7 @@ jobs:
       command: 'login'
     displayName: Login to Container Registry
   
-  - script: 'docker pull $(acr_address)/$(repository):latest'
+  - script: 'docker pull $(acr_address)/$(repository):$(tag)'
     displayName: Populate Docker Layer Cache
     continueOnError: true
 
@@ -158,17 +160,17 @@ jobs:
 
   - script: |
       npm --prefix ui install
-    condition: ne(variables.UI_CACHE_RESTORED, 'true')
+    condition: and(succeeded(), ne(variables.UI_CACHE_RESTORED, 'true'))
     displayName: Install UI dependencies
 
   - script: |
       npm --prefix docs install
-    condition: ne(variables.DOCS_CACHE_RESTORED, 'true')
+    condition: and(succeeded(), ne(variables.DOCS_CACHE_RESTORED, 'true'))
     displayName: Install Docs dependencies
 
   - script: |
       npm --prefix preprocessor install
-    condition: ne(variables.PP_CACHE_RESTORED, 'true')
+    condition: and(succeeded(), ne(variables.PP_CACHE_RESTORED, 'true'))
     displayName: Install Preprocessor dependencies
 
   - script: |
@@ -186,17 +188,13 @@ jobs:
   - task: Docker@2
     inputs:
       command: build
-      repository: '$(repository)'
-      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
-        tags: |
-          latest
-          $(GitVersion.SemVer)
-      ${{ else }}:
-        tags: |
-          $(GitVersion.SemVer)
+      repository: '$(acr_address)/$(repository)'
+      tags: |
+        $(tag)
+        $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
-      arguments: '--cache-from=$(acr_address)/$(repository):latest'
+      arguments: '--cache-from=$(acr_address)/$(repository):$(tag)'
       addPipelineData: false
       addBaseImageData: false
     displayName: Build Docker Image
@@ -206,16 +204,12 @@ jobs:
     inputs:
       command: push
       containerRegistry: '$(containerRegistry)'
-      repository: '$(repository)' 
+      repository: '$(acr_address)/$(repository)' 
       addPipelineData: false
       addBaseImageData: false
-      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
-        tags: |
-          latest
-          $(GitVersion.SemVer)
-      ${{ else }}:
-        tags: |
-          $(GitVersion.SemVer)
+      tags: |
+        $(tag)
+        $(GitVersion.SemVer)
 
   - script: |
       pip install requests Flask licensing
@@ -225,17 +219,13 @@ jobs:
   - task: Docker@2
     inputs:
       command: build
-      repository: 'education'
-      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
-        tags: |
-          latest
-          $(GitVersion.SemVer)
-      ${{ else }}:
-        tags: |
-          $(GitVersion.SemVer)
+      repository: '$(acr_address)/$(eduRepository)'
+      tags: |
+        $(tag)
+        $(GitVersion.SemVer)
       dockerfile: '**/Dockerfile'
       containerRegistry: '$(containerRegistry)'
-      arguments: '--cache-from=$(acr_address)/$(repository):latest' 
+      arguments: '--cache-from=$(acr_address)/$(repository):$(tag)' 
       addPipelineData: false
       addBaseImageData: false
     displayName: Build Education Docker Image
@@ -245,16 +235,12 @@ jobs:
     inputs:
       command: push
       containerRegistry: '$(containerRegistry)'
-      repository: 'education'
+      repository: '$(acr_address)/$(eduRepository)'
       addPipelineData: false
       addBaseImageData: false
-      ${{ if eq('refs/heads/master', variables['Build.SourceBranch']) }}:
-        tags: |
-          latest
-          $(GitVersion.SemVer)
-      ${{ else }}:
-        tags: |
-          $(GitVersion.SemVer)
+      tags: |
+        $(tag)
+        $(GitVersion.SemVer)
 
   - task: CopyFiles@2
     displayName: Copy Firebase Configuration to Staging
