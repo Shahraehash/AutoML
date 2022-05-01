@@ -67,7 +67,7 @@ jobs:
       key: 'pip | "$(Agent.OS)" | requirements.txt'
       restoreKeys: |
         pip | "$(Agent.OS)"
-      path: /opt/hostedtoolcache/Python/3.7.12/x64/lib/python3.7/site-packages
+      path: $(python3 -c "import sysconfig; print(sysconfig.get_path('purelib'))")
     displayName: Cache Python Dependencies
 
   - script: |
