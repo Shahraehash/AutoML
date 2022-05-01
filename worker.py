@@ -7,7 +7,6 @@ import json
 
 from celery import Celery
 from celery.signals import worker_process_init
-from celery.task.control import revoke
 
 from ml import search
 
@@ -64,7 +63,7 @@ def queue_training(self, userid, jobid, label_column, parameters):
     return {}
 
 def revoke_task(task_id):
-    revoke(task_id, terminate=True)
+    CELERY.control.revoke(task_id, terminate=True)
 
 def get_task_status(task_id):
     """Gets a given's task and returns a summary in JSON format"""
