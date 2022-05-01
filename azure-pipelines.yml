@@ -16,7 +16,9 @@ variables:
 
 jobs:
 - job: Functions
+  condition: succeeded()
   steps:
+  - script: pip show pip
   - script: |
       npm --prefix functions install
     displayName: Install Dependencies
@@ -41,6 +43,7 @@ jobs:
       artifactName: 'functions'
 
 - job: AutoML
+  condition: succeeded()
   strategy:
     matrix:
       Python37:
@@ -71,6 +74,7 @@ jobs:
     displayName: ML Module Unit Test
 
 - job: Docker
+  condition: succeeded()
   steps:
   - checkout: self
     submodules: true
