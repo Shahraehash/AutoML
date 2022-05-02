@@ -11,7 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
 
 ESTIMATORS = {
-    'gb': XGBClassifier(n_jobs=1, use_label_encoder=False, eval_metric='error'),
+    'gb': XGBClassifier(),
     'knn': KNeighborsClassifier(),
     'lr': LogisticRegression(solver='lbfgs', max_iter=1000),
     'mlp': MLPClassifier(),
