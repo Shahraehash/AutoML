@@ -193,6 +193,7 @@ jobs:
 
   - script: |
       docker buildx build --platform linux/amd64,linux/arm64 \
+        --cache-from=$(acr_address)/$(repository):$(tag) \
         -t $(acr_address)/$(repository):$(GitVersion.SemVer) \
         -t $(acr_address)/$(repository):$(tag) \
         --push \
@@ -206,6 +207,7 @@ jobs:
 
   - script: |
       docker buildx build --platform linux/amd64,linux/arm64 \
+        --cache-from=$(acr_address)/$(repository):$(tag) \
         -t $(acr_address)/$(eduRepository):$(GitVersion.SemVer) \
         -t $(acr_address)/$(eduRepository):$(tag) \
         --push \
