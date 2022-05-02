@@ -19,6 +19,7 @@ variables:
   containerRegistry: 'Docker Hub'
   repository: 'pro'
   eduRepository: 'education'
+  cacheRepository: 'build-cache'
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
     tag: 'latest'
   ${{ else }}:
@@ -193,7 +194,8 @@ jobs:
 
   - script: |
       docker buildx build --platform linux/amd64,linux/arm64 \
-        --cache-from=$(acr_address)/$(repository):$(tag) \
+        --cache-from=$(acr_address)/$(cacheRepository) \
+        --cache-to=$(acr_address)/$(cacheRepository) \
         -t $(acr_address)/$(repository):$(GitVersion.SemVer) \
         -t $(acr_address)/$(repository):$(tag) \
         --push \
@@ -207,7 +209,7 @@ jobs:
 
   - script: |
       docker buildx build --platform linux/amd64,linux/arm64 \
-        --cache-from=$(acr_address)/$(repository):$(tag) \
+        --cache-from=$(acr_address)/$(cacheRepository) \
         -t $(acr_address)/$(eduRepository):$(GitVersion.SemVer) \
         -t $(acr_address)/$(eduRepository):$(tag) \
         --push \
