@@ -23,7 +23,7 @@ WORKDIR /milo
 # update path for Python
 ENV PATH="/home/milo/.local/bin:${PATH}"
 
-# create data directory
+# create required directories
 RUN mkdir data
 RUN mkdir ssl
 
@@ -36,17 +36,13 @@ RUN openssl req -x509 -nodes \
     -newkey rsa:2048 -keyout ssl/milo.key \
     -out ssl/milo.crt
 
-# copy the Python dependencies to the working directory
+# copy the dependencies to the working directory
 COPY --chown=milo:sudo requirements.txt .
-
-# install Python requirements
-RUN pip install -r requirements.txt
-
-# copy the dependencies file to the working directory
 COPY --chown=milo:sudo package.json .
 COPY --chown=milo:sudo package-lock.json .
 
 # install app dependencies
+RUN pip install -r requirements.txt
 RUN npm install --ignore-scripts
 
 # copy remaining Python code
@@ -62,7 +58,7 @@ COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
 COPY --chown=milo:sudo client/ client/
 
 # if present, bundle the educational license
-COPY --chown=milo:sudo *licensefile.skm *license.pub .editorconfig data/
+COPY --chown=milo:sudo *licensefile.skm *license.pub data/
 
 # copy static assets (UI and documentation)
 COPY --chown=milo:sudo static/ static/
