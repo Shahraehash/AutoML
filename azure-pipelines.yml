@@ -188,8 +188,8 @@ jobs:
 
   - script: |
       docker buildx build --platform linux/amd64,linux/arm64 \
-        --cache-from=$(acr_address)/$(cacheRepository) \
-        --cache-to=$(acr_address)/$(cacheRepository) \
+        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
+        --cache-to=type=registry,ref=$(acr_address)/$(cacheRepository),mode=max \
         -t $(acr_address)/$(repository):$(GitVersion.SemVer) \
         -t $(acr_address)/$(repository):$(tag) \
         --push \
@@ -203,7 +203,7 @@ jobs:
 
   - script: |
       docker buildx build --platform linux/amd64,linux/arm64 \
-        --cache-from=$(acr_address)/$(cacheRepository) \
+        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
         -t $(acr_address)/$(eduRepository):$(GitVersion.SemVer) \
         -t $(acr_address)/$(eduRepository):$(tag) \
         --push \
