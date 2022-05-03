@@ -36,14 +36,14 @@ RUN openssl req -x509 -nodes \
     -newkey rsa:2048 -keyout ssl/milo.key \
     -out ssl/milo.crt
 
-# copy the dependencies to the working directory
+# copy the Python dependencies to the working directory
 COPY --chown=milo:sudo requirements.txt .
-COPY --chown=milo:sudo package.json .
-COPY --chown=milo:sudo package-lock.json .
 
 # install app dependencies
 RUN pip install -r requirements.txt
-RUN npm install --ignore-scripts
+
+# copy client assets
+COPY --chown=milo:sudo client/ client/
 
 # copy remaining Python code
 COPY --chown=milo:sudo server.py .
@@ -54,17 +54,17 @@ COPY --chown=milo:sudo api/ api/
 COPY --chown=milo:sudo uwsgi-saas.ini uwsgi.ini
 COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
 
-# copy client assets
-COPY --chown=milo:sudo client/ client/
+# copy static assets (UI and documentation)
+COPY --chown=milo:sudo static/ static/
+
+# install app dependencies
+RUN npm install concurrently
 
 # if present, bundle the educational license
 COPY --chown=milo:sudo *licensefile.skm *license.pub data/
-
-# copy static assets (UI and documentation)
-COPY --chown=milo:sudo static/ static/
 
 # if present, bundle the Google service account key
 COPY --chown=milo:sudo *serviceAccountKey.json .
 
 # start the application
-CMD [ "npm", "run", "run-docker" ]
+CMD [ "npx", "concurrently", "'sudo rabbitmq-server'", "'uwsgi --ini uwsgi.ini'", "'celery -A worker worker'" ]
