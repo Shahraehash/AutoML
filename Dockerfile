@@ -9,6 +9,7 @@ EXPOSE 8443
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get update
 RUN apt-get -y install curl gnupg sudo libssl-dev openssl nodejs rabbitmq-server
+RUN npm install -g concurrently
 
 # create user
 RUN useradd -r -m -g sudo milo
@@ -41,9 +42,6 @@ COPY --chown=milo:sudo requirements.txt .
 
 # install app dependencies
 RUN pip install -r requirements.txt
-
-# install app dependencies
-RUN npm install concurrently
 
 # copy client assets
 COPY --chown=milo:sudo client/ client/
