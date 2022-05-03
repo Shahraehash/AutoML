@@ -57,15 +57,11 @@ COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
 # copy static assets (UI and documentation)
 COPY --chown=milo:sudo static/ static/
 
-# copy the copy the dependencies file to the working directory
-COPY --chown=milo:sudo package.json .
-COPY --chown=milo:sudo package-lock.json .
-
 # install app dependencies
-RUN npm install --ignore-scripts
+RUN npm install concurrently
 
 # if present, bundle the educational license
 COPY --chown=milo:sudo *licensefile.skm *license.pub data/
 
 # start the application
-CMD [ "npm", "run", "run-docker" ]
+CMD [ "npx", "concurrently", "'sudo rabbitmq-server'", "'uwsgi --ini uwsgi.ini'", "'celery -A worker worker'" ]
