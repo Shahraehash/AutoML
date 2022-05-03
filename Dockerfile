@@ -50,7 +50,6 @@ COPY --chown=milo:sudo client/ client/
 COPY --chown=milo:sudo server.py .
 COPY --chown=milo:sudo worker.py .
 COPY --chown=milo:sudo ml/ ml/
-COPY --chown=milo:sudo common/ common/
 COPY --chown=milo:sudo api/ api/
 COPY --chown=milo:sudo uwsgi.ini .
 COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
