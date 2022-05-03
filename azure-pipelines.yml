@@ -13,7 +13,7 @@ resources:
   repositories:
   - repository: PreprocessorRepo
     type: git
-    name: Processor%20Tools
+    name: Processor Tools
 
 parameters:
 - name: forceDockerBuild
