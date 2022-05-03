@@ -20,6 +20,7 @@ variables:
   containerRegistry: 'Docker Hub'
   repository: 'pro'
   eduRepository: 'education'
+  saasEduRepository: 'saas-education'
   cacheRepository: 'build-cache'
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
     tag: 'latest'
@@ -106,6 +107,10 @@ jobs:
   steps:
   - checkout: self
     submodules: true
+
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: 'serviceAccountKey.json'
 
   - task: NodeTool@0
     inputs:
@@ -209,6 +214,16 @@ jobs:
         --push \
         .
     displayName: Build Education Docker Image
+
+  - script: |
+      docker buildx build --platform linux/amd64,linux/arm64 \
+        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
+        -t $(acr_address)/$(saasEduRepository):$(GitVersion.SemVer) \
+        -t $(acr_address)/$(saasEduRepository):$(tag) \
+        -f Dockerfile-SaaS \
+        --push \
+        .
+    displayName: Build SaaS Education Docker Image
 
   - task: CopyFiles@2
     displayName: Copy Firebase Configuration to Staging
