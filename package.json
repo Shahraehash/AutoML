@@ -29,7 +29,6 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^5.0.2",
-    "cross-env": "^7.0.2",
-    "rimraf": "^3.0.2"
+    "cross-env": "^7.0.2"
   }
 }

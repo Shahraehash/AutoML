@@ -1,6 +1,6 @@
 # License
 
-Copyright ©2019-2020 The Regents of the University of California, Davis campus. All Rights Reserved.
+Copyright ©2022 MILO-ML. All Rights Reserved.
 
 Permission to use, copy, modify, and distribute this software and its documentation for educational and research purposes without a written agreement is hereby granted, provided that the above copyright notice, this paragraph and the following five paragraphs appear in all copies.  Notification of such use under this license should be sent to copyright@ucdavis.edu with reference to T20-053.
 
