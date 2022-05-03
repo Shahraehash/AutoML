@@ -9,6 +9,12 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+resources:
+  repositories:
+  - repository: PreprocessorRepo
+    type: git
+    name: preprocessor
+
 parameters:
 - name: forceDockerBuild
   displayName: Force Docker Build
@@ -99,6 +105,9 @@ jobs:
 
 - job: Docker
   condition: and(succeeded(), or(eq(${{ parameters.forceDockerBuild }}, true), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  uses:
+    repositories:
+      - PreprocessorRepo
   steps:
   - checkout: self
     submodules: true
@@ -108,12 +117,6 @@ jobs:
       versionSpec: '16'
     displayName: Set Node Version to 16
     
-  - task: InstallSSHKey@0
-    inputs:
-      knownHostsEntry: $(knownHostsEntry)
-      sshPublicKey: $(sshPublicKey)
-      sshKeySecureFile: 'id_rsa'
-
   - task: gitversion/setup@0
     inputs:
       versionSpec: '5.x'
@@ -200,7 +203,7 @@ jobs:
 
   - script: |
       pip install requests Flask licensing
-      npm run generate-education-license
+      python sign_educational_license.py
     displayName: Create Education License
 
   - script: |
