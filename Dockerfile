@@ -42,6 +42,9 @@ COPY --chown=milo:sudo requirements.txt .
 # install app dependencies
 RUN pip install -r requirements.txt
 
+# install app dependencies
+RUN npm install concurrently
+
 # copy client assets
 COPY --chown=milo:sudo client/ client/
 
@@ -56,9 +59,6 @@ COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
 
 # copy static assets (UI and documentation)
 COPY --chown=milo:sudo static/ static/
-
-# install app dependencies
-RUN npm install concurrently
 
 # if present, bundle the educational license
 COPY --chown=milo:sudo *licensefile.skm *license.pub data/
