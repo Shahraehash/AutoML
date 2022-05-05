@@ -1,13 +1,14 @@
-# Python package
-# Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
-
 trigger:
 - master
 
 pool:
   vmImage: 'ubuntu-latest'
+
+resources:
+  repositories:
+  - repository: PreprocessorRepo
+    type: git
+    name: Processor Tools
 
 parameters:
 - name: forceDockerBuild
@@ -19,6 +20,8 @@ variables:
   containerRegistry: 'Docker Hub'
   repository: 'pro'
   eduRepository: 'education'
+  saasEduRepository: 'saas-education'
+  cacheRepository: 'build-cache'
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
     tag: 'latest'
   ${{ else }}:
@@ -66,8 +69,8 @@ jobs:
 - job: AutoML
   strategy:
     matrix:
-      Python37:
-        python.version: '3.7'
+      Python39:
+        python.version: '3.9'
 
   steps:
   - task: UsePythonVersion@0
@@ -98,21 +101,22 @@ jobs:
 
 - job: Docker
   condition: and(succeeded(), or(eq(${{ parameters.forceDockerBuild }}, true), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  uses:
+    repositories:
+      - PreprocessorRepo
   steps:
   - checkout: self
     submodules: true
+
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: 'serviceAccountKey.json'
 
   - task: NodeTool@0
     inputs:
       versionSpec: '16'
     displayName: Set Node Version to 16
     
-  - task: InstallSSHKey@0
-    inputs:
-      knownHostsEntry: $(knownHostsEntry)
-      sshPublicKey: $(sshPublicKey)
-      sshKeySecureFile: 'id_rsa'
-
   - task: gitversion/setup@0
     inputs:
       versionSpec: '5.x'
@@ -133,10 +137,6 @@ jobs:
       command: 'login'
     displayName: Login to Container Registry
   
-  - script: 'docker pull $(acr_address)/$(repository):$(tag)'
-    displayName: Populate Docker Layer Cache
-    continueOnError: true
-
   - task: Cache@2
     inputs:
       key: 'npm | "$(Agent.OS)" | ui/package-lock.json'
@@ -185,62 +185,48 @@ jobs:
       npm --prefix preprocessor run milo-build
     displayName: Build Preprocessor UI
 
-  - task: Docker@2
-    inputs:
-      command: build
-      repository: '$(acr_address)/$(repository)'
-      tags: |
-        $(tag)
-        $(GitVersion.SemVer)
-      dockerfile: '**/Dockerfile'
-      containerRegistry: '$(containerRegistry)'
-      arguments: '--cache-from=$(acr_address)/$(repository):$(tag)'
-      addPipelineData: false
-      addBaseImageData: false
-    displayName: Build Docker Image
+  - script: |
+      docker run --privileged --rm tonistiigi/binfmt --install arm64
+      docker run --privileged --rm tonistiigi/binfmt
+      docker buildx create --use
+    displayName: Add Support for ARM64 Docker Build
 
-  - task: Docker@2
-    displayName: Push Docker Image to Container Registry
-    inputs:
-      command: push
-      containerRegistry: '$(containerRegistry)'
-      repository: '$(acr_address)/$(repository)' 
-      addPipelineData: false
-      addBaseImageData: false
-      tags: |
-        $(tag)
-        $(GitVersion.SemVer)
+  - script: |
+      docker buildx build --platform linux/amd64,linux/arm64 \
+        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
+        --cache-to=type=registry,ref=$(acr_address)/$(cacheRepository),mode=max \
+        -t $(acr_address)/$(repository):$(GitVersion.SemVer) \
+        -t $(acr_address)/$(repository):$(tag) \
+        --push \
+        .
+    displayName: Build Docker Image
 
   - script: |
       pip install requests Flask licensing
-      npm run generate-education-license
+      python sign_educational_license.py
     displayName: Create Education License
 
-  - task: Docker@2
-    inputs:
-      command: build
-      repository: '$(acr_address)/$(eduRepository)'
-      tags: |
-        $(tag)
-        $(GitVersion.SemVer)
-      dockerfile: '**/Dockerfile'
-      containerRegistry: '$(containerRegistry)'
-      arguments: '--cache-from=$(acr_address)/$(repository):$(tag)' 
-      addPipelineData: false
-      addBaseImageData: false
+  - script: |
+      docker buildx build --platform linux/amd64,linux/arm64 \
+        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
+        -t $(acr_address)/$(eduRepository):$(GitVersion.SemVer) \
+        -t $(acr_address)/$(eduRepository):$(tag) \
+        --push \
+        .
     displayName: Build Education Docker Image
 
-  - task: Docker@2
-    displayName: Push Education Docker Image to Container Registry
-    inputs:
-      command: push
-      containerRegistry: '$(containerRegistry)'
-      repository: '$(acr_address)/$(eduRepository)'
-      addPipelineData: false
-      addBaseImageData: false
-      tags: |
-        $(tag)
-        $(GitVersion.SemVer)
+  - script: |
+      docker buildx build --platform linux/amd64,linux/arm64 \
+        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
+        -t $(acr_address)/$(saasEduRepository):$(GitVersion.SemVer) \
+        -t $(acr_address)/$(saasEduRepository):$(tag) \
+        -f Dockerfile-SaaS \
+        --push \
+        .
+    displayName: Build SaaS Education Docker Image
+
+  - script: grep -rl ",localUser:\!0" static/ | xargs sed -i.bak "s|,localUser:\!0|,localUser:\!1,authOnly:\!0|"
+    displayName: Modify UI to only handle authentication for Firebase
 
   - task: CopyFiles@2
     displayName: Copy Firebase Configuration to Staging

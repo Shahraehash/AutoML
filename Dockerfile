@@ -1,5 +1,5 @@
 # set base image (host OS)
-FROM python:3.7
+FROM python:3.9.12
 
 # expose ports
 EXPOSE 5000
@@ -9,6 +9,7 @@ EXPOSE 8443
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get update
 RUN apt-get -y install curl gnupg sudo libssl-dev openssl nodejs rabbitmq-server
+RUN npm install -g concurrently
 
 # create user
 RUN useradd -r -m -g sudo milo
@@ -23,7 +24,7 @@ WORKDIR /milo
 # update path for Python
 ENV PATH="/home/milo/.local/bin:${PATH}"
 
-# create data directory
+# create required directories
 RUN mkdir data
 RUN mkdir ssl
 
@@ -39,33 +40,25 @@ RUN openssl req -x509 -nodes \
 # copy the Python dependencies to the working directory
 COPY --chown=milo:sudo requirements.txt .
 
-# install Python requirements
+# install app dependencies
 RUN pip install -r requirements.txt
 
-# copy the dependencies file to the working directory
-COPY --chown=milo:sudo package.json .
-COPY --chown=milo:sudo package-lock.json .
-
-# install app dependencies
-RUN npm install --ignore-scripts
+# copy client assets
+COPY --chown=milo:sudo client/ client/
 
 # copy remaining Python code
 COPY --chown=milo:sudo server.py .
 COPY --chown=milo:sudo worker.py .
 COPY --chown=milo:sudo ml/ ml/
-COPY --chown=milo:sudo common/ common/
 COPY --chown=milo:sudo api/ api/
 COPY --chown=milo:sudo uwsgi.ini .
 COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
 
-# copy client assets
-COPY --chown=milo:sudo client/ client/
-
-# if present, bundle the educational license
-COPY --chown=milo:sudo *licensefile.skm *license.pub .editorconfig data/
-
 # copy static assets (UI and documentation)
 COPY --chown=milo:sudo static/ static/
 
+# if present, bundle the educational license
+COPY --chown=milo:sudo *licensefile.skm *license.pub data/
+
 # start the application
-CMD [ "npm", "run", "run-docker" ]
+CMD [ "npx", "concurrently", "'sudo rabbitmq-server'", "'uwsgi --ini uwsgi.ini'", "'celery -A worker worker'" ]

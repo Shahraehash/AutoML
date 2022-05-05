@@ -4,31 +4,15 @@
   "description": "AutoML integration containing both the backend (Python) and frontend (TypeScript)",
   "main": "index.js",
   "scripts": {
-    "build-ui": "cd ui && npm run build",
-    "build-docs": "cd docs && npm run build",
-    "build-preprocessor": "cd preprocessor && npm run milo-build",
-    "generate-education-license": "python sign_educational_license.py",
-    "clean-license": "rimraf license.pub licensefile.skm",
     "open-browser": "sleep 15 && open http://127.0.0.1:4200",
-    "docs": "cd docs && npm run dev",
-    "build-docker-base": "npm run clean-license && cd ui && npm run build-docker && cd .. && npm run build-docs && npm run build-preprocessor",
-    "build-education-docker": "npm run build-docker-base && npm run generate-education-license && docker build -t milo/education .",
-    "build-docker": "npm run build-docker-base && docker build -t milo/pro .",
-    "build-education-docker-saas": "npm run clean-license && npm run generate-education-license && cd ui && npm run build-saas && cd .. && npm run build-docs && npm run build-preprocessor && docker build -t milo/saas -f Dockerfile-SaaS .",
     "proxy-education-saas": "ngrok http --region=us --hostname=edu.milo-ml.com 5000",
-    "save-docker": "docker save milo/pro:latest | gzip > build/milo-$npm_package_version.tar.gz",
-    "save-education-docker": "docker save milo/education:latest | gzip > build/milo-for-education-$npm_package_version.tar.gz",
-    "run-docker": "concurrently 'sudo rabbitmq-server' 'uwsgi --ini uwsgi.ini' 'celery -A worker worker'",
     "serve": "npm run serve-all",
     "serve-all": "concurrently 'npm run serve-api' 'cd ui && npm run start' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
     "serve-all-local": "concurrently 'cross-env NO_NETWORK_ALLOWED=true npm run serve-api' 'cd ui && npm run start-local' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
-    "serve-app-local": "concurrently 'cross-env NO_NETWORK_ALLOWED=true python -u server.py' 'cd ui && npx ng serve -c=local --disable-host-check --host 0.0.0.0' 'celery -A worker worker'",
     "serve-api": "watchmedo auto-restart -d . -R -p \"*.py\" -- python -u server.py",
     "serve-worker": "watchmedo auto-restart -d . -R -p \"*.py\" -- celery -A worker worker",
     "start": "npm run serve-all",
-    "postinstall": "pip install -r requirements.txt && cd ui && npm install && cd ../docs && npm install && cd ../functions && npm install && cd ../preprocessor && npm install",
-    "test": "pytest ml/unit_test.py",
-    "update": "git pull && npm install"
+    "test": "pytest ml/unit_test.py"
   },
   "repository": {
     "type": "git",
@@ -45,7 +29,6 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^5.0.2",
-    "cross-env": "^7.0.2",
-    "rimraf": "^3.0.2"
+    "cross-env": "^7.0.2"
   }
 }
