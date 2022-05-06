@@ -13,7 +13,7 @@ Navigate to the **Preprocessing Tools** from the MILO home page and then select 
 
 ![Feature Selector Tool](./images/feature_selector_01.png)
 
-[General File Selection Procedure](./general.md)
+Please refer to the [General File Selection Procedure](./general.md) for file selection.
 
 With the target column selected, the value of each feature can be calculated by clicking the **Calculate Feature Value** button.
 
