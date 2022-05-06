@@ -18,6 +18,8 @@ Navigate to the **Preprocessing Tools** from the MILO home page and then select 
 
 ![Column Reducer Tool](./images/column_red_01.png)
 
+[General File Selection Procedure](./general.md)
+
 With the target column selected, the desired columns to keep can be selected by clicking the **Go To Column Selection** button.
 
 ![Select Target](./images/column_red_07.png)
@@ -39,7 +41,7 @@ This will open a dialogue which will allow for selection of the file.
 
 Once the file is imported, the Feature Selector Method can then be picked.
 
-:::note
+:::details
 Only **Select Percentile** options are available in this report.csv import file option since Random Forest Feature Importance
 is non-deterministic and could fluctuate on each specific run.
 :::
