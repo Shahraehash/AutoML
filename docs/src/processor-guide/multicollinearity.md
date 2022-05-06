@@ -10,7 +10,7 @@ regardless of their correlations may be desirable. However, evaluating for and r
 another step in the optimization step of your data which could ensure the appropriate contribution of the unique dimensions
 that are represented within the dataset. This can be assessed with the **Multicollinearity Assessment and Removal Tool**.
 
-:::note
+:::warning
 The maximum number of features / columns allowed within this tool is 50 since the visualization tool (i.e. the correlation
 heat map) is best visualized when the number of features are below 50.
 :::
@@ -18,6 +18,8 @@ heat map) is best visualized when the number of features are below 50.
 Navigate to the **Preprocessing Tools** from the MILO home page and then select **Multicollinearity Assessment and Removal Tool**.
 
 ![Multicollinearity Tool](./images/colinearity_screenshot_01.png)
+
+Please refer to the [General File Selection Procedure](./general.md) for file selection.
 
 With the target column selected, the correlation can be calculated between all variables by clicking the Generate Correlation
 button.
