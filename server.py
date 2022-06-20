@@ -53,7 +53,8 @@ def append_license(response):
         return response
 
     if request.path.startswith('/datasets') or request.path.startswith('/jobs') or\
-        request.path.startswith('/tasks') or request.path.startswith('/published'):
+        request.path.startswith('/tasks') or request.path.startswith('/published') or\
+        request.path.startswith('/preprocessor_api'):
         response.headers['access-control-expose-headers'] = 'MILO-Trial, MILO-Education'
         active_license = licensing.get_license()
         response.headers['MILO-Trial'] = str(active_license.f2 if active_license else True).lower()
@@ -69,7 +70,8 @@ def validate_license():
         return
 
     if request.path.startswith('/datasets') or request.path.startswith('/jobs') or\
-       request.path.startswith('/tasks') or request.path.startswith('/published'):
+       request.path.startswith('/tasks') or request.path.startswith('/published') or\
+       request.path.startswith('/preprocessor_api/encoder'):
         if not licensing.is_license_valid():
             raise licensing.PaymentRequired
 
