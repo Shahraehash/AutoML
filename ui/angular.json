@@ -169,7 +169,6 @@
               "browserTarget": "app:build:local"
             },
             "ci": {
-              "progress": false
             }
           }
         },

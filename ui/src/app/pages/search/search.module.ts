@@ -23,24 +23,18 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  entryComponents: [
-    PendingTasksComponent,
-    TextareaModalComponent,
-    TrainComponent,
-    UseModelComponent
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    IonicModule,
-    MatIconModule,
-    MatStepperModule,
-    ComponentsModule,
-    RouterModule.forChild(routes)
-  ],
-  declarations: [
-    SearchPageComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        IonicModule,
+        MatIconModule,
+        MatStepperModule,
+        ComponentsModule,
+        RouterModule.forChild(routes)
+    ],
+    declarations: [
+        SearchPageComponent
+    ]
 })
 export class SearchPageModule {}
