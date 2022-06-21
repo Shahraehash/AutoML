@@ -30,11 +30,6 @@ variables:
 jobs:
 - job: Functions
   steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '16'
-    displayName: Set Node Version to 16
-    
   - task: Cache@2
     inputs:
       key: 'npm | "$(Agent.OS)" | functions/package-lock.json'
