@@ -17,8 +17,9 @@ ion-spinner {
 }
 
 ::ng-deep {
-    mat-horizontal-stepper,
-    .mat-horizontal-stepper-content {
+    mat-stepper,
+    .mat-horizontal-stepper-content,
+    .mat-horizontal-stepper-wrapper {
         height: 100%;
     }
 

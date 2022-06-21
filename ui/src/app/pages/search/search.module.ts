@@ -7,13 +7,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { SearchPageComponent } from './search.page';
-import {
-  ComponentsModule,
-  PendingTasksComponent,
-  TextareaModalComponent,
-  TrainComponent,
-  UseModelComponent
-} from '../../components';
+import { ComponentsModule } from '../../components';
 
 const routes: Routes = [
   {
