@@ -19,3 +19,5 @@ contributions of the independent variables to the target/outcome variable throug
 and select for the most significant features within your dataset when necessary.
 
 - **Column Reducer Tool**: Removes specific user-defined columns/features when needed.
+
+- **Imputation & Encoder Tool** : Allows you to iteratively impute missing values and encode non-numerical data into the numerical data. <Badge type="tip" text="MILO Pro" vertical="" />

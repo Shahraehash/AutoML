@@ -73,6 +73,7 @@ module.exports = {
           '/processor-guide/multicollinearity',
           '/processor-guide/feature-selector',
           '/processor-guide/column-reducer',
+          '/processor-guide/imputation-encoder',          
         ]
       },
       {
