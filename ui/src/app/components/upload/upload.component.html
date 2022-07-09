@@ -8,12 +8,12 @@
     <ion-card-content>
       <label class='file-input'>
         <ion-icon *ngIf='uploadForm.get("train").valid' name='checkmark-circle' color='success'></ion-icon>
-        Select Training Data
+        Select Training and Initial Validation Data
         <input type='file' name='train' (change)='onFileSelect($event)' accept='.csv, text/csv'>
       </label>
       <label class='file-input'>
         <ion-icon *ngIf='uploadForm.get("test").valid' name='checkmark-circle' color='success'></ion-icon>
-        Select Testing Data (Generalization)
+        Select Secondary Testing Data (Generalization)
         <input type='file' name='test' (change)='onFileSelect($event)' [disabled]='!uploadForm.get("train").valid' accept='.csv, text/csv'>
       </label>
       <ion-select class='target-select' placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column'>
