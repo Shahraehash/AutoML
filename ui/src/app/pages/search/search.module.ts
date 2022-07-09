@@ -7,13 +7,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { SearchPageComponent } from './search.page';
-import {
-  ComponentsModule,
-  PendingTasksComponent,
-  TextareaModalComponent,
-  TrainComponent,
-  UseModelComponent
-} from '../../components';
+import { ComponentsModule } from '../../components';
 
 const routes: Routes = [
   {
@@ -23,24 +17,18 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  entryComponents: [
-    PendingTasksComponent,
-    TextareaModalComponent,
-    TrainComponent,
-    UseModelComponent
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    IonicModule,
-    MatIconModule,
-    MatStepperModule,
-    ComponentsModule,
-    RouterModule.forChild(routes)
-  ],
-  declarations: [
-    SearchPageComponent
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        IonicModule,
+        MatIconModule,
+        MatStepperModule,
+        ComponentsModule,
+        RouterModule.forChild(routes)
+    ],
+    declarations: [
+        SearchPageComponent
+    ]
 })
 export class SearchPageModule {}

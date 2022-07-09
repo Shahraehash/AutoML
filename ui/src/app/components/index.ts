@@ -1,4 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -70,7 +71,8 @@ import { UseModelComponent } from './use-model/use-model.component';
       MatInputModule,
       MatPaginatorModule,
       MatTableModule,
-      MatSortModule
+      MatSortModule,
+      ScrollingModule
   ],
   providers: [
     DatePipe

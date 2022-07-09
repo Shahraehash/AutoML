@@ -32,7 +32,7 @@
 </ion-header>
 
 <div class='container'>
-  <mat-horizontal-stepper #stepper linear>
+  <mat-stepper #stepper orientation='horizontal' linear>
     <ng-template matStepperIcon="edit">
       <mat-icon>check</mat-icon>
     </ng-template>
@@ -49,5 +49,5 @@
     <mat-step label='Results'>
       <app-results *ngIf='stepper?.selectedIndex === 3'></app-results>
     </mat-step>
-  </mat-horizontal-stepper>
+  </mat-stepper>
 </div>

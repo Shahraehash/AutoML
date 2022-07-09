@@ -14,10 +14,10 @@
       <ion-grid class='feature-details'>
         <ion-row>
           <ion-col size-xs='12' size-md='6'>
-            <app-feature-details #trainDetails [label]='analysis.label' [data]='analysis.analysis.train' type='Training' (contentScroll)='testDetails.updateScroll($event.detail.scrollTop)'></app-feature-details>
+            <app-feature-details #trainDetails [label]='analysis.label' [data]='analysis.analysis.train' type='Training and Initial Validation' (contentScroll)='testDetails.updateScroll($event)'></app-feature-details>
           </ion-col>
           <ion-col size-xs='12' size-md='6'>
-            <app-feature-details #testDetails [label]='analysis.label' [data]='analysis.analysis.test' type='Generalization' (contentScroll)='trainDetails.updateScroll($event.detail.scrollTop)'></app-feature-details>
+            <app-feature-details #testDetails [label]='analysis.label' [data]='analysis.analysis.test' type='Secondary Testing (Generalization)' (contentScroll)='trainDetails.updateScroll($event)'></app-feature-details>
           </ion-col>
         </ion-row>
       </ion-grid>

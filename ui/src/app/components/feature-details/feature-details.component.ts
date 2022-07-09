@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { IonContent } from '@ionic/angular';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { DataAnalysis } from '../../interfaces';
 
@@ -8,23 +8,28 @@ import { DataAnalysis } from '../../interfaces';
   templateUrl: './feature-details.component.html',
   styleUrls: ['./feature-details.component.scss'],
 })
-export class FeatureDetailsComponent implements OnInit {
+export class FeatureDetailsComponent implements OnInit, AfterViewInit {
   @Input() data: DataAnalysis;
   @Input() label: string;
   @Input() type: string;
+  @ViewChild(CdkVirtualScrollViewport) viewPort: CdkVirtualScrollViewport;
   @Output() contentScroll = new EventEmitter();
   
   features: string[];
 
-  @ViewChild('content') private content: IonContent;
-  
   ngOnInit() {
     this.features = Object.keys(this.data.summary).filter(item => item !== this.label);
   }
 
+  ngAfterViewInit(): void {
+    this.viewPort.elementScrolled().subscribe(() => {
+      this.contentScroll.emit(this.viewPort.measureScrollOffset('top'));
+    });
+  }
+
   updateScroll(position: number) {
-    if (this.content && typeof position === 'number') {
-      this.content.scrollToPoint(0, position, 0);
+    if (this.viewPort && typeof position === 'number') {
+      this.viewPort.scrollTo({top: position});
     }
   }
 }

@@ -32,7 +32,7 @@
         }
 
         .feature-details {
-          height: 100%;
+          height: calc(100% - 44px);
       
           ion-row {
             height: 100%;
@@ -46,6 +46,20 @@
 @media (prefers-color-scheme: dark) {
   :host {
     color: white;
+  }
+}
+
+@media (max-width: 445px) {
+  :host {
+    > ion-grid {
+      > ion-row {
+        > .analysis {
+          .feature-details {
+            height: calc(100% - 88px);
+          }
+        }
+      }
+    }
   }
 }
 

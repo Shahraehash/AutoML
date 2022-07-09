@@ -17,22 +17,19 @@ ion-spinner {
 }
 
 ::ng-deep {
-    mat-horizontal-stepper,
-    .mat-horizontal-stepper-content {
+    mat-stepper,
+    .mat-horizontal-stepper-content,
+    .mat-horizontal-stepper-wrapper {
         height: 100%;
     }
 
     .mat-horizontal-content-container {
-        height: calc(100% - 10px);
+        height: calc(100% - 72px);
     }
 
     .mat-horizontal-stepper-content {
         &:not(:last-child) {
             overflow-y: auto;
-
-            &[aria-expanded="true"] {
-                padding-bottom: 80px;
-            }    
         }
     }
 }

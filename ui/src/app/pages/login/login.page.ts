@@ -5,7 +5,7 @@ import {
   applyActionCode, Auth, AuthProvider, confirmPasswordReset, getAdditionalUserInfo, OAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword,
   signInWithEmailLink, signInWithPopup, signInWithRedirect, signOut, updatePassword, updateProfile, UserCredential
 } from '@angular/fire/auth';
-import { sendSignInLinkToEmail } from '@angular/fire/node_modules/@firebase/auth';
+import { sendSignInLinkToEmail } from '@angular/fire/auth';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
