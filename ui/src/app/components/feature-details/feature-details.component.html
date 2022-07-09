@@ -1,27 +1,26 @@
 <h4 class='ion-text-center'>{{type}} Description</h4>
 
-<ion-content #content [scrollEvents]='true' (ionScroll)='contentScroll.emit($event)'>
-  <app-feature-analysis
-    [summary]='data.summary[label]'
-    [mode]='data.mode[label]'
-    [median]='data.median[label]'
-    [nullCount]='data.null'
-    [isInvalid]='data.invalid.includes(label)'
-    [histogram]='data.histogram[label]'
-    [name]='label'
-  ></app-feature-analysis>
-
-  <ion-virtual-scroll [items]='features' approxItemHeight='544px'>
-    <div *virtualItem='let feature'>
+<ion-content #content [scrollEvents]='true'>
+  <cdk-virtual-scroll-viewport itemSize="56" minBufferPx="900" maxBufferPx="1000000">
       <app-feature-analysis
-        [summary]='data.summary[feature]'
-        [mode]='data.mode[feature]'
-        [median]='data.median[feature]'
-        [nullCount]='data.null'
-        [isInvalid]='data.invalid.includes(feature)'
-        [histogram]='data.histogram[feature]'
-        [name]='feature'
-      ></app-feature-analysis>
-    </div>
-  </ion-virtual-scroll>  
+      [summary]='data.summary[label]'
+      [mode]='data.mode[label]'
+      [median]='data.median[label]'
+      [nullCount]='data.null'
+      [isInvalid]='data.invalid.includes(label)'
+      [histogram]='data.histogram[label]'
+      [name]='label'
+    ></app-feature-analysis>
+
+    <app-feature-analysis
+      *cdkVirtualFor='let feature of features'
+      [summary]='data.summary[feature]'
+      [mode]='data.mode[feature]'
+      [median]='data.median[feature]'
+      [nullCount]='data.null'
+      [isInvalid]='data.invalid.includes(feature)'
+      [histogram]='data.histogram[feature]'
+      [name]='feature'
+    ></app-feature-analysis>
+  </cdk-virtual-scroll-viewport>
 </ion-content>

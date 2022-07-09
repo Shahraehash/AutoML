@@ -34,7 +34,7 @@ export class HistogramComponent implements OnInit {
       point = [this.data[1][i], this.data[0][i]];
       data.push(point);
     }
-    const w = (this.data[1][this.data[1].length - 1] - this.data[1][0]) / 10;
+    const w = (this.data[1][this.data[1].length - 1] - this.data[1][0]) / data.length;
 
     const x = d3.scaleLinear()
       .domain([0, d3.max(data, d => d[0])])
