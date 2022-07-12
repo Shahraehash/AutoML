@@ -1,4 +1,16 @@
 :host {
+  &:not(.hasJobs) {
+    > ion-grid {
+      > ion-row {
+        .analysis {
+          .feature-details {
+            height: calc(100% - 44px);
+          }      
+        }
+      }
+    }
+  }
+
   > ion-grid {
     height: 100%;
 
@@ -7,6 +19,9 @@
 
 
       .runs {
+        overflow-y: scroll;
+        height: 100%;
+
         h4 {
           padding: 10px;
         }
@@ -31,9 +46,9 @@
           flex: 0 0 100% !important;
         }
 
-        .feature-details {
+        .feature-details {    
           height: 100%;
-      
+  
           ion-row {
             height: 100%;
           }
@@ -50,13 +65,37 @@
 }
 
 @media (max-width: 991px) {
-  :host {
-    .analysis {
-      order: 1;
-    }
-
+  :host.hasJobs {
     > ion-grid {
-      height: calc(100% - 48px);
+      height: calc(100% - 46px);
+
+      > ion-row {
+        .analysis {
+          order: 1;
+
+          .feature-details {
+            height: 100%;
+          }
+        }
+
+        .runs {
+          height: 100%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 445px) {
+  :host:not(.hasJobs) {
+    > ion-grid {
+      > ion-row {
+        .analysis {
+          .feature-details {
+            height: calc(100% - 88px);
+          }
+        }
+      }
     }
   }
 }
@@ -65,13 +104,6 @@
   :host {
     > ion-grid {
       overflow: hidden;
-
-      > ion-row {
-        > ion-col {
-          overflow: scroll;
-          height: 100%;
-        }
-      }
     }
   }
 }

@@ -34,10 +34,9 @@ export class HistogramComponent implements OnInit {
       point = [this.data[1][i], this.data[0][i]];
       data.push(point);
     }
-    const w = (this.data[1][this.data[1].length - 1] - this.data[1][0]) / data.length;
 
     const x = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d[0])])
+      .domain([d3.min(data, d => d[0]), d3.max(data, d => d[0])])
       .range([0, width]);
 
     const y = d3.scaleLinear()
@@ -52,7 +51,7 @@ export class HistogramComponent implements OnInit {
 
     bar.append('rect')
       .attr('x', 1)
-      .attr('width', x(w) - 1)
+      .attr('width', Math.abs(width / data.length - 1))
       .attr('height', d => height - y(d[1]));
 
     this.svg.append('g')
