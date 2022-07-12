@@ -7,7 +7,8 @@ import * as d3 from 'd3';
   template: '<svg class="histogram" viewBox="0 0 300 240"></svg>'
 })
 export class HistogramComponent implements OnInit {
-  @Input() data: [number[], number[]];
+  @Input() positiveData: [number[], number[]];
+  @Input() negativeData: [number[], number[]];
   private svg;
 
   constructor(
@@ -26,36 +27,56 @@ export class HistogramComponent implements OnInit {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     let point;
-    const data = [];
+    const positiveData = [];
+    const negativeData = [];
 
-    this.data[0].push(0);
+    this.positiveData[0].push(0);
+    this.negativeData[0].push(0);
 
-    for (let i = 0; i < this.data[1].length; i++) {
-      point = [this.data[1][i], this.data[0][i]];
-      data.push(point);
+    for (let i = 0; i < this.positiveData[1].length; i++) {
+      point = [this.positiveData[1][i], this.positiveData[0][i]];
+      positiveData.push(point);
     }
 
+    for (let i = 0; i < this.negativeData[1].length; i++) {
+      point = [this.negativeData[1][i], this.negativeData[0][i]];
+      negativeData.push(point);
+    }
+
+    const allData = positiveData.concat(negativeData);
+
     const x = d3.scaleLinear()
-      .domain([d3.min(data, d => d[0]), d3.max(data, d => d[0])])
+      .domain([d3.min(allData, d => d[0]), d3.max(allData, d => d[0])])
       .range([0, width]);
 
     const y = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d[1])])
+      .domain([0, d3.max(allData, d => d[1])])
       .range([height, 0]);
-
-    const bar = this.svg.selectAll('.bar')
-      .data(data)
-      .enter().append('g')
-      .attr('class', 'bar')
-      .attr('transform', d => 'translate(' + x(d[0]) + ',' + y(d[1]) + ')');
-
-    bar.append('rect')
-      .attr('x', 1)
-      .attr('width', Math.abs(width / data.length - 1))
-      .attr('height', d => height - y(d[1]));
 
     this.svg.append('g')
       .attr('transform', 'translate(0,' + height + ')')
       .call(d3.axisBottom(x));
+
+    const positiveBar = this.svg.selectAll('.bar.positive')
+      .data(positiveData)
+      .enter().append('g')
+      .attr('class', 'bar positive')
+      .attr('transform', d => 'translate(' + x(d[0]) + ',' + y(d[1]) + ')');
+
+    positiveBar.append('rect')
+      .attr('x', 1)
+      .attr('width', Math.abs(width / positiveData.length - 1))
+      .attr('height', d => height - y(d[1]));
+
+    const negativeBar = this.svg.selectAll('.bar.negative')
+      .data(negativeData)
+      .enter().append('g')
+      .attr('class', 'bar negative')
+      .attr('transform', d => 'translate(' + x(d[0]) + ',' + y(d[1]) + ')');
+
+      negativeBar.append('rect')
+      .attr('x', 1)
+      .attr('width', Math.abs(width / negativeData.length - 1))
+      .attr('height', d => height - y(d[1]));
   }
 }
