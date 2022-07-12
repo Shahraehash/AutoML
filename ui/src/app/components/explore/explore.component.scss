@@ -32,7 +32,7 @@
         }
 
         .feature-details {
-          height: calc(100% - 44px);
+          height: 100%;
       
           ion-row {
             height: 100%;
@@ -49,24 +49,14 @@
   }
 }
 
-@media (max-width: 445px) {
-  :host {
-    > ion-grid {
-      > ion-row {
-        > .analysis {
-          .feature-details {
-            height: calc(100% - 88px);
-          }
-        }
-      }
-    }
-  }
-}
-
 @media (max-width: 991px) {
   :host {
     .analysis {
       order: 1;
+    }
+
+    > ion-grid {
+      height: calc(100% - 48px);
     }
   }
 }
