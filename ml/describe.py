@@ -19,8 +19,10 @@ def parse_csv(csv_file, label):
 
     csv = pd.read_csv(csv_file)
     csv_clean = csv.apply(pd.to_numeric, errors='coerce').dropna()
-    histogram = {key:[i.tolist() for i in np.histogram(list(value.values()), bins='sqrt')] for (key,value) in csv_clean.to_dict().items()}
-    histogram[label] = [i.tolist() for i in np.histogram(csv_clean[label].to_list(), bins='sqrt')]
+    csv_positives = csv_clean[csv_clean[label] == 1]
+    csv_negatives = csv_clean[csv_clean[label] == 0]
+    histogram_positives = {key:[i.tolist() for i in np.histogram(list(value.values()), bins=10, range=(csv_clean[key].min(), csv_clean[key].max()))] for (key,value) in csv_positives.to_dict().items()}
+    histogram_negatives = {key:[i.tolist() for i in np.histogram(list(value.values()), bins=10, range=(csv_clean[key].min(), csv_clean[key].max()))] for (key,value) in csv_negatives.to_dict().items()}
 
     return {
         'null': len(csv.index) - len(csv_clean.index),
@@ -28,5 +30,8 @@ def parse_csv(csv_file, label):
         'mode': csv_clean.mode().iloc[0].to_dict(),
         'median': csv_clean.median().to_dict(),
         'summary': csv_clean.describe().to_dict(),
-        'histogram': histogram
+        'histogram': {
+          'positives': histogram_positives,
+          'negatives': histogram_negatives
+        }
     }

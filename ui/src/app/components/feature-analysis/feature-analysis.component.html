@@ -2,7 +2,7 @@
   <ion-row>
     <ion-col size-lg='7' size-md='6' size-sm='5' size='12'>
       <h5>{{name}}</h5>
-      <app-histogram [data]='histogram'></app-histogram>
+      <app-histogram [positiveData]='positiveHistogram' [negativeData]='negativeHistogram'></app-histogram>
     </ion-col>
     <ion-col size-lg='5' size-md='6' size-sm='7' size='12'>
       <ion-grid class='summary-table' *ngIf='summary'>

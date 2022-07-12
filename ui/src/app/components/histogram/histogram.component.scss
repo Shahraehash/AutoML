@@ -3,10 +3,18 @@
     width: 100%;
   }
 
-  .bar rect {
+  .bar.positive rect {
     fill: var(--ion-color-primary-shade);
     shape-rendering: crispEdges;
     stroke: var(--ion-color-primary-tint);
+    opacity: 0.8;
+  }
+
+  .bar.negative rect {
+    fill: var(--ion-color-success-shade);
+    shape-rendering: crispEdges;
+    stroke: var(--ion-color-success-tint);
+    opacity: 0.6;
   }
 
   .axis path,

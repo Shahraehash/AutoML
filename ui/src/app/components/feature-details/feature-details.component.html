@@ -8,7 +8,8 @@
       [median]='data.median[label]'
       [nullCount]='data.null'
       [isInvalid]='data.invalid.includes(label)'
-      [histogram]='data.histogram[label]'
+      [positiveHistogram]='data.histogram.positives[label]'
+      [negativeHistogram]='data.histogram.negatives[label]'
       [name]='label'
     ></app-feature-analysis>
 
@@ -19,7 +20,8 @@
       [median]='data.median[feature]'
       [nullCount]='data.null'
       [isInvalid]='data.invalid.includes(feature)'
-      [histogram]='data.histogram[feature]'
+      [positiveHistogram]='data.histogram.positives[feature]'
+      [negativeHistogram]='data.histogram.negatives[feature]'
       [name]='feature'
     ></app-feature-analysis>
   </cdk-virtual-scroll-viewport>
