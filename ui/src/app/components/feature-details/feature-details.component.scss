@@ -3,9 +3,21 @@
     flex-direction: column;
     height: 100%;
 
+    h4 {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     cdk-virtual-scroll-viewport {
       height: 100%;
       width: 100%;
+
+      ::ng-deep {
+        .cdk-virtual-scroll-content-wrapper {
+          width: 100%;
+        }
+      }
     }
 }
 

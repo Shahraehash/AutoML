@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, OnInit, Output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatTableDataSource } from '@angular/material/table';
 import { LoadingController, AlertController } from '@ionic/angular';
@@ -27,6 +27,11 @@ export class ExploreComponent implements OnInit {
     private datePipe: DatePipe,
     private loadingController: LoadingController
   ) {}
+
+  @HostBinding('class.hasJobs')
+  get hasJobs() {
+    return this.jobs?.data.length > 0;
+  }
 
   async ngOnInit() {
     if (!this.api.currentDatasetId) {
