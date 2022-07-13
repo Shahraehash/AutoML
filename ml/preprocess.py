@@ -25,7 +25,7 @@ def preprocess(features, pipeline, data):
                 if not feature[1]:
                     data = np.delete(data, index, axis=1)
 
-        if 'sklearn.decomposition.pca' in feature_selector_type:
+        if 'sklearn.decomposition._pca' in feature_selector_type:
             data = pipeline.named_steps['feature_selector'].transform(data)
 
     return data
