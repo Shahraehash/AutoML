@@ -5,12 +5,13 @@ Generalization of a provided model using a secondary test set.
 from joblib import load
 import pandas as pd
 from sklearn.metrics import roc_auc_score, accuracy_score,\
-    confusion_matrix, classification_report, f1_score, roc_curve
+    confusion_matrix, classification_report, f1_score, roc_curve,\
+    matthews_corrcoef
 
 from .preprocess import preprocess
 from .predict import predict_ensemble
 from .import_data import import_csv
-from .stats import clopper_pearson, roc_auc_ci
+from .stats import clopper_pearson, roc_auc_ci, ppv_ci, npv_ci
 
 def generalize(features, model, pipeline, x2, y2, labels=None, threshold=.5):
     """"Generalize method"""
@@ -66,6 +67,8 @@ def generalization_report(labels, y2, predictions, probabilities):
     roc_auc = roc_auc_score(y2, probabilities)
     print('\t\tROC AUC:', roc_auc)
 
+    mcc = matthews_corrcoef(y2, predictions)
+
     _, tpr, _ = roc_curve(y2, probabilities)
 
     tn, fp, fn, tp = confusion_matrix(y2, predictions).ravel()
@@ -80,6 +83,7 @@ def generalization_report(labels, y2, predictions, probabilities):
     return {
         'accuracy': round(accuracy, 4),
         'acc_95_ci': clopper_pearson(tp+tn, len(y2)),
+        'mcc': round(mcc, 4),
         'avg_sn_sp': round(auc, 4),
         'roc_auc': round(roc_auc, 4),
         'roc_auc_95_ci': roc_auc_ci(roc_auc, tpr),
@@ -91,7 +95,9 @@ def generalization_report(labels, y2, predictions, probabilities):
         'prevalence': round(prevalence, 4),
         'pr_95_ci': clopper_pearson(tp+fn, len(y2)),
         'ppv': round(tp / (tp+fp), 4) if tp+fp > 0 else 0,
+        'ppv_ci': ppv_ci(sensitivity, specificity, tp+fn, fp+tn, prevalence),
         'npv': round(tn / (tn+fn), 4) if tn+fn > 0 else 0,
+        'npv_ci': npv_ci(sensitivity, specificity, tp+fn, fp+tn, prevalence),
         'tn': int(tn),
         'tp': int(tp),
         'fn': int(fn),
