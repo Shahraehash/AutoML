@@ -46,6 +46,7 @@ export interface GeneralizationResult {
     scorer: string;
     accuracy: number;
     acc_95_ci: number[];
+    mmc: number;
     roc_auc: number;
     f1: number;
     sensitivity: number;
@@ -55,7 +56,9 @@ export interface GeneralizationResult {
     prevalence: number;
     pr_95_ci: number[];
     ppv: number;
+    ppv_95_ci: number[] | null;
     npv: number;
+    npv_95_ci: number[] | null;
     tn: number;
     tp: number;
     fn: number;
@@ -163,6 +166,7 @@ export interface RefitGeneralization {
     accuracy: number;
     acc_95_ci: number[];
     avg_sn_sp: number;
+    mcc: number;
     roc_auc: number;
     f1: number;
     sensitivity: number;
@@ -172,7 +176,9 @@ export interface RefitGeneralization {
     prevalence: number;
     pr_95_ci: number[];
     ppv: number;
+    ppv_95_ci: number[] | null;
     npv: number;
+    npv_95_ci: number[] | null;
     tn: number;
     tp: number;
     fn: number;

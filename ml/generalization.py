@@ -11,7 +11,7 @@ from sklearn.metrics import roc_auc_score, accuracy_score,\
 from .preprocess import preprocess
 from .predict import predict_ensemble
 from .import_data import import_csv
-from .stats import clopper_pearson, roc_auc_ci, ppv_ci, npv_ci
+from .stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
 
 def generalize(features, model, pipeline, x2, y2, labels=None, threshold=.5):
     """"Generalize method"""
@@ -95,9 +95,9 @@ def generalization_report(labels, y2, predictions, probabilities):
         'prevalence': round(prevalence, 4),
         'pr_95_ci': clopper_pearson(tp+fn, len(y2)),
         'ppv': round(tp / (tp+fp), 4) if tp+fp > 0 else 0,
-        'ppv_ci': ppv_ci(sensitivity, specificity, tp+fn, fp+tn, prevalence),
+        'ppv_95_ci': ppv_95_ci(sensitivity, specificity, tp+fn, fp+tn, prevalence),
         'npv': round(tn / (tn+fn), 4) if tn+fn > 0 else 0,
-        'npv_ci': npv_ci(sensitivity, specificity, tp+fn, fp+tn, prevalence),
+        'npv_95_ci': npv_95_ci(sensitivity, specificity, tp+fn, fp+tn, prevalence),
         'tn': int(tn),
         'tp': int(tp),
         'fn': int(fn),

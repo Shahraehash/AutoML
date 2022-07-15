@@ -36,14 +36,26 @@
         <tr>
           <td>PPV</td>
           <td>{{generalization.ppv * 100 | number}}%</td>
-          <td>N/A</td>
+          <td>
+            <ng-container *ngIf='generalization.ppv_95_ci; else notApplicable'>
+              {{generalization.ppv_95_ci[0] * 100 | number}}% to {{generalization.ppv_95_ci[1] * 100 | number}}%
+            </ng-container>
+          </td>
         </tr>
         <tr>
           <td>NPV</td>
           <td>{{generalization.npv * 100 | number}}%</td>
-          <td>N/A</td>
+          <td>
+            <ng-container *ngIf='generalization.npv_95_ci; else notApplicable'>
+              {{generalization.npv_95_ci[0] * 100 | number}}% to {{generalization.npv_95_ci[1] * 100 | number}}%
+            </ng-container>
+          </td>
         </tr>
       </tbody>
     </table>    
   </ion-card-content>
 </ion-card>
+
+<ng-template #notApplicable>
+  N/A
+</ng-template>
