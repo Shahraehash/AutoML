@@ -14,6 +14,11 @@
       </thead>
       <tbody>
         <tr>
+          <td>MCC</td>
+          <td>{{generalization.mcc | number}}</td>
+          <td>N/A</td>
+        </tr>
+        <tr>
           <td>Sensitivity</td>
           <td>{{generalization.sensitivity * 100 | number}}%</td>
           <td>{{generalization.sn_95_ci[0] * 100 | number}}% to {{generalization.sn_95_ci[1] * 100 | number}}%</td>
