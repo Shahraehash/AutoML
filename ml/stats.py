@@ -30,6 +30,9 @@ def ppv_ci(sensitivity, specificity, positive_count, negative_count, prevalence)
     """Calculates the confidence interval for the positive predictive value"""
 
     ppv = (sensitivity * prevalence) / (sensitivity * prevalence + (1 - specificity) * (1 - prevalence))
+    if ppv == 1:
+      return ''
+
     logit = log(ppv / (1 - ppv))
     var_logit = ((1 - sensitivity) / sensitivity) * (1 / positive_count) + (specificity / (1 - specificity)) * (1 / negative_count)
     logit_lower = logit - 1.96 * sqrt(var_logit)
@@ -40,6 +43,9 @@ def npv_ci(sensitivity, specificity, positive_count, negative_count, prevalence)
     """Calculates the confidence interval for the negative predictive value"""
 
     npv = (specificity * (1 - prevalence)) / ((1 - sensitivity) * prevalence + (specificity * (1 - prevalence)))
+    if npv == 1:
+      return ''
+
     logit = log(npv / (1 - npv))
     var_logit = (sensitivity / (1 - sensitivity)) * (1 / positive_count) + ((1 - specificity) / specificity) * (1 / negative_count)
     logit_lower = logit - 1.96 * sqrt(var_logit)
