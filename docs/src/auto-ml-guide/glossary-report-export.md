@@ -10,6 +10,7 @@
 | scorer | Identifies the scoring method used to assess models within the search |
 | accuracy | The models accuracy against the generalization dataset |
 | acc_95_ci | The models 95% CI for accuracy against the generalization dataset (reported as an array representing lower and upper bounds respectively) |
+| mcc | Matthews correlation coefficient or the mean square contingency coefficient which measures the quality of the binary classification assessed against the generalization dataset |
 | avg_sn_sp | The models average sensitivity and specificity against the generalization dataset |
 | roc_auc | The models ROC AUC score against the generalization dataset |
 | roc_auc_95_ci | The models 95% CI for ROC AUC against the generalization dataset (reported as an array representing lower and upper bounds respectively) |
@@ -21,7 +22,9 @@
 | prevalence | The models prevalence against the generalization dataset |
 | pr_95_ci | The models 95% CI for prevalence against the generalization dataset (reported as an array representing lower and upper bounds respectively) |
 | ppv | The models positive predictive value against the generalization dataset |
+| ppv_95_ci | The models 95% CI for positive predictive value against the generalization dataset (reported as an array representing lower and upper bounds respectively) |
 | npv | The models negative predictive value against the generalization dataset |
+| npv_95_ci | The models 95% CI for negative predictive value against the generalization dataset (reported as an array representing lower and upper bounds respectively) |
 | tn | The number of true negatives identified by the model against the generalization dataset |
 | tp | The number of true positives identified by the model against the generalization dataset |
 | fn | The number of false negatives identified by the model against the generalization dataset |
@@ -32,6 +35,7 @@
 | test_fpr | An array representing the false positive rate at various threshold values (used to plot an ROC AUC curve) for the training dataset |
 | test_tpr | An array representing the true positive rate at various threshold values (used to plot an ROC AUC curve) for the training dataset |
 | training_roc_auc | The models ROC AUC score against the training dataset using a train/test split with cross validation |
+| roc_delta | The absolute value of the difference between the generalization ROC AUC score and the training ROC AUC score |
 | generalization_fpr | An array representing the false positive rate at various threshold values (used to plot an ROC AUC curve) for the generalization dataset |
 | generalization_tpr | An array representing the true positive rate at various threshold values (used to plot an ROC AUC curve) for the generalization dataset |
 | brier_score | The models Brier score against the generalization dataset |

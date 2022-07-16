@@ -39,15 +39,21 @@ export class ResultsComponent implements OnInit {
       name: 'Algorithm'
     },
     {
-      key: 'avg_sn_sp',
-      name: 'Sn+Sp',
-      class: 'overline',
-      number: true
-    },
-    {
       key: 'roc_auc',
       name: 'ROC AUC',
       hideOnWidth: 375,
+      number: true
+    },
+    {
+      key: 'mcc',
+      name: 'MCC',
+      hideOnWidth: 375,
+      number: true
+    },
+    {
+      key: 'avg_sn_sp',
+      name: 'Sn+Sp',
+      class: 'overline',
       number: true
     },
     {
