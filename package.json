@@ -8,7 +8,7 @@
     "proxy-education-saas": "ngrok http --region=us --hostname=edu.milo-ml.com 5000",
     "serve": "npm run serve-all",
     "serve-all": "concurrently 'npm run serve-api' 'cd ui && npm run start' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
-    "serve-all-local": "concurrently 'cross-env NO_NETWORK_ALLOWED=true npm run serve-api' 'cd ui && npm run start-local' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
+    "serve-all-local": "concurrently 'cross-env LOCAL_USER=true npm run serve-api' 'cd ui && npm run start-local' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
     "serve-api": "watchmedo auto-restart -d . -R -p \"*.py\" -- python -u server.py",
     "serve-worker": "watchmedo auto-restart -d . -R -p \"*.py\" -- celery -A worker worker",
     "start": "npm run serve-all",

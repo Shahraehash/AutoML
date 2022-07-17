@@ -27,7 +27,7 @@ export class MiloApiService {
   isTrial = false;
   currentJobId: string;
   currentDatasetId: string;
-  localUser: string;
+  localUserId: string;
   events = new EventEmitter<string>();
 
   constructor(
@@ -35,26 +35,26 @@ export class MiloApiService {
     private http: HttpClient
   ) {
     authState(this.afAuth).subscribe(user => {
-      if (!user && !environment.localUser) {
+      if (!user && !(environment.localUser === 'true')) {
         this.currentDatasetId = undefined;
         this.currentJobId = undefined;
         return;
       }
 
       /** If the environment is setup for local user, log out the user */
-      if (environment.localUser) {
+      if (environment.localUser === 'true') {
         signOut(this.afAuth);
       }
     });
 
     try {
-      this.localUser = localStorage.getItem('localUser') || uuid();
+      this.localUserId = localStorage.getItem('localUser') || uuid();
     } catch (err) {
-      this.localUser = uuid();
+      this.localUserId = uuid();
     }
 
     try {
-      localStorage.setItem('localUser', this.localUser);
+      localStorage.setItem('localUser', this.localUserId);
     } catch (err) {}
   }
 
@@ -312,14 +312,14 @@ export class MiloApiService {
   }
 
   private async getHttpHeaders(): Promise<HttpHeaders> {
-    return environment.localUser ?
-      new HttpHeaders().set('LocalUserID', this.localUser) :
+    return environment.localUser === 'true' ?
+      new HttpHeaders().set('LocalUserID', this.localUserId) :
       new HttpHeaders().set('Authorization', `Bearer ${await (await this.afAuth.currentUser).getIdToken()}`);
   }
 
   private async getURLAuth(): Promise<string> {
-    return environment.localUser ?
-      `localUser=${this.localUser}` :
+    return environment.localUser === 'true' ?
+      `localUser=${this.localUserId}` :
       `currentUser=${await (await this.afAuth.currentUser).getIdToken()}`;
   }
 }

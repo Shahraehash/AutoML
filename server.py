@@ -97,7 +97,7 @@ def parse_auth():
         return
 
     local_user = request.headers.get('LocalUserID', request.args.get('localUser'))
-    if os.getenv('NO_NETWORK_ALLOWED') == 'true' and local_user:
+    if os.getenv('LOCAL_USER') == 'true' and local_user:
         g.uid = local_user
         return
 

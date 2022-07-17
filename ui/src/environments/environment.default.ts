@@ -1,7 +1,7 @@
 export const environment = {
   name: 'default',
   authOnly: false,
-  localUser: false,
+  localUser: 'false',
   production: false,
   firebase: {
     apiKey: 'AIzaSyC3mSDzUoZsTGsQpvRddhI_88R8UqUA6l8',

@@ -31,7 +31,7 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   pendingTasks: PendingTasks;
   trainCompleted = false;
   version = packageJson.version;
-  localUser = environment.localUser;
+  localUser = environment.localUser  === 'true';
 
   constructor(
     public activatedRoute: ActivatedRoute,

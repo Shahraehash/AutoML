@@ -13,25 +13,25 @@ const redirectAuthorizedToHome = () => redirectLoggedInTo(['/']);
 const routes: Routes = [
   {
     path: 'sign-in',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
     data: { authGuardPipe: redirectAuthorizedToHome },
     component: LoginPageComponent
   },
   {
     path: 'sign-up',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
     data: { authGuardPipe: redirectAuthorizedToHome },
     component: LoginPageComponent
   },
   {
     path: 'sign-out',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
     data: { authGuardPipe: redirectAuthorizedToHome },
     component: LoginPageComponent
   },
   {
     path: 'forgot-password',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
     data: { authGuardPipe: redirectAuthorizedToHome },
     component: LoginPageComponent
   },
@@ -41,7 +41,7 @@ const routes: Routes = [
   },
   {
     path: 'check-email',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
     data: { authGuardPipe: redirectAuthorizedToHome },
     component: LoginPageComponent
   },

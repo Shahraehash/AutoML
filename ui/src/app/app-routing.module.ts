@@ -18,31 +18,31 @@ if (environment.authOnly) {
 } else {
   routes.push({
     path: 'search',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
     data: { authGuardPipe: redirectUnauthorizedToLogin },
     loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
   },
     {
       path: 'search/:dataId/:step',
-      ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
       data: { authGuardPipe: redirectUnauthorizedToLogin },
       loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
     },
     {
       path: 'search/:dataId/job/:jobId/:step',
-      ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
       data: { authGuardPipe: redirectUnauthorizedToLogin },
       loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
     },
     {
       path: 'search/:dataId/job/:jobId/:step/:taskId/status',
-      ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
       data: { authGuardPipe: redirectUnauthorizedToLogin },
       loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
     },
     {
       path: 'model/:id',
-      ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
       data: { authGuardPipe: redirectUnauthorizedToLogin },
       loadChildren: () => import('./pages/run-model/run-model.module').then(m => m.RunModelPageModule)
     },
@@ -52,7 +52,7 @@ if (environment.authOnly) {
     },
     {
       path: 'home',
-      ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
+      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
       data: { authGuardPipe: redirectUnauthorizedToLogin },
       loadChildren: () => import('./pages/home/home.module').then(m => m.HomePageModule)
     },

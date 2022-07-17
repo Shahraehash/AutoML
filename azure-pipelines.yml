@@ -29,6 +29,7 @@ variables:
 
 jobs:
 - job: Functions
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   steps:
   - task: Cache@2
     inputs:
@@ -222,8 +223,43 @@ jobs:
         .
     displayName: Build SaaS Education Docker Image
 
-  - script: grep -rl ",localUser:\!0" static/ | xargs sed -i.bak "s|,localUser:\!0|,localUser:\!1,authOnly:\!0|"
-    displayName: Modify UI to only handle authentication for Firebase
+- job: AuthApp
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '16'
+    displayName: Set Node Version to 16
+    
+  - task: gitversion/setup@0
+    inputs:
+      versionSpec: '5.x'
+    displayName: 'Install GitVersion'
+
+  - task: gitversion/execute@0
+    inputs:
+      targetPath: '$(System.DefaultWorkingDirectory)'
+    displayName: 'Run GitVersion'
+
+  - script: |
+      sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"$GITVERSION_MAJORMINORPATCH\"|" package.json
+    displayName: 'Update package version'
+
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | ui/package-lock.json'
+      path: $(System.DefaultWorkingDirectory)/ui/node_modules
+      cacheHitVar: UI_CACHE_RESTORED
+    displayName: Cache UI Dependencies
+
+  - script: |
+      npm --prefix ui install
+    condition: and(succeeded(), ne(variables.UI_CACHE_RESTORED, 'true'))
+    displayName: Install UI dependencies
+
+  - script: |
+      npm --prefix ui run build
+    displayName: Build AutoML UI
 
   - task: CopyFiles@2
     displayName: Copy Firebase Configuration to Staging
