@@ -6,6 +6,7 @@ using an Angular SPA.
 """
 
 import os
+import pathlib
 
 from firebase_admin import auth, credentials, initialize_app
 from flask import Flask, g, request, send_from_directory, abort
@@ -32,6 +33,13 @@ if os.path.exists('serviceAccountKey.json'):
     initialize_app(
         credentials.Certificate('serviceAccountKey.json')
     )
+
+@APP.before_first_request
+def replace_environment_variables():
+    """Replace environment variables in the SPA."""
+
+    for file in pathlib.Path('static').glob('main-*.js'):
+        file.write_text(os.path.expandvars(file.read_text()))
 
 @APP.route('/')
 def load_ui(path='index.html'):

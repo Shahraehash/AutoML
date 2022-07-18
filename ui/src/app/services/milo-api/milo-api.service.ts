@@ -35,7 +35,7 @@ export class MiloApiService {
     private http: HttpClient
   ) {
     authState(this.afAuth).subscribe(user => {
-      if (!user && !(environment.localUser === 'true')) {
+      if (!user && environment.localUser !== 'true') {
         this.currentDatasetId = undefined;
         this.currentJobId = undefined;
         return;
