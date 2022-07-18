@@ -43,9 +43,11 @@ def replace_environment_variables():
         content = file.read_text()
         tokens = re.findall(r'\$\{\{(\w+)\}\}', content)
         for variable in tokens:
-            content = content.replace(
-                '${{' + variable + '}}', os.getenv(variable)
-            )
+            value = os.getenv(variable)
+            if value:
+                content = content.replace(
+                    '${{' + variable + '}}', value
+                )
         file.write_text(content)
 
 @APP.route('/')
