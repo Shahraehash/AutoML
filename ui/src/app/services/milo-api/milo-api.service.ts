@@ -29,6 +29,7 @@ export class MiloApiService {
   currentDatasetId: string;
   localUserId: string;
   events = new EventEmitter<string>();
+  ldapToken: string;
 
   constructor(
     private afAuth: Auth,
@@ -268,6 +269,12 @@ export class MiloApiService {
 
   async activateLicense(license_code: string) {
     return await (await this.request<void>('post', `/license`, {license_code})).toPromise();
+  }
+
+  async ldapAuth(username: string, password: string) {
+    return this.http.post<{token: string}>(`${environment.apiUrl}/auth/ldap`, {username, password}).toPromise().then(
+      reply => this.ldapToken = reply.token
+    );
   }
 
   private async request<T>(method: string, url: string, body?: any) {
