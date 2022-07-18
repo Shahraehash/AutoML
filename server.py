@@ -15,6 +15,7 @@ from flask_compress import Compress
 from flask_cors import CORS
 from dotenv import load_dotenv
 
+import api.authentication as authentication
 import api.datasets as datasets
 import api.jobs as jobs
 import api.published as published
@@ -167,6 +168,9 @@ APP.add_url_rule('/published/<string:name>/features', 'published-features', publ
 
 # Licensing
 APP.add_url_rule('/license', 'license-activate', licensing.activate, methods=['POST'])
+
+# Authentication
+APP.add_url_rule('/auth/ldap', 'ldap-login', authentication.ldap_login, methods=['POST'])
 
 # Preprocessing Tools
 if not os.path.exists(APP.config['UPLOAD_FOLDER']):

@@ -5,5 +5,6 @@ export const environment = {
   name: 'docker',
   apiUrl: '.',
   localUser: '${{LOCAL_USER}}',
+  ldapAuth: '${{LDAP_AUTH}}',
   production: true
 };
