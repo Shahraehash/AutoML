@@ -4,6 +4,6 @@ export const environment = {
   ...defaults,
   name: 'docker',
   apiUrl: '.',
-  localUser: '${LOCAL_USER}',
+  localUser: '${{LOCAL_USER}}',
   production: true
 };
