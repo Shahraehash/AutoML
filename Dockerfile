@@ -6,7 +6,7 @@ EXPOSE 5000
 EXPOSE 8443
 
 # env variables
-ENV LOCAL_USER=true
+ENV LOCAL_USER true
 
 # install OS dependencies
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -

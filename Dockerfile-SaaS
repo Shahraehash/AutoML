@@ -2,7 +2,7 @@
 FROM miloteam/pro
 
 # env variables
-ENV LOCAL_USER=false
+ENV LOCAL_USER false
 
 # if present, bundle the educational license
 COPY --chown=milo:sudo *licensefile.skm *license.pub data/
