@@ -13,37 +13,37 @@ const routes: Routes = [
   }
 ];
 
+let routeMetaData = {
+  ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
+  data: { authGuardPipe: redirectUnauthorizedToLogin }
+};
+
 if (environment.authOnly) {
   routes.push({ path: '**', redirectTo: 'auth/sign-in' });
 } else {
   routes.push({
     path: 'search',
-    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectUnauthorizedToLogin },
+    ...routeMetaData,
     loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
   },
     {
       path: 'search/:dataId/:step',
-      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-      data: { authGuardPipe: redirectUnauthorizedToLogin },
+      ...routeMetaData,
       loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
     },
     {
       path: 'search/:dataId/job/:jobId/:step',
-      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-      data: { authGuardPipe: redirectUnauthorizedToLogin },
+      ...routeMetaData,
       loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
     },
     {
       path: 'search/:dataId/job/:jobId/:step/:taskId/status',
-      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-      data: { authGuardPipe: redirectUnauthorizedToLogin },
+      ...routeMetaData,
       loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
     },
     {
       path: 'model/:id',
-      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-      data: { authGuardPipe: redirectUnauthorizedToLogin },
+      ...routeMetaData,
       loadChildren: () => import('./pages/run-model/run-model.module').then(m => m.RunModelPageModule)
     },
     {
@@ -52,8 +52,7 @@ if (environment.authOnly) {
     },
     {
       path: 'home',
-      ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-      data: { authGuardPipe: redirectUnauthorizedToLogin },
+      ...routeMetaData,
       loadChildren: () => import('./pages/home/home.module').then(m => m.HomePageModule)
     },
     { path: '**', redirectTo: environment.name === 'docker' ? 'home' : 'search' }

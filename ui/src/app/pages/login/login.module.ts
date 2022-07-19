@@ -10,29 +10,30 @@ import { environment } from '../../../environments/environment';
 
 const redirectAuthorizedToHome = () => redirectLoggedInTo(['/']);
 
+let routeMetaData = {
+  ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
+  data: { authGuardPipe: redirectAuthorizedToHome }
+};
+
 const routes: Routes = [
   {
     path: 'sign-in',
-    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
   {
     path: 'sign-up',
-    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
   {
     path: 'sign-out',
-    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
   {
     path: 'forgot-password',
-    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
   {
@@ -41,8 +42,7 @@ const routes: Routes = [
   },
   {
     path: 'check-email',
-    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
 ];
