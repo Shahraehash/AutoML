@@ -150,7 +150,7 @@ export class RocChartComponent implements OnInit, OnChanges {
         this.drawCurve(this.graphColor, x, y, points);
         this.drawAUCText(this.data.textElements);
 
-        if (!this.api.isEducation) {
+        if (this.api.isEducation) {
             this.drawWatermark();
         }
     }
