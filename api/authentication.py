@@ -4,7 +4,9 @@ Methods to handle authentication.
 
 import json
 import os
+from datetime import datetime, timedelta, timezone
 
+import jwt
 from ldap3 import Server, Connection, SUBTREE
 from flask import jsonify, request, abort
 
@@ -28,8 +30,29 @@ def ldap_login():
           search_base=os.getenv('LDAP_ROOT_DN'),
           search_filter='(sAMAccountName=' + payload['username'].split('@')[0] + ')',
           search_scope = SUBTREE,
-          attributes=['objectGUID']
+          attributes=['objectGUID', 'givenName', 'sn', 'mail']
         )
-        guid = str(connection.entries[0]['objectGUID']).strip('{}')
+        token = jwt.encode(
+          {
+            'iss': 'milo-ml',
+            'aud': 'milo-ml',
+            'sub': payload['username'],
+            'iat': datetime.utcnow(),
+            'exp': datetime.now(tz=timezone.utc) + timedelta(days=1),
+            'uid': str(connection.entries[0]['objectGUID']).strip('{}'),
+            'name': str(connection.entries[0]['givenName']) + ' ' + str(connection.entries[0]['sn']),
+            'email': str(connection.entries[0]['mail'])
+          },
+          os.getenv('LDAP_AUTH_SECRET'),
+          algorithm='HS256'
+        )
+
         connection.unbind()
-        return jsonify({'token': guid})
+        return jsonify({'token': token})
+
+def ldap_verify(token):
+    """
+    Verifies a JWT token provided after an LDAP authentication.
+    """
+
+    return jwt.decode(token, os.getenv('LDAP_AUTH_SECRET'), algorithms=['HS256'])

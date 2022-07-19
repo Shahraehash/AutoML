@@ -101,17 +101,30 @@ def parse_auth():
     current_user = request.args.get('currentUser')
 
     if bearer is not None:
-        try:
-            g.uid = auth.verify_id_token(bearer.split()[1])['uid']
-        except auth.ExpiredIdTokenError:
-            abort(401)
+        token = bearer.split()[1]
+        if os.getenv('LDAP_AUTH') == 'true':
+            try:
+                g.uid = authentication.ldap_verify(token)['uid']
+            except Exception:
+                abort(401)
+        else:
+            try:
+                g.uid = auth.verify_id_token(token)['uid']
+            except auth.ExpiredIdTokenError:
+                abort(401)
         return
 
     if current_user is not None:
-        try:
-            g.uid = auth.verify_id_token(current_user)['uid']
-        except auth.ExpiredIdTokenError:
-            abort(401)
+        if os.getenv('LDAP_AUTH') == 'true':
+            try:
+                g.uid = authentication.ldap_verify(current_user)['uid']
+            except Exception:
+                abort(401)
+        else:
+            try:
+                g.uid = auth.verify_id_token(current_user)['uid']
+            except auth.ExpiredIdTokenError:
+                abort(401)
         return
 
     local_user = request.headers.get('LocalUserID', request.args.get('localUser'))
