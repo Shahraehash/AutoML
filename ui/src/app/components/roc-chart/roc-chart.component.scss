@@ -16,6 +16,10 @@
       }
     }
 
+    .watermark {
+      fill: rgba(255, 0, 0, 0.5);
+    }
+
     .guess {
       stroke: var(--ion-color-danger);
     }

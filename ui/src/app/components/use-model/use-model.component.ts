@@ -37,8 +37,8 @@ export class UseModelComponent implements OnInit {
 
   constructor(
     public modalController: ModalController,
+    public api: MiloApiService,
     private popoverController: PopoverController,
-    private api: MiloApiService,
     private formBuilder: FormBuilder,
     private loadingController: LoadingController,
     private toastController: ToastController

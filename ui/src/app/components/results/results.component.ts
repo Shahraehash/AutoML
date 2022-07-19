@@ -122,8 +122,8 @@ export class ResultsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
+    public api: MiloApiService,
     private alertController: AlertController,
-    private api: MiloApiService,
     private formBuilder: FormBuilder,
     private loadingController: LoadingController,
     private modalController: ModalController,
