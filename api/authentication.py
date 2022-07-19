@@ -27,7 +27,7 @@ def ldap_login():
         return abort(401)
     else:
         connection.search(
-          search_base=os.getenv('LDAP_ROOT_DN'),
+          search_base=os.getenv('LDAP_BASE_DN'),
           search_filter='(sAMAccountName=' + payload['username'].split('@')[0] + ')',
           search_scope = SUBTREE,
           attributes=['objectGUID', 'givenName', 'sn', 'mail']

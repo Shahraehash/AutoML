@@ -80,6 +80,8 @@ the `Run` button is clicked Docker creates new virtual hardware.
 macOS added an Airplay Receiver service which listens on port 5000 and must either be disabled or we suggest using another port (e.g., 5001).
 :::
 
+Additional configuration options are available under the [Advanced Configuration](#advanced-configuration)
+
 ## 6) Start Using MILO-ML
 
 After you start MILO-ML, you should see some output similar to the following:
@@ -100,3 +102,32 @@ Stopping MILO-ML will interrupt any training currently in progress so ensure no 
 :::
 
 Once stopped, the button will change to a play button allowing you to start MILO-ML again.
+
+## Advanced Configuration
+
+::: warning
+Generally speaking, these values should not be used unless directed.
+:::
+
+In addition to the host port, several other options can be configured.
+
+MILO will store data within the Docker container however
+users may wish to store the data (uploaded datasets, run data, published models, SSL certificates, etc.) outside of the container
+and may do so by mounting a volume. The `Host Path` refers to the location on the machine running Docker and the `Container Path`
+will always be: `/milo/data`.
+
+In addition, MILO will typically run in a single user mode meaning no authentication is done as the interface is only expected to
+be accessed via the localhost adapter. If you intend to run MILO to multiple users, you will want to disable the single user configuration
+by defining an environment variable `LOCAL_USER` and setting the value to `false`.
+
+If MILO is to deployed in an enterprise environment, authentication can be configured using LDAP. The following environment variables are
+available for configuration in such an environment:
+
+`LDAP_AUTH`: Either `true` or `false` (default)
+
+`LDAP_SERVER`: The complete path to the LDAP server including the protocol (`ldap` or `ldaps`) and port number.
+
+`LDAP_BASE_DN`: Defines the base distinguished name used to search for users.
+
+`LDAP_AUTH_SECRET`: After successfully authenticating using LDAP, sessions are authenticated using a signed JWT token and this defines
+the secret for that token.
