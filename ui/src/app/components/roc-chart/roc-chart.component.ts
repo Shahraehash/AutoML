@@ -227,9 +227,9 @@ export class RocChartComponent implements OnInit, OnChanges {
     private drawWatermark() {
         this.svg.append('g')
             .attr('class', 'watermark')
-            .attr('transform', 'translate(' + .2 * this.cfg.height + ',' + .2 * this.cfg.height + ')')
+            .attr('transform', 'translate(' + .26 * this.cfg.height + ',' + .2 * this.cfg.height + ')')
             .append('text')
-                .text('MILO-ML for Education')
+                .text('MILO for Education')
                 .attr('class', 'watermark')
                 .style('font-size', 24);
     }
