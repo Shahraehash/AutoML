@@ -55,4 +55,4 @@ def ldap_verify(token):
     Verifies a JWT token provided after an LDAP authentication.
     """
 
-    return jwt.decode(token, os.getenv('LDAP_AUTH_SECRET'), algorithms=['HS256'])
+    return jwt.decode(token, os.getenv('LDAP_AUTH_SECRET'), issuer='milo-ml', audience='milo-ml', algorithms=['HS256'])
