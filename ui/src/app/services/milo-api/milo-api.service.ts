@@ -292,6 +292,10 @@ export class MiloApiService {
           this.events.emit('license_error');
         }
 
+        if (environment.ldapAuth === 'true' && error.status === 401) {
+          delete this.ldapToken;
+        }
+
         return throwError(error);
       }),
       map(response => {
