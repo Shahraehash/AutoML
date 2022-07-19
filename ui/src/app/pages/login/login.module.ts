@@ -7,13 +7,21 @@ import { IonicModule } from '@ionic/angular';
 
 import { LoginPageComponent } from './login.page';
 import { environment } from '../../../environments/environment';
+import { LDAPGuestGuard } from '../../services';
 
 const redirectAuthorizedToHome = () => redirectLoggedInTo(['/']);
 
-let routeMetaData = {
-  ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-  data: { authGuardPipe: redirectAuthorizedToHome }
-};
+let routeMetaData;
+if (environment.ldapAuth === 'true') {
+  routeMetaData = {
+    canActivate: [LDAPGuestGuard]
+  };
+} else {
+  routeMetaData = {
+    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
+    data: { authGuardPipe: redirectAuthorizedToHome }
+  };
+}
 
 const routes: Routes = [
   {

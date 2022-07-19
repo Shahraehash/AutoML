@@ -3,6 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard, redirectUnauthorizedTo } from '@angular/fire/auth-guard';
 
 import { environment } from '../environments/environment';
+import { LDAPAuthGuard } from './services';
 
 const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['auth/sign-in', { redirectTo: location.pathname }]);
 
@@ -13,10 +14,17 @@ const routes: Routes = [
   }
 ];
 
-let routeMetaData = {
-  ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
-  data: { authGuardPipe: redirectUnauthorizedToLogin }
-};
+let routeMetaData;
+if (environment.ldapAuth === 'true') {
+  routeMetaData = {
+    canActivate: [LDAPAuthGuard]
+  };
+} else {
+  routeMetaData = {
+    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
+    data: { authGuardPipe: redirectUnauthorizedToLogin }
+  };
+}
 
 if (environment.authOnly) {
   routes.push({ path: '**', redirectTo: 'auth/sign-in' });
