@@ -36,7 +36,11 @@ def ppv_95_ci(sensitivity, specificity, positive_count, negative_count, prevalen
     if ppv == 1:
       return ''
 
-    logit = log(ppv / (1 - ppv))
+    try:
+        logit = log(ppv / (1 - ppv))
+    except Exception:
+        return ''
+
     var_logit = ((1 - sensitivity) / sensitivity) * (1 / positive_count) + (specificity / (1 - specificity)) * (1 / negative_count)
     logit_lower = logit - 1.96 * sqrt(var_logit)
     logit_upper = logit + 1.96 * sqrt(var_logit)
@@ -53,7 +57,11 @@ def npv_95_ci(sensitivity, specificity, positive_count, negative_count, prevalen
     if npv == 1:
       return ''
 
-    logit = log(npv / (1 - npv))
+    try:
+        logit = log(npv / (1 - npv))
+    except Exception:
+        return ''
+
     var_logit = (sensitivity / (1 - sensitivity)) * (1 / positive_count) + ((1 - specificity) / specificity) * (1 / negative_count)
     logit_lower = logit - 1.96 * sqrt(var_logit)
     logit_upper = logit + 1.96 * sqrt(var_logit)
