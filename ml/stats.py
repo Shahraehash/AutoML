@@ -29,6 +29,9 @@ def roc_auc_ci(auc, tpr, alpha=0.95):
 def ppv_95_ci(sensitivity, specificity, positive_count, negative_count, prevalence):
     """Calculates the confidence interval for the positive predictive value"""
 
+    if sensitivity == 0 and specificity == 1:
+      return ''
+
     ppv = (sensitivity * prevalence) / (sensitivity * prevalence + (1 - specificity) * (1 - prevalence))
     if ppv == 1:
       return ''
@@ -42,7 +45,11 @@ def ppv_95_ci(sensitivity, specificity, positive_count, negative_count, prevalen
 def npv_95_ci(sensitivity, specificity, positive_count, negative_count, prevalence):
     """Calculates the confidence interval for the negative predictive value"""
 
+    if sensitivity == 1 and specificity == 0:
+      return ''
+
     npv = (specificity * (1 - prevalence)) / ((1 - sensitivity) * prevalence + (specificity * (1 - prevalence)))
+
     if npv == 1:
       return ''
 

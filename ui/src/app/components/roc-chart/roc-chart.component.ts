@@ -4,6 +4,8 @@ import { schemeCategory10 } from 'd3-scale-chromatic';
 import { scaleLinear } from 'd3-scale';
 import * as d3Axis from 'd3-axis';
 
+import { MiloApiService } from '../../services';
+
 @Component({
     selector: 'app-roc-chart',
     styleUrls: ['roc-chart.component.scss'],
@@ -22,7 +24,8 @@ export class RocChartComponent implements OnInit, OnChanges {
     };
 
     constructor(
-        private element: ElementRef
+        private element: ElementRef,
+        private api: MiloApiService
     ) {}
 
     get XLabel() {
@@ -146,6 +149,10 @@ export class RocChartComponent implements OnInit, OnChanges {
         }
         this.drawCurve(this.graphColor, x, y, points);
         this.drawAUCText(this.data.textElements);
+
+        if (this.api.isEducation) {
+            this.drawWatermark();
+        }
     }
 
     // A function that returns a line generator
@@ -215,5 +222,15 @@ export class RocChartComponent implements OnInit, OnChanges {
 
             vAlign += 0.05;
         });
+    }
+
+    private drawWatermark() {
+        this.svg.append('g')
+            .attr('class', 'watermark')
+            .attr('transform', 'translate(' + .2 * this.cfg.height + ',' + .2 * this.cfg.height + ')')
+            .append('text')
+                .text('MILO-ML for Education')
+                .attr('class', 'watermark')
+                .style('font-size', 24);
     }
 }

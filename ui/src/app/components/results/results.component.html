@@ -1,5 +1,5 @@
 <div class='container'>
-  <ion-icon name='save' size='small' slot='icon-only' color='medium' class='save-rocs' (click)='saveCurves()'></ion-icon>
+  <ion-icon *ngIf='!api.isTrial' name='save' size='small' slot='icon-only' color='medium' class='save-rocs' (click)='saveCurves()'></ion-icon>
   <div *ngIf='results; else noResults' class='results-viewer'>
     <div class='roc-graphs' *ngIf='sortedData.length'>
       <ion-card class='ion-padding ion-text-center roc-curve' *ngIf='sortedData[activeRow]?.mean_fpr'>
@@ -108,8 +108,12 @@
               {{column.number ? ( element[column.key] | number ) : element[column.key]}}
             </span>
             <span *ngIf='column.key === "actions"' class='actions'>
-              <ion-icon name='play-circle' color='success' size='large' (click)='launchModel(i)'></ion-icon>
-              <ion-icon name='cloud-upload' color='primary' size='large' (click)='beginPublish(i)'></ion-icon>
+              <ion-button title='Run Model' color='success' size='large' (click)='launchModel(i)' fill='clear' class='ion-no-padding' style='height: initial'>
+                <ion-icon name='play-circle' slot='icon-only'></ion-icon>
+              </ion-button>
+              <ion-button title='Publish Model' color='primary' size='large' (click)='beginPublish(i)' fill='clear' class='ion-no-padding' style='height: initial'>
+                <ion-icon name='cloud-upload' slot='icon-only'></ion-icon>
+              </ion-button>
             </span>
           </td>
         </ng-container>
