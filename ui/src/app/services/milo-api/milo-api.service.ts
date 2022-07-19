@@ -321,12 +321,18 @@ export class MiloApiService {
   private async getHttpHeaders(): Promise<HttpHeaders> {
     return environment.localUser === 'true' ?
       new HttpHeaders().set('LocalUserID', this.localUserId) :
-      new HttpHeaders().set('Authorization', `Bearer ${await (await this.afAuth.currentUser).getIdToken()}`);
+      new HttpHeaders().set('Authorization', `Bearer ${await this.getToken()}`);
   }
 
   private async getURLAuth(): Promise<string> {
     return environment.localUser === 'true' ?
       `localUser=${this.localUserId}` :
-      `currentUser=${await (await this.afAuth.currentUser).getIdToken()}`;
+      `currentUser=${await this.getToken()}`;
+  }
+
+  private async getToken(): Promise<string> {
+    return environment.ldapAuth === 'true' ?
+      this.ldapToken :
+      await (await this.afAuth.currentUser).getIdToken();
   }
 }
