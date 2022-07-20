@@ -64,5 +64,8 @@ COPY --chown=milo:sudo static/ static/
 # if present, bundle the educational license
 COPY --chown=milo:sudo *licensefile.skm *license.pub data/
 
+# if present, bundle the Google service account key
+COPY --chown=milo:sudo *serviceAccountKey.json .
+
 # start the application
 CMD [ "npx", "concurrently", "'sudo rabbitmq-server'", "'uwsgi --ini uwsgi.ini'", "'celery -A worker worker'" ]

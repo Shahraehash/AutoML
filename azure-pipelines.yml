@@ -183,6 +183,11 @@ jobs:
     displayName: Build Preprocessor UI
 
   - script: |
+      pip install requests Flask licensing
+      python sign_educational_license.py
+    displayName: Create Education License
+
+  - script: |
       docker run --privileged --rm tonistiigi/binfmt --install arm64
       docker run --privileged --rm tonistiigi/binfmt
       docker buildx create --use
@@ -197,31 +202,6 @@ jobs:
         --push \
         .
     displayName: Build Docker Image
-
-  - script: |
-      pip install requests Flask licensing
-      python sign_educational_license.py
-    displayName: Create Education License
-
-  - script: |
-      mv $(serviceAccountKey.secureFilePath) .
-      docker buildx build --platform linux/amd64,linux/arm64 \
-        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
-        -t $(acr_address)/$(eduRepository):$(GitVersion.SemVer) \
-        -t $(acr_address)/$(eduRepository):$(tag) \
-        --push \
-        .
-    displayName: Build Education Docker Image
-
-  - script: |
-      docker buildx build --platform linux/amd64,linux/arm64 \
-        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
-        -t $(acr_address)/$(saasEduRepository):$(GitVersion.SemVer) \
-        -t $(acr_address)/$(saasEduRepository):$(tag) \
-        -f Dockerfile-SaaS \
-        --push \
-        .
-    displayName: Build SaaS Education Docker Image
 
 - job: AuthApp
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
