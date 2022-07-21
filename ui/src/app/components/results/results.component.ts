@@ -45,6 +45,12 @@ export class ResultsComponent implements OnInit {
       number: true
     },
     {
+      key: 'roc_delta',
+      name: 'ΔROC AUC',
+      hideOnWidth: 1400,
+      number: true
+    },
+    {
       key: 'mcc',
       name: 'MCC',
       hideOnWidth: 375,
@@ -60,6 +66,12 @@ export class ResultsComponent implements OnInit {
       key: 'accuracy',
       name: 'Accuracy',
       hideOnWidth: 400,
+      number: true
+    },
+    {
+      key: 'f1',
+      name: 'F1',
+      hideOnWidth: 1400,
       number: true
     },
     {
