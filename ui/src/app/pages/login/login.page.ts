@@ -330,7 +330,11 @@ export class LoginPageComponent {
 
     switch (this.router.url.split('?')[0]) {
       case '/auth/sign-out':
-        signOut(this.afAuth);
+        if (this.ldapAuth) {
+          delete this.api.ldapToken;
+        } else {
+          signOut(this.afAuth);
+        }
         return Modes.SignIn;
       case '/auth/sign-up':
         return Modes.SignUp;

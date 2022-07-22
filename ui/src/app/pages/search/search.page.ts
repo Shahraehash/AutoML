@@ -150,7 +150,12 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async signOut() {
-    await signOut(this.afAuth);
+    if (environment.ldapAuth === 'true') {
+      delete this.api.ldapToken;
+    } else {
+      await signOut(this.afAuth);
+    }
+
     this.router.navigateByUrl('/auth/sign-in');
   }
 }
