@@ -332,6 +332,9 @@ export class LoginPageComponent {
       case '/auth/sign-out':
         if (this.ldapAuth) {
           delete this.api.ldapToken;
+          try {
+            localStorage.removeItem('ldapToken');
+          } catch (err) {}
         } else {
           signOut(this.afAuth);
         }
