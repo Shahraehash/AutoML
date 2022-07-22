@@ -386,7 +386,7 @@ export class LoginPageComponent {
   }
 
   private getRedirectUrl() {
-    return this.route.snapshot.params.redirectTo || '/search';
+    return this.route.snapshot.params.redirectTo || '/';
   }
 
   async showError(message: string) {

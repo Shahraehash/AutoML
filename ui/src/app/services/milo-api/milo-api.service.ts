@@ -56,6 +56,12 @@ export class MiloApiService {
         localStorage.setItem('localUser', this.localUserId);
       } catch (err) {}
     }
+
+    if (environment.ldapAuth === 'true') {
+      try {
+        this.ldapToken = localStorage.getItem('ldapToken');
+      } catch (err) {}
+    }
   }
 
   async submitData(formData: FormData) {
@@ -272,7 +278,12 @@ export class MiloApiService {
 
   async ldapAuth(username: string, password: string) {
     return this.http.post<{token: string}>(`${environment.apiUrl}/auth/ldap`, {username, password}).toPromise().then(
-      reply => this.ldapToken = reply.token
+      reply => {
+        this.ldapToken = reply.token;
+        try {
+          localStorage.setItem('ldapToken', this.ldapToken);
+        } catch (err) {}
+      }
     );
   }
 

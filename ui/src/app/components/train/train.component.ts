@@ -25,6 +25,7 @@ export class TrainComponent implements OnDestroy, OnInit {
   destroy$: ReplaySubject<boolean> = new ReplaySubject<boolean>();
   allPipelines;
   showAdvanced = !environment.production && !this.api.isTrial;
+  ldapAuth = environment.ldapAuth === 'true';
   defaultHyperParameters = {grid: {}, random: {}};
   training = false;
   trainForm: FormGroup;
