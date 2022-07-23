@@ -20,7 +20,6 @@ variables:
   containerRegistry: 'Docker Hub'
   repository: 'pro'
   eduRepository: 'education'
-  saasEduRepository: 'saas-education'
   cacheRepository: 'build-cache'
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
     tag: 'latest'
@@ -199,6 +198,8 @@ jobs:
         --cache-to=type=registry,ref=$(acr_address)/$(cacheRepository),mode=max \
         -t $(acr_address)/$(repository):$(GitVersion.SemVer) \
         -t $(acr_address)/$(repository):$(tag) \
+        -t $(acr_address)/$(eduRepository):$(GitVersion.SemVer) \
+        -t $(acr_address)/$(eduRepository):$(tag) \
         --push \
         .
     displayName: Build Docker Image
