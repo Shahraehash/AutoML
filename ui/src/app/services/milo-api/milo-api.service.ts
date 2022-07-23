@@ -35,28 +35,33 @@ export class MiloApiService {
     private afAuth: Auth,
     private http: HttpClient
   ) {
-    authState(this.afAuth).subscribe(user => {
-      if (!user && environment.localUser !== 'true') {
-        this.currentDatasetId = undefined;
-        this.currentJobId = undefined;
-        return;
-      }
-
-      /** If the environment is setup for local user, log out the user */
-      if (environment.localUser === 'true') {
-        signOut(this.afAuth);
-      }
-    });
-
-    try {
-      this.localUserId = localStorage.getItem('localUser') || uuid();
-    } catch (err) {
-      this.localUserId = uuid();
+    if (environment.localUser !== 'true' && environment.ldapAuth !== 'true') {
+      authState(this.afAuth).subscribe(user => {
+        if (!user) {
+          this.currentDatasetId = undefined;
+          this.currentJobId = undefined;
+          return;
+        }
+      });
     }
 
-    try {
-      localStorage.setItem('localUser', this.localUserId);
-    } catch (err) {}
+    if (environment.localUser === 'true') {
+      try {
+        this.localUserId = localStorage.getItem('localUser') || uuid();
+      } catch (err) {
+        this.localUserId = uuid();
+      }
+  
+      try {
+        localStorage.setItem('localUser', this.localUserId);
+      } catch (err) {}
+    }
+
+    if (environment.ldapAuth === 'true') {
+      try {
+        this.ldapToken = localStorage.getItem('ldapToken');
+      } catch (err) {}
+    }
   }
 
   async submitData(formData: FormData) {
@@ -273,7 +278,12 @@ export class MiloApiService {
 
   async ldapAuth(username: string, password: string) {
     return this.http.post<{token: string}>(`${environment.apiUrl}/auth/ldap`, {username, password}).toPromise().then(
-      reply => this.ldapToken = reply.token
+      reply => {
+        this.ldapToken = reply.token;
+        try {
+          localStorage.setItem('ldapToken', this.ldapToken);
+        } catch (err) {}
+      }
     );
   }
 

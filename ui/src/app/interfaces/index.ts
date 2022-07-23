@@ -81,6 +81,7 @@ export interface GeneralizationResult {
     precision: string;
     recall: string;
     training_roc_auc: number;
+    roc_delta: number;
 }
 
 export interface SearchParameters {

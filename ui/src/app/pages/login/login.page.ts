@@ -330,7 +330,14 @@ export class LoginPageComponent {
 
     switch (this.router.url.split('?')[0]) {
       case '/auth/sign-out':
-        signOut(this.afAuth);
+        if (this.ldapAuth) {
+          delete this.api.ldapToken;
+          try {
+            localStorage.removeItem('ldapToken');
+          } catch (err) {}
+        } else {
+          signOut(this.afAuth);
+        }
         return Modes.SignIn;
       case '/auth/sign-up':
         return Modes.SignUp;
@@ -382,7 +389,7 @@ export class LoginPageComponent {
   }
 
   private getRedirectUrl() {
-    return this.route.snapshot.params.redirectTo || '/search';
+    return this.route.snapshot.params.redirectTo || '/';
   }
 
   async showError(message: string) {
