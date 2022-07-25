@@ -10,7 +10,8 @@ from celery.signals import worker_process_init
 
 from ml import search
 
-CELERY = Celery(__name__, backend='rpc://', broker='pyamqp://guest@127.0.0.1//')
+BROKER_URL = os.getenv('BROKER_URL', 'pyamqp://guest@127.0.0.1//')
+CELERY = Celery(__name__, backend='rpc://', broker=BROKER_URL)
 CELERY.conf.update(task_track_started=True)
 
 def fix_celery_solo(userid, jobid):
