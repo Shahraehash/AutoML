@@ -65,4 +65,4 @@ COPY --chown=milo:sudo static/ static/
 COPY --chown=milo:sudo *licensefile.skm *license.pub data/
 
 # start the application
-CMD [ "npx", "concurrently", "'sudo rabbitmq-server'", "'uwsgi --ini uwsgi.ini'", "'celery -A worker worker'" ]
+CMD [ "npx", "concurrently", "'sudo rabbitmq-server'", "'uwsgi --ini uwsgi.ini'", "'celery -A worker worker -c 1'" ]

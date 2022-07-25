@@ -11,4 +11,4 @@ COPY --chown=milo:sudo *licensefile.skm *license.pub data/
 COPY --chown=milo:sudo *serviceAccountKey.json .
 
 # start the application
-CMD [ "npx", "concurrently", "'sudo rabbitmq-server'", "'uwsgi --ini uwsgi.ini'", "'celery -A worker worker'" ]
+CMD [ "npx", "concurrently", "'sudo rabbitmq-server'", "'uwsgi --ini uwsgi.ini'", "'celery -A worker worker -c 1'" ]
