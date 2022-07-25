@@ -112,9 +112,10 @@ Generally speaking, these values should not be used unless directed.
 In addition to the host port, several other options can be configured.
 
 MILO will store data within the Docker container however
-users may wish to store the data (uploaded datasets, run data, published models, SSL certificates, etc.) outside of the container
+users may wish to store the data (uploaded datasets, run data, published models, etc.) outside of the container
 and may do so by mounting a volume. The `Host Path` refers to the location on the machine running Docker and the `Container Path`
-will always be: `/milo/data`.
+will always be: `/milo/data`. Additionally, SSL certificates are stored within `/milo/ssl` and can be mounted to replace the default
+self-signed certificate.
 
 In addition, MILO will typically run in a single user mode meaning no authentication is done as the interface is only expected to
 be accessed via the localhost adapter. If you intend to run MILO to multiple users, you will want to disable the single user configuration
@@ -131,3 +132,5 @@ available for configuration in such an environment:
 
 `LDAP_AUTH_SECRET`: After successfully authenticating using LDAP, sessions are authenticated using a signed JWT token and this defines
 the secret for that token.
+
+`BROKER_URL`: URL to the RabbitMQ broker (do not use when using the all-in-one image).
