@@ -29,11 +29,12 @@ if (environment.ldapAuth === 'true') {
 if (environment.authOnly) {
   routes.push({ path: '**', redirectTo: 'auth/sign-in' });
 } else {
-  routes.push({
-    path: 'search',
-    ...routeMetaData,
-    loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
-  },
+  routes.push(
+    {
+      path: 'search',
+      ...routeMetaData,
+      loadChildren: () => import('./pages/search/search.module').then(m => m.SearchPageModule)
+    },
     {
       path: 'search/:dataId/:step',
       ...routeMetaData,
