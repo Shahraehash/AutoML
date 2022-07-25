@@ -20,6 +20,7 @@ ENV PATH="/home/milo/.local/bin:${PATH}"
 
 # create required directories
 RUN mkdir data
+RUN mkdir ssl
 
 # generate SSL certificate
 RUN openssl req -x509 -nodes \
@@ -27,8 +28,8 @@ RUN openssl req -x509 -nodes \
     -addext "subjectAltName = DNS:localhost" \
     -addext "keyUsage = digitalSignature" \
     -addext "extendedKeyUsage = serverAuth" \
-    -newkey rsa:2048 -keyout data/milo.key \
-    -out data/milo.crt
+    -newkey rsa:2048 -keyout ssl/milo.key \
+    -out ssl/milo.crt
 
 # copy the Python dependencies to the working directory
 COPY --chown=milo requirements.txt .
