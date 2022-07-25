@@ -31,9 +31,9 @@ APP.config['UPLOAD_FOLDER'] = 'data/preprocessed'
 CORS(APP)
 Compress(APP)
 
-if os.path.exists('serviceAccountKey.json'):
+if os.path.exists('data/serviceAccountKey.json'):
     initialize_app(
-        credentials.Certificate('serviceAccountKey.json')
+        credentials.Certificate('data/serviceAccountKey.json')
     )
 
 @APP.before_first_request

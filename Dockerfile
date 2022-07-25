@@ -1,19 +1,9 @@
 # set base image (host OS)
-FROM python:3.9.12
-
-# expose ports
-EXPOSE 5000
-EXPOSE 8443
-
-# env variables
-ENV LOCAL_USER true
-ENV LDAP_AUTH false
+FROM python:3.9.12 as base
 
 # install OS dependencies
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get update
-RUN apt-get -y install curl gnupg sudo libssl-dev openssl nodejs rabbitmq-server
-RUN npm install -g concurrently
+RUN apt-get -y install sudo rabbitmq-server
 
 # create user
 RUN useradd -r -m -g sudo milo
@@ -30,7 +20,6 @@ ENV PATH="/home/milo/.local/bin:${PATH}"
 
 # create required directories
 RUN mkdir data
-RUN mkdir ssl
 
 # generate SSL certificate
 RUN openssl req -x509 -nodes \
@@ -38,34 +27,54 @@ RUN openssl req -x509 -nodes \
     -addext "subjectAltName = DNS:localhost" \
     -addext "keyUsage = digitalSignature" \
     -addext "extendedKeyUsage = serverAuth" \
-    -newkey rsa:2048 -keyout ssl/milo.key \
-    -out ssl/milo.crt
+    -newkey rsa:2048 -keyout data/milo.key \
+    -out data/milo.crt
 
 # copy the Python dependencies to the working directory
-COPY --chown=milo:sudo requirements.txt .
+COPY --chown=milo requirements.txt .
 
 # install app dependencies
 RUN pip install -r requirements.txt
 
 # copy client assets
-COPY --chown=milo:sudo client/ client/
+COPY --chown=milo client/ client/
 
 # copy remaining Python code
-COPY --chown=milo:sudo server.py .
-COPY --chown=milo:sudo worker.py .
-COPY --chown=milo:sudo ml/ ml/
-COPY --chown=milo:sudo api/ api/
-COPY --chown=milo:sudo uwsgi.ini .
-COPY --chown=milo:sudo preprocessor/modules/ preprocessor/modules/
+COPY --chown=milo server.py .
+COPY --chown=milo worker.py .
+COPY --chown=milo ml/ ml/
+COPY --chown=milo api/ api/
+COPY --chown=milo uwsgi.ini .
+COPY --chown=milo preprocessor/modules/ preprocessor/modules/
 
 # copy static assets (UI and documentation)
-COPY --chown=milo:sudo static/ static/
+COPY --chown=milo static/ static/
 
 # if present, bundle the educational license
-COPY --chown=milo:sudo *licensefile.skm *license.pub data/
+COPY --chown=milo *licensefile.skm *license.pub data/
 
-# if present, bundle the Google service account key
-COPY --chown=milo:sudo *serviceAccountKey.json .
+# create a worker service image
+FROM base as worker
 
 # start the application
-CMD [ "npx", "concurrently", "'sudo rabbitmq-server'", "'uwsgi --ini uwsgi.ini'", "'celery -A worker worker'" ]
+CMD celery -A worker worker
+
+# create an api service image
+FROM base as api
+
+# expose ports
+EXPOSE 5000
+EXPOSE 8443
+
+# env variables
+ENV LOCAL_USER true
+ENV LDAP_AUTH false
+
+# start the application
+CMD uwsgi --ini uwsgi.ini
+
+# create an all-in-one image used for a single instance
+FROM api as aio
+
+# start the application
+CMD sudo rabbitmq-server & celery -A worker worker & uwsgi --ini uwsgi.ini
