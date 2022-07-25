@@ -10,7 +10,7 @@
     "serve-all": "concurrently 'npm run serve-api' 'cd ui && npm run start' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
     "serve-all-local": "concurrently 'cross-env LOCAL_USER=true npm run serve-api' 'cd ui && npm run start-local' 'rabbitmq-server' 'npm run serve-worker' 'npm run open-browser'",
     "serve-api": "watchmedo auto-restart -d . -R -p \"*.py\" -- python -u server.py",
-    "serve-worker": "watchmedo auto-restart -d . -R -p \"*.py\" -- celery -A worker worker",
+    "serve-worker": "watchmedo auto-restart -d . -R -p \"*.py\" -- celery -A worker worker -c 1",
     "start": "npm run serve-all",
     "test": "pytest ml/unit_test.py"
   },

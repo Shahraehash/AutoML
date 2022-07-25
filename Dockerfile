@@ -58,7 +58,7 @@ COPY --chown=milo *licensefile.skm *license.pub data/
 FROM base as worker
 
 # start the application
-CMD celery -A worker worker
+CMD celery -A worker worker -c 1
 
 # create an api service image
 FROM base as api
@@ -78,4 +78,4 @@ CMD uwsgi --ini uwsgi.ini
 FROM api as aio
 
 # start the application
-CMD sudo rabbitmq-server & celery -A worker worker & uwsgi --ini uwsgi.ini
+CMD sudo rabbitmq-server & celery -A worker worker -c 1 & uwsgi --ini uwsgi.ini
