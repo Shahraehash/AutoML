@@ -304,6 +304,10 @@ export class MiloApiService {
 
         if (environment.ldapAuth === 'true' && error.status === 401) {
           delete this.ldapToken;
+          try {
+            localStorage.removeItem('ldapToken');
+          } catch (err) {}
+          location.reload();
         }
 
         return throwError(error);
