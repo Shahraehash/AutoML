@@ -1,9 +1,9 @@
 # set base image (host OS)
-FROM python:3.9.12 as base
+FROM python:3.9.12-slim as base
 
 # install OS dependencies
 RUN apt-get update
-RUN apt-get -y install sudo rabbitmq-server
+RUN apt-get -y install sudo rabbitmq-server build-essential
 
 # create user
 RUN useradd -r -m -g sudo milo
