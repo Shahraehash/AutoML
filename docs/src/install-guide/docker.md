@@ -133,4 +133,6 @@ available for configuration in such an environment:
 `LDAP_AUTH_SECRET`: After successfully authenticating using LDAP, sessions are authenticated using a signed JWT token and this defines
 the secret for that token.
 
+`LDAP_REQUIRED_GROUP`: Ensure the user is a member of the group provided. Only checked if a group is defined otherwise no group checking is performed.
+
 `BROKER_URL`: URL to the RabbitMQ broker (do not use when using the all-in-one image).
