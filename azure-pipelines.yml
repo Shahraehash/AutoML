@@ -18,9 +18,6 @@ parameters:
 
 variables:
   containerRegistry: 'Docker Hub'
-  repository: 'pro'
-  eduRepository: 'education'
-  saasEduRepository: 'saas-education'
   cacheRepository: 'build-cache'
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
     tag: 'latest'
@@ -104,11 +101,6 @@ jobs:
   - checkout: self
     submodules: true
 
-  - task: DownloadSecureFile@1
-    name: serviceAccountKey
-    inputs:
-      secureFile: 'serviceAccountKey.json'
-
   - task: NodeTool@0
     inputs:
       versionSpec: '16'
@@ -183,6 +175,11 @@ jobs:
     displayName: Build Preprocessor UI
 
   - script: |
+      pip install requests Flask licensing
+      python sign_educational_license.py
+    displayName: Create Education License
+
+  - script: |
       docker run --privileged --rm tonistiigi/binfmt --install arm64
       docker run --privileged --rm tonistiigi/binfmt
       docker buildx create --use
@@ -192,36 +189,32 @@ jobs:
       docker buildx build --platform linux/amd64,linux/arm64 \
         --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
         --cache-to=type=registry,ref=$(acr_address)/$(cacheRepository),mode=max \
-        -t $(acr_address)/$(repository):$(GitVersion.SemVer) \
-        -t $(acr_address)/$(repository):$(tag) \
+        --target aio \
+        -t $(acr_address)/aio:$(GitVersion.SemVer) \
+        -t $(acr_address)/aio:$(tag) \
         --push \
         .
-    displayName: Build Docker Image
-
-  - script: |
-      pip install requests Flask licensing
-      python sign_educational_license.py
-    displayName: Create Education License
-
-  - script: |
-      mv $(serviceAccountKey.secureFilePath) .
-      docker buildx build --platform linux/amd64,linux/arm64 \
-        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
-        -t $(acr_address)/$(eduRepository):$(GitVersion.SemVer) \
-        -t $(acr_address)/$(eduRepository):$(tag) \
-        --push \
-        .
-    displayName: Build Education Docker Image
+    displayName: Build All-in-One Docker Image
 
   - script: |
       docker buildx build --platform linux/amd64,linux/arm64 \
         --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
-        -t $(acr_address)/$(saasEduRepository):$(GitVersion.SemVer) \
-        -t $(acr_address)/$(saasEduRepository):$(tag) \
-        -f Dockerfile-SaaS \
+        --target api \
+        -t $(acr_address)/api:$(GitVersion.SemVer) \
+        -t $(acr_address)/api:$(tag) \
         --push \
         .
-    displayName: Build SaaS Education Docker Image
+    displayName: Build API Docker Image
+
+  - script: |
+      docker buildx build --platform linux/amd64,linux/arm64 \
+        --cache-from=type=registry,ref=$(acr_address)/$(cacheRepository) \
+        --target worker \
+        -t $(acr_address)/worker:$(GitVersion.SemVer) \
+        -t $(acr_address)/worker:$(tag) \
+        --push \
+        .
+    displayName: Build Worker Docker Image
 
 - job: AuthApp
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
