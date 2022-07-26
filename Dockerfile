@@ -1,5 +1,5 @@
 # set base image (host OS)
-FROM python:3.9.12-slim as base
+FROM python:3.9.13-slim as base
 
 # install OS dependencies
 RUN apt-get update
