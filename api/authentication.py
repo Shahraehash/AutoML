@@ -30,8 +30,12 @@ def ldap_login():
           search_base=os.getenv('LDAP_BASE_DN'),
           search_filter='(sAMAccountName=' + payload['username'].split('@')[0] + ')',
           search_scope = SUBTREE,
-          attributes=['objectGUID', 'givenName', 'sn', 'mail']
+          attributes=['objectGUID', 'givenName', 'sn', 'mail', 'memberOf']
         )
+
+        if os.getenv('LDAP_REQUIRED_GROUP') and not any(os.getenv('LDAP_REQUIRED_GROUP') in item for item in connection.entries[0]['memberOf']):
+            return abort(401)
+
         token = jwt.encode(
           {
             'iss': 'milo-ml',
