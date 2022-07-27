@@ -31,7 +31,7 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   pendingTasks: PendingTasks;
   trainCompleted = false;
   version = packageJson.version;
-  localUser = environment.localUser;
+  localUser = environment.localUser  === 'true';
 
   constructor(
     public activatedRoute: ActivatedRoute,
@@ -150,7 +150,15 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async signOut() {
-    await signOut(this.afAuth);
+    if (environment.ldapAuth === 'true') {
+      delete this.api.ldapToken;
+      try {
+        localStorage.removeItem('ldapToken');
+      } catch (err) {}
+    } else {
+      await signOut(this.afAuth);
+    }
+
     this.router.navigateByUrl('/auth/sign-in');
   }
 }

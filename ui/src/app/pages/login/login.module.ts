@@ -7,32 +7,41 @@ import { IonicModule } from '@ionic/angular';
 
 import { LoginPageComponent } from './login.page';
 import { environment } from '../../../environments/environment';
+import { LDAPGuestGuard } from '../../services';
 
 const redirectAuthorizedToHome = () => redirectLoggedInTo(['/']);
+
+let routeMetaData;
+if (environment.ldapAuth === 'true') {
+  routeMetaData = {
+    canActivate: [LDAPGuestGuard]
+  };
+} else {
+  routeMetaData = {
+    ...(environment.localUser === 'true' ? {} : { canActivate: [AuthGuard] }),
+    data: { authGuardPipe: redirectAuthorizedToHome }
+  };
+}
 
 const routes: Routes = [
   {
     path: 'sign-in',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
   {
     path: 'sign-up',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
   {
     path: 'sign-out',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
   {
     path: 'forgot-password',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
   {
@@ -41,8 +50,7 @@ const routes: Routes = [
   },
   {
     path: 'check-email',
-    ...(environment.localUser ? {} : { canActivate: [AuthGuard] }),
-    data: { authGuardPipe: redirectAuthorizedToHome },
+    ...routeMetaData,
     component: LoginPageComponent
   },
 ];

@@ -71,13 +71,15 @@
 
   <ng-container *ngTemplateOutlet='emailFragment'></ng-container>
   <ng-container *ngTemplateOutlet='passwordFragment'></ng-container>
-  <a class='ion-margin-top forgot-password' (click)='setMode(modes.ForgotPassword)'>Forgot your password?</a>
+  <a class='ion-margin-top forgot-password' (click)='setMode(modes.ForgotPassword)' *ngIf='!ldapAuth'>Forgot your password?</a>
 
-  <ion-button mode='md' (click)='signIn()' expand='block' color='primary'>Sign In</ion-button>
+  <ion-button mode='md' (click)='ldapAuth ? ldapSignIn() : signIn()' expand='block' color='primary'>Sign In</ion-button>
   <ion-button mode='md' (click)='exit(false)' expand='block' color='light'>Cancel</ion-button>
 
-  <p>Don't have an account? <a (click)='setMode(modes.SignUp)'>Sign up now</a></p>
-  <ng-container *ngTemplateOutlet='providerFragment'></ng-container>
+  <p *ngIf='!ldapAuth'>Don't have an account? <a (click)='setMode(modes.SignUp)'>Sign up now</a></p>
+  <ng-container *ngIf='!ldapAuth'>
+    <ng-container *ngTemplateOutlet='providerFragment'></ng-container>
+  </ng-container>
 </ng-template>
 
 <ng-template #signUpTemplate>

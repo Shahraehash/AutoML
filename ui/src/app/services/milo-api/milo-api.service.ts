@@ -27,35 +27,41 @@ export class MiloApiService {
   isTrial = false;
   currentJobId: string;
   currentDatasetId: string;
-  localUser: string;
+  localUserId: string;
   events = new EventEmitter<string>();
+  ldapToken: string;
 
   constructor(
     private afAuth: Auth,
     private http: HttpClient
   ) {
-    authState(this.afAuth).subscribe(user => {
-      if (!user && !environment.localUser) {
-        this.currentDatasetId = undefined;
-        this.currentJobId = undefined;
-        return;
-      }
-
-      /** If the environment is setup for local user, log out the user */
-      if (environment.localUser) {
-        signOut(this.afAuth);
-      }
-    });
-
-    try {
-      this.localUser = localStorage.getItem('localUser') || uuid();
-    } catch (err) {
-      this.localUser = uuid();
+    if (environment.localUser !== 'true' && environment.ldapAuth !== 'true') {
+      authState(this.afAuth).subscribe(user => {
+        if (!user) {
+          this.currentDatasetId = undefined;
+          this.currentJobId = undefined;
+          return;
+        }
+      });
     }
 
-    try {
-      localStorage.setItem('localUser', this.localUser);
-    } catch (err) {}
+    if (environment.localUser === 'true') {
+      try {
+        this.localUserId = localStorage.getItem('localUser') || uuid();
+      } catch (err) {
+        this.localUserId = uuid();
+      }
+  
+      try {
+        localStorage.setItem('localUser', this.localUserId);
+      } catch (err) {}
+    }
+
+    if (environment.ldapAuth === 'true') {
+      try {
+        this.ldapToken = localStorage.getItem('ldapToken');
+      } catch (err) {}
+    }
   }
 
   async submitData(formData: FormData) {
@@ -270,6 +276,17 @@ export class MiloApiService {
     return await (await this.request<void>('post', `/license`, {license_code})).toPromise();
   }
 
+  async ldapAuth(username: string, password: string) {
+    return this.http.post<{token: string}>(`${environment.apiUrl}/auth/ldap`, {username, password}).toPromise().then(
+      reply => {
+        this.ldapToken = reply.token;
+        try {
+          localStorage.setItem('ldapToken', this.ldapToken);
+        } catch (err) {}
+      }
+    );
+  }
+
   private async request<T>(method: string, url: string, body?: any) {
     return this.http.request<T>(
       method,
@@ -283,6 +300,14 @@ export class MiloApiService {
       catchError(error => {
         if (error.status === 402) {
           this.events.emit('license_error');
+        }
+
+        if (environment.ldapAuth === 'true' && error.status === 401) {
+          delete this.ldapToken;
+          try {
+            localStorage.removeItem('ldapToken');
+          } catch (err) {}
+          location.reload();
         }
 
         return throwError(error);
@@ -312,14 +337,20 @@ export class MiloApiService {
   }
 
   private async getHttpHeaders(): Promise<HttpHeaders> {
-    return environment.localUser ?
-      new HttpHeaders().set('LocalUserID', this.localUser) :
-      new HttpHeaders().set('Authorization', `Bearer ${await (await this.afAuth.currentUser).getIdToken()}`);
+    return environment.localUser === 'true' ?
+      new HttpHeaders().set('LocalUserID', this.localUserId) :
+      new HttpHeaders().set('Authorization', `Bearer ${await this.getToken()}`);
   }
 
   private async getURLAuth(): Promise<string> {
-    return environment.localUser ?
-      `localUser=${this.localUser}` :
-      `currentUser=${await (await this.afAuth.currentUser).getIdToken()}`;
+    return environment.localUser === 'true' ?
+      `localUser=${this.localUserId}` :
+      `currentUser=${await this.getToken()}`;
+  }
+
+  private async getToken(): Promise<string> {
+    return environment.ldapAuth === 'true' ?
+      this.ldapToken :
+      await (await this.afAuth.currentUser).getIdToken();
   }
 }

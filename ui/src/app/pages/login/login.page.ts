@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { Location } from '@angular/common';
 import {
   applyActionCode, Auth, AuthProvider, confirmPasswordReset, getAdditionalUserInfo, OAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword,
   signInWithEmailLink, signInWithPopup, signInWithRedirect, signOut, updatePassword, updateProfile, UserCredential
@@ -49,6 +48,7 @@ export class LoginPageComponent {
   version = packageJson.version;
   redirectReason: 'passwordReset' | 'signUp' | 'magicLink';
   navigationHistory = [];
+  ldapAuth = environment.ldapAuth === 'true';
 
   constructor(
     public api: MiloApiService,
@@ -57,9 +57,8 @@ export class LoginPageComponent {
     private loadingController: LoadingController,
     private toastController: ToastController,
     private router: Router,
-    private http: HttpClient,
-    private location: Location
-  ) { }
+    private http: HttpClient
+  ) {}
 
   get isDocker() {
     return environment.name === 'docker';
@@ -86,7 +85,7 @@ export class LoginPageComponent {
         this.completeSignUp();
         break;
       case Modes.SignIn:
-        this.signIn();
+        this.ldapAuth ? this.ldapSignIn() : this.signIn();
         break;
       case Modes.ResetPassword:
         this.resetPassword();
@@ -108,6 +107,20 @@ export class LoginPageComponent {
 
     try {
       await signInWithEmailAndPassword(this.afAuth, this.authForm.value.email, this.authForm.value.password);
+      await this.exit(true);
+    } catch (err) {
+      this.showError(`Invalid login, please verify and try again.`);
+    } finally {
+      await loading.dismiss();
+    }
+  }
+
+  async ldapSignIn() {
+    const loading = await this.loadingController.create();
+    await loading.present();
+
+    try {
+      await this.api.ldapAuth(this.authForm.value.email, this.authForm.value.password);
       await this.exit(true);
     } catch (err) {
       this.showError(`Invalid login, please verify and try again.`);
@@ -311,9 +324,20 @@ export class LoginPageComponent {
   }
 
   private detectMode() {
+    if (this.ldapAuth) {
+      return Modes.SignIn;
+    }
+
     switch (this.router.url.split('?')[0]) {
       case '/auth/sign-out':
-        signOut(this.afAuth);
+        if (this.ldapAuth) {
+          delete this.api.ldapToken;
+          try {
+            localStorage.removeItem('ldapToken');
+          } catch (err) {}
+        } else {
+          signOut(this.afAuth);
+        }
         return Modes.SignIn;
       case '/auth/sign-up':
         return Modes.SignUp;
@@ -365,7 +389,7 @@ export class LoginPageComponent {
   }
 
   private getRedirectUrl() {
-    return this.route.snapshot.params.redirectTo || '/search';
+    return this.route.snapshot.params.redirectTo || '/';
   }
 
   async showError(message: string) {

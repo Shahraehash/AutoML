@@ -6,6 +6,8 @@ using an Angular SPA.
 """
 
 import os
+import pathlib
+import re
 
 from firebase_admin import auth, credentials, initialize_app
 from flask import Flask, g, request, send_from_directory, abort
@@ -13,6 +15,7 @@ from flask_compress import Compress
 from flask_cors import CORS
 from dotenv import load_dotenv
 
+import api.authentication as authentication
 import api.datasets as datasets
 import api.jobs as jobs
 import api.published as published
@@ -28,10 +31,25 @@ APP.config['UPLOAD_FOLDER'] = 'data/preprocessed'
 CORS(APP)
 Compress(APP)
 
-if os.path.exists('serviceAccountKey.json'):
+if os.path.exists('data/serviceAccountKey.json'):
     initialize_app(
-        credentials.Certificate('serviceAccountKey.json')
+        credentials.Certificate('data/serviceAccountKey.json')
     )
+
+@APP.before_first_request
+def replace_environment_variables():
+    """Replace environment variables in the SPA."""
+
+    for file in pathlib.Path('static').glob('main*.js'):
+        content = file.read_text()
+        tokens = re.findall(r'\$\{\{(\w+)\}\}', content)
+        for variable in tokens:
+            value = os.getenv(variable)
+            if value:
+                content = content.replace(
+                    '${{' + variable + '}}', value
+                )
+        file.write_text(content)
 
 @APP.route('/')
 def load_ui(path='index.html'):
@@ -83,21 +101,34 @@ def parse_auth():
     current_user = request.args.get('currentUser')
 
     if bearer is not None:
-        try:
-            g.uid = auth.verify_id_token(bearer.split()[1])['uid']
-        except auth.ExpiredIdTokenError:
-            abort(401)
+        token = bearer.split()[1]
+        if os.getenv('LDAP_AUTH') == 'true':
+            try:
+                g.uid = authentication.ldap_verify(token)['uid']
+            except Exception:
+                abort(401)
+        else:
+            try:
+                g.uid = auth.verify_id_token(token)['uid']
+            except auth.ExpiredIdTokenError:
+                abort(401)
         return
 
     if current_user is not None:
-        try:
-            g.uid = auth.verify_id_token(current_user)['uid']
-        except auth.ExpiredIdTokenError:
-            abort(401)
+        if os.getenv('LDAP_AUTH') == 'true':
+            try:
+                g.uid = authentication.ldap_verify(current_user)['uid']
+            except Exception:
+                abort(401)
+        else:
+            try:
+                g.uid = auth.verify_id_token(current_user)['uid']
+            except auth.ExpiredIdTokenError:
+                abort(401)
         return
 
     local_user = request.headers.get('LocalUserID', request.args.get('localUser'))
-    if os.getenv('NO_NETWORK_ALLOWED') == 'true' and local_user:
+    if os.getenv('LOCAL_USER') == 'true' and local_user:
         g.uid = local_user
         return
 
@@ -150,6 +181,9 @@ APP.add_url_rule('/published/<string:name>/features', 'published-features', publ
 
 # Licensing
 APP.add_url_rule('/license', 'license-activate', licensing.activate, methods=['POST'])
+
+# Authentication
+APP.add_url_rule('/auth/ldap', 'ldap-login', authentication.ldap_login, methods=['POST'])
 
 # Preprocessing Tools
 if not os.path.exists(APP.config['UPLOAD_FOLDER']):

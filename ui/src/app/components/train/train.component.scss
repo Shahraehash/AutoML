@@ -4,6 +4,10 @@
   overflow: scroll;
 }
 
+.disabled {
+  pointer-events: none;
+}
+
 .container {
   overflow-x: auto;
   display: flex;

@@ -10,7 +10,6 @@
     "serve": "ng serve",
     "build": "ng build --output-path ../static --configuration production",
     "build-docker": "ng build --output-path ../static --configuration=docker",
-    "build-saas": "ng build --output-path ../static --configuration=saas",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
