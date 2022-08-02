@@ -2,11 +2,11 @@
 
 MILO-ML's docker image hosts everything needed to get up and running with MILO-ML.
 
-## 1) Install Docker Desktop
+## Install Docker Desktop
 
 Download [Docker Desktop](https://www.docker.com/products/docker-desktop) and follow the instructions from the installer to get it installed on your system.
 
-## 2) Open Docker Dashboard and Configuring Docker
+## Open Docker Dashboard and Configuring Docker
 
 This is a one time step after installing Docker to ensure enough resources are allocated for MILO-ML. This is done using the Docker Desktop Dashboard launched as shown here:
 
@@ -22,14 +22,10 @@ This will navigate to a settings page which has sections on the left hand side. 
 
 Here, please adjust the settings to maximize the available CPU and memory to meet at least 4 CPUs and at least 8GB of RAM.
 
-## 3) Download MILO-ML Image
+## Download the MILO-ML Image
 
-Please contact us to get a download link to our docker image. The file downloaded by the link provided will be a GZip file which should not be extracted.
-
-## 4) Import MILO-ML Image
-
-Docker Desktop does not currently provide a way to import an image but fortunately also installs Docker CLI. In this section, we will use Docker CLI
-to import the MILO-ML docker image.
+Docker Desktop does not currently provide a way to download an image but fortunately also installs Docker CLI. In this section, we will use Docker CLI
+to pull the MILO-ML docker image.
 
 Please open any terminal and run the following command:
 
@@ -40,18 +36,10 @@ For macOS users, you can search Spotlight for `Terminal`.
 :::
 
 ```sh
-# Replace the file name with the one you downloaded
-
-docker load -i milo-1.0.0.tar.gz
+docker pull miloteam/aio:latest
 ```
 
-::: tip
-You can drag and drop the file onto the terminal window to auto-populate the full file path. Start by typing `docker load -i ` (including the space at the end) and end by dragging the file onto the terminal window.
-
-![Docker Load](./images/docker-load.png)
-:::
-
-## 5) First Time Starting MILO-ML
+## First Time Starting MILO-ML
 
 Once the MILO-ML image is loaded, the remainder of the deployment can be performed within Docker Desktop.
 
@@ -59,7 +47,7 @@ To start this image first open the Docker Desktop Dashboard and navigate to the 
 
 ![Docker Images](./images/docker-images.png)
 
-You will see an image name prefixed with `milo/` and will end with the version of MILO loaded (e.g., education, pro, or trial). If you hover over this two buttons will appear one of which is labeled `Run` as shown here:
+You will see an image name prefixed with `miloteam/` and will end with the version of MILO loaded (e.g., education, pro, or trial). If you hover over this two buttons will appear one of which is labeled `Run` as shown here:
 
 ![Docker Run Image](./images/docker-image-run.png)
 
@@ -82,7 +70,7 @@ macOS added an Airplay Receiver service which listens on port 5000 and must eith
 
 Additional configuration options are available under the [Advanced Configuration](#advanced-configuration)
 
-## 6) Start Using MILO-ML
+## Start Using MILO-ML
 
 After you start MILO-ML, you should see some output similar to the following:
 
@@ -105,17 +93,18 @@ Once stopped, the button will change to a play button allowing you to start MILO
 
 ## Advanced Configuration
 
-::: warning
-Generally speaking, these values should not be used unless directed.
-:::
-
 In addition to the host port, several other options can be configured.
 
 MILO will store data within the Docker container however
 users may wish to store the data (uploaded datasets, run data, published models, etc.) outside of the container
-and may do so by mounting a volume. The `Host Path` refers to the location on the machine running Docker and the `Container Path`
+and may do so by mounting a volume. This is important when updating MILO in order preserve the data between versions.
+The `Host Path` refers to the location on the machine running Docker and the `Container Path`
 will always be: `/milo/data`. Additionally, SSL certificates are stored within `/milo/ssl` and can be mounted to replace the default
 self-signed certificate.
+
+::: warning
+Generally speaking, the below values should not be used unless directed.
+:::
 
 In addition, MILO will typically run in a single user mode meaning no authentication is done as the interface is only expected to
 be accessed via the localhost adapter. If you intend to run MILO to multiple users, you will want to disable the single user configuration
