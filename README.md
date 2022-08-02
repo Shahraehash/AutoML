@@ -1,7 +1,7 @@
 # AutoML
 
-Supervised and unsupervised learning using an exhaustive search of ideal
-pre-processing (if any), algorithms, and hyper-parameters with feature engineering.
+Supervised and unsupervised learning utilizing feature engineering and using an exhaustive search of ideal
+pre-processing (if any), algorithms, and hyper-parameters.
 
 This program is currently tuned towards binary classification such as those seen
 in medicine (eg. disease or no disease).
