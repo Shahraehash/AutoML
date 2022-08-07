@@ -219,11 +219,27 @@ export class TrainComponent implements OnDestroy, OnInit {
 
   private updateForTrial() {
     if (this.api.isTrial) {
-      this.setValues('estimators', [...new Set([...this.pipelineProcessors.estimators.filter(i => !i.trial).map(i => i.value) ,...this.parameters.ignore_estimator.split(',')])]);
-      this.setValues('scalers', [...new Set([...this.pipelineProcessors.scalers.filter(i => !i.trial).map(i => i.value) ,...this.parameters.ignore_scaler.split(',')])]);
-      this.setValues('featureSelectors', [...new Set([...this.pipelineProcessors.featureSelectors.filter(i => !i.trial).map(i => i.value) ,...this.parameters.ignore_feature_selector.split(',')])]);
-      this.setValues('searchers', [...new Set([...this.pipelineProcessors.searchers.filter(i => !i.trial).map(i => i.value) ,...this.parameters.ignore_searcher.split(',')])]);
-      this.setValues('scorers', [...new Set([...this.pipelineProcessors.scorers.filter(i => !i.trial).map(i => i.value) ,...this.parameters.ignore_scorer.split(',')])]);
+      this.setValues('estimators', [
+        ...new Set([
+          ...this.pipelineProcessors.estimators.filter(i => !i.trial).map(i => i.value),
+          ...this.parameters?.ignore_estimator?.split(',') ?? []
+        ])]);
+      this.setValues('scalers', [...new Set([
+        ...this.pipelineProcessors.scalers.filter(i => !i.trial).map(i => i.value),
+        ...this.parameters?.ignore_scaler?.split(',') ?? []
+      ])]);
+      this.setValues('featureSelectors', [...new Set([
+        ...this.pipelineProcessors.featureSelectors.filter(i => !i.trial).map(i => i.value),
+        ...this.parameters?.ignore_feature_selector?.split(',') ?? []
+      ])]);
+      this.setValues('searchers', [...new Set([
+        ...this.pipelineProcessors.searchers.filter(i => !i.trial).map(i => i.value),
+        ...this.parameters?.ignore_searcher?.split(',') ?? []
+      ])]);
+      this.setValues('scorers', [...new Set([
+        ...this.pipelineProcessors.scorers.filter(i => !i.trial).map(i => i.value),
+        ...this.parameters?.ignore_scorer?.split(',') ?? []
+      ])]);
     }
   }
 
