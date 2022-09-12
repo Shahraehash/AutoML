@@ -33,9 +33,9 @@ will be down in the dialogue box labeled as "Correlated selected for removal".
 
 ![Find Correlations](./images/colinearity_screenshot_08.png)
 
-Note: If less than 50 columns are present in the dataset, a visual representation of the correlation limit (yellow) and those
-pairs which are within 10% of the threshold (blue) will be displayed to help better explore the correlations in the data at
-or near the current threshold. Once done exploring with the columns for removal selected, the Confirm Features for Removal
+Note: If less than 50 columns are present in the dataset, a visual representation of the correlation strength will be displayed to help better 
+explore the correlations. Blue shades reflect a positive correlation, while purple shades reflect a negative correlation. 
+Once done exploring, with the columns for removal selected, the Confirm Features for Removal
 button can be clicked to advance to the final step.
 
 ![Heatmap](./images/colinearity_screenshot_09.png)
