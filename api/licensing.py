@@ -61,7 +61,7 @@ def get_license():
                 return license_key
 
             # Check if the license is valid for the current machine
-            elif Helpers.IsOnRightMachine(license_key) and license_key.expires >= datetime.now():
+            elif license_key.expires >= datetime.now():
                 return license_key
             else:
                 return None
