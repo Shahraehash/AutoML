@@ -269,7 +269,7 @@ export class TrainComponent implements OnDestroy, OnInit {
           this.resetState.emit();
         }
       }),
-      delay(5000),
+      delay(60000),
       repeat()
     ).subscribe();
   }

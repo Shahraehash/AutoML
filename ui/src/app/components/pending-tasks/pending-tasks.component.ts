@@ -64,7 +64,7 @@ export class PendingTasksComponent implements OnInit, OnDestroy {
           });
         }
       }),
-      delay(5000),
+      delay(60000),
       repeat()
     ).subscribe();
   }
