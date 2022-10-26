@@ -72,10 +72,10 @@ ENV LOCAL_USER true
 ENV LDAP_AUTH false
 
 # start the application
-CMD uwsgi --ini uwsgi.ini
+CMD uwsgi --ini uwsgi.ini --processes $(grep -c 'cpu[0-9]' /proc/stat)
 
 # create an all-in-one image used for a single instance
 FROM api as aio
 
 # start the application
-CMD sudo rabbitmq-server & celery -A worker worker -c 1 & uwsgi --ini uwsgi.ini
+CMD sudo rabbitmq-server & celery -A worker worker -c 1 & uwsgi --ini uwsgi.ini --processes 1
