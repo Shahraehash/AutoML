@@ -20,8 +20,7 @@ The status can also be shown in the system tray:
 
 ## Download the MILO-ML Image
 
-Docker Desktop does not currently provide a way to download an image but fortunately also installs Docker CLI. In this section, we will use Docker CLI
-to pull the MILO-ML docker image.
+In this section, we will use Docker command line interface to pull the MILO-ML docker image.
 
 Please open any terminal and run the following command:
 
