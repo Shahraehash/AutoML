@@ -6,26 +6,21 @@ MILO-ML's docker image hosts everything needed to get up and running with MILO-M
 
 Download [Docker Desktop](https://www.docker.com/products/docker-desktop) and follow the instructions from the installer to get it installed on your system.
 
-## Open Docker Dashboard and Configuring Docker
+::: warning
+Windows users may need to install WSL 2 and will be instructed by the Docker installation, if required.
+:::
 
-This is a one time step after installing Docker to ensure enough resources are allocated for MILO-ML. This is done using the Docker Desktop Dashboard launched as shown here:
+Before proceeding to the next step, please ensure Docker is running. This can be confirmed from the Docker Dashboard window which shows a green bar on the bottom left corner:
+
+![Docker Images](./images/docker-images.png)
+
+The status can also be shown in the system tray:
 
 ![Docker Dashboard Link](./images/docker-dashboard-link.png)
 
-Inside the dashboard click the button with a gear icon as shown:
-
-![Docker Settings Button](./images/docker-settings-button.png)
-
-This will navigate to a settings page which has sections on the left hand side. Please navigate to the `Resources` section as shown below:
-
-![Docker Resources](./images/docker-resources.png)
-
-Here, please adjust the settings to maximize the available CPU and memory to meet at least 4 CPUs and at least 8GB of RAM.
-
 ## Download the MILO-ML Image
 
-Docker Desktop does not currently provide a way to download an image but fortunately also installs Docker CLI. In this section, we will use Docker CLI
-to pull the MILO-ML docker image.
+In this section, we will use Docker command line interface to pull the MILO-ML docker image.
 
 Please open any terminal and run the following command:
 
@@ -36,7 +31,7 @@ For macOS users, you can search Spotlight for `Terminal`.
 :::
 
 ```sh
-docker pull miloteam/aio:latest
+docker pull miloteam/aio
 ```
 
 ## First Time Starting MILO-ML
@@ -125,3 +120,19 @@ the secret for that token.
 `LDAP_REQUIRED_GROUP`: Ensure the user is a member of the group provided. Only checked if a group is defined otherwise no group checking is performed.
 
 `BROKER_URL`: URL to the RabbitMQ broker (do not use when using the all-in-one image).
+
+### Configuring Docker Resources
+
+This is a one time step after installing Docker to ensure enough resources are allocated for MILO-ML. This is done using the Docker Desktop Dashboard launched as shown here:
+
+![Docker Dashboard Link](./images/docker-dashboard-link.png)
+
+Inside the dashboard click the button with a gear icon as shown:
+
+![Docker Settings Button](./images/docker-settings-button.png)
+
+This will navigate to a settings page which has sections on the left hand side. Please navigate to the `Resources` section as shown below:
+
+![Docker Resources](./images/docker-resources.png)
+
+Here, please adjust the settings to maximize the available CPU and memory to meet at least 4 CPUs and at least 8GB of RAM.

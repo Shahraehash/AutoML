@@ -59,7 +59,7 @@ export class SearchPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.pendingTasks = pending;
       }),
-      delay(5000),
+      delay(60000),
       repeat()
     ).subscribe();
 
