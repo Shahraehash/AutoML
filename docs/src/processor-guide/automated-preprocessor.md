@@ -10,13 +10,8 @@ A unique and powerful data preprocessing tool that dramatically streamlines the 
 
 The example below (a sample cancer csv file) shows a dataset in need of multiple preprocessing (i.e. cleaning) tasks. The multiple missing and NaN values (highlighted in yellow) will need to be either imputed or removed and the non-numerical values (i.e. text that are highlighted in red) will need to be converted to appropriate numerical counterparts. Additionally, the features with high correlations (multicollinearity) will potentially need to be removed. MILO Pro’s APT is able to address all these data cleaning tasks in a very intuitive and powerful seamless process. 
 
- 
-
- 
 ![Dataset with Missing Data](./images/apt_00_0.png)
 ![Dataset with Missing Data 2](./images/apt_00_1.png)
-
-
 
 Navigate to the **Preprocessing Tools** from the MILO home page and then select the **Automated Preprocessing Tool**.
  
@@ -52,11 +47,14 @@ The next step depends on if you have a single file or two files.
 
 ![Imputation or Removal of Missing Values in Already Segemented Datasets](./images/apt_08.png)
 
-You now have a few choices. You can either export your files or run a multicollinearity assessment on the features and remove any correlated columns (i.e. features) before generating your final files. For details on this step, see the multicollinearity tool documentation.
+You now have a few choices. You can either export your files or run a multicollinearity assessment on the features and remove any correlated columns (i.e. features) before generating your final files. For details on this step, see the [Multicollinearity Assessment & Removal Tool](./multicollinearity.md) documentation.
+
+
+
 
 ![Selecting Optional Additional Steps](./images/apt_09.png)
 
-Once selecting “Finalize Files”, you will see a summary of all the changes (see step 6) that were made and the files will be downloaded into a zip file.
+Once selecting **Export Files**, you will see a summary of all the changes (see step 6) that were made and the files will be downloaded into a zip file.
 
  
 ![Finalizing Files for Use in MILO](./images/apt_10.png)
@@ -64,22 +62,6 @@ Once selecting “Finalize Files”, you will see a summary of all the changes (
 The zip file contains training_and_initial_validation.csv file, generalization_testing.csv, and summary.png which is a snapshot of the final step summary. An audit folder is also included which maps the original files and rows (corresponding separate files display the details on any removed rows or imputed rows for closer evaluation).
 
 ![Summary of All Files Provided with Export](./images/apt_11.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 <style>
