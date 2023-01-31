@@ -22,6 +22,8 @@ and select for the most significant features within your dataset when necessary.
 
 - **Imputation & Encoder Tool** : Allows you to iteratively impute missing values and encode non-numerical data into the numerical data. <span class="badge-style">MILO Pro</span>
 
+- **Automated Preprocessor Tool** : Combines all the tools into one smooth flow to prepare your data for MILO including segementation and imputation. <span class="badge-style">MILO Pro</span>
+
 
 
 <style>
