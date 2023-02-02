@@ -59,7 +59,7 @@ Once selecting **Export Files**, you will see a summary of all the changes (see 
  
 ![Finalizing Files for Use in MILO](./images/apt_10.png)
 
-The zip file contains training_and_initial_validation.csv file, generalization_testing.csv, and summary.png which is a snapshot of the final step summary. An audit folder is also included which maps the original files and rows (corresponding separate files display the details on any removed rows or imputed rows for closer evaluation).
+The zip file contains training_and_initial_validation.csv file, generalization_testing.csv, and summary.png which is a snapshot of the final step summary. An audit folder is also included which maps the original files and rows (corresponding separate files display the details on any removed rows or imputed rows for closer evaluation). **Please note, the audit rows match Excel's index method of labeling the column names as row 1 and the first data row as row 2.**
 
 ![Summary of All Files Provided with Export](./images/apt_11.png)
 
