@@ -3,7 +3,7 @@
 MILO provides a set of pre and post processing tools which allows users to more easily prepare and optimize
 their data for use within the MILO Auto-ML tool. These can be accessed from the MILO landing page (under Preprocessing Tools).
 
-![Preprocessing Tools](./images/apt_01.png)
+![Preprocessing Tools](./images/apt_00_3.png)
 
 The tools include:
 
