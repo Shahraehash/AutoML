@@ -1,4 +1,4 @@
-# Imputation & Encoder Tool (MILO Pro)
+# Imputation & Encoder Tool <span class="badge-style">MILO Pro</span>
 - A unique and powerful tool that dramatically expedites your Pre-Machine Learning dataset preparation / cleaning  process. 
 
 - It allows you to iteratively Impute missing values (with our  powerful imputation tool) while also allowing the simultaneous conversion of your text data within your dataset to numerical values (when needed) through our combined encoder platform (which converts columns with non-numerical data into numeric values). 
@@ -80,3 +80,17 @@ As noted above, if your dataset is >2000 rows or >50 features, imputation can ta
 :::
 
 ![File Download](./images/encoder_12.png)
+
+<style>
+.badge-style {
+    background: #2a97f3;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 10px;
+    font-size: 14px;
+    display: inline-block;
+    height: 18px;
+    line-height: 18px;
+    margin-bottom: 10px;
+}
+</style>
