@@ -1,4 +1,4 @@
 [submodule "preprocessor"]
 	path = preprocessor
-	url = ../Processor%20Tools
+	url = ../Processor-Tools
 	branch = master
