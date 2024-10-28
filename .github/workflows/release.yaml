@@ -18,6 +18,7 @@ jobs:
         with:
           name: static
           run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Hosting Files
         run: unzip payload.zip -d .
@@ -27,6 +28,7 @@ jobs:
         with:
           name: functions
           run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Functions Files
         run: unzip functions/payload.zip -d functions
