@@ -11,7 +11,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download Hosting Artifact
         uses: actions/download-artifact@v4
@@ -32,9 +32,9 @@ jobs:
         run: unzip functions/payload.zip -d functions
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Install Functions Dependencies
         run: npm --prefix functions install
