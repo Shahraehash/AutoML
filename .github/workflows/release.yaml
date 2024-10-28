@@ -5,17 +5,33 @@ on:
     workflows: ["CI"]
     types:
       - completed
+  workflow_dispatch:
+    inputs:
+      ci_run_id:
+        description: 'Run ID of the CI workflow to pull artifacts from'
+        required: false
+        default: ''
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Determine Run ID
+        id: determine-run-id
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.ci_run_id }}" != "" ]]; then
+            echo "Using provided run-id: ${{ inputs.ci_run_id }}"
+            echo "::set-output name=run_id::${{ inputs.ci_run_id }}"
+          else
+            echo "Using workflow_run event's run-id: ${{ github.event.workflow_run.id }}"
+            echo "::set-output name=run_id::${{ github.event.workflow_run.id }}"
+        shell: bash
+
       - name: Download Hosting Artifact
         uses: actions/download-artifact@v4
         with:
           name: static
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ steps.determine-run-id.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Hosting Files
@@ -26,7 +42,7 @@ jobs:
         with:
           name: functions
           path: functions
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ steps.determine-run-id.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Functions Files
