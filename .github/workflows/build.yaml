@@ -279,7 +279,7 @@ jobs:
           cp firestore.indexes.json firebase/
 
       - name: Copy Front-End to Staging
-        run: cp -r static/* firebase/static/
+        run: cp -r static firebase/
 
       - name: Create Firebase Artifact
         run: |
