@@ -21,7 +21,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Hosting Files
-        run: unzip payload.zip -d .
+        run: unzip -o payload.zip -d .
 
       - name: Download Functions Artifact
         uses: actions/download-artifact@v4
@@ -31,7 +31,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Functions Files
-        run: unzip functions/payload.zip -d functions
+        run: unzip -o functions/payload.zip -d functions
 
       - name: Install Node.js
         uses: actions/setup-node@v4
