@@ -162,7 +162,7 @@ jobs:
         run: npm --prefix ui run build-docker
 
       - name: Build Documentation
-        run: npm --prefix docs run build
+        run: NODE_OPTIONS=--openssl-legacy-provider npm --prefix docs run build
 
       - name: Build Preprocessor UI
         run: npm --prefix preprocessor run milo-build
