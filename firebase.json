@@ -13,10 +13,6 @@
     ],
     "rewrites": [
       {
-        "source": "/licensing/activate",
-        "function": "activate"
-      },
-      {
         "source": "**",
         "destination": "/index.html"
       }

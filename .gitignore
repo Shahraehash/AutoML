@@ -72,5 +72,4 @@ venv.bak/
 node_modules
 
 # License files
-license.pub
-licensefile.skm
+private_key.pem

@@ -12,40 +12,6 @@ on:
         default: 'false'
 
 jobs:
-  functions:
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache Functions Dependencies
-        id: cache_functions
-        uses: actions/cache@v4
-        with:
-          path: functions/node_modules
-          key: ${{ runner.os }}-functions-${{ hashFiles('functions/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-functions-
-
-      - name: Install Dependencies
-        if: steps.cache_functions.outputs.cache-hit != 'true'
-        run: npm --prefix functions install
-
-      - name: Build Firebase Functions
-        run: npm --prefix functions run compile
-
-      - name: Create Firebase Functions Artifact
-        run: |
-          cd functions
-          zip -r ../payload.zip .
-        shell: bash
-
-      - name: Publish Firebase Functions Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: functions
-          path: payload.zip
-
   automl:
     runs-on: ubuntu-latest
     strategy:
@@ -166,11 +132,6 @@ jobs:
 
       - name: Build Preprocessor UI
         run: NODE_OPTIONS=--openssl-legacy-provider npm --prefix preprocessor run milo-build
-
-      - name: Create Education License
-        run: |
-          pip install requests Flask licensing
-          python sign_educational_license.py
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
