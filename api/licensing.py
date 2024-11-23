@@ -2,7 +2,7 @@
 Handle license related tasks
 """
 
-from jose import jwt
+import jwt
 import datetime
 
 from flask import jsonify, abort, request
