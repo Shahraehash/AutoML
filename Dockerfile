@@ -51,8 +51,8 @@ COPY --chown=milo preprocessor/modules/ preprocessor/modules/
 # copy static assets (UI and documentation)
 COPY --chown=milo static/ static/
 
-# if present, bundle the educational license
-COPY --chown=milo *licensefile.skm *license.pub data/
+# copy the public license key
+COPY --chown=milo public_key.pem .
 
 # create a worker service image
 FROM base as worker

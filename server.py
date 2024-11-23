@@ -74,24 +74,10 @@ def append_license(response):
         request.path.startswith('/tasks') or request.path.startswith('/published') or\
         request.path.startswith('/preprocessor_api'):
         response.headers['access-control-expose-headers'] = 'MILO-Trial, MILO-Education'
-        active_license = licensing.get_license()
-        response.headers['MILO-Trial'] = str(active_license.f2 if active_license else True).lower()
-        response.headers['MILO-Education'] = str(active_license.f3 if active_license else False).lower()
+        response.headers['MILO-Trial'] = "false"
+        response.headers['MILO-Education'] = "false"
 
     return response
-
-@APP.before_request
-def validate_license():
-    """Ensures the license is active before fulfilling the API request"""
-
-    if request.method == 'OPTIONS':
-        return
-
-    if request.path.startswith('/datasets') or request.path.startswith('/jobs') or\
-       request.path.startswith('/tasks') or request.path.startswith('/published') or\
-       request.path.startswith('/preprocessor_api/encoder'):
-        if not licensing.is_license_valid():
-            raise licensing.PaymentRequired
 
 @APP.before_request
 def parse_auth():
@@ -180,7 +166,7 @@ APP.add_url_rule('/published/<string:name>/export-pmml', 'published-export-pmml'
 APP.add_url_rule('/published/<string:name>/features', 'published-features', published.features)
 
 # Licensing
-APP.add_url_rule('/license', 'license-activate', licensing.activate, methods=['POST'])
+APP.add_url_rule('/license', 'license-activate', licensing.activate_license, methods=['POST'])
 
 # Authentication
 APP.add_url_rule('/auth/ldap', 'ldap-login', authentication.ldap_login, methods=['POST'])

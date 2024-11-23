@@ -2,78 +2,35 @@
 Handle license related tasks
 """
 
-from datetime import datetime
-import os
+import jwt
+import datetime
 
-import requests
 from flask import jsonify, abort, request
-from licensing.models import LicenseKey
-from licensing.methods import Helpers
-from werkzeug.exceptions import HTTPException
 
-def activate():
-    """Activates a provided license key"""
-
-    result = request_activation(request.json['license_code'])
-
-    if result is not None:
-        with open('data/licensefile.skm', 'w') as file:
-            file.write(result['license'])
-
-        with open('data/license.pub', 'w') as file:
-            file.write(result['public_key'])
-
+async def activate_license():
+    try:
+        activate_license_key(request.json['license_code'])
         return jsonify({'success': True})
-    else:
+    except Exception:
         abort(400)
 
-def request_activation(license_code):
-    """Request a license key activation"""
+def activate_license_key(license_key: str):
+    validate_key(license_key)
+    with open("data/license.key", "w") as license_file:
+        license_file.write(license_key)
 
-    result = requests.post(
-        'https://cloud.api.milo-ml.com/licensing/activate',
-        json={
-            'machine_code': Helpers.GetMachineCode(),
-            'license_code': license_code
-        }
-    )
+def check_license_key():
+    with open("data/license.key", "r") as license_file:
+        license_key = license_file.read()
+    validate_key(license_key)
 
-    if result.ok:
-        return result.json()
-    else:
-        None
 
-def get_license():
-    """Get the license of the current installation"""
+def validate_key(license_key: str):
+    with open("public_key.pem", "rb") as key_file:
+        public_key = key_file.read()
 
-    if os.path.exists('data/licensefile.skm') and os.path.exists('data/license.pub'):
-        with open('data/license.pub') as file:
-            public_key = file.read()
+    payload = jwt.decode(license_key, public_key, algorithms=["RS256"])
+    expiration_date = datetime.datetime.fromisoformat(payload["expiration_date"])
 
-        with open('data/licensefile.skm', 'r') as file:
-            license_key = LicenseKey.load_from_string(public_key, file.read())
-
-        if license_key is None:
-            return None
-        else:
-            # If the license is educational, bypass the expiration date and hardware ID check
-            if license_key.f3:
-                return license_key
-
-            # Check if the license is valid for the current machine
-            elif license_key.expires >= datetime.now():
-                return license_key
-            else:
-                return None
-    else:
-        return None
-
-def is_license_valid():
-    """Ensures a valid license is cached"""
-
-    return True if get_license() else False
-
-class PaymentRequired(HTTPException):
-    """HTTP Error for invalid license"""
-    code = 402
-    description = 'No valid license detected'
+    if expiration_date < datetime.datetime.now():
+        raise Exception("Invalid or expired license key.")

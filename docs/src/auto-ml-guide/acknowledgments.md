@@ -27,4 +27,3 @@ This list is not exhaustive as not all development dependencies are listed here.
 1. RxJS <https://github.com/ReactiveX/rxjs/blob/master/LICENSE.txt>
 1. SaveSvgAsPng <https://github.com/exupero/saveSvgAsPng/blob/gh-pages/LICENSE>
 1. VuePress <https://github.com/vuejs/vuepress/blob/master/LICENSE>
-1. CryptoLens <https://github.com/Cryptolens/cryptolens-nodejs/blob/master/LICENSE>

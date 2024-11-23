@@ -25,40 +25,6 @@ variables:
     tag: 'beta'
 
 jobs:
-- job: Functions
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  steps:
-  - task: Cache@2
-    inputs:
-      key: 'npm | "$(Agent.OS)" | functions/package-lock.json'
-      path: $(System.DefaultWorkingDirectory)/functions/node_modules
-      cacheHitVar: FUNCTIONS_CACHE_RESTORED
-    displayName: Cache Functions Dependencies
-
-  - script: |
-      npm --prefix functions install
-    condition: and(succeeded(), ne(variables.FUNCTIONS_CACHE_RESTORED, 'true'))
-    displayName: Install Dependencies
-
-  - script: |
-      npm --prefix functions run compile
-    displayName: Build Firebase Functions
-
-  - task: ArchiveFiles@2
-    displayName: Create Firebase Functions Artifact
-    inputs:
-      rootFolderOrFile: '$(Build.SourcesDirectory)/functions'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/payload.zip'
-      replaceExistingArchive: true
-
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Firebase Functions Artifact
-    inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)/payload.zip' 
-      artifactName: 'functions'
-
 - job: AutoML
   strategy:
     matrix:
@@ -173,11 +139,6 @@ jobs:
   - script: |
       npm --prefix preprocessor run milo-build
     displayName: Build Preprocessor UI
-
-  - script: |
-      pip install requests Flask licensing
-      python sign_educational_license.py
-    displayName: Create Education License
 
   - script: |
       docker run --privileged --rm tonistiigi/binfmt --install arm64
