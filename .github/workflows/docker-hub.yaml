@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   docker:
@@ -97,7 +100,7 @@ jobs:
 
       - name: Set Tag
         run: |
-          if [ "${GITHUB_REF##*/}" == "master" ]; then
+          if [ "${{ github.event_name }}" == "push" ] && [ "${GITHUB_REF##*/}" == "master" ]; then
             echo "TAG=latest" >> $GITHUB_ENV
           else
             echo "TAG=beta" >> $GITHUB_ENV
