@@ -36,7 +36,7 @@ HYPER_PARAMETER_RANGE = {
         'rf': {
             'bootstrap': [True],
             'max_depth': [50, 80, 110],
-            'max_features': ['auto'],
+            'max_features': ['sqrt'],
             'min_samples_leaf': [3, 4, 5],
             'n_estimators': [10, 100, 200, 300, 1000]
         },
@@ -64,7 +64,7 @@ HYPER_PARAMETER_RANGE = {
         'rf': {
             'bootstrap': [True],
             'max_depth': randint(50, 110),
-            'max_features': ['auto'],
+            'max_features': ['sqrt'],
             'min_samples_leaf': randint(3, 5),
             'min_samples_split': randint(2, 4),
             'n_estimators': randint(100, 1000)
