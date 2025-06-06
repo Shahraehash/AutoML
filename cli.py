@@ -5,6 +5,7 @@ Interact with the trainer using the CLI
 """
 import os
 import sys
+import pandas as pd
 
 from ml import search
 
@@ -18,7 +19,14 @@ else:
     TEST_SET = sys.argv[2]
     LABEL_COLUMN = sys.argv[3]
 
-LABELS = ['No ' + LABEL_COLUMN, LABEL_COLUMN]
+data = pd.read_csv(TRAIN_SET)
+unique_labels = sorted(data[LABEL_COLUMN].dropna().unique())
+
+# Check if it's binary classification
+if len(unique_labels) == 2: 
+    LABELS = ['No ' + LABEL_COLUMN, LABEL_COLUMN]
+else:
+    LABELS = [f'{label_column}_class_{int(label)}' for label in unique_labels]
 
 PARAMETERS = dict(
     ignore_estimator=os.getenv('IGNORE_ESTIMATOR', ''),

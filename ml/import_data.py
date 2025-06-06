@@ -9,15 +9,13 @@ from sklearn.model_selection import train_test_split
 def import_data(train_path, test_path, label_column):
     """Import both the training and test data using the passed paths"""
 
-    x, y, feature_names, train_negative_count, train_positive_count = import_csv(
-        train_path, label_column, True)
-    x2, y2, _, test_negative_count, test_positive_count = import_csv(test_path, label_column)
+    x, y, feature_names, train_class_counts, num_classes = import_csv(train_path, label_column, True)
+    x2, y2, _, test_class_counts, _ = import_csv(test_path, label_column)
 
     metadata = {
-        'train_negative_count': train_negative_count,
-        'train_positive_count': train_positive_count,
-        'test_negative_count': test_negative_count,
-        'test_positive_count': test_positive_count
+        'train_class_counts': train_class_counts,
+        'test_class_counts': test_class_counts,
+        'num_classes': num_classes
     }
 
     return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + \
@@ -50,13 +48,36 @@ def import_csv(path, label_column, show_warning=False):
     # Convert to NumPy array
     x = x.to_numpy()
 
-    negative_count = data[data[label_column] == 0].shape[0]
-    positive_count = data[data[label_column] == 1].shape[0]
+    # Get unique labels and label counts
+    unique_labels = sorted(y.unique())
 
-    if show_warning:
-        print('Negative Cases: %.7g\nPositive Cases: %.7g\n' % (negative_count, positive_count))
+    label_counts = {}
+    for label in unique_labels:
+        label_counts[f'class_{int(label)}_count'] = data[data[label_column] == label].shape[0]
+    
+    # For backward compatibility with binary classification
+    if len(unique_labels) == 2:
+        if show_warning:
+            negative_count = label_counts.get('class_0_count', 0)
+            positive_count = label_counts.get('class_1_count', 0)
+            print('Negative Cases: %.7g\nPositive Cases: %.7g\n' % (negative_count, positive_count))
+            if negative_count / positive_count < .9:
+                print('Warning: Classes are not balanced.')
+                
+        return [x, y, feature_names, label_counts, 2]
+        
+    else:
+        # Multi-class case
+        if show_warning:
+            for label in unique_labels:
+                count = label_counts[f'class_{int(label)}_count']
+                print('Class %d Cases: %.7g\n' % (int(label), count))
 
-        if negative_count / positive_count < .9:
-            print('Warning: Classes are not balanced.')
-
-    return [x, y, feature_names, negative_count, positive_count]
+            # Check for class imbalance in multi-class
+            counts = list(label_counts.values())
+            min_count, max_count = min(counts), max(counts)
+            if min_count / max_count < .5: #NOT SURE WHAT THIS THRESHOLD SHOULD BE?
+                print('Warning: Classes are not balanced.')
+        
+        # Return all class counts as a dictionary for multi-class
+        return [x, y, feature_names, label_counts, len(unique_labels)]

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from joblib import load
 
-from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import precision_score, recall_score, precision_recall_curve
 
 from .preprocess import preprocess
 from .utils import decimate_points
@@ -17,19 +17,40 @@ def precision_recall(pipeline, features, model, x_test, y_test):
     # Transform values based on the pipeline
     x_test = preprocess(features, pipeline, x_test)
 
+    n_classes = len(np.unique(y_test))
+
     if hasattr(model, 'decision_function'):
         probabilities = model.decision_function(x_test)
-
-        if np.count_nonzero(probabilities):
-            if probabilities.max() - probabilities.min() == 0:
-                probabilities = [0] * len(probabilities)
-            else:
-                probabilities = (probabilities - probabilities.min()) / \
-                    (probabilities.max() - probabilities.min())
+        
+        # Binary Classification 
+        if n_classes == 2:
+            if np.count_nonzero(probabilities):
+                if probabilities.max() - probabilities.min() == 0:
+                    probabilities = [0] * len(probabilities)
+                else:
+                    probabilities = (probabilities - probabilities.min()) / \ 
+                        (probabilities.max() - probabilities.min())
+            precision, recall, _ precision_recall_curve(y_test, probabilities)
+        
+        # Multi-Class Classification
+        else:            
+            y_pred = model.predict(x_test)
+            precision = precision_score(y_test, y_pred, average = 'macro')
+            recall = recall_score(y_test, y_pred, average = 'macro')
+    
     else:
-        probabilities = model.predict_proba(x_test)[:, 1]
 
-    precision, recall, _ = precision_recall_curve(y_test, probabilities)
+        # Binary classification
+        if n_classes == 2:
+            probabilities = model.predict_proba(x_test)[:, 1]
+            precision, recall, _ = precision_recall_curve(y_test, probabilities)
+            
+        # Multiclass classification 
+        else:
+            y_pred = model.predict(x_test)
+            precision = precision_score(y_test, y_pred, average = 'macro')
+            recall = recall_score(y_test, y_pred, average = 'macro')
+
 
     recall, precision = decimate_points(
       [round(num, 4) for num in list(recall)],
