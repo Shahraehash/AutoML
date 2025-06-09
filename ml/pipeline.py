@@ -3,6 +3,7 @@ Generates a pipeline
 """
 
 from sklearn.pipeline import Pipeline
+import numpy as np
 
 from .processors.debug import Debug
 from .processors.feature_selection import FEATURE_SELECTORS
@@ -35,9 +36,16 @@ def generate_pipeline(
     if not scoring:
         scoring = ['accuracy']
 
+    # Check if this is a multiclass problem
+    n_classes = len(np.unique(y_train))
+    
     scorers = {}
     for scorer in scoring:
-        scorers[scorer] = scorer
+        if scorer == 'roc_auc' and n_classes > 2:
+            # Use roc_auc_ovr for multiclass problems
+            scorers[scorer] = 'roc_auc_ovr'
+        else:
+            scorers[scorer] = scorer
 
     search_step = SEARCHERS[searcher](estimator, scorers, shuffle, custom_hyper_parameters, y_train)
 

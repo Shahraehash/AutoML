@@ -37,7 +37,7 @@ def roc(pipeline, features, model, x_test, y_test):
         fp = (cnf_matrix.sum(axis=0) - np.diag(cnf_matrix)).astype(float)
         fn = (cnf_matrix.sum(axis=1) - np.diag(cnf_matrix)).astype(float)
         tp = (np.diag(cnf_matrix)).astype(float)
-        tn = (cnf_matrix.sum() - (FP + FN + TP)).astype(float)       
+        tn = (cnf_matrix.sum() - (fp + fn + tp)).astype(float)       
 
         fpr = fp / (fp + tn)
         tpr = tp / (tp + fn)

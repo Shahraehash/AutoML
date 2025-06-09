@@ -13,11 +13,11 @@ from xgboost import XGBClassifier
 ESTIMATORS = {
     'gb': XGBClassifier(),
     'knn': KNeighborsClassifier(),
-    'lr': LogisticRegression(solver='lbfgs', max_iter=1000),
+    'lr': LogisticRegression(solver='lbfgs', max_iter=1000), #Learns multinomial not OvR
     'mlp': MLPClassifier(),
     'nb': GaussianNB(),
     'rf': RandomForestClassifier(n_estimators=10),
-    'svm': SVC(gamma='auto', probability=True),
+    'svm': SVC(gamma='auto', probability=True, decision_function_shape='ovr'),
 }
 
 ESTIMATOR_NAMES = {
