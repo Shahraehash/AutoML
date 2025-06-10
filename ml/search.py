@@ -6,7 +6,6 @@ and hyper-parameters with feature engineering.
 """
 
 import csv
-import os
 import json
 import time
 import itertools
@@ -74,9 +73,6 @@ def find_best_model(
     # Import data
     (x_train, x_test, y_train, y_test, x2, y2, feature_names, metadata) = \
         import_data(train_set, test_set, label_column)
-
-    # Create output directories
-    os.makedirs(output_path + '/models', exist_ok=True)
     
     total_fits = {}
     csv_header_written = False

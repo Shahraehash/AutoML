@@ -28,15 +28,41 @@ def precision_recall(pipeline, features, model, x_test, y_test):
                 if probabilities.max() - probabilities.min() == 0:
                     probabilities = [0] * len(probabilities)
                 else:
-                    probabilities = (probabilities - probabilities.min()) / \ 
+                    probabilities = (probabilities - probabilities.min()) / \
                         (probabilities.max() - probabilities.min())
-            precision, recall, _ precision_recall_curve(y_test, probabilities)
+            precision, recall, _ = precision_recall_curve(y_test, probabilities)
         
-        # Multi-Class Classification
-        else:            
-            y_pred = model.predict(x_test)
-            precision = precision_score(y_test, y_pred, average = 'macro')
-            recall = recall_score(y_test, y_pred, average = 'macro')
+        # Multi-Class Classification - use one-vs-rest approach
+        else:
+            # Compute precision-recall curves for each class and average
+            precision_curves = []
+            recall_curves = []
+            
+            for class_idx in range(n_classes):
+                # Create binary labels for current class vs rest
+                y_binary = (y_test == class_idx).astype(int)
+                
+                # Use decision function score for this class
+                class_scores = probabilities[:, class_idx]
+                
+                # Compute precision-recall curve for this class
+                prec_class, rec_class, _ = precision_recall_curve(y_binary, class_scores)
+                precision_curves.append(prec_class)
+                recall_curves.append(rec_class)
+            
+            # Average the curves (pad to same length first)
+            max_len = max(len(curve) for curve in precision_curves)
+            precision_padded = []
+            recall_padded = []
+            
+            for i in range(len(precision_curves)):
+                prec_padded = np.pad(precision_curves[i], (0, max_len - len(precision_curves[i])), constant_values=np.nan)
+                rec_padded = np.pad(recall_curves[i], (0, max_len - len(recall_curves[i])), constant_values=np.nan)
+                precision_padded.append(prec_padded)
+                recall_padded.append(rec_padded)
+            
+            precision = np.nanmean(precision_padded, axis=0)
+            recall = np.nanmean(recall_padded, axis=0)
     
     else:
 
@@ -45,11 +71,36 @@ def precision_recall(pipeline, features, model, x_test, y_test):
             probabilities = model.predict_proba(x_test)[:, 1]
             precision, recall, _ = precision_recall_curve(y_test, probabilities)
             
-        # Multiclass classification 
+        # Multiclass classification - use one-vs-rest approach
         else:
-            y_pred = model.predict(x_test)
-            precision = precision_score(y_test, y_pred, average = 'macro')
-            recall = recall_score(y_test, y_pred, average = 'macro')
+            probabilities = model.predict_proba(x_test)
+            
+            
+            precision_curves = []
+            recall_curves = []
+            for class_idx in range(n_classes):
+                # Create binary labels for current class vs rest
+                y_binary = (y_test == class_idx).astype(int)
+                
+                # Use probability for this class
+                class_probs = probabilities[:, class_idx]
+                prec_class, rec_class, _ = precision_recall_curve(y_binary, class_probs)
+                precision_curves.append(prec_class)
+                recall_curves.append(rec_class)
+            
+            # Average the curves (pad to same length first so we can take the mean of it)
+            max_len = max(len(curve) for curve in precision_curves)
+            precision_padded = []
+            recall_padded = []
+            
+            for i in range(len(precision_curves)):
+                prec_padded = np.pad(precision_curves[i], (0, max_len - len(precision_curves[i])), constant_values=np.nan)
+                rec_padded = np.pad(recall_curves[i], (0, max_len - len(recall_curves[i])), constant_values=np.nan)
+                precision_padded.append(prec_padded)
+                recall_padded.append(rec_padded)
+            
+            precision = np.nanmean(precision_padded, axis=0)
+            recall = np.nanmean(recall_padded, axis=0)
 
 
     recall, precision = decimate_points(

@@ -19,11 +19,22 @@ def parse_csv(csv_file, label):
 
     csv = pd.read_csv(csv_file)
     csv_clean = csv.apply(pd.to_numeric, errors='coerce').dropna()
-    csv_positives = csv_clean[csv_clean[label] == 1]
-    csv_negatives = csv_clean[csv_clean[label] == 0]
-    histogram_positives = {key:[i.tolist() for i in np.histogram(list(value.values()), bins=10, range=(csv_clean[key].min(), csv_clean[key].max()))] for (key,value) in csv_positives.to_dict().items()}
-    histogram_negatives = {key:[i.tolist() for i in np.histogram(list(value.values()), bins=10, range=(csv_clean[key].min(), csv_clean[key].max()))] for (key,value) in csv_negatives.to_dict().items()}
-
+    
+    # Get unique labels for multi-class support
+    unique_labels = sorted(csv_clean[label].unique())
+    
+    # Create histograms for each class instead of just positive/negative
+    histograms_by_class = {}
+    for class_label in unique_labels:
+        class_data = csv_clean[csv_clean[label] == class_label]
+        histograms_by_class[f'class_{int(class_label)}'] = {
+            key: [i.tolist() for i in np.histogram(
+                class_data[key].values, 
+                bins=10, 
+                range=(csv_clean[key].min(), csv_clean[key].max())
+            )] for key in class_data.columns if key != label
+        }
+    
     return {
         'null': len(csv.index) - len(csv_clean.index),
         'invalid': csv.loc[:, (csv.dtypes != np.int64) & (csv.dtypes != np.float64)].columns.values.tolist(),
@@ -31,7 +42,6 @@ def parse_csv(csv_file, label):
         'median': csv_clean.median().to_dict(),
         'summary': csv_clean.describe().to_dict(),
         'histogram': {
-          'positives': histogram_positives,
-          'negatives': histogram_negatives
+            'by_class': histograms_by_class
         }
     }

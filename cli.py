@@ -27,7 +27,7 @@ if len(unique_labels) == 2:
     LABELS = ['No ' + LABEL_COLUMN, LABEL_COLUMN]
 # Multiclass classification
 else:
-    LABELS = [f'{label_column}_class_{int(label)}' for label in unique_labels]
+    LABELS = [f'{LABEL_COLUMN}_class_{int(label)}' for label in unique_labels]
 
 PARAMETERS = dict(
     ignore_estimator=os.getenv('IGNORE_ESTIMATOR', ''),

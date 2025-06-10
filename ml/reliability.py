@@ -58,9 +58,24 @@ def reliability(pipeline, features, model, x_test, y_test):
                 brier_class = brier_score_loss(y_binary, class_probs)
                 brier_scores.append(brier_class)
             
-            # Average the results across classes
-            fop = np.mean(fop_list, axis=0)
-            mpv = np.mean(mpv_list, axis=0)
+            # Ensure all arrays have the same length by padding with NaN and then averaging
+            max_len = max(len(arr) for arr in fop_list) if fop_list else 0
+            if max_len > 0:
+                # Pad arrays to same length
+                fop_padded = []
+                mpv_padded = []
+                for i in range(len(fop_list)):
+                    fop_arr = np.pad(fop_list[i], (0, max_len - len(fop_list[i])), constant_values=np.nan)
+                    mpv_arr = np.pad(mpv_list[i], (0, max_len - len(mpv_list[i])), constant_values=np.nan)
+                    fop_padded.append(fop_arr)
+                    mpv_padded.append(mpv_arr)
+                
+                # Average ignoring NaN values
+                fop = np.nanmean(fop_padded, axis=0)
+                mpv = np.nanmean(mpv_padded, axis=0)
+            else:
+                fop = np.array([])
+                mpv = np.array([])
             brier_score = np.mean(brier_scores)
     
     else:
@@ -94,9 +109,19 @@ def reliability(pipeline, features, model, x_test, y_test):
                 brier_class = brier_score_loss(y_binary, class_probs)
                 brier_scores.append(brier_class)
             
-            # Average the results across classes
-            fop = np.mean(fop_list, axis=0)
-            mpv = np.mean(mpv_list, axis=0)
+            # Ensure all arrays have the same length by padding with NaN and then averaging
+            max_len = max(len(arr) for arr in fop_list) if fop_list else 0
+           
+            fop_padded = []
+            mpv_padded = []
+            for i in range(len(fop_list)):
+                fop_arr = np.pad(fop_list[i], (0, max_len - len(fop_list[i])), constant_values=np.nan)
+                mpv_arr = np.pad(mpv_list[i], (0, max_len - len(mpv_list[i])), constant_values=np.nan)
+                fop_padded.append(fop_arr)
+                mpv_padded.append(mpv_arr)
+            
+            fop = np.nanmean(fop_padded, axis=0)
+            mpv = np.nanmean(mpv_padded, axis=0)
             brier_score = np.mean(brier_scores)
 
     return {
