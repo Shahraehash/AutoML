@@ -157,7 +157,7 @@ def generalization_report(labels, y2, predictions, probabilities):
         print('\t\tSpecificity:', specificity)
         print('\t\tF1:', f1, '\n')
         
-        # Sum across classes for confidence intervals
+        # Sum across classes 
         tp_sum = np.sum(tp)
         tn_sum = np.sum(tn)
         fp_sum = np.sum(fp)

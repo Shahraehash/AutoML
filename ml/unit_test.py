@@ -24,6 +24,10 @@ def run_pipeline(scaler, feature_selector, estimator, scoring, searcher, shuffle
     generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
     return generalization
 
+# =============================================================================
+# LOGISTIC REGRESSION TESTS
+# =============================================================================
+
 def test_logistic_regression():
     """Test LR"""
 
@@ -54,6 +58,10 @@ def test_logistic_regression_with_standard_scaler_with_select_75():
     assert generalization['sensitivity'] == 1.0
     assert generalization['specificity'] == 0.9961
 
+# =============================================================================
+# K-NEAREST NEIGHBORS TESTS 
+# =============================================================================
+
 def test_k_nearest_neighbor():
     """Test KNN"""
 
@@ -83,6 +91,10 @@ def test_k_nearest_neighbor_with_standard_scaler_with_select_75():
     assert generalization['f1'] == 0.9728
     assert generalization['sensitivity'] == 1.0
     assert generalization['specificity'] == 0.9844
+
+# =============================================================================
+# SUPPORT VECTOR MACHINE TESTS 
+# =============================================================================
 
 def test_support_vector_machine():
     """Test SVM"""

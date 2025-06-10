@@ -74,8 +74,7 @@ def reliability(pipeline, features, model, x_test, y_test):
         # Multi-class Classification
         else:
             probabilities = model.predict_proba(x_test)
-            
-            # Compute calibration curve and Brier score for multi-class
+        
             # Use one-vs-rest approach for calibration curves
             fop_list = []
             mpv_list = []

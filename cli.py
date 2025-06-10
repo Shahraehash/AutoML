@@ -22,9 +22,10 @@ else:
 data = pd.read_csv(TRAIN_SET)
 unique_labels = sorted(data[LABEL_COLUMN].dropna().unique())
 
-# Check if it's binary classification
+# Binary classification
 if len(unique_labels) == 2: 
     LABELS = ['No ' + LABEL_COLUMN, LABEL_COLUMN]
+# Multiclass classification
 else:
     LABELS = [f'{label_column}_class_{int(label)}' for label in unique_labels]
 

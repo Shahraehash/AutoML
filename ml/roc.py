@@ -30,7 +30,6 @@ def roc(pipeline, features, model, x_test, y_test):
 
     # Multiclass classification
     else:
-        # Perform multi-class as one-vs-rest strategy with macro averaging
         roc_auc = roc_auc_score(y_test, probabilities, multi_class='ovr', average='macro') 
         cnf_matrix = confusion_matrix(y_test, predictions)
 
