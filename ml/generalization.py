@@ -98,9 +98,6 @@ def generalization_report(labels, y2, predictions, probabilities):
         roc_auc = roc_auc_score(y2, probabilities, multi_class='ovr', average='macro')
         print('\t\tROC AUC (macro):', roc_auc)
         
-        # For multiclass, AUC should be the same as ROC AUC to maintain semantic consistency
-        auc = roc_auc
-        
         # Calculate confusion matrix
         cnf_matrix = confusion_matrix(y2, predictions)
         
@@ -167,7 +164,7 @@ def generalization_report(labels, y2, predictions, probabilities):
             'accuracy': round(accuracy, 4),
             'acc_95_ci': clopper_pearson(tp_sum+tn_sum, len(y2)),
             'mcc': round(mcc, 4),
-            'avg_sn_sp': round(auc, 4),
+            'avg_sn_sp': round((sensitivity+specificity)/2, 4),
             'roc_auc': round(roc_auc, 4),
             'roc_auc_95_ci': roc_auc_ci(roc_auc, tpr),
             'f1': round(f1, 4),
