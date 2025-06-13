@@ -29,12 +29,11 @@ export interface MetaData {
         gb: number;
     };
     label?: string;
-    train_negative_count?: number;
-    train_positive_count?: number;
-    test_negative_count?: number;
-    test_positive_count?: number;
-    parameters: SearchParameters;
-    date: number;
+    train_class_counts?: {[key: string]: number};
+    test_class_counts?: {[key: string]: number};
+    num_classes?: number;
+    parameters?: SearchParameters;
+    date?: number;
 }
 
 export interface GeneralizationResult {
@@ -149,7 +148,9 @@ export interface DataAnalysis {
     median: {[key: string]: number};
     mode: {[key: string]: number};
     summary: {[key: string]: DataAnalysisSummary};
-    histogram: {[key: string]: [number[], number[]]};
+    histogram: {
+        by_class: {[key: string]: {[key: string]: [number[], number[]]}};
+    };
 }
 
 export interface DataAnalysisSummary {

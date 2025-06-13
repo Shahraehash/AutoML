@@ -32,7 +32,7 @@ def parse_csv(csv_file, label):
                 class_data[key].values, 
                 bins=10, 
                 range=(csv_clean[key].min(), csv_clean[key].max())
-            )] for key in class_data.columns if key != label
+            )] for key in class_data.columns
         }
     
     return {

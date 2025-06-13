@@ -7,6 +7,7 @@ import pandas as pd
 from joblib import load
 
 from sklearn.metrics import roc_curve, roc_auc_score, confusion_matrix
+from sklearn.preprocessing import label_binarize
 
 from .preprocess import preprocess
 from .utils import decimate_points
@@ -31,15 +32,30 @@ def roc(pipeline, features, model, x_test, y_test):
     # Multiclass classification
     else:
         roc_auc = roc_auc_score(y_test, probabilities, multi_class='ovr', average='macro') 
-        cnf_matrix = confusion_matrix(y_test, predictions)
+        
+        y_test_bin = label_binarize(y_test, classes=np.unique(y_test))
+        if y_test_bin.shape[1] == 1:
+            y_test_bin = np.hstack([1 - y_test_bin, y_test_bin])
+        
 
-        fp = (cnf_matrix.sum(axis=0) - np.diag(cnf_matrix)).astype(float)
-        fn = (cnf_matrix.sum(axis=1) - np.diag(cnf_matrix)).astype(float)
-        tp = (np.diag(cnf_matrix)).astype(float)
-        tn = (cnf_matrix.sum() - (fp + fn + tp)).astype(float)       
+        fpr_per_class = []
+        tpr_per_class = []
 
-        fpr = fp / (fp + tn)
-        tpr = tp / (tp + fn)
+        for i in range(n_classes):
+            fpr_i, tpr_i, _ = roc_curve(y_test_bin[:, i], probabilities[:, i])
+            fpr_per_class.append(fpr_i)
+            tpr_per_class.append(tpr_i)
+        
+        
+        fpr = np.unique(np.concatenate(fpr_per_class))
+        tpr = np.zeros_like(fpr)
+        
+        for i in range(n_classes):
+            # Use numpy's interp function instead of scipy
+            interp_tpr = np.interp(fpr, fpr_per_class[i], tpr_per_class[i])
+            tpr += interp_tpr
+        
+        tpr /= n_classes
         
     fpr, tpr = decimate_points(
       [round(num, 4) for num in list(fpr)],

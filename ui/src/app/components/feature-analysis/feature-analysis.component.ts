@@ -13,8 +13,7 @@ export class FeatureAnalysisComponent {
   @Input() nullCount: number;
   @Input() isInvalid: boolean;
   @Input() name: string;
-  @Input() positiveHistogram: [number[], number[]];
-  @Input() negativeHistogram: [number[], number[]];
+  @Input() classHistograms: {[key: string]: [number[], number[]]};
 
   constructor() {}
 }

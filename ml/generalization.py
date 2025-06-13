@@ -71,6 +71,20 @@ def generalize_ensemble(total_models, job_folder, dataset_folder, label):
     }
 
 def generalization_report(labels, y2, predictions, probabilities):
+    # Get unique classes from actual data
+    unique_classes = sorted(np.unique(y2))
+    n_classes = len(unique_classes)
+    
+    # If labels are provided but don't match the number of classes, generate appropriate labels
+    if labels is None or len(labels) != n_classes:
+        if n_classes == 2:
+            # For binary classification, use generic labels if not provided correctly
+            labels = ['Class 0', 'Class 1']
+        else:
+            # For multiclass, generate labels based on actual class values
+            labels = [f'Class {int(cls)}' for cls in unique_classes]
+    
+    print(labels)
     print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
 
     print('\tGeneralization:')

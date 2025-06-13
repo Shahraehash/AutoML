@@ -65,8 +65,14 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
       pickled_estimator = load(output_path + '/models/' + key + '.joblib')
       pipeline = Pipeline(pipeline.steps[:-1] + [('estimator', pickled_estimator)])
 
+    unique_labels = sorted(y2.unique())
+    if len(unique_labels) == 2:
+        labels = ['No ' + label_column, label_column]
+    else:
+        labels = [f'Class {int(cls)}' for cls in unique_labels]
+
     # Assess the model performance and store the results
-    generalization_result = generalize(model['features'], pipeline['estimator'], pipeline, x2, y2, ['No ' + label_column, label_column], threshold)
+    generalization_result = generalize(model['features'], pipeline['estimator'], pipeline, x2, y2, labels, threshold)
     with open(output_path + '/pipeline.json', 'w') as statsfile:
         json.dump(generalization_result, statsfile)
 

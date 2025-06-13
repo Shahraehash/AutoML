@@ -457,22 +457,24 @@ export class ResultsComponent implements OnInit {
             <ion-label>Target Column</ion-label>
             <ion-note slot='end'>${this.metadata.label}</ion-note>
           </ion-item>
-          <ion-item>
-            <ion-label>Training Positive Cases</ion-label>
-            <ion-note slot='end'>${this.metadata.train_positive_count}</ion-note>
-          </ion-item>
-          <ion-item>
-            <ion-label>Training Negative Cases</ion-label>
-            <ion-note slot='end'>${this.metadata.train_negative_count}</ion-note>
-          </ion-item>
-          <ion-item>
-            <ion-label>Testing (Generalization) Positive Cases</ion-label>
-            <ion-note slot='end'>${this.metadata.test_positive_count}</ion-note>
-          </ion-item>
-          <ion-item>
-            <ion-label>Testing (Generalization) Negative Cases</ion-label>
-            <ion-note slot='end'>${this.metadata.test_negative_count}</ion-note>
-          </ion-item>
+          ${this.metadata.train_class_counts ? Object.keys(this.metadata.train_class_counts).map(classKey => {
+            const classNumber = classKey.replace('class_', '').replace('_count', '');
+            return `
+              <ion-item>
+                <ion-label>Training Class ${classNumber} Cases</ion-label>
+                <ion-note slot='end'>${this.metadata.train_class_counts[classKey]}</ion-note>
+              </ion-item>
+            `;
+          }).join('') : ''}
+          ${this.metadata.test_class_counts ? Object.keys(this.metadata.test_class_counts).map(classKey => {
+            const classNumber = classKey.replace('class_', '').replace('_count', '');
+            return `
+              <ion-item>
+                <ion-label>Testing (Generalization) Class ${classNumber} Cases</ion-label>
+                <ion-note slot='end'>${this.metadata.test_class_counts[classKey]}</ion-note>
+              </ion-item>
+            `;
+          }).join('') : ''}
           <ion-item>
             <ion-label>Cross Validation k-Fold</ion-label>
             <ion-note slot='end'>10</ion-note>

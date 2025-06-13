@@ -32,4 +32,14 @@ export class FeatureDetailsComponent implements OnInit, AfterViewInit {
       this.viewPort.scrollTo({top: position});
     }
   }
+
+  getClassHistograms(feature: string): {[key: string]: [number[], number[]]} {
+    const result = {};
+    for (const [className, classData] of Object.entries(this.data.histogram.by_class)) {
+      if (classData[feature]) {
+        result[className] = classData[feature];
+      }
+    }
+    return result;
+  }
 }

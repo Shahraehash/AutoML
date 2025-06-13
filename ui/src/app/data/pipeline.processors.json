@@ -124,8 +124,13 @@
         "trial": true
       },
       {
-        "label": "F1",
+        "label": "F1 Macro",
         "value": "f1_macro",
+        "trial": false
+      },
+      {
+        "label": "ROC AUC",
+        "value": "roc_auc",
         "trial": false
       }
     ]
