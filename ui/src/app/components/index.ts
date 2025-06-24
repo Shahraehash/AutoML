@@ -3,8 +3,10 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { RouterModule } from '@angular/router';
@@ -68,8 +70,10 @@ import { UseModelComponent } from './use-model/use-model.component';
       RouterModule,
       ReactiveFormsModule,
       MatCheckboxModule,
+      MatFormFieldModule,
       MatInputModule,
       MatPaginatorModule,
+      MatSelectModule,
       MatTableModule,
       MatSortModule,
       ScrollingModule

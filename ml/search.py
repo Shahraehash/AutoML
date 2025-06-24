@@ -9,6 +9,7 @@ import csv
 import json
 import time
 import itertools
+import numpy as np
 
 from dotenv import load_dotenv
 from joblib import dump
@@ -29,6 +30,7 @@ from .refit import refit_model
 from .roc import roc
 from .summary import print_summary
 from .utils import model_key_to_name
+from .class_results import compute_class_specific_results, save_class_results
 
 # Load environment variables
 load_dotenv()
@@ -73,6 +75,15 @@ def find_best_model(
     # Import data
     (x_train, x_test, y_train, y_test, x2, y2, feature_names, metadata) = \
         import_data(train_set, test_set, label_column)
+    
+    # Check if this is a multiclass problem
+    n_classes = len(np.unique(y_train))
+    
+    # Create class results storage directory if multiclass
+    class_results_dir = None
+    if n_classes > 2:
+        class_results_dir = output_path + '/class_results'
+        print(f'Detected multiclass problem with {n_classes} classes. Class-specific results will be computed.')
     
     total_fits = {}
     csv_header_written = False
@@ -161,6 +172,18 @@ def find_best_model(
                 })
                 result.update(reliability(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
                 result.update(precision_recall(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
+
+                # Compute and store class-specific results for multiclass problems
+                if n_classes > 2 and class_results_dir:
+                    try:
+                        print(f'\t\tComputing class-specific results for {n_classes} classes...')
+                        class_specific_data = compute_class_specific_results(
+                            pipeline[0], model['features'], candidate['best_estimator'], 
+                            x2, y2, n_classes, result['key']
+                        )
+                        save_class_results(class_specific_data, class_results_dir, result['key'])
+                    except Exception as e:
+                        print(f'\t\tError computing class-specific results for {result["key"]}: {e}')
 
                 if not csv_header_written:
                     report_writer.writerow(result.keys())

@@ -1,7 +1,7 @@
 export const environment = {
   name: 'default',
   authOnly: false,
-  localUser: 'false',
+  localUser: 'true',
   ldapAuth: 'false',
   production: false,
   firebase: {

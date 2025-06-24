@@ -248,6 +248,33 @@ export class MiloApiService {
     return await (await this.request<void>('post', `/jobs/${this.currentJobId}/un-star-models`, {models})).toPromise();
   }
 
+  getClassSpecificResults(classIndex: number, modelKey?: string) {
+    const url = modelKey 
+      ? `/jobs/${this.currentJobId}/class/${classIndex}?model_key=${encodeURIComponent(modelKey)}`
+      : `/jobs/${this.currentJobId}/class/${classIndex}`;
+    
+    return this.request<{
+      reliability: {
+        brier_score: number;
+        fop: number[];
+        mpv: number[];
+      };
+      precision_recall: {
+        precision: number[];
+        recall: number[];
+      };
+      roc_auc: {
+        fpr: number[];
+        tpr: number[];
+        roc_auc: number;
+      };
+      class_index: number;
+      model_key: string;
+      total_classes: number;
+      available_models: string[];
+    }>('get', url);
+  }
+
   async exportCSV() {
     return `${environment.apiUrl}/jobs/${this.currentJobId}/export?${await this.getURLAuth()}`;
   }

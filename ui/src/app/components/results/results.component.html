@@ -60,6 +60,17 @@
         <input matInput formControlName='query' (keyup)='applyFilter()' placeholder='Filter results...'>
       </mat-form-field>
 
+      <mat-form-field *ngIf="isMulticlass()" class="class-selector">
+        <mat-label>View Class</mat-label>
+        <mat-select [(value)]="selectedClass" (selectionChange)="onClassChange()">
+          <mat-option value="all">All (Macro Average)</mat-option>
+          <mat-option *ngFor="let classLabel of getClassLabels(); let i = index" [value]="i">
+            {{classLabel}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+
       <ion-button size='small' class='details-button' (click)='showDetails()'>
         <ion-icon slot='start' name='information-circle-outline'></ion-icon>
         Details

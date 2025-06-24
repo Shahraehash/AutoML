@@ -25,8 +25,9 @@ def get():
     folder = 'data/users/' + g.uid + '/datasets'
 
     if not os.path.exists(folder):
-        abort(400)
-        return
+        # Create the user datasets folder if it doesn't exist
+        os.makedirs(folder, exist_ok=True)
+        return jsonify(datasets)
 
     for dataset in os.listdir(folder):
         if not os.path.isdir(folder + '/' + dataset) or\

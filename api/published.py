@@ -31,8 +31,10 @@ def get():
         return
 
     if not os.path.exists(PUBLISHED_MODELS):
-        abort(400)
-        return
+        # Create the published models file if it doesn't exist
+        with open(PUBLISHED_MODELS, 'w') as published_file:
+            json.dump({}, published_file)
+        return jsonify({})
 
     with open(PUBLISHED_MODELS) as published_file:
         published = json.load(published_file)

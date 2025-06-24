@@ -14,7 +14,7 @@ from .predict import predict_ensemble
 from .import_data import import_csv
 from .stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
 
-def generalize(features, model, pipeline, x2, y2, labels=None, threshold=.5):
+def generalize(features, model, pipeline, x2, y2, labels=None, threshold=.5, class_index=None):
     """"Generalize method"""
 
     # Process test data based on pipeline
@@ -34,7 +34,7 @@ def generalize(features, model, pipeline, x2, y2, labels=None, threshold=.5):
         predictions = model.predict(x2)
         probabilities = proba
 
-    return generalization_report(labels, y2, predictions, probabilities)
+    return generalization_report(labels, y2, predictions, probabilities, class_index)
 
 def generalize_model(payload, label, folder, threshold=.5):
     data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
@@ -70,7 +70,7 @@ def generalize_ensemble(total_models, job_folder, dataset_folder, label):
         'hard_generalization': generalization_report(labels, y2, hard_result['predicted'], hard_result['probability'])
     }
 
-def generalization_report(labels, y2, predictions, probabilities):
+def generalization_report(labels, y2, predictions, probabilities, class_index=None):
     # Get unique classes from actual data
     unique_classes = sorted(np.unique(y2))
     n_classes = len(unique_classes)

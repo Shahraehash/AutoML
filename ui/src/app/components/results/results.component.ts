@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
@@ -8,6 +8,8 @@ import { AlertController, LoadingController, ModalController, ToastController, P
 import { saveAs } from 'file-saver';
 import * as JSZip from 'jszip';
 import * as saveSvgAsPng from 'save-svg-as-png';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import pipelineOptions from '../../data/pipeline.processors.json';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
@@ -21,7 +23,11 @@ import { UseModelComponent } from '../use-model/use-model.component';
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.scss'],
 })
-export class ResultsComponent implements OnInit {
+export class ResultsComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  private loadingClassData = new Set<string | number>();
+  private originalResults: GeneralizationResult[]; // Backup of original macro-averaged data
+  
   activeRow = 0;
   data: GeneralizationResult[];
   filterForm: FormGroup;
@@ -33,6 +39,8 @@ export class ResultsComponent implements OnInit {
   results: MatTableDataSource<GeneralizationResult>;
   selection = new SelectionModel<GeneralizationResult>(true, []);
   starred: string[];
+  selectedClass: string | number = 'all';
+  classSpecificData: any = {};
   columns: {key: string; class?: string, name: string; number?: boolean, hideOnWidth?: number}[] = [
     {
       key: 'algorithm',
@@ -140,7 +148,8 @@ export class ResultsComponent implements OnInit {
     private loadingController: LoadingController,
     private modalController: ModalController,
     private toastController: ToastController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private cdr: ChangeDetectorRef
   ) {
     this.filterForm = this.formBuilder.group({
       query: new FormControl(''),
@@ -170,6 +179,8 @@ export class ResultsComponent implements OnInit {
 
     this.data = data.results;
     this.metadata = data.metadata;
+    // Store original results for restoration when switching back to 'all'
+    this.originalResults = JSON.parse(JSON.stringify(data.results));
     this.results = new MatTableDataSource(data.results);
     setTimeout(async () => {
       this.results.sort = this.sort;
@@ -178,11 +189,16 @@ export class ResultsComponent implements OnInit {
       await loading.dismiss();
     }, 1);
 
-    this.results.connect().subscribe(d => {
+    this.results.connect().pipe(takeUntil(this.destroy$)).subscribe(d => {
       this.sortedData = d;
     });
 
     this.updateStarredModels();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getColumns() {
@@ -271,6 +287,69 @@ export class ResultsComponent implements OnInit {
       'Scorer: ' + object.scorer,
       'Searcher: ' + object.searcher
     ];
+
+    // Check if we should use class-specific data with additional safety checks
+    const useClassSpecific = this.selectedClass !== 'all' && 
+                             this.classSpecificData && 
+                             this.classSpecificData[this.selectedClass] && 
+                             this.classSpecificData[this.selectedClass] !== null &&
+                             typeof this.classSpecificData[this.selectedClass] === 'object';
+    
+    if (useClassSpecific) {
+      try {
+        // Get class-specific data for the current model (object.key)
+        const allClassData = this.classSpecificData[this.selectedClass];
+        const classData = allClassData[object.key];
+        
+        if (classData && classData !== null) {
+          if (mode === 'generalization' && classData.roc_auc) {
+            fpr = classData.roc_auc.fpr || [];
+            tpr = classData.roc_auc.tpr || [];
+            if (classData.roc_auc.roc_auc !== undefined) {
+              textElements.push(`AUC (Class ${this.selectedClass} vs Rest): ` + classData.roc_auc.roc_auc.toFixed(4));
+            }
+          } else if (mode === 'precision' && classData.precision_recall) {
+            fpr = classData.precision_recall.recall || [];
+            tpr = classData.precision_recall.precision || [];
+            textElements.push(`Class ${this.selectedClass} vs Rest`);
+          } else if (mode === 'reliability' && classData.reliability) {
+            fpr = classData.reliability.mpv || [];
+            tpr = classData.reliability.fop || [];
+            if (classData.reliability.brier_score !== undefined) {
+              textElements.push(`Brier Score (Class ${this.selectedClass} vs Rest): ` + classData.reliability.brier_score.toFixed(4));
+            }
+          } else {
+            // For modes without class-specific data, fall back to original data
+            return this.parseOriginalData(object, mode, textElements);
+          }
+        } else {
+          // No class-specific data for this model, fall back to original data
+          return this.parseOriginalData(object, mode, textElements);
+        }
+      } catch (error) {
+        console.error('Error parsing class-specific data:', error);
+        // Fall back to original data on any error
+        return this.parseOriginalData(object, mode, textElements);
+      }
+    } else {
+      // Use original macro-averaged data
+      return this.parseOriginalData(object, mode, textElements);
+    }
+
+    return {
+      fpr: fpr || [],
+      tpr: tpr || [],
+      upper,
+      lower,
+      textElements
+    };
+  }
+
+  private parseOriginalData(object: GeneralizationResult, mode: string, textElements: string[]) {
+    let fpr;
+    let tpr;
+    let upper;
+    let lower;
 
     if (mode === 'generalization') {
       fpr = JSON.parse(object.generalization_fpr);
@@ -570,6 +649,273 @@ export class ResultsComponent implements OnInit {
       message: 'Refitting selected model...'
     });
     await this.loading.present();
+  }
+
+  isMulticlass(): boolean {
+    return this.metadata?.num_classes > 2;
+  }
+
+  getClassLabels(): string[] {
+    if (!this.metadata?.num_classes || this.metadata.num_classes <= 2) {
+      return [];
+    }
+    
+    // Generate class labels based on number of classes
+    const labels = [];
+    for (let i = 0; i < this.metadata.num_classes; i++) {
+      labels.push(`Class ${i}`);
+    }
+    return labels;
+  }
+
+  async onClassChange() {
+    if (this.selectedClass === 'all') {
+      // Restore original macro-averaged data
+      this.restoreOriginalData();
+      return;
+    }
+
+    // Check if we already tried and failed for this class
+    if (this.classSpecificData[this.selectedClass] === null) {
+      // Already failed, don't retry
+      return;
+    }
+
+    // Check if we're already loading this class to prevent duplicate requests
+    if (this.loadingClassData.has(this.selectedClass)) {
+      return;
+    }
+
+    // Fetch class-specific data if not already loaded
+    if (!this.classSpecificData[this.selectedClass]) {
+      await this.loadClassSpecificData();
+    }
+
+    // Transform table data with class-specific metrics
+    if (this.classSpecificData[this.selectedClass] && this.classSpecificData[this.selectedClass] !== null) {
+      this.transformTableDataForClass(this.selectedClass as number);
+    }
+  }
+
+  private async loadClassSpecificData() {
+    // Mark as loading to prevent duplicate requests
+    this.loadingClassData.add(this.selectedClass);
+    
+    const loading = await this.loadingController.create({
+      message: `Loading Class ${this.selectedClass} data...`
+    });
+    await loading.present();
+
+    try {
+      // Load class-specific data for all models
+      const allClassData = {};
+      
+      // Get all unique model keys from the results
+      const modelKeys = this.originalResults.map(result => result.key);
+      
+      // Load class-specific data for each model
+      for (const modelKey of modelKeys) {
+        try {
+          const result = await (await this.api.getClassSpecificResults(this.selectedClass as number, modelKey))
+            .pipe(takeUntil(this.destroy$))
+            .toPromise();
+          
+          allClassData[modelKey] = result;
+        } catch (modelErr) {
+          console.warn(`Failed to load class data for model ${modelKey}:`, modelErr);
+          // Continue with other models even if one fails
+          allClassData[modelKey] = null;
+        }
+      }
+      
+      this.classSpecificData[this.selectedClass] = allClassData;
+    } catch (err) {
+      console.error('Error loading class-specific data:', err);
+      
+      // Mark this class as failed to prevent retrying
+      this.classSpecificData[this.selectedClass] = null;
+      
+      let message = 'Unable to load class-specific data.';
+      let resetToAll = false;
+      
+      // Handle specific error cases
+      if (err.error && err.error.code === 'NO_CLASS_RESULTS') {
+        message = err.error.message || 'Class-specific results are not available for this job. This job was created before class-specific analysis was implemented.';
+        resetToAll = true;
+      } else if (err.error && err.error.message) {
+        message = err.error.message;
+      } else if (err.status === 400) {
+        message = 'Class-specific results are not available for this job.';
+        resetToAll = true;
+      }
+
+      const alert = await this.alertController.create({
+        header: 'Class-Specific Data Not Available',
+        message: message,
+        buttons: [
+          {
+            text: 'OK',
+            handler: () => {
+              if (resetToAll) {
+                // Reset to 'all' to prevent further errors
+                this.selectedClass = 'all';
+                this.restoreOriginalData();
+              }
+            }
+          }
+        ]
+      });
+      await alert.present();
+    } finally {
+      // Always remove from loading set and dismiss loading
+      this.loadingClassData.delete(this.selectedClass);
+      await loading.dismiss();
+    }
+  }
+
+  private restoreOriginalData() {
+    if (this.originalResults) {
+      this.results.data = JSON.parse(JSON.stringify(this.originalResults));
+      this.data = JSON.parse(JSON.stringify(this.originalResults));
+    }
+  }
+
+  private transformTableDataForClass(classIndex: number) {
+    if (!this.originalResults || !this.classSpecificData[classIndex]) {
+      return;
+    }
+
+    const allClassData = this.classSpecificData[classIndex];
+    const transformedResults = this.originalResults.map(originalResult => {
+      // Create a copy of the original result
+      const transformedResult = JSON.parse(JSON.stringify(originalResult));
+      
+      // Get class-specific data for this specific model
+      const modelClassData = allClassData[originalResult.key];
+      
+      if (modelClassData && modelClassData !== null) {
+        try {
+          // Update metrics with class-specific values
+          if (modelClassData.roc_auc && modelClassData.roc_auc.roc_auc !== undefined) {
+            transformedResult.roc_auc = modelClassData.roc_auc.roc_auc;
+          }
+          
+          if (modelClassData.reliability && modelClassData.reliability.brier_score !== undefined) {
+            transformedResult.brier_score = modelClassData.reliability.brier_score;
+          }
+
+          // Calculate derived metrics from class-specific data
+          const derivedMetrics = this.calculateDerivedMetrics(modelClassData);
+          Object.assign(transformedResult, derivedMetrics);
+
+          // Clear roc_delta as it's not meaningful for single class
+          transformedResult.roc_delta = null;
+
+        } catch (error) {
+          console.error('Error transforming result for class', classIndex, 'model', originalResult.key, error);
+          // Keep original values on error
+        }
+      }
+
+      return transformedResult;
+    });
+
+    // Update the data sources
+    this.results.data = transformedResults;
+    this.data = transformedResults;
+  }
+
+  private calculateDerivedMetrics(classData: any): Partial<GeneralizationResult> {
+    const metrics: Partial<GeneralizationResult> = {};
+
+    try {
+      // Calculate metrics from ROC curve at optimal threshold (Youden's index)
+      if (classData.roc_auc && classData.roc_auc.fpr && classData.roc_auc.tpr) {
+        const rocMetrics = this.calculateMetricsFromROC(classData.roc_auc.fpr, classData.roc_auc.tpr);
+        Object.assign(metrics, rocMetrics);
+      }
+
+      // Calculate F1 from precision-recall curve
+      if (classData.precision_recall && classData.precision_recall.precision && classData.precision_recall.recall) {
+        const f1 = this.calculateOptimalF1(classData.precision_recall.precision, classData.precision_recall.recall);
+        if (f1 !== null) {
+          metrics.f1 = f1;
+        }
+      }
+
+    } catch (error) {
+      console.error('Error calculating derived metrics:', error);
+    }
+
+    return metrics;
+  }
+
+  private calculateMetricsFromROC(fpr: number[], tpr: number[]): any {
+    if (!fpr || !tpr || fpr.length !== tpr.length || fpr.length === 0) {
+      return {};
+    }
+
+    try {
+      // Find optimal threshold using Youden's index (TPR - FPR)
+      let maxYouden = -1;
+      let optimalIndex = 0;
+      
+      for (let i = 0; i < fpr.length; i++) {
+        const youden = tpr[i] - fpr[i];
+        if (youden > maxYouden) {
+          maxYouden = youden;
+          optimalIndex = i;
+        }
+      }
+
+      const sensitivity = tpr[optimalIndex];
+      const specificity = 1 - fpr[optimalIndex];
+      const accuracy = (sensitivity + specificity) / 2; // Approximation for balanced classes
+      const avg_sn_sp = sensitivity + specificity;
+
+      // Calculate MCC approximation (requires true class distribution for exact calculation)
+      // Using a simplified formula based on sensitivity and specificity
+      const mcc = Math.sqrt(sensitivity * specificity * (1 - sensitivity) * (1 - specificity)) * 
+                  (sensitivity + specificity - 1);
+
+      return {
+        sensitivity,
+        specificity,
+        accuracy,
+        avg_sn_sp,
+        mcc: isNaN(mcc) ? 0 : mcc
+      };
+    } catch (error) {
+      console.error('Error calculating ROC metrics:', error);
+      return {};
+    }
+  }
+
+  private calculateOptimalF1(precision: number[], recall: number[]): number | null {
+    if (!precision || !recall || precision.length !== recall.length || precision.length === 0) {
+      return null;
+    }
+
+    try {
+      let maxF1 = 0;
+      
+      for (let i = 0; i < precision.length; i++) {
+        const p = precision[i];
+        const r = recall[i];
+        
+        if (p + r > 0) {
+          const f1 = (2 * p * r) / (p + r);
+          if (f1 > maxF1) {
+            maxF1 = f1;
+          }
+        }
+      }
+
+      return maxF1;
+    } catch (error) {
+      console.error('Error calculating F1:', error);
+      return null;
+    }
   }
 
   private async showError(message: string) {

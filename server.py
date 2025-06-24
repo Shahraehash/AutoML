@@ -148,6 +148,7 @@ APP.add_url_rule('/jobs/<uuid:jobid>/export-model', 'jobs-export-model', jobs.ex
 APP.add_url_rule('/jobs/<uuid:jobid>/star-models', 'jobs-get-starred', jobs.get_starred, methods=['GET'])
 APP.add_url_rule('/jobs/<uuid:jobid>/star-models', 'jobs-star-models', jobs.star_models, methods=['POST'])
 APP.add_url_rule('/jobs/<uuid:jobid>/un-star-models', 'jobs-un-star-models', jobs.un_star_models, methods=['POST'])
+APP.add_url_rule('/jobs/<uuid:jobid>/class/<int:class_index>', 'jobs-class-specific', jobs.get_class_specific_results)
 
 # Tasks
 APP.add_url_rule('/tasks', 'pending', tasks.pending)

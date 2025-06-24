@@ -22,6 +22,7 @@ from ml.predict import predict, predict_ensemble
 from ml.roc import additional_roc
 from ml.precision import additional_precision
 from ml.reliability import additional_reliability
+from ml.class_results import load_class_results, get_available_models_with_class_results, cleanup_class_results
 from worker import queue_training
 
 def get():
@@ -34,8 +35,9 @@ def get():
     folder = 'data/users/' + g.uid + '/jobs'
 
     if not os.path.exists(folder):
-        abort(400)
-        return
+        # Create the user jobs folder if it doesn't exist
+        os.makedirs(folder, exist_ok=True)
+        return jsonify([])
 
     jobs = []
     for job in os.listdir(folder):
@@ -104,6 +106,14 @@ def delete(jobid):
     if not os.path.exists(folder):
         abort(400)
         return
+
+    # Clean up class results if they exist
+    class_results_dir = folder + '/class_results'
+    if os.path.exists(class_results_dir):
+        try:
+            cleanup_class_results(class_results_dir)
+        except Exception as e:
+            print(f"Error cleaning up class results during job deletion: {e}")
 
     rmtree(folder)
 
@@ -432,6 +442,100 @@ def generalize(jobid):
         'roc_auc': additional_roc(payload['data'], dataset_metadata['label'], folder + '/pipeline')
     })
 
+def get_class_specific_results(jobid, class_index):
+    """Returns class-specific results for multiclass models"""
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+    class_results_dir = folder + '/class_results'
+    
+    # Check if class results directory exists
+    if not os.path.exists(class_results_dir):
+        return jsonify({
+            'error': 'Class-specific results not available',
+            'code': 'NO_CLASS_RESULTS',
+            'message': 'This job was created before class-specific analysis was implemented. Please retrain the model to generate class-specific results for multiclass problems.',
+            'legacy_job': True
+        }), 400
+    
+    # Get model key from request parameters - if not provided, try to get the first available model
+    model_key = request.args.get('model_key')
+    
+    try:
+        available_models = get_available_models_with_class_results(class_results_dir)
+        
+        if not available_models:
+            return jsonify({
+                'error': 'No models with class-specific results found',
+                'code': 'NO_MODELS_WITH_CLASS_RESULTS',
+                'message': 'No class-specific results were generated during training.'
+            }), 400
+        
+        # If no model_key provided, use the first available model
+        if not model_key:
+            model_key = available_models[0]
+            print(f"No model_key provided for job {jobid}, using first available model: {model_key}")
+        
+        # Validate that the requested model exists
+        if model_key not in available_models:
+            return jsonify({
+                'error': f'Model "{model_key}" not found',
+                'code': 'MODEL_NOT_FOUND',
+                'available_models': available_models,
+                'message': f'Available models: {", ".join(available_models)}'
+            }), 400
+        
+        # Load class-specific results
+        class_data = load_class_results(class_results_dir, model_key)
+        
+        if not class_data:
+            return jsonify({
+                'error': f'Failed to load class results for model "{model_key}"',
+                'code': 'FAILED_TO_LOAD_RESULTS'
+            }), 500
+        
+        try:
+            class_index = int(class_index)
+            if class_index not in class_data['class_data']:
+                available_classes = list(class_data['class_data'].keys())
+                return jsonify({
+                    'error': f'Invalid class index {class_index}',
+                    'code': 'INVALID_CLASS_INDEX',
+                    'available_classes': available_classes,
+                    'total_classes': class_data['n_classes'],
+                    'message': f'Available classes: {available_classes}'
+                }), 400
+            
+            return jsonify({
+                'reliability': class_data['class_data'][class_index]['reliability'],
+                'precision_recall': class_data['class_data'][class_index]['precision_recall'],
+                'roc_auc': class_data['class_data'][class_index]['roc_auc'],
+                'class_index': class_index,
+                'model_key': model_key,
+                'total_classes': class_data['n_classes'],
+                'available_models': available_models,
+                'success': True
+            })
+            
+        except (ValueError, TypeError):
+            return jsonify({
+                'error': 'Invalid class index format',
+                'code': 'INVALID_CLASS_INDEX_FORMAT',
+                'message': 'Class index must be an integer'
+            }), 400
+            
+    except Exception as e:
+        print(f"Error in get_class_specific_results for job {jobid}: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'error': 'Internal server error',
+            'code': 'INTERNAL_ERROR',
+            'message': 'An unexpected error occurred while processing class-specific results'
+        }), 500
+
 def export(jobid):
     """Export the results CSV"""
 
@@ -579,3 +683,29 @@ def get_starred(jobid):
         starred = json.load(starred_file)
 
     return jsonify(starred)
+
+def get_available_class_models(jobid):
+    """Get list of models that have class-specific results"""
+    
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+    class_results_dir = folder + '/class_results'
+    
+    try:
+        available_models = get_available_models_with_class_results(class_results_dir)
+        
+        return jsonify({
+            'models': available_models,
+            'count': len(available_models),
+            'has_class_results': len(available_models) > 0
+        })
+        
+    except Exception as e:
+        print(f"Error getting available class models: {e}")
+        return jsonify({
+            'error': 'Error retrieving available models with class-specific results.',
+            'code': 'INTERNAL_ERROR'
+        }), 500
