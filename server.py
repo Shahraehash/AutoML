@@ -57,6 +57,12 @@ def load_ui(path='index.html'):
 
     return send_from_directory('static', path)
 
+@APP.route('/preprocessor/')
+@APP.route('/preprocessor/<path:path>')
+def serve_preprocessor(path='index.html'):
+    """Serve preprocessor UI files"""
+    return send_from_directory('static/preprocessor', path)
+
 @APP.errorhandler(404)
 def page_not_found(_):
     """Redirect all invalid pages back to the root index"""
