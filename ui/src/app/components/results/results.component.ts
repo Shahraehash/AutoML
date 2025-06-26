@@ -572,6 +572,14 @@ export class ResultsComponent implements OnInit, OnDestroy {
             },
             role: 'secondary'
           },
+          {
+            text: this.selectedClass !== 'all' ? `Export Class ${this.selectedClass} Results` : 'Export Results',
+            handler: () => {
+              this.api.exportCSV(this.selectedClass).then(url => window.open(url, '_self'));
+              return false;
+            },
+            role: 'secondary'
+          },
           'Dismiss'
         ],
         header: 'Analysis Details',
@@ -804,12 +812,16 @@ export class ResultsComponent implements OnInit, OnDestroy {
             transformedResult.brier_score = modelClassData.reliability.brier_score;
           }
 
+          // Use class-specific ROC delta if available
+          if (modelClassData.roc_delta !== undefined && modelClassData.roc_delta !== null) {
+            transformedResult.roc_delta = modelClassData.roc_delta;
+          } else {
+            transformedResult.roc_delta = null;
+          }
+
           // Calculate derived metrics from class-specific data
           const derivedMetrics = this.calculateDerivedMetrics(modelClassData);
           Object.assign(transformedResult, derivedMetrics);
-
-          // Clear roc_delta as it's not meaningful for single class
-          transformedResult.roc_delta = null;
 
         } catch (error) {
           console.error('Error transforming result for class', classIndex, 'model', originalResult.key, error);

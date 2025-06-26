@@ -179,7 +179,7 @@ def find_best_model(
                         print(f'\t\tComputing class-specific results for {n_classes} classes...')
                         class_specific_data = compute_class_specific_results(
                             pipeline[0], model['features'], candidate['best_estimator'], 
-                            x2, y2, n_classes, result['key']
+                            x2, y2, n_classes, result['key'], x_train, y_train
                         )
                         save_class_results(class_specific_data, class_results_dir, result['key'])
                     except Exception as e:

@@ -10,7 +10,7 @@ from .precision import precision_recall
 from .roc import roc
 
 
-def compute_class_specific_results(pipeline, features, estimator, x_test, y_test, n_classes, model_key):
+def compute_class_specific_results(pipeline, features, estimator, x_test, y_test, n_classes, model_key, x_train=None, y_train=None):
     """Compute class-specific OvR results for all classes"""
     
     class_results = {
@@ -21,15 +21,34 @@ def compute_class_specific_results(pipeline, features, estimator, x_test, y_test
     
     for class_idx in range(n_classes):
         try:
-            # Compute reliability, precision_recall, and roc for this class
+            # Compute reliability, precision_recall, and roc for this class (generalization data)
             reliability_data = reliability(pipeline, features, estimator, x_test, y_test, class_idx)
             precision_data = precision_recall(pipeline, features, estimator, x_test, y_test, class_idx)
             roc_data = roc(pipeline, features, estimator, x_test, y_test, class_idx)
             
+            # Compute training ROC AUC for this class if training data is provided
+            training_roc_auc = None
+            roc_delta = None
+            
+            if x_train is not None and y_train is not None:
+                try:
+                    training_roc_data = roc(pipeline, features, estimator, x_train, y_train, class_idx)
+                    training_roc_auc = training_roc_data['roc_auc']
+                    
+                    # Calculate ROC delta (absolute difference between generalization and training)
+                    if roc_data['roc_auc'] is not None and training_roc_auc is not None:
+                        roc_delta = round(abs(roc_data['roc_auc'] - training_roc_auc), 4)
+                except Exception as e:
+                    print(f"Error computing training ROC AUC for class {class_idx} in model {model_key}: {e}")
+                    training_roc_auc = None
+                    roc_delta = None
+            
             class_results['class_data'][class_idx] = {
                 'reliability': reliability_data,
                 'precision_recall': precision_data,
-                'roc_auc': roc_data
+                'roc_auc': roc_data,
+                'training_roc_auc': training_roc_auc,
+                'roc_delta': roc_delta
             }
         except Exception as e:
             print(f"Error computing class-specific results for class {class_idx} in model {model_key}: {e}")
@@ -37,7 +56,9 @@ def compute_class_specific_results(pipeline, features, estimator, x_test, y_test
             class_results['class_data'][class_idx] = {
                 'reliability': {'brier_score': 0, 'fop': [], 'mpv': []},
                 'precision_recall': {'precision': [], 'recall': [], 'thresholds': [], 'auc': 0},
-                'roc_auc': {'fpr': [], 'tpr': [], 'roc_auc': 0}
+                'roc_auc': {'fpr': [], 'tpr': [], 'roc_auc': 0},
+                'training_roc_auc': None,
+                'roc_delta': None
             }
     
     return class_results

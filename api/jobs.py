@@ -512,6 +512,7 @@ def get_class_specific_results(jobid, class_index):
                 'reliability': class_data['class_data'][class_index]['reliability'],
                 'precision_recall': class_data['class_data'][class_index]['precision_recall'],
                 'roc_auc': class_data['class_data'][class_index]['roc_auc'],
+                'roc_delta': class_data['class_data'][class_index].get('roc_delta'),
                 'class_index': class_index,
                 'model_key': model_key,
                 'total_classes': class_data['n_classes'],
@@ -537,7 +538,7 @@ def get_class_specific_results(jobid, class_index):
         }), 500
 
 def export(jobid):
-    """Export the results CSV"""
+    """Export the results CSV - class-aware based on query parameter"""
 
     if g.uid is None:
         abort(401)
@@ -549,11 +550,116 @@ def export(jobid):
         abort(400)
         return
 
+    # Check if class-specific export is requested
+    class_index = request.args.get('class_index')
+    
+    if class_index is not None and class_index != 'all':
+        return export_class_specific_data(jobid, folder, class_index)
+    
+    # Default macro-averaged export
     return Response(
       pd.read_csv(folder + '/report.csv').drop(['test_fpr', 'test_tpr', 'generalization_fpr', 'generalization_tpr', 'fop', 'mpv', 'precision', 'recall'], axis=1).to_csv(),
       mimetype='text/csv',
       headers={'Content-Disposition':'attachment;filename=report.csv'}
     )
+
+def export_class_specific_data(jobid, folder, class_index):
+    """Export class-specific results by converting stored pickle data to CSV"""
+    
+    try:
+        class_index = int(class_index)
+    except (ValueError, TypeError):
+        abort(400)
+        return
+    
+    class_results_dir = folder + '/class_results'
+    
+    # Check if class results directory exists
+    if not os.path.exists(class_results_dir):
+        abort(400)
+        return
+    
+    try:
+        # Get available models with class results
+        available_models = get_available_models_with_class_results(class_results_dir)
+        
+        if not available_models:
+            abort(400)
+            return
+        
+        # Load original report for model metadata
+        original_df = pd.read_csv(folder + '/report.csv')
+        
+        # Create class-specific results
+        class_rows = []
+        
+        for model_key in available_models:
+            # Find the original row for this model
+            original_row = original_df[original_df['key'] == model_key]
+            if original_row.empty:
+                continue
+                
+            original_row = original_row.iloc[0].to_dict()
+            
+            # Load class-specific data
+            class_data = load_class_results(class_results_dir, model_key)
+            
+            if not class_data or class_index not in class_data['class_data']:
+                continue
+                
+            class_metrics = class_data['class_data'][class_index]
+            
+            # Create new row with class-specific metrics
+            class_row = original_row.copy()
+            
+            # Update with class-specific values from stored data
+            if 'roc_auc' in class_metrics and class_metrics['roc_auc']['roc_auc'] is not None:
+                class_row['roc_auc'] = class_metrics['roc_auc']['roc_auc']
+                
+            if 'reliability' in class_metrics and class_metrics['reliability']['brier_score'] is not None:
+                class_row['brier_score'] = class_metrics['reliability']['brier_score']
+            
+            # Update with class-specific ROC delta if available
+            if 'roc_delta' in class_metrics and class_metrics['roc_delta'] is not None:
+                class_row['roc_delta'] = class_metrics['roc_delta']
+            else:
+                class_row['roc_delta'] = None
+            
+            # Add class identifier columns
+            class_row['class_index'] = class_index
+            class_row['analysis_type'] = f'Class_{class_index}_vs_Rest'
+            
+            class_rows.append(class_row)
+        
+        if not class_rows:
+            abort(400)
+            return
+        
+        # Create DataFrame and export
+        class_df = pd.DataFrame(class_rows)
+        
+        # Remove columns that contain raw data arrays
+        columns_to_drop = ['test_fpr', 'test_tpr', 'generalization_fpr', 'generalization_tpr', 
+                          'fop', 'mpv', 'precision', 'recall']
+        columns_to_drop = [col for col in columns_to_drop if col in class_df.columns]
+        
+        if columns_to_drop:
+            class_df = class_df.drop(columns_to_drop, axis=1)
+        
+        filename = f'class_{class_index}_results.csv'
+        
+        return Response(
+            class_df.to_csv(index=False),
+            mimetype='text/csv',
+            headers={'Content-Disposition': f'attachment;filename={filename}'}
+        )
+        
+    except Exception as e:
+        print(f"Error in export_class_specific_data for job {jobid}, class {class_index}: {e}")
+        import traceback
+        traceback.print_exc()
+        abort(500)
+        return
 
 def export_performance(jobid):
     """Export the performance result CSV"""
