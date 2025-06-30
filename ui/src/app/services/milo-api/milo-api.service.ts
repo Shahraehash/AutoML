@@ -277,8 +277,16 @@ export class MiloApiService {
 
   async exportCSV(classIndex?: string | number) {
     const auth = await this.getURLAuth();
-    const classParam = classIndex !== undefined && classIndex !== 'all' ? `&class_index=${classIndex}` : '';
-    return `${environment.apiUrl}/jobs/${this.currentJobId}/export?${auth}${classParam}`;
+    
+    // Use query parameter approach for class-specific export
+    if (classIndex !== undefined && classIndex !== 'all') {
+      const url = `${environment.apiUrl}/jobs/${this.currentJobId}/export?class_index=${classIndex}&${auth}`;
+      return url;
+    } else {
+      // Use the original endpoint for macro-averaged results
+      const url = `${environment.apiUrl}/jobs/${this.currentJobId}/export?${auth}`;
+      return url;
+    }
   }
 
   async exportPerformanceCSV() {

@@ -5,9 +5,10 @@ scoring method.
 """
 
 import json
+import pandas as pd
 from sklearn.base import clone
 
-from .processors.estimators import ESTIMATORS
+from .processors.estimators import ESTIMATORS, get_xgb_classifier
 from .processors.scorers import SCORER_NAMES
 from .preprocess import preprocess
 
@@ -41,7 +42,14 @@ def refit_model(pipeline, features, estimator, scoring, x_train, y_train):
         print('\t#%d %s parameters:' % (position+1, SCORER_NAMES[scoring]),
               json.dumps(best_params_, indent=4, sort_keys=True).replace('\n', '\n\t'))
 
-        model = clone(ESTIMATORS[estimator]).set_params(
+        # Handle XGBoost configuration properly
+        if estimator == 'gb':
+            n_classes = len(pd.Series(y_train).unique())
+            base_estimator = get_xgb_classifier(n_classes)
+        else:
+            base_estimator = ESTIMATORS[estimator]
+
+        model = clone(base_estimator).set_params(
             **best_params_).fit(x_train, y_train)
 
         models.append({

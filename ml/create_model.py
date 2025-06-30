@@ -11,7 +11,7 @@ from joblib import dump, load
 from nyoka import skl_to_pmml, xgboost_to_pmml
 from sklearn.pipeline import Pipeline
 
-from .processors.estimators import ESTIMATORS
+from .processors.estimators import ESTIMATORS, get_xgb_classifier
 from .processors.feature_selection import FEATURE_SELECTORS
 from .processors.scalers import SCALERS
 from .import_data import import_data
@@ -53,8 +53,14 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
     if 'pca-' in feature_selector:
         steps.append(('feature_selector', FEATURE_SELECTORS[feature_selector]))
 
-    # Add the estimator
-    steps.append(('estimator', ESTIMATORS[estimator].set_params(**hyper_parameters)))
+    # Add the estimator with proper XGBoost configuration
+    if estimator == 'gb':
+        n_classes = len(pd.Series(y_train).unique())
+        base_estimator = get_xgb_classifier(n_classes)
+    else:
+        base_estimator = ESTIMATORS[estimator]
+    
+    steps.append(('estimator', base_estimator.set_params(**hyper_parameters)))
 
     # Fit the pipeline using the same training data
     pipeline = Pipeline(steps)
@@ -72,7 +78,7 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
         labels = [f'Class {int(cls)}' for cls in unique_labels]
 
     # Assess the model performance and store the results
-    generalization_result = generalize(model['features'], pipeline['estimator'], pipeline, x2, y2, labels, threshold)
+    generalization_result = generalize(pipeline, model['features'], pipeline['estimator'], x2, y2, labels, threshold)
     with open(output_path + '/pipeline.json', 'w') as statsfile:
         json.dump(generalization_result, statsfile)
 

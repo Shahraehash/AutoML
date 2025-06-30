@@ -11,7 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
 
 ESTIMATORS = {
-    'gb': XGBClassifier(),
+    'gb': XGBClassifier(objective='binary:logistic', eval_metric='logloss'),
     'knn': KNeighborsClassifier(),
     'lr': LogisticRegression(solver='lbfgs', max_iter=1000), #Learns multinomial not OvR
     'mlp': MLPClassifier(),
@@ -19,6 +19,13 @@ ESTIMATORS = {
     'rf': RandomForestClassifier(n_estimators=10),
     'svm': SVC(gamma='auto', probability=True, decision_function_shape='ovr'),
 }
+
+def get_xgb_classifier(n_classes=2):
+    """Get XGBClassifier with appropriate objective based on number of classes"""
+    if n_classes > 2:
+        return XGBClassifier(objective='multi:softprob', eval_metric='mlogloss')
+    else:
+        return XGBClassifier(objective='binary:logistic', eval_metric='logloss')
 
 ESTIMATOR_NAMES = {
     'gb': 'gradient boosting machine',

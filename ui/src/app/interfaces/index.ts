@@ -31,13 +31,15 @@ export interface MetaData {
     label?: string;
     train_class_counts?: {[key: string]: number};
     test_class_counts?: {[key: string]: number};
-    num_classes?: number;
+    n_classes?: number;
     parameters?: SearchParameters;
     date?: number;
 }
 
 export interface GeneralizationResult {
     key: string;
+    class_type?: string;
+    class_index?: number;
     scaler: string;
     feature_selector: string;
     algorithm: string;

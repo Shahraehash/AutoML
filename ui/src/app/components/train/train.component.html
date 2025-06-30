@@ -45,8 +45,6 @@
       <div formArrayName='scorers'>
         <h6>Scorers</h6>
 
-        <!-- Manually add ROC AUC since it's required by the UI -->
-        <mat-checkbox disabled='disabled' checked='checked'>ROC AUC</mat-checkbox>
         <mat-checkbox *ngFor='let scorer of pipelineProcessors.scorers; let i=index' [formControlName]='i' [disabled]='api.isTrial && !scorer.trial'>
           {{scorer.label}}
           <ion-chip *ngIf='api.isTrial && !scorer.trial' routerLink='/update-license' [class.disabled]='ldapAuth'>PRO</ion-chip>
@@ -56,11 +54,12 @@
   </ion-card>
   <ion-card class='cross-val-options' [hidden]='training'>
     <ion-card-header>
-      <ion-card-subtitle *ngIf='!parameters'>Toggle whether to shuffle each class's samples before splitting into batches</ion-card-subtitle>
+      <ion-card-subtitle *ngIf='!parameters'>Configure cross-validation and multiclass optimization options</ion-card-subtitle>
       <ion-card-title>Cross Validation Options</ion-card-title>
     </ion-card-header>
 
     <mat-checkbox formControlName='shuffle'><h6>Shuffle per Fold</h6></mat-checkbox>
+    <mat-checkbox formControlName='reoptimizeOvr'><h6>Re-optimize OvR Models</h6></mat-checkbox>
   </ion-card>
   <ion-button *ngIf='!parameters' expand='block' (click)='startTraining()' [hidden]='training' [disabled]='!trainForm.valid'>Start Training</ion-button>
   <app-radial-dendrogram [data]='allPipelines' [training]='training' [hidden]='!training'></app-radial-dendrogram>

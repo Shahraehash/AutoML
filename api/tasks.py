@@ -29,8 +29,12 @@ def pending():
             if g.uid in task['request']['args']:
                 job_folder = 'data/users/' + g.uid + '/jobs/' + task['request']['args'][1]
 
-                with open(job_folder + '/metadata.json') as metafile:
-                    metadata = json.load(metafile)
+                try:
+                    with open(job_folder + '/metadata.json') as metafile:
+                        metadata = json.load(metafile)
+                except (FileNotFoundError, json.JSONDecodeError) as e:
+                    print(f"Error reading metadata for scheduled task {task['request']['id']}: {e}")
+                    continue
 
                 scheduled.append({
                     'id': task['request']['id'],
@@ -51,8 +55,12 @@ def pending():
             if '.queue_training' in task['type'] and g.uid in task['args']:
                 job_folder = 'data/users/' + g.uid + '/jobs/' + task['args'][1]
 
-                with open(job_folder + '/metadata.json') as metafile:
-                    metadata = json.load(metafile)
+                try:
+                    with open(job_folder + '/metadata.json') as metafile:
+                        metadata = json.load(metafile)
+                except (FileNotFoundError, json.JSONDecodeError) as e:
+                    print(f"Error reading metadata for active task {task['id']}: {e}")
+                    continue
 
                 task_status = get_task_status(task['id'])
                 task_status.update({

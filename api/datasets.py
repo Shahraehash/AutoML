@@ -83,10 +83,15 @@ def add():
     try:
         process_files(folder, request.form['label_column'])
     except ValueError as reason:
+        print(f"Dataset validation failed for user {g.uid}: {reason}")
         rmtree(folder)
         abort(406, jsonify({
           'reason': reason
         }))
+    except Exception as e:
+        print(f"Unexpected error processing dataset for user {g.uid}: {e}")
+        rmtree(folder)
+        abort(500)
 
     return jsonify({'id': datasetid})
 

@@ -6,7 +6,7 @@ import pandas as pd
 
 from sklearn.model_selection import GridSearchCV, ParameterGrid, RandomizedSearchCV, StratifiedKFold
 
-from .estimators import ESTIMATORS
+from .estimators import ESTIMATORS, get_xgb_classifier
 from .hyperparameters import HYPER_PARAMETER_RANGE
 
 # Define the max iterations for random
@@ -15,7 +15,7 @@ MAX_RANDOM_ITERATIONS = 100
 # Define the number of splits for the cross validator
 N_SPLITS = 10
 
-def make_grid_search(estimator, scoring, shuffle, custom_hyper_parameters, _):
+def make_grid_search(estimator, scoring, shuffle, custom_hyper_parameters, y_train):
     """Generate grid search with 10 fold cross validator"""
 
     # Define the cross validator (shuffle the data between each fold)
@@ -30,9 +30,20 @@ def make_grid_search(estimator, scoring, shuffle, custom_hyper_parameters, _):
         parameter_range = HYPER_PARAMETER_RANGE['grid'][estimator]\
             if estimator in HYPER_PARAMETER_RANGE['grid'] else {}
 
+    # Handle XGBoost multiclass configuration
+    base_estimator = ESTIMATORS[estimator]
+    if estimator == 'gb' and y_train is not None:
+        n_classes = len(pd.Series(y_train).unique())
+        base_estimator = get_xgb_classifier(n_classes)
+        
+        # Update parameter range for multiclass
+        if n_classes > 2 and 'objective' in parameter_range:
+            parameter_range = parameter_range.copy()
+            parameter_range['objective'] = ['multi:softprob']
+
     return (
         GridSearchCV(
-            ESTIMATORS[estimator],
+            base_estimator,
             parameter_range,
             cv=cv,
             scoring=scoring,
@@ -62,6 +73,17 @@ def make_random_search(estimator, scoring, shuffle, custom_hyper_parameters, y_t
     if callable(parameter_range):
         parameter_range = parameter_range(pd.Series(y_train).value_counts().min())
 
+    # Handle XGBoost multiclass configuration
+    base_estimator = ESTIMATORS[estimator]
+    if estimator == 'gb' and y_train is not None:
+        n_classes = len(pd.Series(y_train).unique())
+        base_estimator = get_xgb_classifier(n_classes)
+        
+        # Update parameter range for multiclass
+        if n_classes > 2 and 'objective' in parameter_range:
+            parameter_range = parameter_range.copy()
+            parameter_range['objective'] = ['multi:softprob']
+
     # When the grid contains an RVS method, the parameter grid cannot generate
     # an exhaustive list and throws an error. In this case, iterate the max
     # count allowed.
@@ -73,7 +95,7 @@ def make_random_search(estimator, scoring, shuffle, custom_hyper_parameters, y_t
 
     return (
         RandomizedSearchCV(
-            ESTIMATORS[estimator],
+            base_estimator,
             parameter_range,
             cv=cv,
             scoring=scoring,

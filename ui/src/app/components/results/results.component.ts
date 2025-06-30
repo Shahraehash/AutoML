@@ -177,11 +177,17 @@ export class ResultsComponent implements OnInit, OnDestroy {
       await alert.present();
     }
 
-    this.data = data.results;
-    this.metadata = data.metadata;
-    // Store original results for restoration when switching back to 'all'
+    // Store ALL results (including OvR models) for filtering
     this.originalResults = JSON.parse(JSON.stringify(data.results));
-    this.results = new MatTableDataSource(data.results);
+    this.metadata = data.metadata;
+    
+    // Show only main models by default (macro-averaged)
+    const mainModels = data.results.filter(result => 
+      !result.class_type || result.class_type === 'multiclass' || result.class_type === 'binary'
+    );
+    
+    this.data = mainModels;
+    this.results = new MatTableDataSource(mainModels);
     setTimeout(async () => {
       this.results.sort = this.sort;
       this.results.paginator = this.paginator;
@@ -373,15 +379,17 @@ export class ResultsComponent implements OnInit, OnDestroy {
     }
 
     if (mode === 'reliability') {
-      textElements.push('Brier Score: ' + object.brier_score.toFixed(4));
+      const brierScore = typeof object.brier_score === 'string' ? parseFloat(object.brier_score) : object.brier_score;
+      textElements.push('Brier Score: ' + brierScore.toFixed(4));
     } else if (mode === 'precision') {
-      textElements.push('F1: ' + object.f1.toFixed(4));
+      const f1Score = typeof object.f1 === 'string' ? parseFloat(object.f1) : object.f1;
+      textElements.push('F1: ' + f1Score.toFixed(4));
     } else if (mode === 'generalization') {
-      textElements.push('AUC: ' + object.roc_auc.toFixed(4));
+      const rocAuc = typeof object.roc_auc === 'string' ? parseFloat(object.roc_auc) : object.roc_auc;
+      textElements.push('AUC: ' + rocAuc.toFixed(4));
     } else if (mode === 'test') {
-      if (object.training_roc_auc) {
-        textElements.push('AUC: ' + object.training_roc_auc.toFixed(4));
-      }
+      const trainingRocAuc = typeof object.training_roc_auc === 'string' ? parseFloat(object.training_roc_auc) : object.training_roc_auc;
+      textElements.push('AUC: ' + trainingRocAuc.toFixed(4));
     }
 
     return {
@@ -573,7 +581,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
             role: 'secondary'
           },
           {
-            text: this.selectedClass !== 'all' ? `Export Class ${this.selectedClass} Results` : 'Export Results',
+            text: 'Export Results',
             handler: () => {
               this.api.exportCSV(this.selectedClass).then(url => window.open(url, '_self'));
               return false;
@@ -660,48 +668,66 @@ export class ResultsComponent implements OnInit, OnDestroy {
   }
 
   isMulticlass(): boolean {
-    return this.metadata?.num_classes > 2;
+    return this.metadata?.n_classes > 2;
   }
 
   getClassLabels(): string[] {
-    if (!this.metadata?.num_classes || this.metadata.num_classes <= 2) {
+    const numClasses = this.metadata?.n_classes;
+    if (!numClasses || numClasses <= 2) {
       return [];
     }
     
     // Generate class labels based on number of classes
     const labels = [];
-    for (let i = 0; i < this.metadata.num_classes; i++) {
+    for (let i = 0; i < numClasses; i++) {
       labels.push(`Class ${i}`);
     }
     return labels;
   }
 
-  async onClassChange() {
+  onClassChange() {
+    console.log('onClassChange called, selectedClass:', this.selectedClass);
+    console.log('originalResults length:', this.originalResults?.length);
+    
     if (this.selectedClass === 'all') {
-      // Restore original macro-averaged data
-      this.restoreOriginalData();
-      return;
-    }
-
-    // Check if we already tried and failed for this class
-    if (this.classSpecificData[this.selectedClass] === null) {
-      // Already failed, don't retry
-      return;
-    }
-
-    // Check if we're already loading this class to prevent duplicate requests
-    if (this.loadingClassData.has(this.selectedClass)) {
-      return;
-    }
-
-    // Fetch class-specific data if not already loaded
-    if (!this.classSpecificData[this.selectedClass]) {
-      await this.loadClassSpecificData();
-    }
-
-    // Transform table data with class-specific metrics
-    if (this.classSpecificData[this.selectedClass] && this.classSpecificData[this.selectedClass] !== null) {
-      this.transformTableDataForClass(this.selectedClass as number);
+      // Show main multiclass models (macro-averaged)
+      const mainModels = this.originalResults.filter(result => 
+        result.class_type === 'multiclass' || result.class_type === 'binary'
+      );
+      console.log('Main models found:', mainModels.length);
+      console.log('Sample main model:', mainModels[0]);
+      this.updateTableData(mainModels);
+    } else {
+      // Show OvR models for specific class
+      console.log('Looking for OvR models with class_type="ovr" and class_index=', this.selectedClass);
+      
+      // Debug: show all class_type values
+      const classTypes = this.originalResults.map(r => r.class_type);
+      console.log('All class_type values:', [...new Set(classTypes)]);
+      
+      // Debug: show all class_index values and their types
+      const classIndices = this.originalResults.map(r => r.class_index);
+      console.log('All class_index values:', [...new Set(classIndices)]);
+      console.log('class_index types:', [...new Set(classIndices.map(v => typeof v))]);
+      console.log('selectedClass type:', typeof this.selectedClass);
+      
+      // Debug: show sample records with class_type and class_index
+      const sampleRecords = this.originalResults.slice(0, 5).map(r => ({
+        key: r.key,
+        class_type: r.class_type,
+        class_index: r.class_index,
+        class_index_type: typeof r.class_index
+      }));
+      console.log('Sample records:', sampleRecords);
+      
+      const classModels = this.originalResults.filter(result => 
+        result.class_type === 'ovr' && result.class_index == this.selectedClass
+      );
+      console.log('OvR models found for class', this.selectedClass, ':', classModels.length);
+      if (classModels.length > 0) {
+        console.log('Sample OvR model:', classModels[0]);
+      }
+      this.updateTableData(classModels);
     }
   }
 
@@ -928,6 +954,11 @@ export class ResultsComponent implements OnInit, OnDestroy {
       console.error('Error calculating F1:', error);
       return null;
     }
+  }
+
+  private updateTableData(filteredResults: GeneralizationResult[]) {
+    this.data = filteredResults;
+    this.results.data = filteredResults;
   }
 
   private async showError(message: string) {

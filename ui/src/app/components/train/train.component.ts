@@ -45,6 +45,7 @@ export class TrainComponent implements OnDestroy, OnInit {
       searchers: this.formBuilder.array(this.pipelineProcessors.searchers, requireAtLeastOneCheckedValidator()),
       scorers: this.formBuilder.array(this.pipelineProcessors.scorers),
       shuffle: [true],
+      reoptimizeOvr: [false],
       hyperParameters: {...this.defaultHyperParameters}
     });
 
@@ -63,6 +64,7 @@ export class TrainComponent implements OnDestroy, OnInit {
       this.setValues('searchers', this.parameters.ignore_searcher.split(','));
       this.setValues('scorers', this.parameters.ignore_scorer.split(','));
       this.trainForm.get('shuffle').setValue(!this.parameters.ignore_shuffle);
+      this.trainForm.get('reoptimizeOvr').setValue(this.parameters.reoptimize_ovr === 'true');
 
       try {
         this.trainForm.get('hyperParameters').setValue(
@@ -111,6 +113,10 @@ export class TrainComponent implements OnDestroy, OnInit {
 
     if (!this.trainForm.get('shuffle').value) {
       formData.append('ignore_shuffle', 'true');
+    }
+
+    if (this.trainForm.get('reoptimizeOvr').value) {
+      formData.append('reoptimize_ovr', 'true');
     }
 
     (await this.api.startTraining(formData)).subscribe(

@@ -9,7 +9,8 @@ HYPER_PARAMETER_RANGE = {
         'gb': {
             'learning_rate': [.01, .05, .1],
             'max_depth': [2, 3, 4, 5, 6],
-            'n_estimators': [100, 1000]
+            'n_estimators': [100, 1000],
+            'objective': ['binary:logistic']
         },
         'knn': [
             {
@@ -50,7 +51,8 @@ HYPER_PARAMETER_RANGE = {
         'gb': {
             'max_depth': range(2, 6),
             'n_estimators': range(100, 200),
-            'learning_rate': uniform(0.01, 0.1)
+            'learning_rate': uniform(0.01, 0.1),
+            'objective': ['binary:logistic']
         },
         'mlp': {
             'max_iter': [300, 400],

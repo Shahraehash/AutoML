@@ -9,6 +9,8 @@ import re
 import time
 import uuid
 import zipfile
+import tarfile
+import tempfile
 from io import BytesIO
 from shutil import copyfile, rmtree
 
@@ -35,9 +37,8 @@ def get():
     folder = 'data/users/' + g.uid + '/jobs'
 
     if not os.path.exists(folder):
-        # Create the user jobs folder if it doesn't exist
-        os.makedirs(folder, exist_ok=True)
-        return jsonify([])
+        abort(400)
+        return
 
     jobs = []
     for job in os.listdir(folder):
@@ -451,15 +452,6 @@ def get_class_specific_results(jobid, class_index):
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
     class_results_dir = folder + '/class_results'
     
-    # Check if class results directory exists
-    if not os.path.exists(class_results_dir):
-        return jsonify({
-            'error': 'Class-specific results not available',
-            'code': 'NO_CLASS_RESULTS',
-            'message': 'This job was created before class-specific analysis was implemented. Please retrain the model to generate class-specific results for multiclass problems.',
-            'legacy_job': True
-        }), 400
-    
     # Get model key from request parameters - if not provided, try to get the first available model
     model_key = request.args.get('model_key')
     
@@ -468,77 +460,51 @@ def get_class_specific_results(jobid, class_index):
         
         if not available_models:
             return jsonify({
-                'error': 'No models with class-specific results found',
-                'code': 'NO_MODELS_WITH_CLASS_RESULTS',
-                'message': 'No class-specific results were generated during training.'
+                'error': 'No class-specific results available for this job.',
+                'code': 'NO_CLASS_RESULTS'
             }), 400
         
-        # If no model_key provided, use the first available model
+        # If no model_key specified, use the first available model
         if not model_key:
             model_key = available_models[0]
-            print(f"No model_key provided for job {jobid}, using first available model: {model_key}")
-        
-        # Validate that the requested model exists
-        if model_key not in available_models:
-            return jsonify({
-                'error': f'Model "{model_key}" not found',
-                'code': 'MODEL_NOT_FOUND',
-                'available_models': available_models,
-                'message': f'Available models: {", ".join(available_models)}'
-            }), 400
-        
-        # Load class-specific results
+            
         class_data = load_class_results(class_results_dir, model_key)
         
         if not class_data:
             return jsonify({
-                'error': f'Failed to load class results for model "{model_key}"',
-                'code': 'FAILED_TO_LOAD_RESULTS'
-            }), 500
+                'error': f'Class-specific results not found for model {model_key}.',
+                'code': 'MODEL_NOT_FOUND'
+            }), 404
+            
+        class_index = int(class_index)
         
-        try:
-            class_index = int(class_index)
-            if class_index not in class_data['class_data']:
-                available_classes = list(class_data['class_data'].keys())
-                return jsonify({
-                    'error': f'Invalid class index {class_index}',
-                    'code': 'INVALID_CLASS_INDEX',
-                    'available_classes': available_classes,
-                    'total_classes': class_data['n_classes'],
-                    'message': f'Available classes: {available_classes}'
-                }), 400
-            
+        if class_index not in class_data['class_data']:
             return jsonify({
-                'reliability': class_data['class_data'][class_index]['reliability'],
-                'precision_recall': class_data['class_data'][class_index]['precision_recall'],
-                'roc_auc': class_data['class_data'][class_index]['roc_auc'],
-                'roc_delta': class_data['class_data'][class_index].get('roc_delta'),
-                'class_index': class_index,
-                'model_key': model_key,
-                'total_classes': class_data['n_classes'],
-                'available_models': available_models,
-                'success': True
-            })
-            
-        except (ValueError, TypeError):
-            return jsonify({
-                'error': 'Invalid class index format',
-                'code': 'INVALID_CLASS_INDEX_FORMAT',
-                'message': 'Class index must be an integer'
-            }), 400
-            
-    except Exception as e:
-        print(f"Error in get_class_specific_results for job {jobid}: {e}")
-        import traceback
-        traceback.print_exc()
+                'error': f'Class {class_index} not found in results.',
+                'code': 'CLASS_NOT_FOUND'
+            }), 404
+        
         return jsonify({
-            'error': 'Internal server error',
-            'code': 'INTERNAL_ERROR',
-            'message': 'An unexpected error occurred while processing class-specific results'
+            'reliability': class_data['class_data'][class_index]['reliability'],
+            'precision_recall': class_data['class_data'][class_index]['precision_recall'],
+            'roc_auc': class_data['class_data'][class_index]['roc_auc'],
+            'roc_delta': class_data['class_data'][class_index].get('roc_delta'),
+            'class_index': class_index,
+            'model_key': model_key,
+            'total_classes': class_data['n_classes'],
+            'available_models': available_models,
+            'success': True
+        })
+        
+    except Exception as e:
+        print(f"Error loading class-specific results: {e}")
+        return jsonify({
+            'error': 'Error loading class-specific results.',
+            'code': 'INTERNAL_ERROR'
         }), 500
 
-def export(jobid):
-    """Export the results CSV - class-aware based on query parameter"""
+def export(jobid, class_index=None):
+    """Export the results CSV - subset by class if specified"""
 
     if g.uid is None:
         abort(401)
@@ -549,117 +515,43 @@ def export(jobid):
     if not os.path.exists(folder + '/report.csv'):
         abort(400)
         return
-
-    # Check if class-specific export is requested
-    class_index = request.args.get('class_index')
     
-    if class_index is not None and class_index != 'all':
-        return export_class_specific_data(jobid, folder, class_index)
-    
-    # Default macro-averaged export
-    return Response(
-      pd.read_csv(folder + '/report.csv').drop(['test_fpr', 'test_tpr', 'generalization_fpr', 'generalization_tpr', 'fop', 'mpv', 'precision', 'recall'], axis=1).to_csv(),
-      mimetype='text/csv',
-      headers={'Content-Disposition':'attachment;filename=report.csv'}
-    )
-
-def export_class_specific_data(jobid, folder, class_index):
-    """Export class-specific results by converting stored pickle data to CSV"""
+    # Get class_index from query parameters if not passed as argument
+    if class_index is None:
+        class_index = request.args.get('class_index')
     
     try:
-        class_index = int(class_index)
-    except (ValueError, TypeError):
-        abort(400)
-        return
-    
-    class_results_dir = folder + '/class_results'
-    
-    # Check if class results directory exists
-    if not os.path.exists(class_results_dir):
-        abort(400)
-        return
-    
-    try:
-        # Get available models with class results
-        available_models = get_available_models_with_class_results(class_results_dir)
-        
-        if not available_models:
-            abort(400)
-            return
-        
-        # Load original report for model metadata
-        original_df = pd.read_csv(folder + '/report.csv')
-        
-        # Create class-specific results
-        class_rows = []
-        
-        for model_key in available_models:
-            # Find the original row for this model
-            original_row = original_df[original_df['key'] == model_key]
-            if original_row.empty:
-                continue
-                
-            original_row = original_row.iloc[0].to_dict()
-            
-            # Load class-specific data
-            class_data = load_class_results(class_results_dir, model_key)
-            
-            if not class_data or class_index not in class_data['class_data']:
-                continue
-                
-            class_metrics = class_data['class_data'][class_index]
-            
-            # Create new row with class-specific metrics
-            class_row = original_row.copy()
-            
-            # Update with class-specific values from stored data
-            if 'roc_auc' in class_metrics and class_metrics['roc_auc']['roc_auc'] is not None:
-                class_row['roc_auc'] = class_metrics['roc_auc']['roc_auc']
-                
-            if 'reliability' in class_metrics and class_metrics['reliability']['brier_score'] is not None:
-                class_row['brier_score'] = class_metrics['reliability']['brier_score']
-            
-            # Update with class-specific ROC delta if available
-            if 'roc_delta' in class_metrics and class_metrics['roc_delta'] is not None:
-                class_row['roc_delta'] = class_metrics['roc_delta']
-            else:
-                class_row['roc_delta'] = None
-            
-            # Add class identifier columns
-            class_row['class_index'] = class_index
-            class_row['analysis_type'] = f'Class_{class_index}_vs_Rest'
-            
-            class_rows.append(class_row)
-        
-        if not class_rows:
-            abort(400)
-            return
-        
-        # Create DataFrame and export
-        class_df = pd.DataFrame(class_rows)
-        
-        # Remove columns that contain raw data arrays
-        columns_to_drop = ['test_fpr', 'test_tpr', 'generalization_fpr', 'generalization_tpr', 
-                          'fop', 'mpv', 'precision', 'recall']
-        columns_to_drop = [col for col in columns_to_drop if col in class_df.columns]
-        
-        if columns_to_drop:
-            class_df = class_df.drop(columns_to_drop, axis=1)
-        
-        filename = f'class_{class_index}_results.csv'
-        
-        return Response(
-            class_df.to_csv(index=False),
-            mimetype='text/csv',
-            headers={'Content-Disposition': f'attachment;filename={filename}'}
-        )
-        
+        df = pd.read_csv(folder + '/report.csv')
     except Exception as e:
-        print(f"Error in export_class_specific_data for job {jobid}, class {class_index}: {e}")
-        import traceback
-        traceback.print_exc()
         abort(500)
         return
+    
+    # Filter by class_index if specified
+    if class_index is not None:
+        try:
+            class_index = int(class_index)
+            original_count = len(df)
+            df = df[df['class_index'] == class_index]
+            filename = f'class_{class_index}_report.csv'
+        except (ValueError, KeyError) as e:
+            filename = 'report.csv'
+    else:
+        filename = 'report.csv'
+    
+    # Apply the same column dropping as before, but handle missing columns gracefully
+    columns_to_drop = ['test_fpr', 'test_tpr', 'generalization_fpr', 'generalization_tpr', 'fop', 'mpv', 'precision', 'recall']
+    existing_columns_to_drop = [col for col in columns_to_drop if col in df.columns]
+    
+    if existing_columns_to_drop:
+        df_filtered = df.drop(existing_columns_to_drop, axis=1)
+    else:
+        df_filtered = df
+    
+    return Response(
+        df_filtered.to_csv(index=False),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment;filename={filename}'}
+    )
 
 def export_performance(jobid):
     """Export the performance result CSV"""
@@ -676,8 +568,8 @@ def export_performance(jobid):
 
     return send_file(folder + '/performance_report.csv', as_attachment=True, cache_timeout=-1)
 
-def export_pmml(jobid):
-    """Export the selected model's PMML"""
+def export_pmml(jobid, class_index=None):
+    """Export the selected model's PMML - main model or OvR model"""
 
     if g.uid is None:
         abort(401)
@@ -685,45 +577,96 @@ def export_pmml(jobid):
 
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
 
-    if not os.path.exists(folder + '/pipeline.pmml'):
+    if class_index is not None:
+        # Export OvR model PMML for specific class (if it exists)
+        pmml_path = folder + f'/models/ovr_class_{class_index}.pmml'
+        filename = f'ovr_class_{class_index}.pmml'
+    else:
+        # Original main model PMML
+        pmml_path = folder + '/pipeline.pmml'
+        filename = 'pipeline.pmml'
+
+    if not os.path.exists(pmml_path):
         abort(400)
         return
 
-    return send_file(folder + '/pipeline.pmml', as_attachment=True, cache_timeout=-1)
+    return send_file(pmml_path, as_attachment=True, cache_timeout=-1, download_name=filename)
 
-def export_model(jobid):
-    """Export the selected model"""
-
+def export_model(jobid, class_index=None, model_key=None):
+    """Export the selected model - main model or OvR model from compressed archives"""
     if g.uid is None:
         abort(401)
         return
 
     threshold = float(request.args.get('threshold', .5))
     folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
-
-    if not os.path.exists(folder + '/pipeline.joblib'):
-        abort(400)
+    
+    # Get model_key from request if not provided as parameter
+    if model_key is None:
+        model_key = request.args.get('model_key')
+    
+    if model_key is None:
+        abort(400, description="model_key parameter is required")
         return
 
-    with open('client/predict.py', 'r+') as file:
-        contents = file.read()
-        contents = re.sub(r'THRESHOLD = [\d.]+', 'THRESHOLD = ' + str(threshold), contents)
-        file.seek(0)
-        file.truncate()
-        file.write(contents)
+    if class_index is not None:
+        # Extract from OvR models archive
+        archive_path = folder + '/models/ovr_models.tar.gz'
+        model_filename = f"{model_key}_ovr_class_{class_index}.joblib"
+        zip_filename = f'ovr_class_{class_index}_model.zip'
+    else:
+        # Extract from main models archive
+        archive_path = folder + '/models/main_models.tar.gz'
+        model_filename = f"{model_key}.joblib"
+        zip_filename = 'model.zip'
 
-    copyfile(folder + '/pipeline.joblib', 'client/pipeline.joblib')
-    copyfile(folder + '/input.csv', 'client/input.csv')
+    if not os.path.exists(archive_path):
+        abort(400, description=f"Model archive not found: {archive_path}")
+        return
 
-    memory_file = BytesIO()
-    with zipfile.ZipFile(memory_file, 'w') as zf:
-        files = os.listdir('client')
-        for individualFile in files:
-          filePath = os.path.join('client', individualFile)
-          zf.write(filePath, individualFile)
-    memory_file.seek(0)
+    # Extract specific model to temp location
+    try:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with tarfile.open(archive_path, "r:gz") as tar:
+                # Extract the specific model file
+                try:
+                    if class_index is not None:
+                        member_path = f"ovr_models/{model_filename}"
+                    else:
+                        member_path = f"main_models/{model_filename}"
+                    
+                    member = tar.getmember(member_path)
+                    tar.extract(member, temp_dir)
+                    extracted_path = f"{temp_dir}/{member.name}"
+                except KeyError:
+                    abort(404, description=f"Model not found in archive: {model_filename}")
+                    return
+            
+            # Update threshold in predict.py
+            with open('client/predict.py', 'r+') as file:
+                contents = file.read()
+                contents = re.sub(r'THRESHOLD = [\d.]+', 'THRESHOLD = ' + str(threshold), contents)
+                file.seek(0)
+                file.truncate()
+                file.write(contents)
 
-    return send_file(memory_file, attachment_filename='model.zip', as_attachment=True, cache_timeout=-1)
+            # Copy extracted model to client directory
+            copyfile(extracted_path, 'client/pipeline.joblib')
+            copyfile(folder + '/input.csv', 'client/input.csv')
+
+            memory_file = BytesIO()
+            with zipfile.ZipFile(memory_file, 'w') as zf:
+                files = os.listdir('client')
+                for individualFile in files:
+                    filePath = os.path.join('client', individualFile)
+                    zf.write(filePath, individualFile)
+            memory_file.seek(0)
+
+            return send_file(memory_file, attachment_filename=zip_filename, as_attachment=True, cache_timeout=-1)
+    
+    except Exception as e:
+        abort(500, description=f"Error extracting model: {str(e)}")
+        return
 
 def star_models(jobid):
     """Marks the selected models as starred"""
@@ -789,6 +732,54 @@ def get_starred(jobid):
         starred = json.load(starred_file)
 
     return jsonify(starred)
+
+def list_available_models(jobid, class_index=None):
+    """List models available in archives"""
+    import tarfile
+    
+    if g.uid is None:
+        abort(401)
+        return
+
+    folder = 'data/users/' + g.uid + '/jobs/' + jobid.urn[9:]
+    
+    try:
+        if class_index is not None:
+            archive_path = folder + '/models/ovr_models.tar.gz'
+            prefix = "ovr_models/"
+            suffix = f"_ovr_class_{class_index}.joblib"
+        else:
+            archive_path = folder + '/models/main_models.tar.gz'
+            prefix = "main_models/"
+            suffix = ".joblib"
+        
+        if not os.path.exists(archive_path):
+            return jsonify({
+                'models': [],
+                'count': 0,
+                'archive_exists': False
+            })
+        
+        models = []
+        with tarfile.open(archive_path, "r:gz") as tar:
+            for member in tar.getmembers():
+                if member.name.startswith(prefix) and member.name.endswith(suffix):
+                    model_key = member.name[len(prefix):-len(suffix)]
+                    models.append(model_key)
+        
+        return jsonify({
+            'models': models,
+            'count': len(models),
+            'archive_exists': True,
+            'class_index': class_index
+        })
+        
+    except Exception as e:
+        print(f"Error listing available models: {e}")
+        return jsonify({
+            'error': 'Error retrieving available models from archives.',
+            'code': 'INTERNAL_ERROR'
+        }), 500
 
 def get_available_class_models(jobid):
     """Get list of models that have class-specific results"""

@@ -97,12 +97,17 @@ def parse_auth():
         if os.getenv('LDAP_AUTH') == 'true':
             try:
                 g.uid = authentication.ldap_verify(token)['uid']
-            except Exception:
+            except Exception as e:
+                print(f"LDAP authentication failed: {e}")
                 abort(401)
         else:
             try:
                 g.uid = auth.verify_id_token(token)['uid']
             except auth.ExpiredIdTokenError:
+                print("Firebase token expired")
+                abort(401)
+            except Exception as e:
+                print(f"Firebase authentication failed: {e}")
                 abort(401)
         return
 
@@ -110,12 +115,17 @@ def parse_auth():
         if os.getenv('LDAP_AUTH') == 'true':
             try:
                 g.uid = authentication.ldap_verify(current_user)['uid']
-            except Exception:
+            except Exception as e:
+                print(f"LDAP user verification failed: {e}")
                 abort(401)
         else:
             try:
                 g.uid = auth.verify_id_token(current_user)['uid']
             except auth.ExpiredIdTokenError:
+                print("Firebase user token expired")
+                abort(401)
+            except Exception as e:
+                print(f"Firebase user verification failed: {e}")
                 abort(401)
         return
 

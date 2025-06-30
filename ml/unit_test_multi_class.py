@@ -21,7 +21,7 @@ def run_pipeline(scaler, feature_selector, estimator, scoring, searcher, shuffle
     pipeline = generate_pipeline(scaler, feature_selector, estimator, Y_TRAIN, [scoring], searcher, shuffle)
     model = generate_model(pipeline[0], FEATURE_NAMES, X_TRAIN, Y_TRAIN)
     model.update(refit_model(pipeline[0], model['features'], estimator, scoring, X_TRAIN, Y_TRAIN)[0])
-    generalization = generalize(model['features'], model['best_estimator'], pipeline[0], X2, Y2)
+    generalization = generalize(pipeline[0], model['features'], model['best_estimator'], X2, Y2)
     return generalization
 
 THRESHOLD = 0.05

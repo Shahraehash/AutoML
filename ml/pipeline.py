@@ -9,6 +9,7 @@ from .processors.debug import Debug
 from .processors.feature_selection import FEATURE_SELECTORS
 from .processors.scalers import SCALERS
 from .processors.searchers import SEARCHERS
+from .processors.estimators import get_xgb_classifier
 
 # Generate a pipeline
 def generate_pipeline(
