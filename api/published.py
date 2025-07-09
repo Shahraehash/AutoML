@@ -14,11 +14,7 @@ from shutil import copyfile
 
 from flask import abort, g, jsonify, request, send_file
 
-from ml.predict import predict
-from ml.generalization import generalize_model
-from ml.reliability import additional_reliability
-from ml.roc import additional_roc
-from ml.precision import additional_precision
+from ml.unified_classifier_manager import UnifiedClassifierManager
 from .jobs import refit
 
 PUBLISHED_MODELS = 'data/published-models.json'
@@ -113,15 +109,23 @@ def test(name):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    reply = predict(
-        json.loads(request.data),
-        published[name]['path'],
-        published[name]['threshold']
-    )
-
-    reply['target'] = metadata['label']
-
-    return jsonify(reply)
+    # Create UnifiedClassifierManager and load static model
+    manager = UnifiedClassifierManager(folder, metadata.get('parameters', {}))
+    
+    # Load the static published model
+    success = manager.load_static_model(published[name]['path'] + '.joblib')
+    
+    if success:
+        # Use the new static model prediction method
+        reply = manager.make_predictions(
+            json.loads(request.data),
+            'published_model',
+            published[name]['threshold']
+        )
+        reply['target'] = metadata['label']
+        return jsonify(reply)
+    else:
+        raise Exception("Failed to load static published model")
 
 def generalize(name):
     """Generalize the published model against the provided data"""
@@ -146,12 +150,22 @@ def generalize(name):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    return jsonify({
-        'generalization': generalize_model(json.loads(request.data), metadata['label'], published[name]['path'], published[name]['threshold']),
-        'reliability': additional_reliability(json.loads(request.data), metadata['label'], published[name]['path']),
-        'precision_recall': additional_precision(json.loads(request.data), metadata['label'], published[name]['path']),
-        'roc_auc': additional_roc(json.loads(request.data), metadata['label'], published[name]['path'])
-    })
+    # Create UnifiedClassifierManager and load static model
+    manager = UnifiedClassifierManager(folder, metadata.get('parameters', {}))
+    
+    # Load the static published model
+    success = manager.load_static_model(published[name]['path'] + '.joblib')
+    
+    if success:
+        # Use the new static model evaluation methods
+        return jsonify({
+            'generalization': manager.get_static_generalization_metrics(json.loads(request.data), 'published_model', metadata['label'], published[name]['threshold']),
+            'reliability': manager.get_static_reliability_metrics(json.loads(request.data), 'published_model', metadata['label']),
+            'precision_recall': manager.get_static_precision_metrics(json.loads(request.data), 'published_model', metadata['label']),
+            'roc_auc': manager.get_static_roc_metrics(json.loads(request.data), 'published_model', metadata['label'])
+        })
+    else:
+        raise Exception("Failed to load static published model")
 
 def features(name):
     """Returns the features for a published model"""
