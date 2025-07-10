@@ -17,17 +17,58 @@ from shutil import copyfile, rmtree
 from flask import Response, abort, g, jsonify, request, send_file, url_for
 import pandas as pd
 
-from ml.utils.create_model import create_model
 from ml.utils.list_pipelines import list_pipelines
-from ml.utils.generalization import generalize_ensemble, generalize_model
-from ml.utils.predict import predict, predict_ensemble
 from ml.utils.class_results import load_class_results, get_available_models_with_class_results, cleanup_class_results
 
 # Import classifier classes for static methods
 from ml.binary_classifier import BinaryClassifier
 from ml.multiclass_macro_classifier import MulticlassMacroClassifier
+from ml.multiclass_ovr_classifier import OvRClassifier
 
 from worker import queue_training
+
+def _determine_classification_type_and_classifier(metadata, test_data=None, dataset_folder=None, label_column=None):
+    """
+    Helper function to determine classification type and return appropriate classifier class.
+    
+    Args:
+        metadata (dict): Job metadata containing parameters
+        test_data (pd.DataFrame, optional): Test data for class detection
+        dataset_folder (str, optional): Path to dataset folder
+        label_column (str, optional): Name of label column
+        
+    Returns:
+        tuple: (n_classes, classifier_class, reoptimize_ovr)
+    """
+    # Try to get class count from test data if provided
+    if test_data is not None and len(test_data.columns) > 0:
+        if label_column and label_column in test_data.columns:
+            n_classes = len(pd.Series(test_data[label_column]).unique())
+        else:
+            # Fallback: assume last column is the label
+            n_classes = len(test_data.iloc[:, -1].unique())
+    elif dataset_folder and label_column:
+        # Load test data from dataset folder
+        test_data_path = dataset_folder + '/test.csv'
+        if os.path.exists(test_data_path):
+            test_data = pd.read_csv(test_data_path)
+            n_classes = len(pd.Series(test_data[label_column]).unique())
+    else:
+        print("ERROR: failed in _determine_classificaition_type_and_classifier")
+        n_classes = 2 
+    
+    # Check if OvR was used (from training parameters)
+    reoptimize_ovr = metadata.get('parameters', {}).get('reoptimize_ovr', 'false').lower() == 'true'
+    
+    # Determine appropriate classifier class
+    if n_classes == 2:
+        classifier_class = BinaryClassifier
+    elif n_classes > 2 and reoptimize_ovr:
+        classifier_class = OvRClassifier
+    else:
+        classifier_class = MulticlassMacroClassifier
+    
+    return n_classes, classifier_class, reoptimize_ovr
 
 def get():
     """Get all the jobs for a given user ID"""
@@ -184,7 +225,6 @@ def result(jobid):
         'metadata': metadata
     })
 
-
 def get_pipelines(jobid):
     """Returns the pipelines for a job"""
 
@@ -220,7 +260,13 @@ def refit(jobid, threshold=.5):
     with open(dataset_folder + '/metadata.json') as metafile:
         dataset_metadata = json.load(metafile)
 
-    generalization_result = create_model(
+    # Determine classification type and appropriate classifier
+    n_classes, classifier_class, reoptimize_ovr = _determine_classification_type_and_classifier(
+        metadata, dataset_folder=dataset_folder, label_column=dataset_metadata['label']
+    )
+    
+    # Use appropriate static method based on classification type
+    generalization_result = classifier_class.create_model(
         request.form['key'],
         ast.literal_eval(request.form['parameters']),
         ast.literal_eval(request.form['features']),
@@ -249,7 +295,13 @@ def tandem(jobid):
     with open(dataset_folder + '/metadata.json') as metafile:
         dataset_metadata = json.load(metafile)
 
-    npv_generalization_result = create_model(
+    # Determine classification type and appropriate classifier
+    n_classes, classifier_class, reoptimize_ovr = _determine_classification_type_and_classifier(
+        metadata, dataset_folder=dataset_folder, label_column=dataset_metadata['label']
+    )
+    
+    # Use appropriate static method for NPV model
+    npv_generalization_result = classifier_class.create_model(
         request.form['npv_key'],
         ast.literal_eval(request.form['npv_parameters']),
         ast.literal_eval(request.form['npv_features']),
@@ -265,7 +317,8 @@ def tandem(jobid):
     copyfile(job_folder + '/pipeline.pmml', job_folder + '/tandem_npv.pmml')
     copyfile(job_folder + '/pipeline.json', job_folder + '/tandem_npv.json')
 
-    ppv_generalization_result = create_model(
+    # Use appropriate static method for PPV model (same classification type)
+    ppv_generalization_result = classifier_class.create_model(
         request.form['ppv_key'],
         ast.literal_eval(request.form['ppv_parameters']),
         ast.literal_eval(request.form['ppv_features']),
@@ -304,9 +357,15 @@ def ensemble(jobid):
     with open(dataset_folder + '/metadata.json') as metafile:
         dataset_metadata = json.load(metafile)
 
+    # Determine classification type and appropriate classifier
+    n_classes, classifier_class, reoptimize_ovr = _determine_classification_type_and_classifier(
+        metadata, dataset_folder=dataset_folder, label_column=dataset_metadata['label']
+    )
+    
     total_models = int(request.form['total_models'])
     for x in range(total_models):
-        create_model(
+        # Use appropriate static method for each ensemble model
+        classifier_class.create_model(
             request.form['model' + str(x) + '_key'],
             ast.literal_eval(request.form['model' + str(x) + '_parameters']),
             ast.literal_eval(request.form['model' + str(x) + '_features']),
@@ -321,7 +380,8 @@ def ensemble(jobid):
         copyfile(job_folder + '/pipeline.joblib', job_folder + '/ensemble' + str(x) + '.joblib')
         copyfile(job_folder + '/pipeline.json', job_folder + '/ensemble' + str(x) +'.json')
 
-    reply = generalize_ensemble(total_models, job_folder, dataset_folder, dataset_metadata['label'])
+    # Use appropriate static method for ensemble generalization
+    reply = classifier_class.generalize_ensemble(total_models, job_folder, dataset_folder, dataset_metadata['label'])
     reply['total_models'] = total_models
 
     with open(job_folder + '/ensemble.json', 'w') as model_details:
@@ -343,15 +403,17 @@ def test(jobid):
 
     payload = json.loads(request.data)
 
-    reply = predict(
-        payload['data'],
-        folder + '/pipeline',
-        payload['threshold']
+    # Determine classification type and appropriate classifier
+    test_data_df = pd.DataFrame(payload['data'])
+    n_classes, classifier_class, reoptimize_ovr = _determine_classification_type_and_classifier(
+        metadata, test_data=test_data_df
     )
+    
+    # Use appropriate static method based on classification type
+    reply = classifier_class.predict(payload['data'], folder + '/pipeline', payload['threshold'])
 
     reply['target'] = metadata['label']
     return jsonify(reply)
-
 
 def test_tandem(jobid):
     """Tests the selected tandem model against the provided data"""
@@ -371,18 +433,31 @@ def test_tandem(jobid):
     payload = json.loads(request.data)
     data = pd.DataFrame(payload['data'], columns=payload['features'])
 
-    npv_reply = pd.DataFrame(predict(
-        data[npv_features].to_numpy(),
-        folder + '/tandem_npv'
-    ))
+    # Determine classification type and appropriate classifier
+    n_classes, classifier_class, reoptimize_ovr = _determine_classification_type_and_classifier(
+        metadata, test_data=data
+    )
+
+    # Use appropriate static method for NPV model based on classification type
+    npv_result = classifier_class.predict(
+        data[npv_features].to_numpy().tolist(),
+        folder + '/tandem_npv',
+        payload.get('threshold', 0.5)
+    )
+
+    npv_reply = pd.DataFrame(npv_result)
 
     with open(folder + '/tandem_ppv_features.json') as feature_file:
         ppv_features = json.load(feature_file)
 
-    ppv_reply = pd.DataFrame(predict(
-        data[ppv_features].to_numpy(),
-        folder + '/tandem_ppv'
-    ))
+    # Use appropriate static method for PPV model based on classification type
+    ppv_result = classifier_class.predict(
+        data[ppv_features].to_numpy().tolist(),
+        folder + '/tandem_ppv',
+        payload.get('threshold', 0.5)
+    )
+
+    ppv_reply = pd.DataFrame(ppv_result)
 
     ppv_reply['predicted'] = ppv_reply.apply(lambda row: row['predicted'] if row['predicted'] > 0 else -1, axis=1)
     predicted = npv_reply.apply(lambda row: ppv_reply.iloc[row.name]['predicted'] if row['predicted'] > 0 else row['predicted'], axis=1)
@@ -413,7 +488,15 @@ def test_ensemble(jobid):
     with open(folder + '/ensemble.json') as details:
         model_details = json.load(details)
 
-    reply = predict_ensemble(model_details['total_models'], data, folder, payload['vote_type'])
+    # Determine classification type and appropriate classifier
+    n_classes, classifier_class, reoptimize_ovr = _determine_classification_type_and_classifier(
+        metadata, test_data=data
+    )
+    
+    # Use appropriate static method based on classification type
+    reply = classifier_class.predict_ensemble(
+        model_details['total_models'], data, folder, payload['vote_type']
+    )
 
     reply['target'] = metadata['label']
 
@@ -443,40 +526,32 @@ def generalize(jobid):
         payload['data']['data'] = test_data
         payload['data']['columns'] = test_data.columns
 
-    # Auto-detect classification type for ROC, reliability, and precision computation
+    # Determine classification type and appropriate classifier
     test_data_df = pd.DataFrame(payload['data']['data'], columns=payload['data']['columns'])
-    y_sample = test_data_df[dataset_metadata['label']]
-    n_classes = len(pd.Series(y_sample).unique())
+    n_classes, classifier_class, reoptimize_ovr = _determine_classification_type_and_classifier(
+        metadata, test_data=test_data_df, label_column=dataset_metadata['label']
+    )
     
     # Use appropriate static method based on classification type
-    if n_classes == 2:
-        roc_result = BinaryClassifier.compute_roc_metrics(
-            payload['data'], dataset_metadata['label'], folder + '/pipeline'
-        )
-        reliability_result = BinaryClassifier.compute_reliability_metrics(
-            payload['data'], dataset_metadata['label'], folder + '/pipeline'
-        )
-        precision_result = BinaryClassifier.compute_precision_metrics(
-            payload['data'], dataset_metadata['label'], folder + '/pipeline'
-        )
-    else:
-        roc_result = MulticlassMacroClassifier.compute_roc_metrics(
-            payload['data'], dataset_metadata['label'], folder + '/pipeline'
-        )
-        reliability_result = MulticlassMacroClassifier.compute_reliability_metrics(
-            payload['data'], dataset_metadata['label'], folder + '/pipeline'
-        )
-        precision_result = MulticlassMacroClassifier.compute_precision_metrics(
-            payload['data'], dataset_metadata['label'], folder + '/pipeline'
-        )
+    generalization_result = classifier_class.generalize_modle(
+        payload['data'], dataset_metadata['label'], folder + '/pipeline', payload['threshold']
+    )
+    reliability_result = classifier_class.additional_reliability(
+        payload['data'], dataset_metadata['label'], folder + '/pipeline'
+    )
+    precision_result = classifier_class.additional_precision(
+        payload['data'], dataset_metadata['label'], folder + '/pipeline'
+    )
+    roc_result = classifier_class.additional_roc(
+        payload['data'], dataset_metadata['label'], folder + '/pipeline'
+    )
 
     return jsonify({
-        'generalization': generalize_model(payload['data'], dataset_metadata['label'], folder + '/pipeline', payload['threshold']),
+        'generalization': generalization_result,
         'reliability': reliability_result,
         'precision_recall': precision_result,
         'roc_auc': roc_result
     })
-
 
 def get_class_specific_results(jobid, class_index):
     """Returns class-specific results for multiclass models"""
@@ -538,7 +613,6 @@ def get_class_specific_results(jobid, class_index):
             'error': 'Error loading class-specific results.',
             'code': 'INTERNAL_ERROR'
         }), 500
-
 
 def export(jobid, class_index=None):
     """Export the results CSV - subset by class if specified"""
@@ -705,7 +779,6 @@ def export_model(jobid, class_index=None, model_key=None):
         abort(500, description=f"Error extracting model: {str(e)}")
         return
 
-
 def star_models(jobid):
     """Marks the selected models as starred"""
 
@@ -770,7 +843,6 @@ def get_starred(jobid):
 
     return jsonify(starred)
     
-
 def list_available_models(jobid, class_index=None):
     """List models available in archives"""
 

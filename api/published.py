@@ -15,13 +15,12 @@ from shutil import copyfile
 from flask import abort, g, jsonify, request, send_file
 import pandas as pd
 
-from ml.utils.predict import predict
-from ml.utils.generalization import generalize_model
-from .jobs import refit
-
 # Import classifier classes for static methods
 from ml.binary_classifier import BinaryClassifier
 from ml.multiclass_macro_classifier import MulticlassMacroClassifier
+from ml.multiclass_ovr_classifier import OvRClassifier
+
+from .jobs import refit, _determine_classification_type_and_classifier
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
@@ -115,10 +114,17 @@ def test(name):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    reply = predict(
-        json.loads(request.data),
-        published[name]['path'],
-        published[name]['threshold']
+    payload_data = json.loads(request.data)
+
+    # Determine classification type and appropriate classifier
+    test_data_df = pd.DataFrame(payload_data)
+    n_classes, classifier_class, reoptimize_ovr = _determine_classification_type_and_classifier(
+        metadata, test_data=test_data_df
+    )
+    
+    # Use appropriate static method based on classification type
+    reply = classifier_class.compute_predictions(
+        payload_data, published[name]['path'], published[name]['threshold']
     )
 
     reply['target'] = metadata['label']
@@ -148,36 +154,29 @@ def generalize(name):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    # Auto-detect classification type for ROC, reliability, and precision computation
+    # Determine classification type and appropriate classifier
     payload_data = json.loads(request.data)
     test_data_df = pd.DataFrame(payload_data['data'], columns=payload_data['columns'])
-    y_sample = test_data_df[metadata['label']]
-    n_classes = len(pd.Series(y_sample).unique())
+    n_classes, classifier_class, reoptimize_ovr = _determine_classification_type_and_classifier(
+        metadata, test_data=test_data_df, label_column=metadata['label']
+    )
     
     # Use appropriate static method based on classification type
-    if n_classes == 2:
-        roc_result = BinaryClassifier.compute_roc_metrics(
-            payload_data, metadata['label'], published[name]['path']
-        )
-        reliability_result = BinaryClassifier.compute_reliability_metrics(
-            payload_data, metadata['label'], published[name]['path']
-        )
-        precision_result = BinaryClassifier.compute_precision_metrics(
-            payload_data, metadata['label'], published[name]['path']
-        )
-    else:
-        roc_result = MulticlassMacroClassifier.compute_roc_metrics(
-            payload_data, metadata['label'], published[name]['path']
-        )
-        reliability_result = MulticlassMacroClassifier.compute_reliability_metrics(
-            payload_data, metadata['label'], published[name]['path']
-        )
-        precision_result = MulticlassMacroClassifier.compute_precision_metrics(
-            payload_data, metadata['label'], published[name]['path']
-        )
+    roc_result = classifier_class.compute_roc_metrics(
+        payload_data, metadata['label'], published[name]['path']
+    )
+    reliability_result = classifier_class.compute_reliability_metrics(
+        payload_data, metadata['label'], published[name]['path']
+    )
+    precision_result = classifier_class.compute_precision_metrics(
+        payload_data, metadata['label'], published[name]['path']
+    )
+    generalization_result = classifier_class.compute_generalization_metrics(
+        payload_data, metadata['label'], published[name]['path'], published[name]['threshold']
+    )
 
     return jsonify({
-        'generalization': generalize_model(payload_data, metadata['label'], published[name]['path'], published[name]['threshold']),
+        'generalization': generalization_result,
         'reliability': reliability_result,
         'precision_recall': precision_result,
         'roc_auc': roc_result

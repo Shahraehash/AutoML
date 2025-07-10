@@ -35,11 +35,6 @@ def make_grid_search(estimator, scoring, shuffle, custom_hyper_parameters, y_tra
     if estimator == 'gb' and y_train is not None:
         n_classes = len(pd.Series(y_train).unique())
         base_estimator = get_xgb_classifier(n_classes)
-        
-        # Update parameter range for multiclass
-        if n_classes > 2 and 'objective' in parameter_range:
-            parameter_range = parameter_range.copy()
-            parameter_range['objective'] = ['multi:softprob']
 
     return (
         GridSearchCV(
@@ -78,11 +73,6 @@ def make_random_search(estimator, scoring, shuffle, custom_hyper_parameters, y_t
     if estimator == 'gb' and y_train is not None:
         n_classes = len(pd.Series(y_train).unique())
         base_estimator = get_xgb_classifier(n_classes)
-        
-        # Update parameter range for multiclass
-        if n_classes > 2 and 'objective' in parameter_range:
-            parameter_range = parameter_range.copy()
-            parameter_range['objective'] = ['multi:softprob']
 
     # When the grid contains an RVS method, the parameter grid cannot generate
     # an exhaustive list and throws an error. In this case, iterate the max

@@ -20,8 +20,13 @@ from nyoka import skl_to_pmml, xgboost_to_pmml
 
 from .base_classifier import AutoMLClassifier
 from .utils.preprocess import preprocess
-from .utils.utils import model_key_to_name, decimate_points
+from .utils.utils import model_key_to_name, decimate_points, explode_key
 from .utils.stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
+from .utils.import_data import import_data
+from .processors.estimators import ESTIMATORS, get_xgb_classifier
+from .processors.scalers import SCALERS
+from .processors.feature_selection import FEATURE_SELECTORS
+
 
 
 class BinaryClassifier(AutoMLClassifier):
@@ -42,96 +47,71 @@ class BinaryClassifier(AutoMLClassifier):
             update_function (callable): Callback function for progress updates
         """
         super().__init__(parameters, output_path, update_function)
-        
-    def predict(self, data, model_key, threshold=0.5):
-        """
-        Make predictions using a specific trained binary model.
-        
-        Args:
-            data: Input data for prediction (numpy array or similar)
-            model_key (str): Key identifying the model
-            threshold (float): Prediction threshold for binary classification
-            
-        Returns:
-            dict: Prediction results with binary-specific logic
-        """
-        if model_key not in self.main_models:
-            raise KeyError(f"Model {model_key} not found")
-        
-        model = self.main_models[model_key]
-        
-        # Binary classification prediction
-        if hasattr(model, 'predict_proba'):
-            probabilities = model.predict_proba(data)
-            # For binary classification, use threshold on positive class probability
-            predictions = (probabilities[:, 1] >= threshold).astype(int)
-            return {
-                'predicted': predictions.tolist(),
-                'probability': probabilities[:, 1].tolist(),
-                'threshold': threshold,
-                'classification_type': 'binary'
-            }
-        else:
-            # Fallback for models without predict_proba
-            predictions = model.predict(data)
-            return {
-                'predicted': predictions.tolist(),
-                'probability': [1.0] * len(predictions),  # Default probability
-                'threshold': threshold,
-                'classification_type': 'binary'
-            }
     
-    def evaluate_generalization(self, pipeline, features, estimator, x_test, y_test, labels):
-        """
-        Evaluate generalization for binary classification.
+    def import_csv(path, label_column, show_warning=False):
+        """Import the specificed sheet"""
+
+        # Read the CSV to memory and drop rows with empty values
+        data = pd.read_csv(path)
+
+        # Convert cell values to numerical data and drop invalid data
+        data = data.apply(pd.to_numeric, errors='coerce').dropna()
+
+        # Drop the label column from the data
+        x = data.drop(label_column, axis=1)
+
+        # Save the label colum values
+        y = data[label_column]
+
+        # Grab the feature names
+        feature_names = list(x)
+
+        # Convert to NumPy array
+        x = x.to_numpy()
+
+        # Get unique labels and label counts
+        unique_labels = sorted(y.unique())
+
+        label_counts = {}
+        for label in unique_labels:
+            label_counts[f'class_{int(label)}_count'] = data[data[label_column] == label].shape[0]
         
-        Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_test (array): Test features (for final generalization evaluation)
-            y_test (array): Test labels (for final generalization evaluation)
-            labels (list): Class labels
-            
-        Returns:
-            dict: Generalization evaluation results
-        """
-        # Process test data based on pipeline
-        x_test = preprocess(features, pipeline, x_test)
-        proba = estimator.predict_proba(x_test)
-        
-        # Binary classification
-        probabilities = proba[:, 1]
-        predictions = estimator.predict(x_test)
-        
-        return self.generalization_report(labels, y_test, predictions, probabilities)
+        # For backward compatibility with binary classification
+        if show_warning:
+            negative_count = label_counts.get('class_0_count', 0)
+            positive_count = label_counts.get('class_1_count', 0)
+            print('Negative Cases: %.7g\nPositive Cases: %.7g\n' % (negative_count, positive_count))
+            if negative_count / positive_count < .9:
+                print('Warning: Classes are not balanced.')
+                
+        return [x, y, feature_names, label_counts, 2]
     
 
-    def generalization_report(self, labels, y2, predictions, probabilities, class_index=None):
-        """
-        Generate generalization report for binary classification.
-        
-        Args:
-            labels (list): Class labels
-            y2 (array): True labels
-            predictions (array): Predicted labels
-            probabilities (array): Prediction probabilities
-            class_index (int, optional): Not used in binary classification
+    def generalize(self, pipeline, features, model, x2, y2, labels=None, threshold=.5, class_index=None):
+        """"Generalize method"""
+        # Process test data based on pipeline
+        x2 = preprocess(features, pipeline, x2)
+        proba = model.predict_proba(x2)
+    
+        probabilities = proba[:, 1]
+        if threshold == .5:
+            predictions = model.predict(x2)
+        else:
+            predictions = (probabilities >= threshold).astype(int)
             
-        Returns:
-            dict: Binary classification generalization metrics
-        """
-        # Generate labels if not provided correctly for binary classification
-        if labels is None or len(labels) != 2:
-            labels = ['Class 0', 'Class 1']
+        return self.generalization_report(labels, y2, predictions, probabilities, class_index)
+
+    def generalization_report(self, labels, y2, predictions, probabilities, class_index=None):
         
+        labels = ['Class 0', 'Class 1']
         print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
+
         print('\tGeneralization:')
-        
         accuracy = accuracy_score(y2, predictions)
         print('\t\tAccuracy:', accuracy)
 
         auc = roc_auc_score(y2, predictions)
+        
         roc_auc = roc_auc_score(y2, probabilities)
         print('\t\tROC AUC:', roc_auc)
         
@@ -169,23 +149,306 @@ class BinaryClassifier(AutoMLClassifier):
             'fn': int(fn),
             'fp': int(fp)
         }
-    
-    def create_model(self, key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.', threshold=.5):
-        """
-        Create and export a binary classification model (adapted from outdated/create_model.py)
+
+    def generalize_model(self, payload, label, folder, threshold=.5):
+        data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = data[payload['features']].to_numpy()
+        y = data[label]
+
+        pipeline = load(folder + '.joblib')
+        probabilities = pipeline.predict_proba(x)[:, 1]
+        if threshold == .5:
+            predictions = pipeline.predict(x)
+        else:
+            predictions = (probabilities >= threshold).astype(int)
+
+        return self.generalization_report(['No ' + label, label], y, predictions, probabilities)
+
+    def generate_pipeline(self, scaler, feature_selector, estimator, y_train, scoring=None, searcher='grid', shuffle=True, custom_hyper_parameters=None):
+        """Generate the pipeline based on incoming arguments"""
+
+        steps = []
+
+        if scaler and SCALERS[scaler]:
+            steps.append(('scaler', SCALERS[scaler]))
+
+        if feature_selector and FEATURE_SELECTORS[feature_selector]:
+            steps.append(('feature_selector', FEATURE_SELECTORS[feature_selector]))
+
+        steps.append(('debug', Debug()))
+
+        if not scoring:
+            scoring = ['accuracy']
+
+        scorers = {}
+        for scorer in scoring:
+            scorers[scorer] = scorer
+
+        search_step = SEARCHERS[searcher](estimator, scorers, shuffle, custom_hyper_parameters, y_train)
+
+        steps.append(('estimator', search_step[0]))
+
+        return (Pipeline(steps), search_step[1])
+
+    def precision_recall(self, pipeline, features, model, x_test, y_test):
+        """Compute precision recall curve"""
+
+        # Transform values based on the pipeline
+        x_test = preprocess(features, pipeline, x_test)
         
-        Args:
-            key (str): Model key identifying the pipeline configuration
-            hyper_parameters (dict): Hyperparameters for the model
-            selected_features (list): List of selected feature names
-            dataset_path (str): Path to dataset folder containing train.csv and test.csv
-            label_column (str): Name of the target column
-            output_path (str): Path where outputs will be saved
-            threshold (float): Prediction threshold for binary classification
+        if hasattr(model, 'decision_function'):
+            scores = model.decision_function(x_test)
+            # For binary classification, decision_function returns 1D array
+            if scores.ndim == 1:
+                # Use scores directly - they're already decision function values
+                precision, recall, _ = precision_recall_curve(y_test, scores)
+            else:
+                # Some classifiers might return 2D even for binary
+                precision, recall, _ = precision_recall_curve(y_test, scores[:, 1])
+
+        else:
+            # Use predict_proba (Random Forest, etc.)
+            probabilities = model.predict_proba(x_test)
+            precision, recall, _ = precision_recall_curve(y_test, probabilities[:, 1])
+                
+        # Apply decimation
+        recall, precision = decimate_points(
+            [round(num, 4) for num in list(recall)],
+            [round(num, 4) for num in list(precision)]
+        )
+
+        return {
+            'precision': list(precision),
+            'recall': list(recall)
+        }
+
+    def reliability(self, pipeline, features, model, x_test, y_test, class_index=None):
+        """Compute reliability curve and Briar score"""
+
+        # Transform values based on the pipeline
+        x_test = preprocess(features, pipeline, x_test)
+
+        if hasattr(model, 'decision_function'):
+            probabilities = model.decision_function(x_test)
+            if np.count_nonzero(probabilities):
+                if probabilities.max() - probabilities.min() == 0:
+                    probabilities = [0] * len(probabilities)
+                else:
+                    probabilities = (probabilities - probabilities.min()) / \
+                        (probabilities.max() - probabilities.min())
+            fop, mpv = calibration_curve(y_test, probabilities, n_bins=10, strategy='uniform')
+            brier_score = brier_score_loss(y_test, probabilities)
             
-        Returns:
-            dict: Generalization results for the created model
-        """        
+        else:
+            probabilities = model.predict_proba(x_test)[:, 1]
+            fop, mpv = calibration_curve(y_test, probabilities, n_bins=10, strategy='uniform')
+            brier_score = brier_score_loss(y_test, probabilities)
+            
+        return {
+            'brier_score': round(brier_score, 4),
+            'fop': [round(num, 4) for num in list(fop)],
+            'mpv': [round(num, 4) for num in list(mpv)]
+        }
+
+    def roc(self, pipeline, features, model, x_test, y_test, class_index=None):
+        """Generate the ROC values"""
+
+        # Transform values based on the pipeline
+        x_test = preprocess(features, pipeline, x_test)
+
+        probabilities = model.predict_proba(x_test)
+        predictions = model.predict(x_test)
+        
+        
+        fpr, tpr, _ = roc_curve(y_test, probabilities[:, 1])
+        roc_auc = roc_auc_score(y_test, probabilities[:, 1])
+
+        fpr, tpr = decimate_points(
+            [round(num, 4) for num in list(fpr)],
+            [round(num, 4) for num in list(tpr)]
+        )
+
+        return {
+            'fpr': list(fpr),
+            'tpr': list(tpr),
+            'roc_auc': roc_auc
+        }
+
+    def find_best_model(self, train_set=None, test_set=None, labels=None, label_column=None, parameters=None, output_path='.', update_function=lambda x, y: None):
+
+        start = timer()     
+        
+        ignore_estimator = [x.strip() for x in parameters.get('ignore_estimator', '').split(',')]
+        ignore_feature_selector = \
+            [x.strip() for x in parameters.get('ignore_feature_selector', '').split(',')]
+        ignore_scaler = [x.strip() for x in parameters.get('ignore_scaler', '').split(',')]
+        ignore_searcher = [x.strip() for x in parameters.get('ignore_searcher', '').split(',')]
+        shuffle = False if parameters.get('ignore_shuffle', '') != '' else True
+        scorers = [x for x in SCORER_NAMES if x not in \
+            [x.strip() for x in parameters.get('ignore_scorer', '').split(',')]]
+        """Generates all possible models and outputs the generalization results using new class-based classifiers"""
+
+        # Basic validation
+        if train_set is None:
+            print('Missing training data')
+            return {}
+
+        if test_set is None:
+            print('Missing test data')
+            return {}
+
+        if label_column is None:
+            print('Missing column name for classifier target')
+            return {}
+
+        custom_hyper_parameters = json.loads(parameters['hyper_parameters'])\
+            if 'hyper_parameters' in parameters else None
+
+        # Import data
+        (x_train, x_val, y_train, y_val, x_test, y_test, feature_names, metadata) = \
+            import_data(train_set, test_set, label_column)
+
+        # Determine number of classes to choose appropriate classifier
+        n_classes = len(np.unique(y_train))
+        print(f'Detected {n_classes} classes in target column')
+
+        total_fits = {}
+        csv_header_written = False
+
+        # Memory-efficient model storage
+        main_models = {}  # Store main models in memory
+
+        all_pipelines = list(itertools.product(*[
+            filter(lambda x: False if x in ignore_estimator else True, ESTIMATOR_NAMES),
+            filter(lambda x: False if x in ignore_scaler else True, SCALER_NAMES),
+            filter(lambda x: False if x in ignore_feature_selector else True, FEATURE_SELECTOR_NAMES),
+            filter(lambda x: False if x in ignore_searcher else True, SEARCHER_NAMES),
+        ]))
+
+        if not len(all_pipelines):
+            print('No pipelines to run with the current configuration')
+            return False
+
+        report = open(output_path + '/report.csv', 'w+')
+        report_writer = csv.writer(report)
+
+        performance_report = open(output_path + '/performance_report.csv', 'w+')
+        performance_report_writer = csv.writer(performance_report)
+        performance_report_writer.writerow(['key', 'train_time (s)'])
+
+        for index, (estimator, scaler, feature_selector, searcher) in enumerate(all_pipelines):
+
+            # Trigger a callback for task monitoring purposes
+            update_function(index, len(all_pipelines))
+
+            key = '__'.join([scaler, feature_selector, estimator, searcher])
+            print('Generating ' + model_key_to_name(key))
+
+            # Generate the pipeline
+            pipeline = self.generate_pipeline(scaler, feature_selector, estimator, y_train, scorers, searcher, shuffle, custom_hyper_parameters)
+
+            if not estimator in total_fits:
+                total_fits[estimator] = 0
+            total_fits[estimator] += pipeline[1]
+
+            # Fit the pipeline
+            model = self.generate_model(pipeline[0], feature_names, x_train, y_train)
+            performance_report_writer.writerow([key, model['train_time']])
+
+            for scorer in scorers:
+                key += '__' + scorer
+                candidates = self.refit_model(pipeline[0], model['features'], estimator, scorer, x_train, y_train)
+                total_fits[estimator] += len(candidates)
+
+                for position, candidate in enumerate(candidates):
+                    result = {
+                        'key': key + '__' + str(position),
+                        'class_type': 'binary',
+                        'class_index': None,
+                        'scaler': SCALER_NAMES[scaler],
+                        'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
+                        'algorithm': ESTIMATOR_NAMES[estimator],
+                        'searcher': SEARCHER_NAMES[searcher],
+                        'scorer': SCORER_NAMES[scorer],
+                    }
+
+                    print('\t#%d' % (position+1))
+                    # Store main model in memory instead of saving immediately
+                    main_models[result['key']] = candidate['best_estimator']
+
+                    result.update(self.generalize(pipeline[0], model['features'], candidate['best_estimator'], x2, y2, labels))
+                    result.update({
+                        'selected_features': list(model['selected_features']),
+                        'feature_scores': model['feature_scores'],
+                        'best_params': candidate['best_params']
+                    })
+                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test)
+                    result.update({
+                        'test_fpr': roc_auc['fpr'],
+                        'test_tpr': roc_auc['tpr'],
+                        'training_roc_auc': roc_auc['roc_auc']
+                    })
+                    result['roc_delta'] = round(abs(result['roc_auc'] - result['training_roc_auc']), 4)
+                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x2, y2)
+                    result.update({
+                        'generalization_fpr': roc_auc['fpr'],
+                        'generalization_tpr': roc_auc['tpr']
+                    })
+                    result.update(self.reliability(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
+                    result.update(self.precision_recall(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
+
+                    # Write main model results first
+                    if not csv_header_written:
+                        report_writer.writerow(result.keys())
+                        csv_header_written = True
+
+                    report_writer.writerow(list([str(i) for i in result.values()]))
+
+        train_time = timer() - start
+        print('\tTotal run time is {:.4f} seconds'.format(train_time), '\n')
+        performance_report_writer.writerow(['total', train_time])
+    
+        report.close()
+        performance_report.close()
+        print('Total fits generated', sum(total_fits.values()))
+        print_summary(output_path + '/report.csv')
+        
+        self.save_model_archives(main_models, None, output_path)
+
+        # Update the metadata and write it out
+        metadata.update({
+            'date': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'fits': total_fits,
+            'ovr_reoptimized': None,
+            'ovr_models_count': None,
+            'main_models_count': len(main_models),
+            'n_classes': n_classes
+        })
+            
+
+        if output_path != '.':
+            metadata_path = output_path + '/metadata.json'
+            # Check if metadata file exists and load existing data
+            existing_metadata = {}
+            if os.path.exists(metadata_path):
+    
+                with open(metadata_path, 'r') as metafile:
+                    existing_metadata = json.load(metafile)
+        
+                # Update with new metadata
+                existing_metadata.update(metadata)
+            
+                # Write the updated metadata
+                with open(metadata_path, 'w') as metafile:
+                    json.dump(existing_metadata, metafile, indent=2)
+            
+        return True
+
+
+    @staticmethod
+    def create_model(self, key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.', threshold=.5):
+        """Refits the requested model and pickles it for export"""
+
         if dataset_path is None:
             print('Missing dataset path')
             return {}
@@ -197,11 +460,6 @@ class BinaryClassifier(AutoMLClassifier):
         # Import data
         (x_train, _, y_train, _, x2, y2, features, _) = \
             import_data(dataset_path + '/train.csv', dataset_path + '/test.csv', label_column)
-
-        # Validate binary classification
-        n_classes = len(np.unique(y_train))
-        if n_classes != 2:
-            raise ValueError(f"BinaryClassifier.create_model expects 2 classes, got {n_classes}")
 
         # Get pipeline details from the key
         scaler, feature_selector, estimator, _, _ = explode_key(key)
@@ -224,6 +482,7 @@ class BinaryClassifier(AutoMLClassifier):
 
         # Add the estimator with proper XGBoost configuration
         if estimator == 'gb':
+            n_classes = len(pd.Series(y_train).unique())
             base_estimator = get_xgb_classifier(n_classes)
         else:
             base_estimator = ESTIMATORS[estimator]
@@ -232,7 +491,7 @@ class BinaryClassifier(AutoMLClassifier):
 
         # Fit the pipeline using the same training data
         pipeline = Pipeline(steps)
-        model = self.train_model(pipeline, selected_features, x_train, y_train)
+        model = self.generate_model(pipeline, selected_features, x_train, y_train)
 
         # If the model is DNN or RF, attempt to swap the estimator for a pickled one
         if os.path.exists(output_path + '/models/' + key + '.joblib'):
@@ -243,7 +502,7 @@ class BinaryClassifier(AutoMLClassifier):
         labels = ['No ' + label_column, label_column]
 
         # Assess the model performance and store the results
-        generalization_result = self.evaluate_generalization(pipeline, model['features'], pipeline['estimator'], x2, y2, labels)
+        generalization_result = self.generalize(pipeline, model['features'], pipeline['estimator'], x2, y2, labels)
         with open(output_path + '/pipeline.json', 'w') as statsfile:
             json.dump(generalization_result, statsfile)
 
@@ -254,11 +513,9 @@ class BinaryClassifier(AutoMLClassifier):
         # Export the model as a PMML
         try:
             if estimator == 'gb':
-                if xgboost_to_pmml:
-                    xgboost_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
+                xgboost_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
             else:
-                if skl_to_pmml:
-                    skl_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
+                skl_to_pmml(pipeline, selected_features, label_column, output_path + '/pipeline.pmml')
         except Exception:
             try:
                 os.remove(output_path + '/pipeline.pmml')
@@ -267,362 +524,104 @@ class BinaryClassifier(AutoMLClassifier):
 
         return generalization_result
 
-    def evaluate_model_complete(self, pipeline, features, estimator, x_val, y_val, x_test, y_test, labels):
-        """
-        Complete model evaluation for binary classification.
-        
-        This method handles binary-specific evaluation logic and ensures proper
-        JSON serialization of all data fields.
-        
-        Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_val (array): Validation features (for hyperparameter evaluation)
-            y_val (array): Validation labels (for hyperparameter evaluation)
-            x_test (array): Test features (for final generalization evaluation)
-            y_test (array): Test labels (for final generalization evaluation)
-            labels (list): Class labels
-            
-        Returns:
-            dict: Complete binary evaluation results with proper JSON serialization
-        """
-        # Start with the standard CSV template
-        result = self.STANDARD_CSV_FIELDS.copy()
-        
-        # Get generalization results using test data
-        generalization_data = self.evaluate_generalization(pipeline, features, estimator, x_test, y_test, labels)
-        result.update(generalization_data)
-        
-        # Add ROC curve data for validation set (used for training ROC AUC)
-        val_roc = self._compute_roc_metrics(pipeline, features, estimator, x_val, y_val)
-        result.update({
-            'test_fpr': json.dumps(val_roc.get('fpr')) if val_roc.get('fpr') else None,
-            'test_tpr': json.dumps(val_roc.get('tpr')) if val_roc.get('tpr') else None,
-            'training_roc_auc': val_roc.get('roc_auc')
-        })
-        
-        # Calculate ROC delta (difference between generalization and training)
-        if 'roc_auc' in result and 'training_roc_auc' in result:
-            if result['roc_auc'] is not None and result['training_roc_auc'] is not None:
-                result['roc_delta'] = round(abs(result['roc_auc'] - result['training_roc_auc']), 4)
-        
-        # Add generalization ROC curve data using test data
-        test_roc = self._compute_roc_metrics(pipeline, features, estimator, x_test, y_test)
-        result.update({
-            'generalization_fpr': json.dumps(test_roc.get('fpr')) if test_roc.get('fpr') else None,
-            'generalization_tpr': json.dumps(test_roc.get('tpr')) if test_roc.get('tpr') else None
-        })
-        
-        # Add reliability metrics using test data with proper JSON serialization
-        reliability_data = self._compute_reliability_metrics(pipeline, features, estimator, x_test, y_test)
-        result.update({
-            'brier_score': reliability_data.get('brier_score'),
-            'fop': json.dumps(reliability_data.get('fop')) if reliability_data.get('fop') else None,
-            'mpv': json.dumps(reliability_data.get('mpv')) if reliability_data.get('mpv') else None
-        })
-        
-        # Add precision-recall metrics using test data with proper JSON serialization
-        pr_data = self._compute_precision_metrics(pipeline, features, estimator, x_test, y_test)
-        result.update({
-            'precision': json.dumps(pr_data.get('precision')) if pr_data.get('precision') else None,
-            'recall': json.dumps(pr_data.get('recall')) if pr_data.get('recall') else None
-        })
-        
-        # Ensure confidence intervals are properly serialized
-        ci_fields = ['acc_95_ci', 'roc_auc_95_ci', 'sn_95_ci', 'sp_95_ci', 'pr_95_ci', 'ppv_95_ci', 'npv_95_ci']
-        for field in ci_fields:
-            if field in result and result[field] is not None:
-                result[field] = json.dumps(result[field])
-        
-        return result
-
-    def fit(self, x_train, x_val, y_train, y_val, x_test, y_test, feature_names, labels):
-        """
-        Train binary classification models.
-        
-        Args:
-            x_train (array): Training features (for model fitting)
-            x_val (array): Validation features (for hyperparameter tuning)
-            y_train (array): Training labels (for model fitting)
-            y_val (array): Validation labels (for hyperparameter tuning)
-            x_test (array): Test features (for final generalization evaluation)
-            y_test (array): Test labels (for final generalization evaluation)
-            feature_names (list): List of feature names
-            labels (list): List of class labels
-            
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        start = timer()
-        n_classes = len(np.unique(y_train))
-        
-        # Validate that this is indeed binary classification
-        if n_classes != 2:
-            raise ValueError(f"BinaryClassifier expects 2 classes, got {n_classes}")
-        
-        # Initialize reports
-        self.initialize_reports()
-        
-        # Generate all pipeline combinations
-        all_pipelines = self.generate_pipeline_combinations()
-        
-        print(f"Starting binary classification with {len(all_pipelines)} pipeline combinations...")
-        
-        for index, (estimator, scaler, feature_selector, searcher) in enumerate(all_pipelines):
-            
-            # Trigger callback for task monitoring
-            self.update_function(index, len(all_pipelines))
-            
-            key = '__'.join([scaler, feature_selector, estimator, searcher])
-            print('Generating ' + model_key_to_name(key))
-            
-            # Generate the pipeline
-            pipeline_result = self.create_pipeline(estimator, scaler, feature_selector, searcher, y_train)
-            pipeline = pipeline_result[0]
-            pipeline_fits = pipeline_result[1]
-            
-            # Track total fits
-            if estimator not in self.total_fits:
-                self.total_fits[estimator] = 0
-            self.total_fits[estimator] += pipeline_fits
-            
-            # Fit the pipeline
-            model = self.train_model(pipeline, feature_names, x_train, y_train)
-            self.performance_report_writer.writerow([key, model['train_time']])
-            
-            # Process each scorer
-            for scorer in self.scorers:
-                scorer_key = key + '__' + scorer
-                candidates = self.refit_candidates(pipeline, model['features'], estimator, scorer, x_train, y_train)
-                self.total_fits[estimator] += len(candidates)
-                
-                # Process each candidate
-                for position, candidate in enumerate(candidates):
-                    print('\t#%d' % (position+1))
-                    
-                    # Create base result
-                    result = self.create_base_result(
-                        scorer_key, estimator, scaler, feature_selector, searcher, scorer, n_classes, position
-                    )
-                    
-                    # Store main model
-                    self.main_models[result['key']] = candidate['best_estimator']
-                    
-                    # Evaluate the model using the standardized method
-                    evaluation_result = self.evaluate_model_complete(
-                        pipeline, model['features'], candidate['best_estimator'],
-                        x_val, y_val, x_test, y_test, labels
-                    )
-                    
-                    # Update result with evaluation metrics
-                    result.update(evaluation_result)
-                    result.update({
-                        'selected_features': list(model['selected_features']),
-                        'feature_scores': model['feature_scores'],
-                        'best_params': candidate['best_params']
-                    })
-                    
-                    # Write result to CSV
-                    self.write_result_to_csv(result)
-        
-        # Finalize reports and save results
-        self.finalize_reports(start, n_classes)
-        
-        print(f"Binary classification completed successfully!")
-        print(f"Generated {len(self.main_models)} models")
-        
-        return True
-
-
     @staticmethod
-    def compute_roc_metrics(data, label_column, model_path):
-        """
-        Static method for binary ROC computation.
-        
-        Args:
-            data (dict): Data dictionary with 'data', 'columns', and 'features' keys
-            label_column (str): Name of the label column
-            model_path (str): Path to the model file (without .joblib extension)
-            
-        Returns:
-            dict: ROC evaluation results
-        """
-        from joblib import load
-        import pandas as pd
-        
-        # Load model and extract data
-        pipeline = load(model_path + '.joblib')
-        df = pd.DataFrame(data['data'], columns=data['columns']).apply(pd.to_numeric, errors='coerce').dropna()
-        x = df[data['features']].to_numpy()
-        y = df[label_column]
-        
-        # Use the static helper method
-        return BinaryClassifier._compute_roc_metrics(pipeline, data['features'], pipeline.steps[-1][1], x, y)
+    def generalize_ensemble(self, total_models, job_folder, dataset_folder, label):
+        x2, y2, feature_names, _, _ = self.import_csv(dataset_folder + '/test.csv', label)
+
+        data = pd.DataFrame(x2, columns=feature_names)
+
+        soft_result = self.predict_ensemble(total_models, data, job_folder, 'soft')
+        hard_result = self.predict_ensemble(total_models, data, job_folder, 'hard')
+
+        labels = ['No ' + label, label]
     
-    @staticmethod
-    def compute_reliability_metrics(data, label_column, model_path):
-        """
-        Static method for binary reliability computation.
-        
-        Args:
-            data (dict): Data dictionary with 'data', 'columns', and 'features' keys
-            label_column (str): Name of the label column
-            model_path (str): Path to the model file (without .joblib extension)
-            
-        Returns:
-            dict: Reliability evaluation results
-        """
-        from joblib import load
-        import pandas as pd
-        
-        # Load model and extract data
-        pipeline = load(model_path + '.joblib')
-        df = pd.DataFrame(data['data'], columns=data['columns']).apply(pd.to_numeric, errors='coerce').dropna()
-        x = df[data['features']].to_numpy()
-        y = df[label_column]
-        
-        # Use the static helper method
-        return BinaryClassifier._compute_reliability_metrics(pipeline, data['features'], pipeline.steps[-1][1], x, y)
-    
-    @staticmethod
-    def compute_precision_metrics(data, label_column, model_path):
-        """
-        Static method for binary precision-recall computation.
-        
-        Args:
-            data (dict): Data dictionary with 'data', 'columns', and 'features' keys
-            label_column (str): Name of the label column
-            model_path (str): Path to the model file (without .joblib extension)
-            
-        Returns:
-            dict: Precision-recall evaluation results
-        """
-        from joblib import load
-        import pandas as pd
-        
-        # Load model and extract data
-        pipeline = load(model_path + '.joblib')
-        df = pd.DataFrame(data['data'], columns=data['columns']).apply(pd.to_numeric, errors='coerce').dropna()
-        x = df[data['features']].to_numpy()
-        y = df[label_column]
-        
-        # Use the static helper method
-        return BinaryClassifier._compute_precision_metrics(pipeline, data['features'], pipeline.steps[-1][1], x, y)
-    
-    @staticmethod
-    def _compute_roc_metrics(pipeline, features, estimator, x_data, y_data):
-        """
-        Internal helper method for ROC computation.
-        
-        Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_data (array): Features for ROC evaluation
-            y_data (array): Labels for ROC evaluation
-            
-        Returns:
-            dict: ROC evaluation results
-        """
-        # Transform values based on the pipeline
-        x_data = preprocess(features, pipeline, x_data)
-
-        probabilities = estimator.predict_proba(x_data)
-        
-        # Binary classification
-        fpr, tpr, _ = roc_curve(y_data, probabilities[:, 1])
-        roc_auc = roc_auc_score(y_data, probabilities[:, 1])
-        
-        fpr, tpr = decimate_points(
-            [round(num, 4) for num in list(fpr)],
-            [round(num, 4) for num in list(tpr)]
-        )
-
         return {
-            'fpr': list(fpr),
-            'tpr': list(tpr),
-            'roc_auc': roc_auc
+            'soft_generalization': self.generalization_report(labels, y2, soft_result['predicted'], soft_result['probability']),
+            'hard_generalization': self.generalization_report(labels, y2, hard_result['predicted'], hard_result['probability'])
         }
+
+    @staticmethod
+    def additional_precision(self, payload, label, folder, class_index=None):
+        """Return additional precision recall curve"""
+
+        data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = data[payload['features']].to_numpy()
+        y = data[label]
+
+        pipeline = load(folder + '.joblib')
+
+        return self.precision_recall(pipeline, payload['features'], pipeline.steps[-1][1], x, y, class_index)
     
     @staticmethod
-    def _compute_reliability_metrics(pipeline, features, estimator, x_data, y_data):
-        """
-        Internal helper method for reliability computation.
-        
-        Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_data (array): Features for reliability evaluation
-            y_data (array): Labels for reliability evaluation
-            
-        Returns:
-            dict: Reliability evaluation results
-        """
-        # Transform values based on the pipeline
-        x_data = preprocess(features, pipeline, x_data)
+    def additional_reliability(self, payload, label, folder, class_index=None):
+        data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = data[payload['features']].to_numpy()
+        y = data[label]
 
-        if hasattr(estimator, 'decision_function'):
-            probabilities = estimator.decision_function(x_data)
-            # Binary Classification
-            if np.count_nonzero(probabilities):
-                if probabilities.max() - probabilities.min() == 0:
-                    probabilities = [0] * len(probabilities)
-                else:
-                    probabilities = (probabilities - probabilities.min()) / \
-                        (probabilities.max() - probabilities.min())
-            fop, mpv = calibration_curve(y_data, probabilities, n_bins=10, strategy='uniform')
-            brier_score = brier_score_loss(y_data, probabilities)
+        pipeline = load(folder + '.joblib')
+
+        return self.reliability(pipeline, payload['features'], pipeline.steps[-1][1], x, y, class_index)
+
+    @staticmethod
+    def additional_roc(self, payload, label, folder, class_index=None):
+        data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = data[payload['features']].to_numpy()
+        y = data[label]
+
+        pipeline = load(folder + '.joblib')
+
+        return self.roc(pipeline, payload['features'], pipeline.steps[-1][1], x, y, class_index)
+
+
+    @staticmethod
+    def predict(self, data, path='.', threshold=.5):
+        """Predicts against the provided data"""
+
+        # Load the pipeline
+        pipeline = load(path + '.joblib')
+
+        data = pd.DataFrame(data).dropna().values
+
+        probability = pipeline.predict_proba(data)
+        if threshold == .5:
+            predicted = pipeline.predict(data)
         else:
-            # Binary classification
-            probabilities = estimator.predict_proba(x_data)[:, 1]
-            fop, mpv = calibration_curve(y_data, probabilities, n_bins=10, strategy='uniform')
-            brier_score = brier_score_loss(y_data, probabilities)
+            predicted = (probability[:, 1] >= threshold).astype(int)
 
         return {
-            'brier_score': round(brier_score, 4),
-            'fop': [round(num, 4) for num in list(fop)],
-            'mpv': [round(num, 4) for num in list(mpv)]
+            'predicted': predicted.tolist(),
+            'probability': [sublist[predicted[index]] for index, sublist in enumerate(probability.tolist())]
+        }
+
+    @staticmethod
+    def predict_ensemble(self, total_models, data, path='.', vote_type='soft'):
+        """Predicts against the provided data by creating an ensemble of the selected models"""
+
+        probabilities = []
+        predictions = []
+
+        for x in range(total_models):
+            pipeline = load(path + '/ensemble' + str(x) + '.joblib')
+
+            with open(path + '/ensemble' + str(x) + '_features.json') as feature_file:
+                features = json.load(feature_file)
+
+            selected_data = data[features].dropna().to_numpy()
+            probabilities.append(pipeline.predict_proba(selected_data))
+            predictions.append(pipeline.predict(selected_data))
+
+        predictions = np.asarray(predictions).T
+        probabilities = np.average(np.asarray(probabilities), axis=0)
+
+        if vote_type == 'soft':
+            predicted = np.argmax(probabilities, axis=1)
+        else:
+            predicted = np.apply_along_axis(
+                lambda x: np.argmax(np.bincount(x)), axis=1, arr=predictions.astype('int')
+            )
+
+        return {
+            'predicted': predicted.tolist(),
+            'probability': [sublist[predicted[index]] for index, sublist in enumerate(probabilities.tolist())]
         }
     
-    @staticmethod
-    def _compute_precision_metrics(pipeline, features, estimator, x_data, y_data):
-        """
-        Internal helper method for precision-recall computation.
-        
-        Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_data (array): Features for precision-recall evaluation
-            y_data (array): Labels for precision-recall evaluation
-            
-        Returns:
-            dict: Precision-recall evaluation results
-        """
-        # Transform values based on the pipeline
-        x_data = preprocess(features, pipeline, x_data)
-        
-        if hasattr(estimator, 'decision_function'):
-            scores = estimator.decision_function(x_data)
-            # For binary classification, decision_function returns 1D array
-            if scores.ndim == 1:
-                precision, recall, _ = precision_recall_curve(y_data, scores)
-            else:
-                precision, recall, _ = precision_recall_curve(y_data, scores[:, 1])
-        else:
-            # Use predict_proba
-            probabilities = estimator.predict_proba(x_data)
-            precision, recall, _ = precision_recall_curve(y_data, probabilities[:, 1])
-
-        # Apply decimation
-        recall, precision = decimate_points(
-            [round(num, 4) for num in list(recall)],
-            [round(num, 4) for num in list(precision)]
-        )
-
-        return {
-            'precision': list(precision),
-            'recall': list(recall)
-        }
