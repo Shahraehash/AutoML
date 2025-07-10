@@ -4,11 +4,11 @@ Utilities
 
 import numpy as np
 
-from .processors.estimators import ESTIMATOR_NAMES
-from .processors.feature_selection import FEATURE_SELECTOR_NAMES
-from .processors.scalers import SCALER_NAMES
-from .processors.searchers import SEARCHER_NAMES
-from .processors.scorers import SCORER_NAMES
+from ..processors.estimators import ESTIMATOR_NAMES
+from ..processors.feature_selection import FEATURE_SELECTOR_NAMES
+from ..processors.scalers import SCALER_NAMES
+from ..processors.searchers import SEARCHER_NAMES
+from ..processors.scorers import SCORER_NAMES
 
 def model_key_to_name(key):
     """"Resolve key name to descriptive name"""

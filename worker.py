@@ -8,7 +8,7 @@ import json
 from celery import Celery
 from celery.signals import worker_process_init
 
-from ml import search
+from api.search import find_best_model
 
 BROKER_URL = os.getenv('BROKER_URL', 'pyamqp://guest@127.0.0.1//')
 CELERY = Celery(__name__, backend='rpc://', broker=BROKER_URL)
@@ -52,7 +52,7 @@ def queue_training(self, userid, jobid, label_column, parameters):
     with open(job_folder + '/metadata.json', 'w') as metafile:
         json.dump(metadata, metafile)
 
-    search.find_best_model(
+    find_best_model(
         dataset_folder + '/train.csv',
         dataset_folder + '/test.csv',
         labels,

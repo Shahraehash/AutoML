@@ -13,9 +13,15 @@ from io import BytesIO
 from shutil import copyfile
 
 from flask import abort, g, jsonify, request, send_file
+import pandas as pd
 
-from ml.unified_classifier_manager import UnifiedClassifierManager
+from ml.utils.predict import predict
+from ml.utils.generalization import generalize_model
 from .jobs import refit
+
+# Import classifier classes for static methods
+from ml.binary_classifier import BinaryClassifier
+from ml.multiclass_macro_classifier import MulticlassMacroClassifier
 
 PUBLISHED_MODELS = 'data/published-models.json'
 
@@ -109,23 +115,15 @@ def test(name):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    # Create UnifiedClassifierManager and load static model
-    manager = UnifiedClassifierManager(folder, metadata.get('parameters', {}))
-    
-    # Load the static published model
-    success = manager.load_static_model(published[name]['path'] + '.joblib')
-    
-    if success:
-        # Use the new static model prediction method
-        reply = manager.make_predictions(
-            json.loads(request.data),
-            'published_model',
-            published[name]['threshold']
-        )
-        reply['target'] = metadata['label']
-        return jsonify(reply)
-    else:
-        raise Exception("Failed to load static published model")
+    reply = predict(
+        json.loads(request.data),
+        published[name]['path'],
+        published[name]['threshold']
+    )
+
+    reply['target'] = metadata['label']
+
+    return jsonify(reply)
 
 def generalize(name):
     """Generalize the published model against the provided data"""
@@ -150,22 +148,41 @@ def generalize(name):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
-    # Create UnifiedClassifierManager and load static model
-    manager = UnifiedClassifierManager(folder, metadata.get('parameters', {}))
+    # Auto-detect classification type for ROC, reliability, and precision computation
+    payload_data = json.loads(request.data)
+    test_data_df = pd.DataFrame(payload_data['data'], columns=payload_data['columns'])
+    y_sample = test_data_df[metadata['label']]
+    n_classes = len(pd.Series(y_sample).unique())
     
-    # Load the static published model
-    success = manager.load_static_model(published[name]['path'] + '.joblib')
-    
-    if success:
-        # Use the new static model evaluation methods
-        return jsonify({
-            'generalization': manager.get_static_generalization_metrics(json.loads(request.data), 'published_model', metadata['label'], published[name]['threshold']),
-            'reliability': manager.get_static_reliability_metrics(json.loads(request.data), 'published_model', metadata['label']),
-            'precision_recall': manager.get_static_precision_metrics(json.loads(request.data), 'published_model', metadata['label']),
-            'roc_auc': manager.get_static_roc_metrics(json.loads(request.data), 'published_model', metadata['label'])
-        })
+    # Use appropriate static method based on classification type
+    if n_classes == 2:
+        roc_result = BinaryClassifier.compute_roc_metrics(
+            payload_data, metadata['label'], published[name]['path']
+        )
+        reliability_result = BinaryClassifier.compute_reliability_metrics(
+            payload_data, metadata['label'], published[name]['path']
+        )
+        precision_result = BinaryClassifier.compute_precision_metrics(
+            payload_data, metadata['label'], published[name]['path']
+        )
     else:
-        raise Exception("Failed to load static published model")
+        roc_result = MulticlassMacroClassifier.compute_roc_metrics(
+            payload_data, metadata['label'], published[name]['path']
+        )
+        reliability_result = MulticlassMacroClassifier.compute_reliability_metrics(
+            payload_data, metadata['label'], published[name]['path']
+        )
+        precision_result = MulticlassMacroClassifier.compute_precision_metrics(
+            payload_data, metadata['label'], published[name]['path']
+        )
+
+    return jsonify({
+        'generalization': generalize_model(payload_data, metadata['label'], published[name]['path'], published[name]['threshold']),
+        'reliability': reliability_result,
+        'precision_recall': precision_result,
+        'roc_auc': roc_result
+    })
+
 
 def features(name):
     """Returns the features for a published model"""

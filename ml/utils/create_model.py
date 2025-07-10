@@ -11,9 +11,9 @@ from joblib import dump, load
 from nyoka import skl_to_pmml, xgboost_to_pmml
 from sklearn.pipeline import Pipeline
 
-from .processors.estimators import ESTIMATORS, get_xgb_classifier
-from .processors.feature_selection import FEATURE_SELECTORS
-from .processors.scalers import SCALERS
+from ..processors.estimators import ESTIMATORS, get_xgb_classifier
+from ..processors.feature_selection import FEATURE_SELECTORS
+from ..processors.scalers import SCALERS
 from .import_data import import_data
 from .generalization import generalize
 from .model import generate_model

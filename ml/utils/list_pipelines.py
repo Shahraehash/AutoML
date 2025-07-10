@@ -4,11 +4,11 @@ Processes configuration to generate all pipelines
 
 import itertools
 
-from .processors.estimators import ESTIMATOR_NAMES
-from .processors.feature_selection import FEATURE_SELECTOR_NAMES
-from .processors.scalers import SCALER_NAMES
-from .processors.searchers import SEARCHER_NAMES
-from .processors.scorers import SCORER_NAMES
+from ..processors.estimators import ESTIMATOR_NAMES
+from ..processors.feature_selection import FEATURE_SELECTOR_NAMES
+from ..processors.scalers import SCALER_NAMES
+from ..processors.searchers import SEARCHER_NAMES
+from ..processors.scorers import SCORER_NAMES
 
 def list_pipelines(parameters):
     """Construct array of all pipeline combinations"""

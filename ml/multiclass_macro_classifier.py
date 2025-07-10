@@ -22,14 +22,14 @@ from nyoka import skl_to_pmml, xgboost_to_pmml
 
 
 from .base_classifier import AutoMLClassifier
-from ..preprocess import preprocess
-from ..utils import model_key_to_name, decimate_points, explode_key
-from ..stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
-from ..processors.estimators import ESTIMATORS, get_xgb_classifier
-from ..processors.scorers import SCORER_NAMES
-from ..processors.scalers import SCALERS
-from ..processors.feature_selection import FEATURE_SELECTORS
-from ..import_data import import_data
+from .utils.preprocess import preprocess
+from .utils.utils import model_key_to_name, decimate_points, explode_key
+from .utils.stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
+from .processors.estimators import ESTIMATORS, get_xgb_classifier
+from .processors.scorers import SCORER_NAMES
+from .processors.scalers import SCALERS
+from .processors.feature_selection import FEATURE_SELECTORS
+from .utils.import_data import import_data
 
 
 class MulticlassMacroClassifier(AutoMLClassifier):
@@ -134,167 +134,89 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         
         return precision_avg, common_recall
     
-    def evaluate_reliability(self, pipeline, features, estimator, x_test, y_test, class_index=None):
+    
+    @staticmethod
+    def compute_roc_metrics(data, label_column, model_path, class_index=None):
         """
-        Evaluate reliability for multiclass classification with macro-averaging.
+        Static method for multiclass ROC computation.
         
         Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_test (array): Test features (for final generalization evaluation)
-            y_test (array): Test labels (for final generalization evaluation)
+            data (dict): Data dictionary with 'data', 'columns', and 'features' keys
+            label_column (str): Name of the label column
+            model_path (str): Path to the model file (without .joblib extension)
             class_index (int, optional): Specific class index for OvR evaluation
             
         Returns:
-            dict: Reliability evaluation results with macro-averaging
+            dict: ROC evaluation results
         """
-        x_test = preprocess(features, pipeline, x_test)
+        from joblib import load
+        import pandas as pd
         
-        n_classes = len(np.unique(y_test))
-
-        if hasattr(estimator, 'decision_function'):
-            probabilities = estimator.decision_function(x_test)
-
-            # Binary Classification
-            if n_classes == 2:
-                if np.count_nonzero(probabilities):
-                    if probabilities.max() - probabilities.min() == 0:
-                        probabilities = [0] * len(probabilities)
-                    else:
-                        probabilities = (probabilities - probabilities.min()) / \
-                            (probabilities.max() - probabilities.min())
-                fop, mpv = calibration_curve(y_test, probabilities, n_bins=10, strategy='uniform')
-                brier_score = brier_score_loss(y_test, probabilities)
-            
-            # Multi-Class Classification
-            else:
-                # Use softmax to convert decision function scores to probabilities
-                exp_scores = np.exp(probabilities - np.max(probabilities, axis=1, keepdims=True))
-                probabilities = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
-                
-                # If class_index is specified, return One-vs-Rest curve for that class
-                if class_index is not None:
-                    unique_classes = sorted(np.unique(y_test))
-                    if class_index < len(unique_classes):
-                        actual_class_value = unique_classes[class_index]
-                        y_binary = (y_test == actual_class_value).astype(int)
-                        class_probs = probabilities[:, class_index]
-                        fop, mpv = calibration_curve(y_binary, class_probs, n_bins=10, strategy='uniform')
-                        brier_score = brier_score_loss(y_binary, class_probs)
-                    else:
-                        # Invalid class index, fall back to macro average
-                        class_index = None
-                
-                # If class_index is None or invalid, return macro-averaged curve (original behavior)
-                if class_index is None:
-                    # Use one-vs-rest approach for calibration curves
-                    fop_list = []
-                    mpv_list = []
-                    brier_scores = []
-                    for class_idx in range(n_classes):
-                        # Create binary labels for current class vs rest
-                        y_binary = (y_test == class_idx).astype(int)
-                        class_probs = probabilities[:, class_idx]
-                        
-                        # Compute calibration curve for this class
-                        fop_class, mpv_class = calibration_curve(y_binary, class_probs, n_bins=10, strategy='uniform')
-                        fop_list.append(fop_class)
-                        mpv_list.append(mpv_class)
-                        
-                        # Compute Brier score for this class
-                        brier_class = brier_score_loss(y_binary, class_probs)
-                        brier_scores.append(brier_class)
-                    
-                    # Ensure all arrays have the same length by padding with NaN and then averaging
-                    max_len = max(len(arr) for arr in fop_list) if fop_list else 0
-                    if max_len > 0:
-                        # Pad arrays to same length
-                        fop_padded = []
-                        mpv_padded = []
-                        for i in range(len(fop_list)):
-                            fop_arr = np.pad(fop_list[i], (0, max_len - len(fop_list[i])), constant_values=np.nan)
-                            mpv_arr = np.pad(mpv_list[i], (0, max_len - len(mpv_list[i])), constant_values=np.nan)
-                            fop_padded.append(fop_arr)
-                            mpv_padded.append(mpv_arr)
-                        
-                        # Average ignoring NaN values
-                        fop = np.nanmean(fop_padded, axis=0)
-                        mpv = np.nanmean(mpv_padded, axis=0)
-                    else:
-                        fop = np.array([])
-                        mpv = np.array([])
-                    brier_score = np.mean(brier_scores)
+        # Load model and extract data
+        pipeline = load(model_path + '.joblib')
+        df = pd.DataFrame(data['data'], columns=data['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = df[data['features']].to_numpy()
+        y = df[label_column]
         
-        else:
-            # Binary classification
-            if n_classes == 2:
-                probabilities = estimator.predict_proba(x_test)[:, 1]
-                fop, mpv = calibration_curve(y_test, probabilities, n_bins=10, strategy='uniform')
-                brier_score = brier_score_loss(y_test, probabilities)
-                
-            # Multi-class Classification
-            else:
-                probabilities = estimator.predict_proba(x_test)
-            
-                # If class_index is specified, return One-vs-Rest curve for that class
-                if class_index is not None:
-                    unique_classes = sorted(np.unique(y_test))
-                    if class_index < len(unique_classes):
-                        actual_class_value = unique_classes[class_index]
-                        y_binary = (y_test == actual_class_value).astype(int)
-                        class_probs = probabilities[:, class_index]
-                        fop, mpv = calibration_curve(y_binary, class_probs, n_bins=10, strategy='uniform')
-                        brier_score = brier_score_loss(y_binary, class_probs)
-                    else:
-                        # Invalid class index, fall back to macro average
-                        class_index = None
-                
-                # If class_index is None or invalid, return macro-averaged curve (original behavior)
-                if class_index is None:
-                    # Use one-vs-rest approach for calibration curves
-                    fop_list = []
-                    mpv_list = []
-                    brier_scores = []
-                    
-                    for class_idx in range(n_classes):
-                        # Create binary labels for current class vs rest
-                        y_binary = (y_test == class_idx).astype(int)
-                        class_probs = probabilities[:, class_idx]
-                        
-                        # Compute calibration curve for this class
-                        fop_class, mpv_class = calibration_curve(y_binary, class_probs, n_bins=10, strategy='uniform')
-                        fop_list.append(fop_class)
-                        mpv_list.append(mpv_class)
-                        
-                        # Compute Brier score for this class
-                        brier_class = brier_score_loss(y_binary, class_probs)
-                        brier_scores.append(brier_class)
-                    
-                    # Ensure all arrays have the same length by padding with NaN and then averaging
-                    max_len = max(len(arr) for arr in fop_list) if fop_list else 0
-                   
-                    fop_padded = []
-                    mpv_padded = []
-                    for i in range(len(fop_list)):
-                        fop_arr = np.pad(fop_list[i], (0, max_len - len(fop_list[i])), constant_values=np.nan)
-                        mpv_arr = np.pad(mpv_list[i], (0, max_len - len(mpv_list[i])), constant_values=np.nan)
-                        fop_padded.append(fop_arr)
-                        mpv_padded.append(mpv_arr)
-                    
-                    fop = np.nanmean(fop_padded, axis=0)
-                    mpv = np.nanmean(mpv_padded, axis=0)
-                    brier_score = np.mean(brier_scores)
-
-        return {
-            'brier_score': round(brier_score, 4),
-            'fop': [round(num, 4) for num in list(fop)],
-            'mpv': [round(num, 4) for num in list(mpv)]
-        }
+        # Use the static helper method
+        return MulticlassMacroClassifier._compute_roc_metrics(pipeline, data['features'], pipeline.steps[-1][1], x, y, class_index)
     
-    def evaluate_roc(self, pipeline, features, estimator, x_data, y_data, class_index=None):
+    @staticmethod
+    def compute_reliability_metrics(data, label_column, model_path, class_index=None):
         """
-        Evaluate ROC for multiclass classification with macro-averaging.
+        Static method for multiclass reliability computation.
+        
+        Args:
+            data (dict): Data dictionary with 'data', 'columns', and 'features' keys
+            label_column (str): Name of the label column
+            model_path (str): Path to the model file (without .joblib extension)
+            class_index (int, optional): Specific class index for OvR evaluation
+            
+        Returns:
+            dict: Reliability evaluation results
+        """
+        from joblib import load
+        import pandas as pd
+        
+        # Load model and extract data
+        pipeline = load(model_path + '.joblib')
+        df = pd.DataFrame(data['data'], columns=data['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = df[data['features']].to_numpy()
+        y = df[label_column]
+        
+        # Use the static helper method
+        return MulticlassMacroClassifier._compute_reliability_metrics(pipeline, data['features'], pipeline.steps[-1][1], x, y, class_index)
+    
+    @staticmethod
+    def compute_precision_metrics(data, label_column, model_path, class_index=None):
+        """
+        Static method for multiclass precision-recall computation.
+        
+        Args:
+            data (dict): Data dictionary with 'data', 'columns', and 'features' keys
+            label_column (str): Name of the label column
+            model_path (str): Path to the model file (without .joblib extension)
+            class_index (int, optional): Specific class index for OvR evaluation
+            
+        Returns:
+            dict: Precision-recall evaluation results
+        """
+        from joblib import load
+        import pandas as pd
+        
+        # Load model and extract data
+        pipeline = load(model_path + '.joblib')
+        df = pd.DataFrame(data['data'], columns=data['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = df[data['features']].to_numpy()
+        y = df[label_column]
+        
+        # Use the static helper method
+        return MulticlassMacroClassifier._compute_precision_metrics(pipeline, data['features'], pipeline.steps[-1][1], x, y, class_index)
+    
+    @staticmethod
+    def _compute_roc_metrics(pipeline, features, estimator, x_data, y_data, class_index=None):
+        """
+        Internal helper method for ROC computation.
         
         Args:
             pipeline: Sklearn pipeline
@@ -310,57 +232,47 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         x_data = preprocess(features, pipeline, x_data)
         
         probabilities = estimator.predict_proba(x_data)
-        predictions = estimator.predict(x_data)
-        
-        # Check if this is binary or multiclass classification
         n_classes = probabilities.shape[1]
         
-        # Binary classification
-        if n_classes == 2:
-            fpr, tpr, _ = roc_curve(y_data, probabilities[:, 1])
-            roc_auc = roc_auc_score(y_data, probabilities[:, 1])
-
-        # Multiclass classification
-        else:
-            # If class_index is specified, return One-vs-Rest curve for that class
-            if class_index is not None:
-                unique_classes = sorted(np.unique(y_data))
-                if class_index < len(unique_classes):
-                    actual_class_value = unique_classes[class_index]
-                    y_binary = (y_data == actual_class_value).astype(int)
-                    fpr, tpr, _ = roc_curve(y_binary, probabilities[:, class_index])
-                    roc_auc = roc_auc_score(y_binary, probabilities[:, class_index])
-                else:
-                    # Invalid class index, fall back to macro average
-                    class_index = None
+        # If class_index is specified, return One-vs-Rest curve for that class
+        if class_index is not None:
+            unique_classes = sorted(np.unique(y_data))
+            if class_index < len(unique_classes):
+                actual_class_value = unique_classes[class_index]
+                y_binary = (y_data == actual_class_value).astype(int)
+                fpr, tpr, _ = roc_curve(y_binary, probabilities[:, class_index])
+                roc_auc = roc_auc_score(y_binary, probabilities[:, class_index])
+            else:
+                # Invalid class index, fall back to macro average
+                class_index = None
+        
+        # If class_index is None or invalid, return macro-averaged curve (original behavior)
+        if class_index is None:
+            roc_auc = roc_auc_score(y_data, probabilities, multi_class='ovr', average='macro') 
             
-            # If class_index is None or invalid, return macro-averaged curve (original behavior)
-            if class_index is None:
-                roc_auc = roc_auc_score(y_data, probabilities, multi_class='ovr', average='macro') 
-                
-                y_test_bin = label_binarize(y_data, classes=np.unique(y_data))
-                if y_test_bin.shape[1] == 1:
-                    y_test_bin = np.hstack([1 - y_test_bin, y_test_bin])
-                
+            y_test_bin = label_binarize(y_data, classes=np.unique(y_data))
+            if y_test_bin.shape[1] == 1:
+                y_test_bin = np.hstack([1 - y_test_bin, y_test_bin])
+            
 
-                fpr_per_class = []
-                tpr_per_class = []
+            fpr_per_class = []
+            tpr_per_class = []
 
-                for i in range(n_classes):
-                    fpr_i, tpr_i, _ = roc_curve(y_test_bin[:, i], probabilities[:, i])
-                    fpr_per_class.append(fpr_i)
-                    tpr_per_class.append(tpr_i)
-                
-                
-                fpr = np.unique(np.concatenate(fpr_per_class))
-                tpr = np.zeros_like(fpr)
-                
-                for i in range(n_classes):
-                    # Use numpy's interp function instead of scipy
-                    interp_tpr = np.interp(fpr, fpr_per_class[i], tpr_per_class[i])
-                    tpr += interp_tpr
-                
-                tpr /= n_classes
+            for i in range(n_classes):
+                fpr_i, tpr_i, _ = roc_curve(y_test_bin[:, i], probabilities[:, i])
+                fpr_per_class.append(fpr_i)
+                tpr_per_class.append(tpr_i)
+            
+            
+            fpr = np.unique(np.concatenate(fpr_per_class))
+            tpr = np.zeros_like(fpr)
+            
+            for i in range(n_classes):
+                # Use numpy's interp function instead of scipy
+                interp_tpr = np.interp(fpr, fpr_per_class[i], tpr_per_class[i])
+                tpr += interp_tpr
+            
+            tpr /= n_classes
             
         fpr, tpr = decimate_points(
           [round(num, 4) for num in list(fpr)],
@@ -372,6 +284,228 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             'tpr': list(tpr),
             'roc_auc': roc_auc
         }
+    
+    @staticmethod
+    def _compute_reliability_metrics(pipeline, features, estimator, x_data, y_data, class_index=None):
+        """
+        Internal helper method for reliability computation.
+        
+        Args:
+            pipeline: Sklearn pipeline
+            features: Feature information
+            estimator: Trained estimator
+            x_data (array): Features for reliability evaluation
+            y_data (array): Labels for reliability evaluation
+            class_index (int, optional): Specific class index for OvR evaluation
+            
+        Returns:
+            dict: Reliability evaluation results with macro-averaging
+        """
+        x_data = preprocess(features, pipeline, x_data)
+        
+        n_classes = len(np.unique(y_data))
+
+        if hasattr(estimator, 'decision_function'):
+            probabilities = estimator.decision_function(x_data)
+            # Use softmax to convert decision function scores to probabilities
+            exp_scores = np.exp(probabilities - np.max(probabilities, axis=1, keepdims=True))
+            probabilities = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+            
+            # If class_index is specified, return One-vs-Rest curve for that class
+            if class_index is not None:
+                unique_classes = sorted(np.unique(y_data))
+                if class_index < len(unique_classes):
+                    actual_class_value = unique_classes[class_index]
+                    y_binary = (y_data == actual_class_value).astype(int)
+                    class_probs = probabilities[:, class_index]
+                    fop, mpv = calibration_curve(y_binary, class_probs, n_bins=10, strategy='uniform')
+                    brier_score = brier_score_loss(y_binary, class_probs)
+                else:
+                    # Invalid class index, fall back to macro average
+                    class_index = None
+            
+            # If class_index is None or invalid, return macro-averaged curve (original behavior)
+            if class_index is None:
+                # Use one-vs-rest approach for calibration curves
+                fop_list = []
+                mpv_list = []
+                brier_scores = []
+                for class_idx in range(n_classes):
+                    # Create binary labels for current class vs rest
+                    y_binary = (y_data == class_idx).astype(int)
+                    class_probs = probabilities[:, class_idx]
+                    
+                    # Compute calibration curve for this class
+                    fop_class, mpv_class = calibration_curve(y_binary, class_probs, n_bins=10, strategy='uniform')
+                    fop_list.append(fop_class)
+                    mpv_list.append(mpv_class)
+                    
+                    # Compute Brier score for this class
+                    brier_class = brier_score_loss(y_binary, class_probs)
+                    brier_scores.append(brier_class)
+                
+                # Ensure all arrays have the same length by padding with NaN and then averaging
+                max_len = max(len(arr) for arr in fop_list) if fop_list else 0
+                if max_len > 0:
+                    # Pad arrays to same length
+                    fop_padded = []
+                    mpv_padded = []
+                    for i in range(len(fop_list)):
+                        fop_arr = np.pad(fop_list[i], (0, max_len - len(fop_list[i])), constant_values=np.nan)
+                        mpv_arr = np.pad(mpv_list[i], (0, max_len - len(mpv_list[i])), constant_values=np.nan)
+                        fop_padded.append(fop_arr)
+                        mpv_padded.append(mpv_arr)
+                    
+                    # Average ignoring NaN values
+                    fop = np.nanmean(fop_padded, axis=0)
+                    mpv = np.nanmean(mpv_padded, axis=0)
+                else:
+                    fop = np.array([])
+                    mpv = np.array([])
+                brier_score = np.mean(brier_scores)
+    
+        else:
+            
+            probabilities = estimator.predict_proba(x_data)
+        
+            # If class_index is specified, return One-vs-Rest curve for that class
+            if class_index is not None:
+                unique_classes = sorted(np.unique(y_data))
+                if class_index < len(unique_classes):
+                    actual_class_value = unique_classes[class_index]
+                    y_binary = (y_data == actual_class_value).astype(int)
+                    class_probs = probabilities[:, class_index]
+                    fop, mpv = calibration_curve(y_binary, class_probs, n_bins=10, strategy='uniform')
+                    brier_score = brier_score_loss(y_binary, class_probs)
+                else:
+                    # Invalid class index, fall back to macro average
+                    class_index = None
+            
+            # If class_index is None or invalid, return macro-averaged curve (original behavior)
+            if class_index is None:
+                # Use one-vs-rest approach for calibration curves
+                fop_list = []
+                mpv_list = []
+                brier_scores = []
+                
+                for class_idx in range(n_classes):
+                    # Create binary labels for current class vs rest
+                    y_binary = (y_data == class_idx).astype(int)
+                    class_probs = probabilities[:, class_idx]
+                    
+                    # Compute calibration curve for this class
+                    fop_class, mpv_class = calibration_curve(y_binary, class_probs, n_bins=10, strategy='uniform')
+                    fop_list.append(fop_class)
+                    mpv_list.append(mpv_class)
+                    
+                    # Compute Brier score for this class
+                    brier_class = brier_score_loss(y_binary, class_probs)
+                    brier_scores.append(brier_class)
+                
+                # Ensure all arrays have the same length by padding with NaN and then averaging
+                max_len = max(len(arr) for arr in fop_list) if fop_list else 0
+                
+                fop_padded = []
+                mpv_padded = []
+                for i in range(len(fop_list)):
+                    fop_arr = np.pad(fop_list[i], (0, max_len - len(fop_list[i])), constant_values=np.nan)
+                    mpv_arr = np.pad(mpv_list[i], (0, max_len - len(mpv_list[i])), constant_values=np.nan)
+                    fop_padded.append(fop_arr)
+                    mpv_padded.append(mpv_arr)
+                
+                fop = np.nanmean(fop_padded, axis=0)
+                mpv = np.nanmean(mpv_padded, axis=0)
+                brier_score = np.mean(brier_scores)
+
+        return {
+            'brier_score': round(brier_score, 4),
+            'fop': [round(num, 4) for num in list(fop)],
+            'mpv': [round(num, 4) for num in list(mpv)]
+        }
+    
+    @staticmethod
+    def _compute_precision_metrics(pipeline, features, estimator, x_data, y_data, class_index=None):
+        """
+        Internal helper method for precision-recall computation.
+        
+        Args:
+            pipeline: Sklearn pipeline
+            features: Feature information
+            estimator: Trained estimator
+            x_data (array): Features for precision-recall evaluation
+            y_data (array): Labels for precision-recall evaluation
+            class_index (int, optional): Specific class index for OvR evaluation
+            
+        Returns:
+            dict: Precision-recall evaluation results with macro-averaging
+        """
+        x_data = preprocess(features, pipeline, x_data)
+        probabilities = estimator.predict_proba(x_data)
+        
+        if class_index is not None:
+            # OvR single class evaluation - binary precision-recall for this class vs rest
+            y_binary = (y_data == class_index).astype(int)
+            class_probabilities = probabilities[:, class_index]
+            precision, recall, _ = precision_recall_curve(y_binary, class_probabilities)
+            
+            # Apply decimation
+            recall, precision = decimate_points(
+                [round(num, 4) for num in list(recall)],
+                [round(num, 4) for num in list(precision)]
+            )
+            
+            return {
+                'precision': list(precision),
+                'recall': list(recall)
+            }
+        else:
+            # Macro-averaged evaluation across all classes
+            unique_classes = sorted(np.unique(y_data))
+            precision_avg, recall_avg = MulticlassMacroClassifier._compute_macro_averaged_curve(y_data, probabilities, unique_classes)
+            
+            return {
+                'precision': [round(num, 4) for num in list(precision_avg)],
+                'recall': [round(num, 4) for num in list(recall_avg)]
+            }
+    
+    @staticmethod
+    def _compute_macro_averaged_curve(y_test, scores_or_probs, unique_classes, use_proba=True):
+        """Helper function to compute macro-averaged precision-recall curve"""
+        # Use common recall points for interpolation
+        common_recall = np.linspace(0, 1, 101)  # 101 points from 0 to 1
+        precision_interp_curves = []
+        
+        for class_idx, class_val in enumerate(unique_classes):
+            # Create binary labels for current class vs rest
+            y_binary = (y_test == class_val).astype(int)
+            
+            # Skip if no positive samples for this class
+            if y_binary.sum() == 0:
+                continue
+                
+            # Get scores for this class
+            class_scores = scores_or_probs[:, class_idx]
+            
+            # Compute precision-recall curve
+            prec_class, rec_class, _ = precision_recall_curve(y_binary, class_scores)
+            
+            # Interpolate to common recall points
+            # Note: precision_recall_curve returns decreasing recall, so we reverse
+            prec_class = prec_class[::-1]
+            rec_class = rec_class[::-1]
+            
+            # Interpolate precision at common recall points
+            prec_interp = np.interp(common_recall, rec_class, prec_class)
+            precision_interp_curves.append(prec_interp)
+        
+        if not precision_interp_curves:
+            # Fallback if no valid curves
+            return np.array([1.0, 0.0]), np.array([0.0, 1.0])
+        
+        # Average the interpolated curves
+        precision_avg = np.mean(precision_interp_curves, axis=0)
+        
+        return precision_avg, common_recall
     
     def predict(self, data, model_key, class_index=None):
         """
@@ -423,7 +557,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                 'classification_type': 'multiclass_macro'
             }
     
-    def evaluate_generalization(self, pipeline, features, estimator, x_test, y_test, labels):
+    def evaluate_generalization(self, pipeline, features, estimator, x_test, y_test, labels, class_index=None):
         """
         Evaluate generalization for multiclass classification with macro-averaging.
         
@@ -440,11 +574,10 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         """
         # Process test data based on pipeline
         x_test = preprocess(features, pipeline, x_test)
-        proba = estimator.predict_proba(x_test)
+        probabilities = estimator.predict_proba(x_test)
         predictions = estimator.predict(x_test)
-        probabilities = proba
-        
-        return self.generalization_report(labels, y_test, predictions, probabilities)
+                
+        return self.generalization_report(labels, y_test, predictions, probabilities, class_index)
     
     def generalization_report(self, labels, y2, predictions, probabilities, class_index=None):
         """
@@ -622,17 +755,17 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         """Compute metrics for binary classification (used for OvR models in re-optimization mode)"""
         
         # Compute reliability, precision_recall, and roc for binary classification using class methods
-        generalization_data = self.generalization_report(None, y_val, estimator.predict(preprocess(features, pipeline, x_val)), estimator.predict_proba(preprocess(features, pipeline, x_val)))
-        reliability_data = self.evaluate_reliability(pipeline, features, estimator, x_val, y_val)
+        generalization_data = self.evaluate_generalization(pipeline, features, estimator, x_val, y_val, labels=None)
+        reliability_data = self._compute_reliability_metrics(pipeline, features, estimator, x_val, y_val)
         precision_data = self.evaluate_precision_recall(pipeline, features, estimator, x_val, y_val)
-        roc_data = self.evaluate_roc(pipeline, features, estimator, x_val, y_val)
+        roc_data = self._compute_roc_metrics(pipeline, features, estimator, x_val, y_val)
         
         # Compute training ROC AUC if training data is provided
         training_roc_auc = None
         roc_delta = None
         
         if x_train is not None and y_train is not None:
-            training_roc_data = self.evaluate_roc(pipeline, features, estimator, x_train, y_train)
+            training_roc_data = self._compute_roc_metrics(pipeline, features, estimator, x_train, y_train)
             training_roc_auc = training_roc_data['roc_auc']
             
             # Calculate ROC delta
@@ -642,7 +775,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         # Compute test ROC metrics if test data is provided
         test_roc_data = None
         if x_test is not None and y_test is not None:
-            test_roc_data = self.evaluate_roc(pipeline, features, estimator, x_test, y_test)
+            test_roc_data = self._compute_roc_metrics(pipeline, features, estimator, x_test, y_test)
         
         return {
             'generalization': generalization_data,
@@ -654,25 +787,21 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             'test_roc_data': test_roc_data
         }
 
-    def _compute_class_specific_results(self, pipeline, features, estimator, x_val, y_val, n_classes, model_key, class_idx, x_train=None, y_train=None, x_test_orig=None, y_test_orig=None):
+    def _compute_class_specific_results(self, pipeline, features, estimator, x_val, y_val, n_classes, model_key, class_idx, labels, x_train=None, y_train=None, x_test_orig=None, y_test_orig=None):
         """Compute class-specific results for multiclass classification"""
         
         # Compute class-specific metrics using class methods with class_index parameter
-        x_val_processed = preprocess(features, pipeline, x_val)
-        predictions = estimator.predict(x_val_processed)
-        probabilities = estimator.predict_proba(x_val_processed)
-        
-        generalization_data = self.generalization_report(None, y_val, predictions, probabilities, class_index=class_idx)
-        reliability_data = self.evaluate_reliability(pipeline, features, estimator, x_val, y_val, class_index=class_idx)
+        generalization_data = self.evaluate_generalization(pipeline, features, estimator, x_val, y_val, labels, class_index=class_idx)
+        reliability_data = self._compute_reliability_metrics(pipeline, features, estimator, x_val, y_val, class_index=class_idx)
         precision_data = self.evaluate_precision_recall(pipeline, features, estimator, x_val, y_val, class_index=class_idx)
-        roc_data = self.evaluate_roc(pipeline, features, estimator, x_val, y_val, class_index=class_idx)
+        roc_data = self._compute_roc_metrics(pipeline, features, estimator, x_val, y_val, class_index=class_idx)
         
         # Compute training ROC AUC for this class if training data is provided
         training_roc_auc = None
         roc_delta = None
         
         if x_train is not None and y_train is not None:
-            training_roc_data = self.evaluate_roc(pipeline, features, estimator, x_train, y_train, class_index=class_idx)
+            training_roc_data = self._compute_roc_metrics(pipeline, features, estimator, x_train, y_train, class_index=class_idx)
             training_roc_auc = training_roc_data['roc_auc']
             
             # Calculate ROC delta (absolute difference between generalization and training)
@@ -682,7 +811,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         # Compute test ROC metrics if original test data is provided
         test_roc_data = None
         if x_test_orig is not None and y_test_orig is not None:
-            test_roc_data = self.evaluate_roc(pipeline, features, estimator, x_test_orig, y_test_orig, class_index=class_idx)
+            test_roc_data = self._compute_roc_metrics(pipeline, features, estimator, x_test_orig, y_test_orig, class_index=class_idx)
         
         return {
             'generalization': generalization_data,
@@ -697,8 +826,11 @@ class MulticlassMacroClassifier(AutoMLClassifier):
     def _create_ovr_csv_entry(self, main_result, class_idx, ovr_best_params, class_metrics):
         """Create a CSV entry for an OvR model using already computed metrics"""
 
-        # Create base CSV entry
-        ovr_result = {
+        # Start with the standard CSV template
+        ovr_result = self.STANDARD_CSV_FIELDS.copy()
+        
+        # Update with base OvR information
+        ovr_result.update({
             'key': f"{main_result['key']}_ovr_class_{class_idx}",
             'class_type': 'ovr',
             'class_index': class_idx,
@@ -707,42 +839,71 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             'algorithm': main_result['algorithm'],
             'searcher': main_result['searcher'],
             'scorer': main_result['scorer']
-        }
+        })
         
-        ovr_result.update(class_metrics.get('generalization'))
+        # Add generalization metrics
+        if 'generalization' in class_metrics:
+            ovr_result.update(class_metrics['generalization'])
         
-        # Add basic metadata
+        # Add ROC data
+        if 'roc_auc' in class_metrics:
+            roc_data = class_metrics['roc_auc']
+            ovr_result.update({
+                'generalization_fpr': json.dumps(roc_data.get('fpr')) if roc_data.get('fpr') else None,
+                'generalization_tpr': json.dumps(roc_data.get('tpr')) if roc_data.get('tpr') else None
+            })
+        
+        # Add test ROC data
+        if 'test_roc_data' in class_metrics:
+            test_data = class_metrics['test_roc_data']
+            ovr_result.update({
+                'test_fpr': json.dumps(test_data.get('fpr')) if test_data.get('fpr') else None,
+                'test_tpr': json.dumps(test_data.get('tpr')) if test_data.get('tpr') else None
+            })
+        
+        # Add training ROC AUC and delta
+        ovr_result.update({
+            'training_roc_auc': class_metrics.get('training_roc_auc'),
+            'roc_delta': class_metrics.get('roc_delta')
+        })
+        
+        # Add reliability data
+        if 'reliability' in class_metrics:
+            reliability_data = class_metrics['reliability']
+            ovr_result.update({
+                'brier_score': reliability_data.get('brier_score'),
+                'fop': json.dumps(reliability_data.get('fop')) if reliability_data.get('fop') else None,
+                'mpv': json.dumps(reliability_data.get('mpv')) if reliability_data.get('mpv') else None
+            })
+        
+        # Add precision-recall data
+        if 'precision_recall' in class_metrics:
+            pr_data = class_metrics['precision_recall']
+            ovr_result.update({
+                'precision': json.dumps(pr_data.get('precision')) if pr_data.get('precision') else None,
+                'recall': json.dumps(pr_data.get('recall')) if pr_data.get('recall') else None
+            })
+        
+        # Add model-specific data
         ovr_result.update({
             'selected_features': main_result['selected_features'],
             'feature_scores': main_result['feature_scores'],
             'best_params': ovr_best_params
         })
         
-        test_data = class_metrics['test_roc_data']
-        ovr_result['test_fpr'] = test_data.get('fpr')
-        ovr_result['test_tpr'] = test_data.get('tpr')
-
-        ovr_result['training_roc_auc'] = class_metrics.get('training_roc_auc')
-        ovr_result['roc_delta'] = class_metrics.get('roc_delta')
-
-        roc_data = class_metrics['roc_auc']
-        ovr_result['generalization_fpr'] = roc_data.get('fpr')
-        ovr_result['generalization_tpr'] = roc_data.get('tpr')
+        # Ensure confidence intervals are properly serialized
+        ci_fields = ['acc_95_ci', 'roc_auc_95_ci', 'sn_95_ci', 'sp_95_ci', 'pr_95_ci', 'ppv_95_ci', 'npv_95_ci']
+        for field in ci_fields:
+            if field in ovr_result and ovr_result[field] is not None and not isinstance(ovr_result[field], str):
+                ovr_result[field] = json.dumps(ovr_result[field])
         
-        reliability_data = class_metrics['reliability']
-        ovr_result['brier_score'] = reliability_data.get('brier_score')
-        ovr_result['fop'] = reliability_data.get('fop')
-        ovr_result['mpv'] = reliability_data.get('mpv')
-
-        pr_data = class_metrics['precision_recall']
-        ovr_result['precision'] = pr_data.get('precision')
-        ovr_result['recall'] = pr_data.get('recall')
+        print(f"OvR Result: {ovr_result} {class_metrics.get('generalization')}")
         
         return ovr_result
 
     def _generate_ovr_models_and_results(self, pipeline, features, main_model, main_result, 
                                         x_train, y_train, x_test, y_test, x2, y2, labels,
-                                        estimator, scorer, reoptimize_ovr=False):
+                                        estimator, scorer):
         """Generate OvR models and return both CSV entries and class data for .pkl.gz storage"""
         
         n_classes = len(np.unique(y_train))
@@ -766,39 +927,19 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             y_test_binary = (y_test == actual_class_value).astype(int)
             y2_binary = (y2 == actual_class_value).astype(int)
             
-            if reoptimize_ovr:
-                # Re-optimization mode: Train actual OvR model
-                ovr_candidates = self.refit_candidates(
-                    pipeline, features, estimator, scorer, x_train, y_binary
-                )
-                
-                ovr_model = ovr_candidates[0]['best_estimator']
-                ovr_best_params = ovr_candidates[0]['best_params']
-                total_fits += len(ovr_candidates)
-                
-                # Store OvR model
-                ovr_key = f"{main_result['key']}_ovr_class_{class_idx}"
-                ovr_models[ovr_key] = ovr_model
-
-                # Re-optimization mode: Use binary classification path
-                # OvR model was trained on binary data, so evaluate it on binary data
-                class_metrics = self._compute_binary_class_results(
-                    pipeline, features, ovr_model, 
-                    x2, y2_binary,           # Binary generalization data
-                    x_train, y_binary,       # Binary training data
-                    x_test, y_test_binary    # Binary test data
-                )
-                
-            else:
-                # Efficient mode: Use main model
-                ovr_model = main_model
-                ovr_best_params = main_result['best_params']
             
-                # Efficient mode: Use multiclass classification path with class_idx
-                class_metrics = self._compute_class_specific_results(
-                    pipeline, features, ovr_model, x2, y2, n_classes, 
-                    main_result['key'], class_idx, x_train, y_train, x_test, y_test
-                )
+            # Efficient mode: Use main model
+            ovr_model = main_model
+            ovr_best_params = main_result['best_params']
+
+            ovr_key = f"{main_result['key']}_ovr_class_{class_idx}"
+            ovr_models[ovr_key] = ovr_model
+
+            # Efficient mode: Use multiclass classification path with class_idx
+            class_metrics = self._compute_class_specific_results(
+                pipeline, features, ovr_model, x2, y2, n_classes, 
+                main_result['key'], class_idx, labels, x_train, y_train, x_test, y_test
+            )
             
             # Store class data for .pkl.gz file
             all_class_data['class_data'][class_idx] = class_metrics
@@ -910,6 +1051,76 @@ class MulticlassMacroClassifier(AutoMLClassifier):
 
         return generalization_result
 
+    def evaluate_model_complete(self, pipeline, features, estimator, x_val, y_val, x_test, y_test, labels):
+        """
+        Complete model evaluation for multiclass classification.
+        
+        This method handles multiclass-specific evaluation logic and ensures proper
+        JSON serialization of all data fields.
+        
+        Args:
+            pipeline: Sklearn pipeline
+            features: Feature information
+            estimator: Trained estimator
+            x_val (array): Validation features (for hyperparameter evaluation)
+            y_val (array): Validation labels (for hyperparameter evaluation)
+            x_test (array): Test features (for final generalization evaluation)
+            y_test (array): Test labels (for final generalization evaluation)
+            labels (list): Class labels
+            
+        Returns:
+            dict: Complete multiclass evaluation results with proper JSON serialization
+        """
+        # Start with the standard CSV template
+        result = self.STANDARD_CSV_FIELDS.copy()
+        
+        # Get generalization results using test data
+        generalization_data = self.evaluate_generalization(pipeline, features, estimator, x_test, y_test, labels)
+        result.update(generalization_data)
+        
+        # Add ROC curve data for validation set (used for training ROC AUC)
+        val_roc = self._compute_roc_metrics(pipeline, features, estimator, x_val, y_val)
+        result.update({
+            'test_fpr': json.dumps(val_roc.get('fpr')) if val_roc.get('fpr') else None,
+            'test_tpr': json.dumps(val_roc.get('tpr')) if val_roc.get('tpr') else None,
+            'training_roc_auc': val_roc.get('roc_auc')
+        })
+        
+        # Calculate ROC delta (difference between generalization and training)
+        if 'roc_auc' in result and 'training_roc_auc' in result:
+            if result['roc_auc'] is not None and result['training_roc_auc'] is not None:
+                result['roc_delta'] = round(abs(result['roc_auc'] - result['training_roc_auc']), 4)
+        
+        # Add generalization ROC curve data using test data
+        test_roc = self._compute_roc_metrics(pipeline, features, estimator, x_test, y_test)
+        result.update({
+            'generalization_fpr': json.dumps(test_roc.get('fpr')) if test_roc.get('fpr') else None,
+            'generalization_tpr': json.dumps(test_roc.get('tpr')) if test_roc.get('tpr') else None
+        })
+        
+        # Add reliability metrics using test data with proper JSON serialization
+        reliability_data = self._compute_reliability_metrics(pipeline, features, estimator, x_test, y_test)
+        result.update({
+            'brier_score': reliability_data.get('brier_score'),
+            'fop': json.dumps(reliability_data.get('fop')) if reliability_data.get('fop') else None,
+            'mpv': json.dumps(reliability_data.get('mpv')) if reliability_data.get('mpv') else None
+        })
+        
+        # Add precision-recall metrics using test data with proper JSON serialization
+        pr_data = self.evaluate_precision_recall(pipeline, features, estimator, x_test, y_test)
+        result.update({
+            'precision': json.dumps(pr_data.get('precision')) if pr_data.get('precision') else None,
+            'recall': json.dumps(pr_data.get('recall')) if pr_data.get('recall') else None
+        })
+        
+        # Ensure confidence intervals are properly serialized
+        ci_fields = ['acc_95_ci', 'roc_auc_95_ci', 'sn_95_ci', 'sp_95_ci', 'pr_95_ci', 'ppv_95_ci', 'npv_95_ci']
+        for field in ci_fields:
+            if field in result and result[field] is not None:
+                result[field] = json.dumps(result[field])
+        
+        return result
+
     def fit(self, x_train, x_val, y_train, y_val, x_test, y_test, feature_names, labels):
         """
         Train multiclass classification models with macro-averaging.
@@ -975,27 +1186,28 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                 for position, candidate in enumerate(candidates):
                     print('\t#%d' % (position+1))
                     
+                    # Evaluate the model using the base class method
+                    result = self.evaluate_model_complete(
+                        pipeline, model['features'], candidate['best_estimator'],
+                        x_val, y_val, x_test, y_test, labels
+                    )
+
                     # Create base result
-                    result = self.create_base_result(
+                    base_result = self.create_base_result(
                         scorer_key, estimator, scaler, feature_selector, searcher, scorer, n_classes, position
                     )
                     
                     # Store main model
-                    self.main_models[result['key']] = candidate['best_estimator']
-                    
-                    # Evaluate the model using the base class method
-                    evaluation_result = self.evaluate_model_complete(
-                        pipeline, model['features'], candidate['best_estimator'],
-                        x_val, y_val, x_test, y_test, labels
-                    )
+                    self.main_models[base_result['key']] = candidate['best_estimator']
                     
                     # Update result with evaluation metrics
-                    result.update(evaluation_result)
+                    result.update(base_result)
                     result.update({
                         'selected_features': list(model['selected_features']),
                         'feature_scores': model['feature_scores'],
                         'best_params': candidate['best_params']
                     })
+                    print(f"Full Result: {result}")
                     
                     # Write result to CSV
                     self.write_result_to_csv(result)
@@ -1006,7 +1218,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                     csv_entries, class_data, new_ovr_models, additional_fits = self._generate_ovr_models_and_results(
                         pipeline, model['features'], candidate['best_estimator'], result,
                         x_train, y_train, x_val, y_val, x_test, y_test, labels,
-                        estimator, scorer, reoptimize_ovr=False  # Key difference: always False
+                        estimator, scorer
                     )
                     
                     # Update total fits with OvR computation fits (should be 0 since no retraining)

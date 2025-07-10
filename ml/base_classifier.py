@@ -25,15 +25,15 @@ from sklearn.metrics import roc_auc_score, accuracy_score,\
     confusion_matrix, classification_report, f1_score, roc_curve,\
     matthews_corrcoef
     
-from ..processors.estimators import ESTIMATOR_NAMES, ESTIMATORS, get_xgb_classifier
-from ..processors.feature_selection import FEATURE_SELECTOR_NAMES, FEATURE_SELECTORS
-from ..processors.scalers import SCALER_NAMES, SCALERS
-from ..processors.searchers import SEARCHER_NAMES, SEARCHERS
-from ..processors.scorers import SCORER_NAMES
-from ..processors.debug import Debug
-from ..preprocess import preprocess
-from ..utils import model_key_to_name
-from ..stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
+from .processors.estimators import ESTIMATOR_NAMES, ESTIMATORS, get_xgb_classifier
+from .processors.feature_selection import FEATURE_SELECTOR_NAMES, FEATURE_SELECTORS
+from .processors.scalers import SCALER_NAMES, SCALERS
+from .processors.searchers import SEARCHER_NAMES, SEARCHERS
+from .processors.scorers import SCORER_NAMES
+from .processors.debug import Debug
+from .utils.preprocess import preprocess
+from .utils.utils import model_key_to_name
+from .utils.stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
 
 
 class AutoMLClassifier:
@@ -84,6 +84,62 @@ class AutoMLClassifier:
         self.performance_report = None
         self.performance_report_writer = None
         self.csv_header_written = False
+        self.STANDARD_CSV_FIELDS = {
+            # Basic model information
+                'key': None,
+                'class_type': None,
+                'class_index': None,
+                'scaler': None,
+                'feature_selector': None,
+                'algorithm': None,
+                'searcher': None,
+                'scorer': None,
+                
+            # Generalization metrics
+                'accuracy': None,
+                'acc_95_ci': None,
+                'mcc': None,
+                'avg_sn_sp': None,
+                'roc_auc': None,
+                'roc_auc_95_ci': None,
+                'f1': None,
+                'sensitivity': None,
+                'sn_95_ci': None,
+                'specificity': None,
+                'sp_95_ci': None,
+                'prevalence': None,
+                'pr_95_ci': None,
+                'ppv': None,
+                'ppv_95_ci': None,
+                'npv': None,
+                'npv_95_ci': None,
+                'tn': None,
+                'tp': None,
+                'fn': None,
+                'fp': None,
+                
+                # ROC data
+                'test_fpr': None,
+                'test_tpr': None,
+                'training_roc_auc': None,
+                'roc_delta': None,
+                'generalization_fpr': None,
+                'generalization_tpr': None,
+                
+                # Reliability data
+                'brier_score': None,
+                'fop': None,
+                'mpv': None,
+                
+                # Precision-recall data
+                'precision': None,
+                'recall': None,
+                
+                # Model-specific data
+                'selected_features': None,
+                'feature_scores': None,
+                'best_params': None
+        }
     
     def generate_pipeline_combinations(self):
         """
@@ -686,57 +742,7 @@ class AutoMLClassifier:
             'scorer': SCORER_NAMES[scorer],
         }
     
-    def evaluate_model_complete(self, pipeline, features, estimator, x_val, y_val, x_test, y_test, labels):
-        """
-        Complete model evaluation using all evaluation methods.
         
-        This method calls all the abstract evaluation methods and combines their results.
-        Subclasses can override this if they need custom evaluation logic.
-        
-        Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_val (array): Validation features (for hyperparameter evaluation)
-            y_val (array): Validation labels (for hyperparameter evaluation)
-            x_test (array): Test features (for final generalization evaluation)
-            y_test (array): Test labels (for final generalization evaluation)
-            labels (list): Class labels
-            
-        Returns:
-            dict: Complete evaluation results
-        """
-        # Get generalization results using test data
-        result = self.evaluate_generalization(pipeline, features, estimator, x_test, y_test, labels)
-        
-        # Add ROC curve data for validation set (used for training ROC AUC)
-        val_roc = self.evaluate_roc(pipeline, features, estimator, x_val, y_val)
-        result.update({
-            'test_fpr': val_roc.get('fpr'),
-            'test_tpr': val_roc.get('tpr'),
-            'training_roc_auc': val_roc.get('roc_auc')
-        })
-        
-        # Calculate ROC delta (difference between generalization and training)
-        if 'roc_auc' in result and 'training_roc_auc' in result:
-            if result['roc_auc'] is not None and result['training_roc_auc'] is not None:
-                result['roc_delta'] = round(abs(result['roc_auc'] - result['training_roc_auc']), 4)
-        
-        # Add generalization ROC curve data using test data
-        test_roc = self.evaluate_roc(pipeline, features, estimator, x_test, y_test)
-        result.update({
-            'generalization_fpr': test_roc.get('fpr'),
-            'generalization_tpr': test_roc.get('tpr')
-        })
-        
-        # Add reliability metrics using test data
-        result.update(self.evaluate_reliability(pipeline, features, estimator, x_test, y_test))
-        
-        # Add precision-recall metrics using test data
-        result.update(self.evaluate_precision_recall(pipeline, features, estimator, x_test, y_test))
-        
-        return result
-    
     def save_class_results(self, class_data, model_key):
         """Save class-specific results with compression"""        
         # Ensure output directory exists

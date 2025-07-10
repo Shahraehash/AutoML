@@ -10,7 +10,7 @@ import numpy as np
 from timeit import default_timer as timer
 
 from .multiclass_macro_classifier import MulticlassMacroClassifier
-from ..utils import model_key_to_name
+from .utils.utils import model_key_to_name
 
 
 class OvRClassifier(MulticlassMacroClassifier):
@@ -152,6 +152,101 @@ class OvRClassifier(MulticlassMacroClassifier):
             'n_classes_used': len(class_probabilities)
         }
     
+
+    def _generate_ovr_models_and_results(self, pipeline, features, main_model, main_result, 
+                                        x_train, y_train, x_test, y_test, x2, y2, labels,
+                                        estimator, scorer, reoptimize_ovr=False):
+        """Generate OvR models and return both CSV entries and class data for .pkl.gz storage"""
+        
+        n_classes = len(np.unique(y_train))
+        unique_classes = sorted(np.unique(y_train))
+        
+        csv_entries = []
+        ovr_models = {}
+        total_fits = 0
+        
+        # Storage for class-specific data (for .pkl.gz file)
+        all_class_data = {
+            'model_key': main_result['key'],
+            'n_classes': n_classes,
+            'class_data': {}
+        }
+        
+        for class_idx in range(n_classes):
+            # Create binary labels for this class vs rest
+            actual_class_value = unique_classes[class_idx]
+            y_binary = (y_train == actual_class_value).astype(int)
+            y_test_binary = (y_test == actual_class_value).astype(int)
+            y2_binary = (y2 == actual_class_value).astype(int)
+            
+            
+            # Check if we have samples from both classes (class vs rest)
+            unique_classes_in_binary = np.unique(y_binary)
+            
+            if len(unique_classes_in_binary) < 2:
+                # Only one class present - cannot train binary classifier
+                print(f"\t\t\tWarning: Class {class_idx} vs rest has only one class present ({unique_classes_in_binary})")
+                print(f"\t\t\tSkipping re-optimization for class {class_idx}, using main model instead")
+                
+                # Fall back to efficient mode (use main model)
+                ovr_model = main_model
+                ovr_best_params = main_result['best_params']
+                
+                # Use multiclass classification path with class_idx
+                class_metrics = self._compute_class_specific_results(
+                    pipeline, features, ovr_model, x2, y2, n_classes, 
+                    main_result['key'], class_idx, x_train, y_train, x_test, y_test
+                )
+            else:
+                # Re-optimization mode: Train actual OvR model
+                try:
+                    ovr_candidates = self.refit_candidates(
+                        pipeline, features, estimator, scorer, x_train, y_binary
+                    )
+                    
+                    ovr_model = ovr_candidates[0]['best_estimator']
+                    ovr_best_params = ovr_candidates[0]['best_params']
+                    total_fits += len(ovr_candidates)
+                    
+                    # Store OvR model
+                    ovr_key = f"{main_result['key']}_ovr_class_{class_idx}"
+                    ovr_models[ovr_key] = ovr_model
+
+                    # Re-optimization mode: Use binary classification path
+                    # OvR model was trained on binary data, so evaluate it on binary data
+                    class_metrics = self._compute_binary_class_results(
+                        pipeline, features, ovr_model, 
+                        x2, y2_binary,           # Binary generalization data
+                        x_train, y_binary,       # Binary training data
+                        x_test, y_test_binary    # Binary test data
+                    )
+                except Exception as e:
+                    # Handle any training errors (e.g., XGBoost num_class error)
+                    print(f"\t\t\tError training OvR model for class {class_idx}: {str(e)}")
+                    print(f"\t\t\tFalling back to main model for class {class_idx}")
+                    
+                    # Fall back to efficient mode (use main model)
+                    ovr_model = main_model
+                    ovr_best_params = main_result['best_params']
+                    
+                    # Use multiclass classification path with class_idx
+                    class_metrics = self._compute_class_specific_results(
+                        pipeline, features, ovr_model, x2, y2, n_classes, 
+                        main_result['key'], class_idx, x_train, y_train, x_test, y_test
+                    )
+                            
+            # Store class data for .pkl.gz file
+            all_class_data['class_data'][class_idx] = class_metrics
+            
+            # Create CSV entry for this OvR model using already computed metrics
+            csv_entry = self._create_ovr_csv_entry(
+                main_result, class_idx, ovr_best_params, class_metrics
+            )
+            
+            csv_entries.append(csv_entry)
+        
+        return csv_entries, all_class_data, ovr_models, total_fits
+
     def fit(self, x_train, x_val, y_train, y_val, x_test, y_test, feature_names, labels):
         """
         Train OvR classification models.

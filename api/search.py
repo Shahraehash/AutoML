@@ -20,18 +20,18 @@ from timeit import default_timer as timer
 from sklearn.base import clone
 from sklearn.pipeline import Pipeline
 
-from .processors.estimators import ESTIMATOR_NAMES
-from .processors.feature_selection import FEATURE_SELECTOR_NAMES
-from .processors.scalers import SCALER_NAMES
-from .processors.searchers import SEARCHER_NAMES
-from .processors.scorers import SCORER_NAMES
-from .import_data import import_data
-from .summary import print_summary
+from ml.processors.estimators import ESTIMATOR_NAMES
+from ml.processors.feature_selection import FEATURE_SELECTOR_NAMES
+from ml.processors.scalers import SCALER_NAMES
+from ml.processors.searchers import SEARCHER_NAMES
+from ml.processors.scorers import SCORER_NAMES
+from ml.utils.import_data import import_data
+from ml.utils.summary import print_summary
 
 # Import new class-based classifiers
-from .classifiers.binary_classifier import BinaryClassifier
-from .classifiers.multiclass_macro_classifier import MulticlassMacroClassifier
-from .classifiers.multiclass_ovr_classifier import OvRClassifier
+from ml.binary_classifier import BinaryClassifier
+from ml.multiclass_macro_classifier import MulticlassMacroClassifier
+from ml.multiclass_ovr_classifier import OvRClassifier
 
 # Load environment variables
 load_dotenv()
@@ -87,7 +87,7 @@ def find_best_model(
     # Train the classifier
     try:
         success = classifier.fit(x_train, x_val, y_train, y_val, x_test, y_test, feature_names, labels)
-        
+        print(f"Finished the fit {success}")
         if success:
             print_summary(output_path + '/report.csv')
             return True

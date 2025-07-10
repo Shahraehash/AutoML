@@ -8,8 +8,8 @@ import json
 import pandas as pd
 from sklearn.base import clone
 
-from .processors.estimators import ESTIMATORS, get_xgb_classifier
-from .processors.scorers import SCORER_NAMES
+from ..processors.estimators import ESTIMATORS, get_xgb_classifier
+from ..processors.scorers import SCORER_NAMES
 from .preprocess import preprocess
 
 MODELS_TO_EVALUATE = 2

@@ -11,8 +11,8 @@ from shutil import rmtree
 import pandas as pd
 from flask import abort, g, jsonify, request
 
-from ml.describe import describe as Describe
-from ml.import_data import import_csv
+from ml.utils.describe import describe as Describe
+from ml.utils.import_data import import_csv
 
 def get():
     """Get all the datasets for a given user ID"""

@@ -19,9 +19,9 @@ from nyoka import skl_to_pmml, xgboost_to_pmml
 
 
 from .base_classifier import AutoMLClassifier
-from ..preprocess import preprocess
-from ..utils import model_key_to_name, decimate_points
-from ..stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
+from .utils.preprocess import preprocess
+from .utils.utils import model_key_to_name, decimate_points
+from .utils.stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
 
 
 class BinaryClassifier(AutoMLClassifier):
@@ -42,121 +42,7 @@ class BinaryClassifier(AutoMLClassifier):
             update_function (callable): Callback function for progress updates
         """
         super().__init__(parameters, output_path, update_function)
-    
-    def evaluate_precision_recall(self, pipeline, features, estimator, x_test, y_test):
-        """
-        Evaluate precision-recall for binary classification.
         
-        Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_test (array): Test features (for final generalization evaluation)
-            y_test (array): Test labels (for final generalization evaluation)
-            
-        Returns:
-            dict: Precision-recall evaluation results
-        """
-        # Transform values based on the pipeline
-        x_test = preprocess(features, pipeline, x_test)
-        
-        if hasattr(estimator, 'decision_function'):
-            scores = estimator.decision_function(x_test)
-            # For binary classification, decision_function returns 1D array
-            if scores.ndim == 1:
-                precision, recall, _ = precision_recall_curve(y_test, scores)
-            else:
-                precision, recall, _ = precision_recall_curve(y_test, scores[:, 1])
-        else:
-            # Use predict_proba
-            probabilities = estimator.predict_proba(x_test)
-            precision, recall, _ = precision_recall_curve(y_test, probabilities[:, 1])
-
-        # Apply decimation
-        recall, precision = decimate_points(
-            [round(num, 4) for num in list(recall)],
-            [round(num, 4) for num in list(precision)]
-        )
-
-        return {
-            'precision': list(precision),
-            'recall': list(recall)
-        }
-    
-    def evaluate_reliability(self, pipeline, features, estimator, x_test, y_test):
-        """
-        Evaluate reliability for binary classification.
-        
-        Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_test (array): Test features (for final generalization evaluation)
-            y_test (array): Test labels (for final generalization evaluation)
-            
-        Returns:
-            dict: Reliability evaluation results
-        """
-        # Transform values based on the pipeline
-        x_test = preprocess(features, pipeline, x_test)
-
-        if hasattr(estimator, 'decision_function'):
-            probabilities = estimator.decision_function(x_test)
-            # Binary Classification
-            if np.count_nonzero(probabilities):
-                if probabilities.max() - probabilities.min() == 0:
-                    probabilities = [0] * len(probabilities)
-                else:
-                    probabilities = (probabilities - probabilities.min()) / \
-                        (probabilities.max() - probabilities.min())
-            fop, mpv = calibration_curve(y_test, probabilities, n_bins=10, strategy='uniform')
-            brier_score = brier_score_loss(y_test, probabilities)
-        else:
-            # Binary classification
-            probabilities = estimator.predict_proba(x_test)[:, 1]
-            fop, mpv = calibration_curve(y_test, probabilities, n_bins=10, strategy='uniform')
-            brier_score = brier_score_loss(y_test, probabilities)
-
-        return {
-            'brier_score': round(brier_score, 4),
-            'fop': [round(num, 4) for num in list(fop)],
-            'mpv': [round(num, 4) for num in list(mpv)]
-        }
-    
-    def evaluate_roc(self, pipeline, features, estimator, x_data, y_data):
-        """
-        Evaluate ROC for binary classification.
-        
-        Args:
-            pipeline: Sklearn pipeline
-            features: Feature information
-            estimator: Trained estimator
-            x_data (array): Features for ROC evaluation
-            y_data (array): Labels for ROC evaluation
-            
-        Returns:
-            dict: ROC evaluation results
-        """
-        # Transform values based on the pipeline
-        x_data = preprocess(features, pipeline, x_data)
-
-        probabilities = estimator.predict_proba(x_data)
-        
-        # Binary classification
-        fpr, tpr, _ = roc_curve(y_data, probabilities[:, 1])
-        roc_auc = roc_auc_score(y_data, probabilities[:, 1])
-        
-        fpr, tpr = decimate_points(
-            [round(num, 4) for num in list(fpr)],
-            [round(num, 4) for num in list(tpr)]
-        )
-
-        return {
-            'fpr': list(fpr),
-            'tpr': list(tpr),
-            'roc_auc': roc_auc
-        }
-    
     def predict(self, data, model_key, threshold=0.5):
         """
         Make predictions using a specific trained binary model.
@@ -381,6 +267,76 @@ class BinaryClassifier(AutoMLClassifier):
 
         return generalization_result
 
+    def evaluate_model_complete(self, pipeline, features, estimator, x_val, y_val, x_test, y_test, labels):
+        """
+        Complete model evaluation for binary classification.
+        
+        This method handles binary-specific evaluation logic and ensures proper
+        JSON serialization of all data fields.
+        
+        Args:
+            pipeline: Sklearn pipeline
+            features: Feature information
+            estimator: Trained estimator
+            x_val (array): Validation features (for hyperparameter evaluation)
+            y_val (array): Validation labels (for hyperparameter evaluation)
+            x_test (array): Test features (for final generalization evaluation)
+            y_test (array): Test labels (for final generalization evaluation)
+            labels (list): Class labels
+            
+        Returns:
+            dict: Complete binary evaluation results with proper JSON serialization
+        """
+        # Start with the standard CSV template
+        result = self.STANDARD_CSV_FIELDS.copy()
+        
+        # Get generalization results using test data
+        generalization_data = self.evaluate_generalization(pipeline, features, estimator, x_test, y_test, labels)
+        result.update(generalization_data)
+        
+        # Add ROC curve data for validation set (used for training ROC AUC)
+        val_roc = self._compute_roc_metrics(pipeline, features, estimator, x_val, y_val)
+        result.update({
+            'test_fpr': json.dumps(val_roc.get('fpr')) if val_roc.get('fpr') else None,
+            'test_tpr': json.dumps(val_roc.get('tpr')) if val_roc.get('tpr') else None,
+            'training_roc_auc': val_roc.get('roc_auc')
+        })
+        
+        # Calculate ROC delta (difference between generalization and training)
+        if 'roc_auc' in result and 'training_roc_auc' in result:
+            if result['roc_auc'] is not None and result['training_roc_auc'] is not None:
+                result['roc_delta'] = round(abs(result['roc_auc'] - result['training_roc_auc']), 4)
+        
+        # Add generalization ROC curve data using test data
+        test_roc = self._compute_roc_metrics(pipeline, features, estimator, x_test, y_test)
+        result.update({
+            'generalization_fpr': json.dumps(test_roc.get('fpr')) if test_roc.get('fpr') else None,
+            'generalization_tpr': json.dumps(test_roc.get('tpr')) if test_roc.get('tpr') else None
+        })
+        
+        # Add reliability metrics using test data with proper JSON serialization
+        reliability_data = self._compute_reliability_metrics(pipeline, features, estimator, x_test, y_test)
+        result.update({
+            'brier_score': reliability_data.get('brier_score'),
+            'fop': json.dumps(reliability_data.get('fop')) if reliability_data.get('fop') else None,
+            'mpv': json.dumps(reliability_data.get('mpv')) if reliability_data.get('mpv') else None
+        })
+        
+        # Add precision-recall metrics using test data with proper JSON serialization
+        pr_data = self._compute_precision_metrics(pipeline, features, estimator, x_test, y_test)
+        result.update({
+            'precision': json.dumps(pr_data.get('precision')) if pr_data.get('precision') else None,
+            'recall': json.dumps(pr_data.get('recall')) if pr_data.get('recall') else None
+        })
+        
+        # Ensure confidence intervals are properly serialized
+        ci_fields = ['acc_95_ci', 'roc_auc_95_ci', 'sn_95_ci', 'sp_95_ci', 'pr_95_ci', 'ppv_95_ci', 'npv_95_ci']
+        for field in ci_fields:
+            if field in result and result[field] is not None:
+                result[field] = json.dumps(result[field])
+        
+        return result
+
     def fit(self, x_train, x_val, y_train, y_val, x_test, y_test, feature_names, labels):
         """
         Train binary classification models.
@@ -453,7 +409,7 @@ class BinaryClassifier(AutoMLClassifier):
                     # Store main model
                     self.main_models[result['key']] = candidate['best_estimator']
                     
-                    # Evaluate the model using the base class method
+                    # Evaluate the model using the standardized method
                     evaluation_result = self.evaluate_model_complete(
                         pipeline, model['features'], candidate['best_estimator'],
                         x_val, y_val, x_test, y_test, labels
@@ -477,3 +433,196 @@ class BinaryClassifier(AutoMLClassifier):
         print(f"Generated {len(self.main_models)} models")
         
         return True
+
+
+    @staticmethod
+    def compute_roc_metrics(data, label_column, model_path):
+        """
+        Static method for binary ROC computation.
+        
+        Args:
+            data (dict): Data dictionary with 'data', 'columns', and 'features' keys
+            label_column (str): Name of the label column
+            model_path (str): Path to the model file (without .joblib extension)
+            
+        Returns:
+            dict: ROC evaluation results
+        """
+        from joblib import load
+        import pandas as pd
+        
+        # Load model and extract data
+        pipeline = load(model_path + '.joblib')
+        df = pd.DataFrame(data['data'], columns=data['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = df[data['features']].to_numpy()
+        y = df[label_column]
+        
+        # Use the static helper method
+        return BinaryClassifier._compute_roc_metrics(pipeline, data['features'], pipeline.steps[-1][1], x, y)
+    
+    @staticmethod
+    def compute_reliability_metrics(data, label_column, model_path):
+        """
+        Static method for binary reliability computation.
+        
+        Args:
+            data (dict): Data dictionary with 'data', 'columns', and 'features' keys
+            label_column (str): Name of the label column
+            model_path (str): Path to the model file (without .joblib extension)
+            
+        Returns:
+            dict: Reliability evaluation results
+        """
+        from joblib import load
+        import pandas as pd
+        
+        # Load model and extract data
+        pipeline = load(model_path + '.joblib')
+        df = pd.DataFrame(data['data'], columns=data['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = df[data['features']].to_numpy()
+        y = df[label_column]
+        
+        # Use the static helper method
+        return BinaryClassifier._compute_reliability_metrics(pipeline, data['features'], pipeline.steps[-1][1], x, y)
+    
+    @staticmethod
+    def compute_precision_metrics(data, label_column, model_path):
+        """
+        Static method for binary precision-recall computation.
+        
+        Args:
+            data (dict): Data dictionary with 'data', 'columns', and 'features' keys
+            label_column (str): Name of the label column
+            model_path (str): Path to the model file (without .joblib extension)
+            
+        Returns:
+            dict: Precision-recall evaluation results
+        """
+        from joblib import load
+        import pandas as pd
+        
+        # Load model and extract data
+        pipeline = load(model_path + '.joblib')
+        df = pd.DataFrame(data['data'], columns=data['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = df[data['features']].to_numpy()
+        y = df[label_column]
+        
+        # Use the static helper method
+        return BinaryClassifier._compute_precision_metrics(pipeline, data['features'], pipeline.steps[-1][1], x, y)
+    
+    @staticmethod
+    def _compute_roc_metrics(pipeline, features, estimator, x_data, y_data):
+        """
+        Internal helper method for ROC computation.
+        
+        Args:
+            pipeline: Sklearn pipeline
+            features: Feature information
+            estimator: Trained estimator
+            x_data (array): Features for ROC evaluation
+            y_data (array): Labels for ROC evaluation
+            
+        Returns:
+            dict: ROC evaluation results
+        """
+        # Transform values based on the pipeline
+        x_data = preprocess(features, pipeline, x_data)
+
+        probabilities = estimator.predict_proba(x_data)
+        
+        # Binary classification
+        fpr, tpr, _ = roc_curve(y_data, probabilities[:, 1])
+        roc_auc = roc_auc_score(y_data, probabilities[:, 1])
+        
+        fpr, tpr = decimate_points(
+            [round(num, 4) for num in list(fpr)],
+            [round(num, 4) for num in list(tpr)]
+        )
+
+        return {
+            'fpr': list(fpr),
+            'tpr': list(tpr),
+            'roc_auc': roc_auc
+        }
+    
+    @staticmethod
+    def _compute_reliability_metrics(pipeline, features, estimator, x_data, y_data):
+        """
+        Internal helper method for reliability computation.
+        
+        Args:
+            pipeline: Sklearn pipeline
+            features: Feature information
+            estimator: Trained estimator
+            x_data (array): Features for reliability evaluation
+            y_data (array): Labels for reliability evaluation
+            
+        Returns:
+            dict: Reliability evaluation results
+        """
+        # Transform values based on the pipeline
+        x_data = preprocess(features, pipeline, x_data)
+
+        if hasattr(estimator, 'decision_function'):
+            probabilities = estimator.decision_function(x_data)
+            # Binary Classification
+            if np.count_nonzero(probabilities):
+                if probabilities.max() - probabilities.min() == 0:
+                    probabilities = [0] * len(probabilities)
+                else:
+                    probabilities = (probabilities - probabilities.min()) / \
+                        (probabilities.max() - probabilities.min())
+            fop, mpv = calibration_curve(y_data, probabilities, n_bins=10, strategy='uniform')
+            brier_score = brier_score_loss(y_data, probabilities)
+        else:
+            # Binary classification
+            probabilities = estimator.predict_proba(x_data)[:, 1]
+            fop, mpv = calibration_curve(y_data, probabilities, n_bins=10, strategy='uniform')
+            brier_score = brier_score_loss(y_data, probabilities)
+
+        return {
+            'brier_score': round(brier_score, 4),
+            'fop': [round(num, 4) for num in list(fop)],
+            'mpv': [round(num, 4) for num in list(mpv)]
+        }
+    
+    @staticmethod
+    def _compute_precision_metrics(pipeline, features, estimator, x_data, y_data):
+        """
+        Internal helper method for precision-recall computation.
+        
+        Args:
+            pipeline: Sklearn pipeline
+            features: Feature information
+            estimator: Trained estimator
+            x_data (array): Features for precision-recall evaluation
+            y_data (array): Labels for precision-recall evaluation
+            
+        Returns:
+            dict: Precision-recall evaluation results
+        """
+        # Transform values based on the pipeline
+        x_data = preprocess(features, pipeline, x_data)
+        
+        if hasattr(estimator, 'decision_function'):
+            scores = estimator.decision_function(x_data)
+            # For binary classification, decision_function returns 1D array
+            if scores.ndim == 1:
+                precision, recall, _ = precision_recall_curve(y_data, scores)
+            else:
+                precision, recall, _ = precision_recall_curve(y_data, scores[:, 1])
+        else:
+            # Use predict_proba
+            probabilities = estimator.predict_proba(x_data)
+            precision, recall, _ = precision_recall_curve(y_data, probabilities[:, 1])
+
+        # Apply decimation
+        recall, precision = decimate_points(
+            [round(num, 4) for num in list(recall)],
+            [round(num, 4) for num in list(precision)]
+        )
+
+        return {
+            'precision': list(precision),
+            'recall': list(recall)
+        }
