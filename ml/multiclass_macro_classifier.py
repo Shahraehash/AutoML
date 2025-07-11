@@ -10,6 +10,11 @@ import json
 import numpy as np
 import pandas as pd
 import os
+import csv
+import time
+import itertools
+import gzip
+import pickle
 from timeit import default_timer as timer
 from joblib import dump, load
 from sklearn.pipeline import Pipeline
@@ -26,10 +31,13 @@ from .utils.import_data import import_data
 from .utils.preprocess import preprocess
 from .utils.utils import model_key_to_name, decimate_points, explode_key
 from .utils.stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
-from .processors.estimators import ESTIMATORS, get_xgb_classifier
+from .utils.summary import print_summary
+from .processors.estimators import ESTIMATORS, ESTIMATOR_NAMES, get_xgb_classifier
 from .processors.scorers import SCORER_NAMES
-from .processors.scalers import SCALERS
-from .processors.feature_selection import FEATURE_SELECTORS
+from .processors.scalers import SCALERS, SCALER_NAMES
+from .processors.feature_selection import FEATURE_SELECTORS, FEATURE_SELECTOR_NAMES
+from .processors.searchers import SEARCHER_NAMES, SEARCHERS 
+from .processors.debug import Debug
 
 
 class MulticlassMacroClassifier(AutoMLClassifier):
@@ -95,38 +103,39 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         return [x, y, feature_names, label_counts, len(unique_labels)]
 
 
-    def generalize(self, pipeline, features, model, x2, y2, labels=None, threshold=.5, class_index=None):
+    def generalize(self, pipeline, features, model, x_test, y_test, labels=None, threshold=.5, class_index=None):
         """"Generalize method"""
 
         # Process test data based on pipeline
-        x2 = preprocess(features, pipeline, x2)
-        proba = model.predict_proba(x2)
+        x_test = preprocess(features, pipeline, x_test)
+        proba = model.predict_proba(x_test)
         
-        predictions = model.predict(x2)
+        predictions = model.predict(x_test)
         probabilities = proba
 
-        return self.generalization_report(labels, y2, predictions, probabilities, class_index)
+        return self.generalization_report(labels, y_test, predictions, probabilities, class_index)
 
-    def generalization_report(self, labels, y2, predictions, probabilities, class_index=None):
+    def generalization_report(self, labels, y_test, predictions, probabilities, class_index=None):
         
-        labels = [f'Class {int(cls)}' for cls in unique_classes]
+        unique_labels = sorted(y_test.unique())
+        labels = [f'Class {int(cls)}' for cls in unique_labels]
 
-        print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
+        print('\t', classification_report(y_test, predictions, target_names=labels).replace('\n', '\n\t'))
 
         print('\tGeneralization:')
         # Overall accuracy (same for all classes)
-        accuracy = accuracy_score(y2, predictions)
+        accuracy = accuracy_score(y_test, predictions)
         print('\t\tOverall Accuracy:', accuracy)
         
         # Calculate confusion matrix for OvR decomposition
-        cnf_matrix = confusion_matrix(y2, predictions)
+        cnf_matrix = confusion_matrix(y_test, predictions)
         
         # Check if we need class-specific calculations for one class only
         if class_index is not None:
             # Single class metrics
             
             # Get class-specific ROC AUC score
-            roc_auc_scores = roc_auc_score(y2, probabilities, multi_class='ovr', average=None)
+            roc_auc_scores = roc_auc_score(y_test, probabilities, multi_class='ovr', average=None)
             roc_auc_class = roc_auc_scores[class_index]
             
             # For OvR: current class vs all others
@@ -138,11 +147,11 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             # Calculate metrics for this class
             sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
             specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
-            prevalence = (tp + fn) / len(y2)
+            prevalence = (tp + fn) / len(y_test)
             
             # Class-specific F1 and MCC
-            f1_class = f1_score(y2, predictions, labels=[class_index], average=None)[0]
-            y_binary = (y2 == class_index).astype(int)
+            f1_class = f1_score(y_test, predictions, labels=[class_index], average=None)[0]
+            y_binary = (y_test == class_index).astype(int)
             pred_binary = (predictions == class_index).astype(int)
             mcc_class = matthews_corrcoef(y_binary, pred_binary)
             
@@ -152,7 +161,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             
             return {
                 'accuracy': round(accuracy, 4),
-                'acc_95_ci': clopper_pearson(tp+tn, len(y2)),
+                'acc_95_ci': clopper_pearson(tp+tn, len(y_test)),
                 'mcc': round(mcc_class, 4),
                 'avg_sn_sp': round((sensitivity + specificity) / 2, 4),
                 'roc_auc': round(roc_auc_class, 4),
@@ -163,7 +172,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                 'specificity': round(specificity, 4),
                 'sp_95_ci': clopper_pearson(tn, tn+fp) if tn+fp > 0 else (0, 0),
                 'prevalence': round(prevalence, 4),
-                'pr_95_ci': clopper_pearson(tp+fn, len(y2)),
+                'pr_95_ci': clopper_pearson(tp+fn, len(y_test)),
                 'ppv': round(tp / (tp+fp), 4) if tp+fp > 0 else 0,
                 'ppv_95_ci': ppv_95_ci(sensitivity, specificity, tp+fn, fp+tn, prevalence),
                 'npv': round(tn / (tn+fn), 4) if tn+fn > 0 else 0,
@@ -177,7 +186,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         else:
             # Macro-averaged metrics across all classes
             # Get macro-averaged ROC AUC score
-            roc_auc_macro = roc_auc_score(y2, probabilities, multi_class='ovr', average='macro')
+            roc_auc_macro = roc_auc_score(y_test, probabilities, multi_class='ovr', average='macro')
             print('\t\tROC AUC (macro):', roc_auc_macro)
             
             # Calculate per-class metrics for averaging
@@ -205,17 +214,17 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                 # Calculate metrics for this class
                 sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
                 specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
-                prevalence = (tp + fn) / len(y2)
+                prevalence = (tp + fn) / len(y_test)
                 
                 all_sensitivities.append(sensitivity)
                 all_specificities.append(specificity)
                 all_prevalences.append(prevalence)
                 
                 # Class-specific F1 and MCC for averaging
-                f1_class = f1_score(y2, predictions, labels=[class_idx], average=None)[0]
+                f1_class = f1_score(y_test, predictions, labels=[class_idx], average=None)[0]
                 all_f1_scores.append(f1_class)
                 
-                y_binary = (y2 == class_idx).astype(int)
+                y_binary = (y_test == class_idx).astype(int)
                 pred_binary = (predictions == class_idx).astype(int)
                 mcc_class = matthews_corrcoef(y_binary, pred_binary)
                 all_mcc_scores.append(mcc_class)
@@ -236,7 +245,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
 
             return {
                 'accuracy': round(accuracy, 4),
-                'acc_95_ci': clopper_pearson(tp_sum+tn_sum, len(y2)),
+                'acc_95_ci': clopper_pearson(tp_sum+tn_sum, len(y_test)),
                 'mcc': round(macro_mcc, 4),
                 'avg_sn_sp': round((macro_sensitivity + macro_specificity) / 2, 4),
                 'roc_auc': round(roc_auc_macro, 4),
@@ -247,7 +256,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                 'specificity': round(macro_specificity, 4),
                 'sp_95_ci': clopper_pearson(tn_sum, tn_sum+fp_sum) if tn_sum+fp_sum > 0 else (0, 0),
                 'prevalence': round(macro_prevalence, 4),
-                'pr_95_ci': clopper_pearson(tp_sum+fn_sum, len(y2)),
+                'pr_95_ci': clopper_pearson(tp_sum+fn_sum, len(y_test)),
                 'ppv': round(tp_sum / (tp_sum+fp_sum), 4) if tp_sum+fp_sum > 0 else 0,
                 'ppv_95_ci': ppv_95_ci(macro_sensitivity, macro_specificity, tp_sum+fn_sum, fp_sum+tn_sum, macro_prevalence),
                 'npv': round(tn_sum / (tn_sum+fn_sum), 4) if tn_sum+fn_sum > 0 else 0,
@@ -257,22 +266,6 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                 'fn': fn_sum,
                 'fp': fp_sum
             }
-
-    def generalize_model(payload, label, folder, threshold=.5):
-        data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
-        x = data[payload['features']].to_numpy()
-        y = data[label]
-        unique_labels = sorted(y.unique())
-        labels = [f'Class {int(cls)}' for cls in unique_labels]
-        
-        pipeline = load(folder + '.joblib')
-        probabilities = pipeline.predict_proba(x)[:, 1]
-        if threshold == .5:
-            predictions = pipeline.predict(x)
-        else:
-            predictions = (probabilities >= threshold).astype(int)
-
-        return self.generalization_report(labels, y, predictions, probabilities)
 
     def generate_pipeline(self, scaler, feature_selector, estimator, y_train, scoring=None, searcher='grid', shuffle=True, custom_hyper_parameters=None):
         """Generate the pipeline based on incoming arguments"""
@@ -290,9 +283,6 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         if not scoring:
             scoring = ['accuracy']
 
-        # Check if this is a multiclass problem
-        n_classes = len(np.unique(y_train))
-        
         scorers = {}
         for scorer in scoring:
             if scorer == 'roc_auc':
@@ -603,7 +593,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             'test_roc_data': test_roc_data
         }
 
-    def generate_ovr_models_and_results(self, pipeline, features, main_model, main_result, x_train, y_train, x_test, y_test, x2, y2, labels, estimator, scorer):
+    def generate_ovr_models_and_results(self, pipeline, features, main_model, main_result, x_train, y_train, x_val, y_val, x_test, y_test, labels, estimator, scorer):
         """Generate OvR models and return both CSV entries and class data for .pkl.gz storage"""
         n_classes = len(np.unique(y_train))
         unique_classes = sorted(np.unique(y_train))
@@ -623,16 +613,16 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             # Create binary labels for this class vs rest
             actual_class_value = unique_classes[class_idx]
             y_binary = (y_train == actual_class_value).astype(int)
+            y_val_binary = (y_val == actual_class_value).astype(int)
             y_test_binary = (y_test == actual_class_value).astype(int)
-            y2_binary = (y2 == actual_class_value).astype(int)
             
             # Efficient mode: Use main model
             ovr_model = main_model
             ovr_best_params = main_result['best_params']
         
             # Efficient mode: Use multiclass classification path with class_idx
-            class_metrics = compute_class_specific_results(
-                pipeline, features, ovr_model, x2, y2, n_classes, 
+            class_metrics = self.compute_class_specific_results(
+                pipeline, features, ovr_model, x_val, y_val, n_classes, 
                 main_result['key'], class_idx, x_train, y_train, x_test, y_test
             )
             
@@ -640,7 +630,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             all_class_data['class_data'][class_idx] = class_metrics
             
             # Create CSV entry for this OvR model using already computed metrics
-            csv_entry = create_ovr_csv_entry(
+            csv_entry = self.create_ovr_csv_entry(
                 main_result, class_idx, ovr_best_params, class_metrics
             )
             
@@ -693,6 +683,19 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         ovr_result['recall'] = pr_data.get('recall')
         
         return ovr_result
+    
+    def save_class_results(self, class_data, output_dir, model_key):
+        """Save class-specific results with compression"""
+        
+        # Ensure output directory exists
+        os.makedirs(output_dir, exist_ok=True)
+        
+        filepath = f"{output_dir}/{model_key}.pkl.gz"
+        try:
+            with gzip.open(filepath, 'wb') as f:
+                pickle.dump(class_data, f, protocol=pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(f"Error saving class results for {model_key}: {e}")
 
     def find_best_model(self, train_set=None, test_set=None, labels=None, label_column=None, parameters=None, output_path='.', update_function=lambda x, y: None):
         """
@@ -791,9 +794,6 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                 for position, candidate in enumerate(candidates):
                     print('\t#%d' % (position+1))
                     
-                    # Evaluate the model first (different from OvR)
-                    evaluation_result = self.generalize(pipeline[0], model['features'], candidate['best_estimator'], x_val, y_val, labels)
-
                     # Create base result
                     result = {
                         'key': scorer_key + '__' + str(position),
@@ -810,18 +810,28 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                     main_models[result['key']] = candidate['best_estimator']
 
                     # Update result with evaluation metrics
-                    result.update(evaluation_result)
+                    result.update(self.generalize(pipeline[0], model['features'], candidate['best_estimator'], x_val, y_val, labels))
                     result.update({
                         'selected_features': list(model['selected_features']),
                         'feature_scores': model['feature_scores'],
                         'best_params': candidate['best_params']
                     })
 
-                    # Add multiclass-specific metrics (macro averages)
-                    result.update(self.multiclass_metrics(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test, labels))
-
-                    print(f"Full Result: {result}")
-
+                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x_val, y_val)
+                    result.update({
+                        'test_fpr': roc_auc['fpr'],
+                        'test_tpr': roc_auc['tpr'],
+                        'training_roc_auc': roc_auc['roc_auc']
+                    })
+                    result['roc_delta'] = round(abs(result['roc_auc'] - result['training_roc_auc']), 4)
+                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test)
+                    result.update({
+                        'generalization_fpr': roc_auc['fpr'],
+                        'generalization_tpr': roc_auc['tpr']
+                    })
+                    result.update(self.reliability(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test))
+                    result.update(self.precision_recall(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test))
+                    
                     # Write main model result
                     if not csv_header_written:
                         report_writer.writerow(result.keys())
@@ -836,7 +846,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                         # Use the simplified function to handle all OvR logic
                         csv_entries, class_data, new_ovr_models, additional_fits = self.generate_ovr_models_and_results(
                             pipeline[0], model['features'], candidate['best_estimator'], result,
-                            x_train, y_train, x_test, y_test, x2, y2, labels,
+                            x_train, y_train, x_val, y_val, x_test, y_test, labels,
                             estimator, scorer
                         )
                         
@@ -852,7 +862,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
                         
                         # Save class-specific data as .pkl.gz file
                         class_results_dir = output_path + '/class_results'
-                        save_class_results(class_data, class_results_dir, result['key'])
+                        self.save_class_results(class_data, class_results_dir, result['key'])
 
                         print(f"\t\tGenerated {n_classes} OvR metric entries")
 
@@ -895,7 +905,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         return True
 
     @staticmethod
-    def create_model(self, key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.', threshold=.5):
+    def create_model(key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.', threshold=.5):
         """Refits the requested model and pickles it for export"""
 
         if dataset_path is None:
@@ -907,7 +917,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             return {}
 
         # Import data
-        (x_train, _, y_train, _, x2, y2, features, _) = \
+        (x_train, _, y_train, _, x_test, y_test, features, _) = \
             import_data(dataset_path + '/train.csv', dataset_path + '/test.csv', label_column)
 
         # Get pipeline details from the key
@@ -919,7 +929,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             for index, feature in reversed(list(enumerate(features))):
                 if feature not in selected_features:
                     x_train = np.delete(x_train, index, axis=1)
-                    x2 = np.delete(x2, index, axis=1)
+                    x_test = np.delete(x_test, index, axis=1)
 
         # Add the scaler, if used
         if scaler and SCALERS[scaler]:
@@ -947,11 +957,11 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             pickled_estimator = load(output_path + '/models/' + key + '.joblib')
             pipeline = Pipeline(pipeline.steps[:-1] + [('estimator', pickled_estimator)])
 
-        unique_labels = sorted(y2.unique())
+        unique_labels = sorted(y_test.unique())
         labels = [f'Class {int(cls)}' for cls in unique_labels]
 
         # Assess the model performance and store the results
-        generalization_result = self.evaluate_generalization(pipeline, model['features'], pipeline['estimator'], x2, y2, labels)
+        generalization_result = self.evaluate_generalization(pipeline, model['features'], pipeline['estimator'], x_test, y_test, labels)
         with open(output_path + '/pipeline.json', 'w') as statsfile:
             json.dump(generalization_result, statsfile)
 
@@ -974,24 +984,41 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         return generalization_result
 
     @staticmethod
-    def generalize_ensemble(total_models, job_folder, dataset_folder, label):
-        x2, y2, feature_names, _, _ = import_csv(dataset_folder + '/test.csv', label)
+    def generalize_model(payload, label, folder, threshold=.5):
+        data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = data[payload['features']].to_numpy()
+        y = data[label]
+        unique_labels = sorted(y.unique())
+        labels = [f'Class {int(cls)}' for cls in unique_labels]
+        
+        pipeline = load(folder + '.joblib')
+        probabilities = pipeline.predict_proba(x)[:, 1]
+        if threshold == .5:
+            predictions = pipeline.predict(x)
+        else:
+            predictions = (probabilities >= threshold).astype(int)
 
-        data = pd.DataFrame(x2, columns=feature_names)
+        return generalization_report(labels, y, predictions, probabilities)
+
+    @staticmethod
+    def generalize_ensemble(total_models, job_folder, dataset_folder, label):
+        x_test, y_test, feature_names, _, _ = import_csv(dataset_folder + '/test.csv', label)
+
+        data = pd.DataFrame(x_test, columns=feature_names)
 
         soft_result = self.predict_ensemble(total_models, data, job_folder, 'soft')
         hard_result = self.predict_ensemble(total_models, data, job_folder, 'hard')
 
-        unique_labels = sorted(y2.unique())
+        unique_labels = sorted(y_test.unique())
         labels = [f'Class {int(cls)}' for cls in unique_labels]
 
         return {
-            'soft_generalization': self.generalization_report(labels, y2, soft_result['predicted'], soft_result['probability']),
-            'hard_generalization': self.generalization_report(labels, y2, hard_result['predicted'], hard_result['probability'])
+            'soft_generalization': generalization_report(labels, y_test, soft_result['predicted'], soft_result['probability']),
+            'hard_generalization': generalization_report(labels, y_test, hard_result['predicted'], hard_result['probability'])
         }
 
     @staticmethod
-    def additional_precision(self, payload, label, folder, class_index=None):
+    def additional_precision(payload, label, folder, class_index=None):
         """Return additional precision recall curve"""
 
         data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
@@ -1003,7 +1030,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         return self.precision_recall(pipeline, payload['features'], pipeline.steps[-1][1], x, y, class_index)
     
     @staticmethod
-    def additional_reliability(self, payload, label, folder, class_index=None):
+    def additional_reliability(payload, label, folder, class_index=None):
         data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
         x = data[payload['features']].to_numpy()
         y = data[label]
@@ -1013,7 +1040,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         return self.reliability(pipeline, payload['features'], pipeline.steps[-1][1], x, y, class_index)
 
     @staticmethod
-    def additional_roc(self, payload, label, folder, class_index=None):
+    def additional_roc(payload, label, folder, class_index=None):
         data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
         x = data[payload['features']].to_numpy()
         y = data[label]
@@ -1024,7 +1051,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
 
 
     @staticmethod
-    def predict(self, data, path='.', threshold=.5):
+    def predict(data, path='.', threshold=.5):
         """Predicts against the provided data"""
 
         # Load the pipeline
@@ -1044,7 +1071,7 @@ class MulticlassMacroClassifier(AutoMLClassifier):
         }
 
     @staticmethod
-    def predict_ensemble(self, total_models, data, path='.', vote_type='soft'):
+    def predict_ensemble(total_models, data, path='.', vote_type='soft'):
         """Predicts against the provided data by creating an ensemble of the selected models"""
 
         probabilities = []
@@ -1074,5 +1101,3 @@ class MulticlassMacroClassifier(AutoMLClassifier):
             'predicted': predicted.tolist(),
             'probability': [sublist[predicted[index]] for index, sublist in enumerate(probabilities.tolist())]
         }
-    
-

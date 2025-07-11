@@ -123,7 +123,7 @@ def test(name):
     )
     
     # Use appropriate static method based on classification type
-    reply = classifier_class.compute_predictions(
+    reply = classifier_class.predict(
         payload_data, published[name]['path'], published[name]['threshold']
     )
 
@@ -162,16 +162,16 @@ def generalize(name):
     )
     
     # Use appropriate static method based on classification type
-    roc_result = classifier_class.compute_roc_metrics(
+    roc_result = classifier_class.additional_roc(
         payload_data, metadata['label'], published[name]['path']
     )
-    reliability_result = classifier_class.compute_reliability_metrics(
+    reliability_result = classifier_class.additional_reliability(
         payload_data, metadata['label'], published[name]['path']
     )
-    precision_result = classifier_class.compute_precision_metrics(
+    precision_result = classifier_class.additional_precision(
         payload_data, metadata['label'], published[name]['path']
     )
-    generalization_result = classifier_class.compute_generalization_metrics(
+    generalization_result = classifier_class.generalize_model(
         payload_data, metadata['label'], published[name]['path'], published[name]['threshold']
     )
 

@@ -17,6 +17,18 @@ from shutil import copyfile, rmtree
 from flask import Response, abort, g, jsonify, request, send_file, url_for
 import pandas as pd
 
+
+import csv
+import itertools
+from ml.processors.estimators import ESTIMATOR_NAMES, ESTIMATORS
+from ml.processors.feature_selection import FEATURE_SELECTOR_NAMES, FEATURE_SELECTORS
+from ml.processors.scalers import SCALER_NAMES, SCALERS
+from ml.processors.searchers import SEARCHER_NAMES, SEARCHERS
+from ml.processors.debug import Debug
+from ml.utils.preprocess import preprocess
+from ml.utils.utils import model_key_to_name, explode_key
+from ml.utils.stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
+from ml.utils.summary import print_summary
 from ml.utils.list_pipelines import list_pipelines
 from ml.utils.class_results import load_class_results, get_available_models_with_class_results, cleanup_class_results
 
@@ -533,7 +545,7 @@ def generalize(jobid):
     )
     
     # Use appropriate static method based on classification type
-    generalization_result = classifier_class.generalize_modle(
+    generalization_result = classifier_class.generalize_model(
         payload['data'], dataset_metadata['label'], folder + '/pipeline', payload['threshold']
     )
     reliability_result = classifier_class.additional_reliability(

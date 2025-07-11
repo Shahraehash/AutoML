@@ -84,9 +84,17 @@ def find_best_model(
         print(f'Invalid number of classes: {n_classes}')
         return False
     
-    # Train the classifier
+    # Train the classifier with correct parameters
     try:
-        success = classifier.fit(x_train, x_val, y_train, y_val, x_test, y_test, feature_names, labels)
+        success = classifier.find_best_model(
+            train_set=train_set,
+            test_set=test_set,
+            labels=labels,
+            label_column=label_column,
+            parameters=parameters,
+            output_path=output_path,
+            update_function=update_function
+        )
         print(f"Finished the fit {success}")
         if success:
             print_summary(output_path + '/report.csv')

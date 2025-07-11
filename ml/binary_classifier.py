@@ -48,7 +48,7 @@ class BinaryClassifier(AutoMLClassifier):
         """
         super().__init__(parameters, output_path, update_function)
     
-    def import_csv(path, label_column, show_warning=False):
+    def import_csv(self, path, label_column, show_warning=False):
         """Import the specificed sheet"""
 
         # Read the CSV to memory and drop rows with empty values
@@ -87,48 +87,48 @@ class BinaryClassifier(AutoMLClassifier):
         return [x, y, feature_names, label_counts, 2]
     
 
-    def generalize(self, pipeline, features, model, x2, y2, labels=None, threshold=.5, class_index=None):
+    def generalize(self, pipeline, features, model, x_test, y_test, labels=None, threshold=.5, class_index=None):
         """"Generalize method"""
         # Process test data based on pipeline
-        x2 = preprocess(features, pipeline, x2)
-        proba = model.predict_proba(x2)
+        x_test = preprocess(features, pipeline, x_test)
+        proba = model.predict_proba(x_test)
     
         probabilities = proba[:, 1]
         if threshold == .5:
-            predictions = model.predict(x2)
+            predictions = model.predict(x_test)
         else:
             predictions = (probabilities >= threshold).astype(int)
             
-        return self.generalization_report(labels, y2, predictions, probabilities, class_index)
+        return self.generalization_report(labels, y_test, predictions, probabilities, class_index)
 
-    def generalization_report(self, labels, y2, predictions, probabilities, class_index=None):
+    def generalization_report(self, labels, y_test, predictions, probabilities, class_index=None):
         
         labels = ['Class 0', 'Class 1']
-        print('\t', classification_report(y2, predictions, target_names=labels).replace('\n', '\n\t'))
+        print('\t', classification_report(y_test, predictions, target_names=labels).replace('\n', '\n\t'))
 
         print('\tGeneralization:')
-        accuracy = accuracy_score(y2, predictions)
+        accuracy = accuracy_score(y_test, predictions)
         print('\t\tAccuracy:', accuracy)
 
-        auc = roc_auc_score(y2, predictions)
+        auc = roc_auc_score(y_test, predictions)
         
-        roc_auc = roc_auc_score(y2, probabilities)
+        roc_auc = roc_auc_score(y_test, probabilities)
         print('\t\tROC AUC:', roc_auc)
         
-        _, tpr, _ = roc_curve(y2, probabilities)
+        _, tpr, _ = roc_curve(y_test, probabilities)
         
-        tn, fp, fn, tp = confusion_matrix(y2, predictions).ravel()
+        tn, fp, fn, tp = confusion_matrix(y_test, predictions).ravel()
             
-        mcc = matthews_corrcoef(y2, predictions)
-        f1 = f1_score(y2, predictions)
+        mcc = matthews_corrcoef(y_test, predictions)
+        f1 = f1_score(y_test, predictions)
 
         sensitivity = tp / (tp+fn)
         specificity = tn / (tn+fp)
-        prevalence = (tp + fn) / (len(y2))
+        prevalence = (tp + fn) / (len(y_test))
 
         return {
             'accuracy': round(accuracy, 4),
-            'acc_95_ci': clopper_pearson(tp+tn, len(y2)),
+            'acc_95_ci': clopper_pearson(tp+tn, len(y_test)),
             'mcc': round(mcc, 4),
             'avg_sn_sp': round(auc, 4),
             'roc_auc': round(roc_auc, 4),
@@ -139,7 +139,7 @@ class BinaryClassifier(AutoMLClassifier):
             'specificity': round(specificity, 4),
             'sp_95_ci': clopper_pearson(tn, tn+fp),
             'prevalence': round(prevalence, 4),
-            'pr_95_ci': clopper_pearson(tp+fn, len(y2)),
+            'pr_95_ci': clopper_pearson(tp+fn, len(y_test)),
             'ppv': round(tp / (tp+fp), 4) if tp+fp > 0 else 0,
             'ppv_95_ci': ppv_95_ci(sensitivity, specificity, tp+fn, fp+tn, prevalence),
             'npv': round(tn / (tn+fn), 4) if tn+fn > 0 else 0,
@@ -149,20 +149,6 @@ class BinaryClassifier(AutoMLClassifier):
             'fn': int(fn),
             'fp': int(fp)
         }
-
-    def generalize_model(self, payload, label, folder, threshold=.5):
-        data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
-        x = data[payload['features']].to_numpy()
-        y = data[label]
-
-        pipeline = load(folder + '.joblib')
-        probabilities = pipeline.predict_proba(x)[:, 1]
-        if threshold == .5:
-            predictions = pipeline.predict(x)
-        else:
-            predictions = (probabilities >= threshold).astype(int)
-
-        return self.generalization_report(['No ' + label, label], y, predictions, probabilities)
 
     def generate_pipeline(self, scaler, feature_selector, estimator, y_train, scoring=None, searcher='grid', shuffle=True, custom_hyper_parameters=None):
         """Generate the pipeline based on incoming arguments"""
@@ -376,26 +362,26 @@ class BinaryClassifier(AutoMLClassifier):
                     # Store main model in memory instead of saving immediately
                     main_models[result['key']] = candidate['best_estimator']
 
-                    result.update(self.generalize(pipeline[0], model['features'], candidate['best_estimator'], x2, y2, labels))
+                    result.update(self.generalize(pipeline[0], model['features'], candidate['best_estimator'], x_val, y_val, labels))
                     result.update({
                         'selected_features': list(model['selected_features']),
                         'feature_scores': model['feature_scores'],
                         'best_params': candidate['best_params']
                     })
-                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test)
+                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x_val, y_val)
                     result.update({
                         'test_fpr': roc_auc['fpr'],
                         'test_tpr': roc_auc['tpr'],
                         'training_roc_auc': roc_auc['roc_auc']
                     })
                     result['roc_delta'] = round(abs(result['roc_auc'] - result['training_roc_auc']), 4)
-                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x2, y2)
+                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test)
                     result.update({
                         'generalization_fpr': roc_auc['fpr'],
                         'generalization_tpr': roc_auc['tpr']
                     })
-                    result.update(self.reliability(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
-                    result.update(self.precision_recall(pipeline[0], model['features'], candidate['best_estimator'], x2, y2))
+                    result.update(self.reliability(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test))
+                    result.update(self.precision_recall(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test))
 
                     # Write main model results first
                     if not csv_header_written:
@@ -446,7 +432,7 @@ class BinaryClassifier(AutoMLClassifier):
 
 
     @staticmethod
-    def create_model(self, key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.', threshold=.5):
+    def create_model(key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.', threshold=.5):
         """Refits the requested model and pickles it for export"""
 
         if dataset_path is None:
@@ -458,7 +444,7 @@ class BinaryClassifier(AutoMLClassifier):
             return {}
 
         # Import data
-        (x_train, _, y_train, _, x2, y2, features, _) = \
+        (x_train, _, y_train, _, x_test, y_test, features, _) = \
             import_data(dataset_path + '/train.csv', dataset_path + '/test.csv', label_column)
 
         # Get pipeline details from the key
@@ -470,7 +456,7 @@ class BinaryClassifier(AutoMLClassifier):
             for index, feature in reversed(list(enumerate(features))):
                 if feature not in selected_features:
                     x_train = np.delete(x_train, index, axis=1)
-                    x2 = np.delete(x2, index, axis=1)
+                    x_test = np.delete(x_test, index, axis=1)
 
         # Add the scaler, if used
         if scaler and SCALERS[scaler]:
@@ -502,7 +488,7 @@ class BinaryClassifier(AutoMLClassifier):
         labels = ['No ' + label_column, label_column]
 
         # Assess the model performance and store the results
-        generalization_result = self.generalize(pipeline, model['features'], pipeline['estimator'], x2, y2, labels)
+        generalization_result = self.generalize(pipeline, model['features'], pipeline['estimator'], x_test, y_test, labels)
         with open(output_path + '/pipeline.json', 'w') as statsfile:
             json.dump(generalization_result, statsfile)
 
@@ -525,10 +511,26 @@ class BinaryClassifier(AutoMLClassifier):
         return generalization_result
 
     @staticmethod
-    def generalize_ensemble(self, total_models, job_folder, dataset_folder, label):
-        x2, y2, feature_names, _, _ = self.import_csv(dataset_folder + '/test.csv', label)
+    def generalize_model(payload, label, folder, threshold=.5):
+        data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+        x = data[payload['features']].to_numpy()
+        y = data[label]
 
-        data = pd.DataFrame(x2, columns=feature_names)
+        pipeline = load(folder + '.joblib')
+        probabilities = pipeline.predict_proba(x)[:, 1]
+        if threshold == .5:
+            predictions = pipeline.predict(x)
+        else:
+            predictions = (probabilities >= threshold).astype(int)
+
+        return self.generalization_report(['No ' + label, label], y, predictions, probabilities)
+
+
+    @staticmethod
+    def generalize_ensemble(total_models, job_folder, dataset_folder, label):
+        x_test, y_test, feature_names, _, _ = self.import_csv(dataset_folder + '/test.csv', label)
+
+        data = pd.DataFrame(x_test, columns=feature_names)
 
         soft_result = self.predict_ensemble(total_models, data, job_folder, 'soft')
         hard_result = self.predict_ensemble(total_models, data, job_folder, 'hard')
@@ -536,12 +538,12 @@ class BinaryClassifier(AutoMLClassifier):
         labels = ['No ' + label, label]
     
         return {
-            'soft_generalization': self.generalization_report(labels, y2, soft_result['predicted'], soft_result['probability']),
-            'hard_generalization': self.generalization_report(labels, y2, hard_result['predicted'], hard_result['probability'])
+            'soft_generalization': self.generalization_report(labels, y_test, soft_result['predicted'], soft_result['probability']),
+            'hard_generalization': self.generalization_report(labels, y_test, hard_result['predicted'], hard_result['probability'])
         }
 
     @staticmethod
-    def additional_precision(self, payload, label, folder, class_index=None):
+    def additional_precision(payload, label, folder, class_index=None):
         """Return additional precision recall curve"""
 
         data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
@@ -553,7 +555,7 @@ class BinaryClassifier(AutoMLClassifier):
         return self.precision_recall(pipeline, payload['features'], pipeline.steps[-1][1], x, y, class_index)
     
     @staticmethod
-    def additional_reliability(self, payload, label, folder, class_index=None):
+    def additional_reliability(payload, label, folder, class_index=None):
         data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
         x = data[payload['features']].to_numpy()
         y = data[label]
@@ -563,7 +565,7 @@ class BinaryClassifier(AutoMLClassifier):
         return self.reliability(pipeline, payload['features'], pipeline.steps[-1][1], x, y, class_index)
 
     @staticmethod
-    def additional_roc(self, payload, label, folder, class_index=None):
+    def additional_roc(payload, label, folder, class_index=None):
         data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
         x = data[payload['features']].to_numpy()
         y = data[label]
@@ -574,7 +576,7 @@ class BinaryClassifier(AutoMLClassifier):
 
 
     @staticmethod
-    def predict(self, data, path='.', threshold=.5):
+    def predict(data, path='.', threshold=.5):
         """Predicts against the provided data"""
 
         # Load the pipeline
@@ -594,7 +596,7 @@ class BinaryClassifier(AutoMLClassifier):
         }
 
     @staticmethod
-    def predict_ensemble(self, total_models, data, path='.', vote_type='soft'):
+    def predict_ensemble(total_models, data, path='.', vote_type='soft'):
         """Predicts against the provided data by creating an ensemble of the selected models"""
 
         probabilities = []
@@ -624,4 +626,3 @@ class BinaryClassifier(AutoMLClassifier):
             'predicted': predicted.tolist(),
             'probability': [sublist[predicted[index]] for index, sublist in enumerate(probabilities.tolist())]
         }
-    

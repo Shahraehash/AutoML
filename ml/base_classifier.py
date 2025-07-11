@@ -85,6 +85,7 @@ class AutoMLClassifier:
         self.performance_report_writer = None
         self.csv_header_written = False
         self.MODELS_TO_EVALUATE = 2
+        self.MAX_FEATURES_SHOWN = 5 
         self.STANDARD_CSV_FIELDS = {
             # Basic model information
                 'key': None,
@@ -284,7 +285,7 @@ class AutoMLClassifier:
                 return None
         return None
 
-    def save_model_archives(main_models, ovr_models, output_path):
+    def save_model_archives(self, main_models, ovr_models, output_path):
         """Save all models in compressed archives"""
         
         models_dir = f"{output_path}/models"

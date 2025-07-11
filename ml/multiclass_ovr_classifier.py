@@ -6,15 +6,38 @@ It extends the AutoMLClassifier base class with OvR-specific logic, creating sep
 binary classifiers for each class.
 """
 
+import json
 import numpy as np
-from timeit import default_timer as timer
-from joblib import load
 import pandas as pd
 import os
+import csv
+import time
+import itertools
+import gzip
+import pickle
+from timeit import default_timer as timer
+from joblib import dump, load
+from sklearn.pipeline import Pipeline
+from sklearn.base import clone
+from sklearn.metrics import roc_curve, roc_auc_score, confusion_matrix, classification_report, f1_score, matthews_corrcoef, accuracy_score
+from sklearn.calibration import calibration_curve
+from sklearn.metrics import brier_score_loss, precision_recall_curve
+from sklearn.preprocessing import label_binarize
+from scipy import interpolate
+from nyoka import skl_to_pmml, xgboost_to_pmml
 
 from .multiclass_macro_classifier import MulticlassMacroClassifier
-from .utils.utils import model_key_to_name
-
+from .utils.import_data import import_data
+from .utils.preprocess import preprocess
+from .utils.utils import model_key_to_name, decimate_points, explode_key
+from .utils.stats import clopper_pearson, roc_auc_ci, ppv_95_ci, npv_95_ci
+from .utils.summary import print_summary
+from .processors.estimators import ESTIMATORS, ESTIMATOR_NAMES, get_xgb_classifier
+from .processors.scorers import SCORER_NAMES
+from .processors.scalers import SCALERS, SCALER_NAMES
+from .processors.feature_selection import FEATURE_SELECTORS, FEATURE_SELECTOR_NAMES
+from .processors.searchers import SEARCHER_NAMES, SEARCHERS 
+from .processors.debug import Debug
 
 class OvRClassifier(MulticlassMacroClassifier):
     """
@@ -75,7 +98,7 @@ class OvRClassifier(MulticlassMacroClassifier):
             'test_roc_data': test_roc_data
         }
 
-    def generate_ovr_models_and_results(self, pipeline, features, main_model, main_result, x_train, y_train, x_test, y_test, x2, y2, labels, estimator, scorer):
+    def generate_ovr_models_and_results(self, pipeline, features, main_model, main_result, x_train, y_train, x_val, y_val, x_test, y_test, labels, estimator, scorer):
         """Generate OvR models and return both CSV entries and class data for .pkl.gz storage"""
         n_classes = len(np.unique(y_train))
         unique_classes = sorted(np.unique(y_train))
@@ -95,11 +118,11 @@ class OvRClassifier(MulticlassMacroClassifier):
             # Create binary labels for this class vs rest
             actual_class_value = unique_classes[class_idx]
             y_binary = (y_train == actual_class_value).astype(int)
+            y_val_binary = (y_val == actual_class_value).astype(int)
             y_test_binary = (y_test == actual_class_value).astype(int)
-            y2_binary = (y2 == actual_class_value).astype(int)
         
             # Re-optimization mode: Train actual OvR model
-            ovr_candidates = refit_model(
+            ovr_candidates = self.refit_model(
                 pipeline, features, estimator, scorer, x_train, y_binary
             )
             
@@ -113,12 +136,7 @@ class OvRClassifier(MulticlassMacroClassifier):
 
             # Re-optimization mode: Use binary classification path
             # OvR model was trained on binary data, so evaluate it on binary data
-            class_metrics = compute_binary_class_results(
-                pipeline, features, ovr_model, 
-                x2, y2_binary,           # Binary generalization data
-                x_train, y_binary,       # Binary training data
-                x_test, y_test_binary    # Binary test data
-            )
+            class_metrics = self.compute_binary_class_results(pipeline, features, ovr_model, x_val, y_val_binary, x_train, y_binary, x_test, y_test_binary)
                 
             # Store class data for .pkl.gz file
             all_class_data['class_data'][class_idx] = class_metrics
@@ -229,9 +247,6 @@ class OvRClassifier(MulticlassMacroClassifier):
                 for position, candidate in enumerate(candidates):
                     print('\t#%d' % (position+1))
                     
-                    # Evaluate the model first (different from OvR)
-                    evaluation_result = self.generalize(pipeline[0], model['features'], candidate['best_estimator'], x_val, y_val, labels)
-
                     # Create base result
                     result = {
                         'key': scorer_key + '__' + str(position),
@@ -248,16 +263,28 @@ class OvRClassifier(MulticlassMacroClassifier):
                     main_models[result['key']] = candidate['best_estimator']
 
                     # Update result with evaluation metrics
-                    result.update(evaluation_result)
+                    result.update(self.generalize(pipeline[0], model['features'], candidate['best_estimator'], x_val, y_val, labels))
                     result.update({
                         'selected_features': list(model['selected_features']),
                         'feature_scores': model['feature_scores'],
                         'best_params': candidate['best_params']
                     })
 
-                    # Add multiclass-specific metrics (macro averages)
-                    result.update(self.multiclass_metrics(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test, labels))
-
+                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x_val, y_val)
+                    result.update({
+                        'test_fpr': roc_auc['fpr'],
+                        'test_tpr': roc_auc['tpr'],
+                        'training_roc_auc': roc_auc['roc_auc']
+                    })
+                    result['roc_delta'] = round(abs(result['roc_auc'] - result['training_roc_auc']), 4)
+                    roc_auc = self.roc(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test)
+                    result.update({
+                        'generalization_fpr': roc_auc['fpr'],
+                        'generalization_tpr': roc_auc['tpr']
+                    })
+                    result.update(self.reliability(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test))
+                    result.update(self.precision_recall(pipeline[0], model['features'], candidate['best_estimator'], x_test, y_test))
+                    
                     print(f"Full Result: {result}")
 
                     # Write main model result
@@ -274,7 +301,7 @@ class OvRClassifier(MulticlassMacroClassifier):
                         # Use the simplified function to handle all OvR logic
                         csv_entries, class_data, new_ovr_models, additional_fits = self.generate_ovr_models_and_results(
                             pipeline[0], model['features'], candidate['best_estimator'], result,
-                            x_train, y_train, x_test, y_test, x2, y2, labels,
+                            x_train, y_train, x_val, y_val, x_test, y_test, labels,
                             estimator, scorer
                         )
                         
@@ -290,7 +317,7 @@ class OvRClassifier(MulticlassMacroClassifier):
                         
                         # Save class-specific data as .pkl.gz file
                         class_results_dir = output_path + '/class_results'
-                        save_class_results(class_data, class_results_dir, result['key'])
+                        self.save_class_results(class_data, class_results_dir, result['key'])
 
                         print(f"\t\tGenerated {n_classes} OvR metric entries")
 
@@ -334,7 +361,7 @@ class OvRClassifier(MulticlassMacroClassifier):
 
 
     @staticmethod
-    def create_model(self, key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.', threshold=.5):
+    def create_model(key, hyper_parameters, selected_features, dataset_path=None, label_column=None, output_path='.', threshold=.5):
         """Refits the requested model and pickles it for export"""
 
         if dataset_path is None:
@@ -346,7 +373,7 @@ class OvRClassifier(MulticlassMacroClassifier):
             return {}
 
         # Import data
-        (x_train, _, y_train, _, x2, y2, features, _) = \
+        (x_train, _, y_train, _, x_test, y_test, features, _) = \
             import_data(dataset_path + '/train.csv', dataset_path + '/test.csv', label_column)
 
         # Get pipeline details from the key
@@ -358,7 +385,7 @@ class OvRClassifier(MulticlassMacroClassifier):
             for index, feature in reversed(list(enumerate(features))):
                 if feature not in selected_features:
                     x_train = np.delete(x_train, index, axis=1)
-                    x2 = np.delete(x2, index, axis=1)
+                    x_test = np.delete(x_test, index, axis=1)
 
         # Add the scaler, if used
         if scaler and SCALERS[scaler]:
@@ -386,11 +413,11 @@ class OvRClassifier(MulticlassMacroClassifier):
             pickled_estimator = load(output_path + '/models/' + key + '.joblib')
             pipeline = Pipeline(pipeline.steps[:-1] + [('estimator', pickled_estimator)])
 
-        unique_labels = sorted(y2.unique())
+        unique_labels = sorted(y_test.unique())
         labels = [f'Class {int(cls)}' for cls in unique_labels]
 
         # Assess the model performance and store the results
-        generalization_result = self.evaluate_generalization(pipeline, model['features'], pipeline['estimator'], x2, y2, labels)
+        generalization_result = self.evaluate_generalization(pipeline, model['features'], pipeline['estimator'], x_test, y_test, labels)
         with open(output_path + '/pipeline.json', 'w') as statsfile:
             json.dump(generalization_result, statsfile)
 
@@ -414,23 +441,23 @@ class OvRClassifier(MulticlassMacroClassifier):
 
     @staticmethod
     def generalize_ensemble(total_models, job_folder, dataset_folder, label):
-        x2, y2, feature_names, _, _ = import_csv(dataset_folder + '/test.csv', label)
+        x_test, y_test, feature_names, _, _ = import_csv(dataset_folder + '/test.csv', label)
 
-        data = pd.DataFrame(x2, columns=feature_names)
+        data = pd.DataFrame(x_test, columns=feature_names)
 
         soft_result = self.predict_ensemble(total_models, data, job_folder, 'soft')
         hard_result = self.predict_ensemble(total_models, data, job_folder, 'hard')
 
-        unique_labels = sorted(y2.unique())
+        unique_labels = sorted(y_test.unique())
         labels = [f'Class {int(cls)}' for cls in unique_labels]
 
         return {
-            'soft_generalization': self.generalization_report(labels, y2, soft_result['predicted'], soft_result['probability']),
-            'hard_generalization': self.generalization_report(labels, y2, hard_result['predicted'], hard_result['probability'])
+            'soft_generalization': self.generalization_report(labels, y_test, soft_result['predicted'], soft_result['probability']),
+            'hard_generalization': self.generalization_report(labels, y_test, hard_result['predicted'], hard_result['probability'])
         }
 
     @staticmethod
-    def additional_precision(self, payload, label, folder, class_index=None):
+    def additional_precision(payload, label, folder, class_index=None):
         """Return additional precision recall curve"""
 
         data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
@@ -442,7 +469,7 @@ class OvRClassifier(MulticlassMacroClassifier):
         return self.precision_recall(pipeline, payload['features'], pipeline.steps[-1][1], x, y, class_index)
     
     @staticmethod
-    def additional_reliability(self, payload, label, folder, class_index=None):
+    def additional_reliability(payload, label, folder, class_index=None):
         data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
         x = data[payload['features']].to_numpy()
         y = data[label]
@@ -452,7 +479,7 @@ class OvRClassifier(MulticlassMacroClassifier):
         return self.reliability(pipeline, payload['features'], pipeline.steps[-1][1], x, y, class_index)
 
     @staticmethod
-    def additional_roc(self, payload, label, folder, class_index=None):
+    def additional_roc(payload, label, folder, class_index=None):
         data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
         x = data[payload['features']].to_numpy()
         y = data[label]
@@ -463,7 +490,7 @@ class OvRClassifier(MulticlassMacroClassifier):
 
 
     @staticmethod
-    def predict(self, data, path='.', threshold=.5):
+    def predict(data, path='.', threshold=.5):
         """Predicts against the provided data"""
 
         # Load the pipeline
@@ -483,7 +510,7 @@ class OvRClassifier(MulticlassMacroClassifier):
         }
 
     @staticmethod
-    def predict_ensemble(self, total_models, data, path='.', vote_type='soft'):
+    def predict_ensemble(total_models, data, path='.', vote_type='soft'):
         """Predicts against the provided data by creating an ensemble of the selected models"""
 
         probabilities = []
@@ -513,4 +540,3 @@ class OvRClassifier(MulticlassMacroClassifier):
             'predicted': predicted.tolist(),
             'probability': [sublist[predicted[index]] for index, sublist in enumerate(probabilities.tolist())]
         }
-    
