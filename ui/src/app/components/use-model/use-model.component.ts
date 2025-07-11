@@ -27,6 +27,7 @@ export class UseModelComponent implements OnInit {
   @Input() reliability: AdditionalGeneralization['reliability'];
   @Input() precisionRecall: AdditionalGeneralization['precision_recall'];
   @Input() rocAuc: AdditionalGeneralization['roc_auc'];
+  @Input() modelKey: string;
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
@@ -299,7 +300,7 @@ export class UseModelComponent implements OnInit {
   }
 
   async exportModel() {
-    window.open(await (this.publishName ? this.api.exportPublishedModel(this.publishName) : this.api.exportModel(this.threshold)), '_self');
+    window.open(await (this.publishName ? this.api.exportPublishedModel(this.publishName) : this.api.exportModel(this.threshold, undefined, this.modelKey)), '_self');
   }
 
   async exportPMML() {

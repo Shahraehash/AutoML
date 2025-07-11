@@ -23,9 +23,17 @@ ESTIMATORS = {
 def get_xgb_classifier(n_classes=2):
     """Get XGBClassifier with appropriate objective based on number of classes"""
     if n_classes > 2:
-        return XGBClassifier(objective='multi:softprob', eval_metric='mlogloss')
+        return XGBClassifier(
+            objective='multi:softprob', 
+            eval_metric='mlogloss',
+            num_class=n_classes  # Explicitly set num_class for multiclass
+        )
     else:
-        return XGBClassifier(objective='binary:logistic', eval_metric='logloss')
+        return XGBClassifier(
+            objective='binary:logistic', 
+            eval_metric='logloss'
+            # No num_class needed for binary classification
+        )
 
 ESTIMATOR_NAMES = {
     'gb': 'gradient boosting machine',

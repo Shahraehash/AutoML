@@ -42,11 +42,23 @@ def generalize_model(payload, label, folder, threshold=.5):
     y = data[label]
 
     pipeline = load(folder + '.joblib')
-    probabilities = pipeline.predict_proba(x)[:, 1]
-    if threshold == .5:
-      predictions = pipeline.predict(x)
+    proba = pipeline.predict_proba(x)
+    # Binary classification
+    if proba.shape[1] == 2:
+        probabilities = proba[:, 1]
+        if threshold == .5:
+            predictions = pipeline.predict(x)
+        else:
+            predictions = (probabilities >= threshold).astype(int)
+        labels = ['No ' + label, label]
+    
+    # Multiclass classification
     else:
-      predictions = (probabilities >= threshold).astype(int)
+        predictions = pipeline.predict(x)
+        probabilities = proba
+        # Generate appropriate labels for multi-class
+        unique_classes = sorted(np.unique(y))
+        labels = [f'Class {int(cls)}' for cls in unique_classes]
 
     return generalization_report(['No ' + label, label], y, predictions, probabilities)
 

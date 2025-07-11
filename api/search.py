@@ -20,22 +20,22 @@ from timeit import default_timer as timer
 from sklearn.base import clone
 from sklearn.pipeline import Pipeline
 
-from .processors.estimators import ESTIMATOR_NAMES
-from .processors.feature_selection import FEATURE_SELECTOR_NAMES
-from .processors.scalers import SCALER_NAMES
-from .processors.searchers import SEARCHER_NAMES
-from .processors.scorers import SCORER_NAMES
-from .generalization import generalize
-from .model import generate_model
-from .import_data import import_data
-from .pipeline import generate_pipeline
-from .precision import precision_recall
-from .reliability import reliability
-from .refit import refit_model
-from .roc import roc
-from .summary import print_summary
-from .utils import model_key_to_name
-from .class_results import save_class_results, generate_ovr_models_and_results
+from ml.processors.estimators import ESTIMATOR_NAMES
+from ml.processors.feature_selection import FEATURE_SELECTOR_NAMES
+from ml.processors.scalers import SCALER_NAMES
+from ml.processors.searchers import SEARCHER_NAMES
+from ml.processors.scorers import SCORER_NAMES
+from ml.generalization import generalize
+from ml.model import generate_model
+from ml.import_data import import_data
+from ml.pipeline import generate_pipeline
+from ml.precision import precision_recall
+from ml.reliability import reliability
+from ml.refit import refit_model
+from ml.roc import roc
+from ml.summary import print_summary
+from ml.utils import model_key_to_name
+from ml.class_results import save_class_results, generate_ovr_models_and_results
 
 # Load environment variables
 load_dotenv()

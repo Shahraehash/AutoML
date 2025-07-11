@@ -593,7 +593,7 @@ def export_pmml(jobid, class_index=None):
     return send_file(pmml_path, as_attachment=True, cache_timeout=-1, download_name=filename)
 
 def export_model(jobid, class_index=None, model_key=None):
-    """Export the selected model - main model or OvR model from compressed archives"""
+    """Export the selected model - handles both refit models and archived models"""
     if g.uid is None:
         abort(401)
         return
@@ -605,8 +605,14 @@ def export_model(jobid, class_index=None, model_key=None):
     if model_key is None:
         model_key = request.args.get('model_key')
     
+    # Check if this is a refit model (pipeline.joblib exists)
+    if os.path.exists(folder + '/pipeline.joblib'):
+        # Handle refit model (similar to published models)
+        return export_refit_model(folder, threshold, model_key)
+    
+    # Otherwise, handle archived model (original logic)
     if model_key is None:
-        abort(400, description="model_key parameter is required")
+        abort(400, description="model_key parameter is required for archived models")
         return
 
     if class_index is not None:
@@ -666,6 +672,38 @@ def export_model(jobid, class_index=None, model_key=None):
     
     except Exception as e:
         abort(500, description=f"Error extracting model: {str(e)}")
+        return
+
+def export_refit_model(folder, threshold, model_key=None):
+    """Export a refit model (created by green play button)"""
+    try:
+        # Update threshold in predict.py
+        with open('client/predict.py', 'r+') as file:
+            contents = file.read()
+            contents = re.sub(r'THRESHOLD = [\d.]+', 'THRESHOLD = ' + str(threshold), contents)
+            file.seek(0)
+            file.truncate()
+            file.write(contents)
+
+        # Copy refit model files to client directory
+        copyfile(folder + '/pipeline.joblib', 'client/pipeline.joblib')
+        copyfile(folder + '/input.csv', 'client/input.csv')
+
+        # Create ZIP file with all client files
+        memory_file = BytesIO()
+        with zipfile.ZipFile(memory_file, 'w') as zf:
+            files = os.listdir('client')
+            for individualFile in files:
+                filePath = os.path.join('client', individualFile)
+                zf.write(filePath, individualFile)
+        memory_file.seek(0)
+
+        # Use model_key in filename if provided for identification
+        filename = f'{model_key}_refit_model.zip' if model_key else 'refit_model.zip'
+        return send_file(memory_file, attachment_filename=filename, as_attachment=True, cache_timeout=-1)
+    
+    except Exception as e:
+        abort(500, description=f"Error exporting refit model: {str(e)}")
         return
 
 def star_models(jobid):

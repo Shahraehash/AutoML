@@ -293,8 +293,18 @@ export class MiloApiService {
     return `${environment.apiUrl}/jobs/${this.currentJobId}/export-performance?${await this.getURLAuth()}`;
   }
 
-  async exportModel(threshold: number) {
-    return `${environment.apiUrl}/jobs/${this.currentJobId}/export-model?${await this.getURLAuth()}&threshold=${threshold}`;
+  async exportModel(threshold: number, classIndex?: number, modelKey?: string) {
+    let url = `${environment.apiUrl}/jobs/${this.currentJobId}/export-model?${await this.getURLAuth()}&threshold=${threshold}`;
+    
+    if (modelKey) {
+      url += `&model_key=${encodeURIComponent(modelKey)}`;
+    }
+    
+    if (classIndex !== undefined) {
+      url += `&class_index=${classIndex}`;
+    }
+    
+    return url;
   }
 
   async exportPMML() {

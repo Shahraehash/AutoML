@@ -8,7 +8,7 @@ import json
 from celery import Celery
 from celery.signals import worker_process_init
 
-from ml import search
+from api import search
 
 BROKER_URL = os.getenv('BROKER_URL', 'pyamqp://guest@127.0.0.1//')
 CELERY = Celery(__name__, backend='rpc://', broker=BROKER_URL)

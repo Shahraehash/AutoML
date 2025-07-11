@@ -498,7 +498,8 @@ export class ResultsComponent implements OnInit, OnDestroy {
           componentProps: {
             features: this.sortedData[index].selected_features,
             featureScores: scores,
-            generalization: reply.generalization
+            generalization: reply.generalization,
+            modelKey: this.sortedData[index].key
           }
         });
         await modal.present();
