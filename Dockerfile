@@ -71,6 +71,11 @@ EXPOSE 8443
 ENV LOCAL_USER true
 ENV LDAP_AUTH false
 
+# joblib configuration for resource management
+ENV JOBLIB_MULTIPROCESSING 1
+ENV LOKY_PICKLER pickle
+ENV JOBLIB_START_METHOD spawn
+
 # start the application
 CMD uwsgi --ini uwsgi.ini --processes $(grep -c 'cpu[0-9]' /proc/stat)
 
