@@ -140,6 +140,8 @@ export interface DataAnalysisReply {
     analysis: {
         train: DataAnalysis;
         test: DataAnalysis;
+        n_classes: number;
+        class_type: 'binary' | 'multiclass';
     };
     label: string;
 }

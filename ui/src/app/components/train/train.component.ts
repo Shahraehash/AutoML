@@ -5,7 +5,7 @@ import { of, ReplaySubject } from 'rxjs';
 import { catchError, delay, repeat, takeUntil, tap } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
-import { TaskAdded } from '../../interfaces';
+import { TaskAdded, DataAnalysisReply } from '../../interfaces';
 import * as pipelineOptions from '../../data/pipeline.processors.json';
 import { TextareaModalComponent } from '../../components/textarea-modal/textarea-modal.component';
 import { MiloApiService } from '../../services/milo-api/milo-api.service';
@@ -30,6 +30,7 @@ export class TrainComponent implements OnDestroy, OnInit {
   training = false;
   trainForm: FormGroup;
   pipelineProcessors = (pipelineOptions as any).default;
+  isMulticlass = false;
 
   constructor(
     public api: MiloApiService,
@@ -56,7 +57,22 @@ export class TrainComponent implements OnDestroy, OnInit {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    // Fetch dataset analysis to determine if it's multiclass
+    try {
+      const analysisObservable = await this.api.getDataAnalysis();
+      const analysis = await analysisObservable.pipe(takeUntil(this.destroy$)).toPromise();
+      this.isMulticlass = analysis.analysis.class_type === 'multiclass';
+      
+      // For binary datasets, ensure OvR is disabled
+      if (!this.isMulticlass) {
+        this.trainForm.get('reoptimizeOvr').setValue(false);
+      }
+    } catch (error) {
+      console.warn('Could not fetch dataset analysis, defaulting to show OvR option:', error);
+      this.isMulticlass = true; // Default to showing the option if we can't determine
+    }
+
     if (this.parameters) {
       this.setValues('estimators', this.parameters.ignore_estimator.split(','));
       this.setValues('scalers', this.parameters.ignore_scaler.split(','));
@@ -115,7 +131,8 @@ export class TrainComponent implements OnDestroy, OnInit {
       formData.append('ignore_shuffle', 'true');
     }
 
-    if (this.trainForm.get('reoptimizeOvr').value) {
+    // Only send OvR option for multiclass datasets
+    if (this.isMulticlass && this.trainForm.get('reoptimizeOvr').value) {
       formData.append('reoptimize_ovr', 'true');
     }
 

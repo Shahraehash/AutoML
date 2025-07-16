@@ -3,19 +3,55 @@ Import data and process/clean data
 """
 
 import pandas as pd
+import numpy as np
 
 from sklearn.model_selection import train_test_split
+
+def normalize_labels(y):
+    """
+    Normalize class labels to consecutive integers starting from 0.
+    Returns normalized labels and the mapping dictionary.
+    """
+    unique_labels = sorted(y.unique())
+    
+    # Check if labels are already consecutive starting from 0
+    expected_labels = list(range(len(unique_labels)))
+    if unique_labels == expected_labels:
+        # Labels are already normalized
+        return y, None
+    
+    # Create mapping from original labels to consecutive labels
+    # Ensure all keys and values are native Python types for JSON serialization
+    label_mapping = {int(original.item()) if hasattr(original, 'item') else int(original): new 
+                    for new, original in enumerate(unique_labels)}
+    inverse_mapping = {new: int(original.item()) if hasattr(original, 'item') else int(original) 
+                      for original, new in label_mapping.items()}
+    
+    # Transform labels
+    y_normalized = y.map(label_mapping)
+    
+    print(f"Normalized class labels: {unique_labels} -> {expected_labels}")
+    
+    return y_normalized, {
+        'label_mapping': label_mapping,
+        'inverse_mapping': inverse_mapping,
+        'original_labels': [int(label.item()) if hasattr(label, 'item') else int(label) for label in unique_labels]
+    }
 
 def import_data(train_path, test_path, label_column):
     """Import both the training and test data using the passed paths"""
 
-    x, y, feature_names, train_class_counts, num_classes = import_csv(train_path, label_column, True)
-    x2, y2, _, test_class_counts, _ = import_csv(test_path, label_column)
+    x, y, feature_names, train_class_counts, num_classes, train_label_mapping = import_csv(train_path, label_column, True)
+    x2, y2, _, test_class_counts, _, test_label_mapping = import_csv(test_path, label_column)
+
+    # Use train label mapping as the primary mapping (test should have same classes)
+    label_mapping_info = train_label_mapping or test_label_mapping
 
     metadata = {
         'train_class_counts': train_class_counts,
         'test_class_counts': test_class_counts,
-        'num_classes': num_classes
+        'num_classes': num_classes,
+        'label_mapping': label_mapping_info
     }
 
     return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + \
@@ -24,8 +60,8 @@ def import_data(train_path, test_path, label_column):
 def import_train(train_path, label_column):
     """Import training data using the passed path"""
 
-    x, y, feature_names, _, _ = import_csv(train_path, label_column, True)
-    return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + [feature_names]
+    x, y, feature_names, _, _, label_mapping_info = import_csv(train_path, label_column, True)
+    return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + [feature_names, label_mapping_info]
 
 def import_csv(path, label_column, show_warning=False):
     """Import the specificed sheet"""
@@ -42,36 +78,53 @@ def import_csv(path, label_column, show_warning=False):
     # Save the label colum values
     y = data[label_column]
 
+    # Normalize labels to consecutive integers starting from 0
+    y_normalized, label_mapping_info = normalize_labels(y)
+
     # Grab the feature names
     feature_names = list(x)
 
     # Convert to NumPy array
     x = x.to_numpy()
 
-    # Get unique labels and label counts
-    unique_labels = sorted(y.unique())
+    # Get unique labels (from original data for counts, but use normalized for processing)
+    original_unique_labels = sorted(y.unique())
+    normalized_unique_labels = sorted(y_normalized.unique())
 
+    # Calculate label counts using original labels for reporting
+    # Ensure label keys are native Python types for JSON serialization
     label_counts = {}
-    for label in unique_labels:
-        label_counts[f'class_{int(label)}_count'] = data[data[label_column] == label].shape[0]
+    for label in original_unique_labels:
+        # Convert numpy int64 to native Python int
+        python_label = int(label.item()) if hasattr(label, 'item') else int(label)
+        label_counts[f'class_{python_label}_count'] = int(data[data[label_column] == label].shape[0])
+    
+    # Add label mapping info to the return data
+    # Ensure num_classes is native Python int for JSON serialization
+    num_classes = int(len(original_unique_labels))
     
     # For backward compatibility with binary classification
-    if len(unique_labels) == 2:
+    if num_classes == 2:
         if show_warning:
-            negative_count = label_counts.get('class_0_count', 0)
-            positive_count = label_counts.get('class_1_count', 0)
+            # Convert numpy int64 to native Python int for dictionary key lookup
+            label_0 = int(original_unique_labels[0].item()) if hasattr(original_unique_labels[0], 'item') else int(original_unique_labels[0])
+            label_1 = int(original_unique_labels[1].item()) if hasattr(original_unique_labels[1], 'item') else int(original_unique_labels[1])
+            negative_count = label_counts.get(f'class_{label_0}_count', 0)
+            positive_count = label_counts.get(f'class_{label_1}_count', 0)
             print('Negative Cases: %.7g\nPositive Cases: %.7g\n' % (negative_count, positive_count))
             if negative_count / positive_count < .9:
                 print('Warning: Classes are not balanced.')
                 
-        return [x, y, feature_names, label_counts, 2]
+        return [x, y_normalized, feature_names, label_counts, num_classes, label_mapping_info]
         
     else:
         # Multi-class case
         if show_warning:
-            for label in unique_labels:
-                count = label_counts[f'class_{int(label)}_count']
-                print('Class %d Cases: %.7g\n' % (int(label), count))
+            for label in original_unique_labels:
+                # Convert numpy int64 to native Python int
+                python_label = int(label.item()) if hasattr(label, 'item') else int(label)
+                count = label_counts[f'class_{python_label}_count']
+                print('Class %d Cases: %.7g\n' % (python_label, count))
 
             # Check for class imbalance in multi-class
             counts = list(label_counts.values())
@@ -80,4 +133,4 @@ def import_csv(path, label_column, show_warning=False):
                 print('Warning: Classes are not balanced.')
         
         # Return all class counts as a dictionary for multi-class
-        return [x, y, feature_names, label_counts, len(unique_labels)]
+        return [x, y_normalized, feature_names, label_counts, num_classes, label_mapping_info]

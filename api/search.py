@@ -393,7 +393,7 @@ def find_best_model(
         'ovr_reoptimized': reoptimize_ovr,
         'ovr_models_count': ovr_models_count,
         'main_models_count': main_models_count,
-        'n_classes': n_classes,
+        'n_classes': int(n_classes),  # Ensure native Python int
         'memory_management': memory_mgr.get_memory_summary()
     })
 

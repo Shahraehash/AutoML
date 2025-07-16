@@ -59,7 +59,7 @@
     </ion-card-header>
 
     <mat-checkbox formControlName='shuffle'><h6>Shuffle per Fold</h6></mat-checkbox>
-    <mat-checkbox formControlName='reoptimizeOvr'><h6>Re-optimize OvR Models</h6></mat-checkbox>
+    <mat-checkbox *ngIf='isMulticlass' formControlName='reoptimizeOvr'><h6>Re-optimize OvR Models</h6></mat-checkbox>
   </ion-card>
   <ion-button *ngIf='!parameters' expand='block' (click)='startTraining()' [hidden]='training' [disabled]='!trainForm.valid'>Start Training</ion-button>
   <app-radial-dendrogram [data]='allPipelines' [training]='training' [hidden]='!training'></app-radial-dendrogram>

@@ -9,9 +9,14 @@ import numpy as np
 def describe(folder, label):
     """Accept the training and testing data sets and describe them"""
 
+    train_analysis = parse_csv(folder + '/train.csv', label)
+    test_analysis = parse_csv(folder + '/test.csv', label)
+    
     return {
-        'train': parse_csv(folder + '/train.csv', label),
-        'test': parse_csv(folder + '/test.csv', label)
+        'train': train_analysis,
+        'test': test_analysis,
+        'n_classes': train_analysis['n_classes'],
+        'class_type': 'multiclass' if train_analysis['n_classes'] > 2 else 'binary'
     }
 
 def parse_csv(csv_file, label):
@@ -43,5 +48,6 @@ def parse_csv(csv_file, label):
         'summary': csv_clean.describe().to_dict(),
         'histogram': {
             'by_class': histograms_by_class
-        }
+        },
+        'n_classes': len(unique_labels)
     }

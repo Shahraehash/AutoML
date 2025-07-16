@@ -63,19 +63,27 @@ def generalize_model(payload, label, folder, threshold=.5):
     return generalization_report(['No ' + label, label], y, predictions, probabilities)
 
 def generalize_ensemble(total_models, job_folder, dataset_folder, label):
-    x2, y2, feature_names, _, _ = import_csv(dataset_folder + '/test.csv', label)
+    x2, y2, feature_names, _, _, label_mapping_info = import_csv(dataset_folder + '/test.csv', label)
 
     data = pd.DataFrame(x2, columns=feature_names)
 
     soft_result = predict_ensemble(total_models, data, job_folder, 'soft')
     hard_result = predict_ensemble(total_models, data, job_folder, 'hard')
 
-    # Determine if this is binary or multi-class
-    unique_labels = sorted(y2.unique())
-    if len(unique_labels) == 2:
-        labels = ['No ' + label, label]
+    # Determine if this is binary or multi-class and generate appropriate labels
+    if label_mapping_info and 'original_labels' in label_mapping_info:
+        original_labels = label_mapping_info['original_labels']
+        if len(original_labels) == 2:
+            labels = ['No ' + label, label]
+        else:
+            labels = [f'Class {int(cls)}' for cls in original_labels]
     else:
-        labels = [f'Class {int(cls)}' for cls in unique_labels]
+        # Fallback to current logic for backward compatibility
+        unique_labels = sorted(y2.unique())
+        if len(unique_labels) == 2:
+            labels = ['No ' + label, label]
+        else:
+            labels = [f'Class {int(cls)}' for cls in unique_labels]
 
     return {
         'soft_generalization': generalization_report(labels, y2, soft_result['predicted'], soft_result['probability']),

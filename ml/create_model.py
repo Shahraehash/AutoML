@@ -31,8 +31,11 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
         return {}
 
     # Import data
-    (x_train, _, y_train, _, x2, y2, features, _) = \
+    (x_train, _, y_train, _, x2, y2, features, metadata) = \
         import_data(dataset_path + '/train.csv', dataset_path + '/test.csv', label_column)
+    
+    # Extract label mapping information
+    label_mapping_info = metadata.get('label_mapping')
 
     # Get pipeline details from the key
     scaler, feature_selector, estimator, _, _ = explode_key(key)
@@ -72,13 +75,28 @@ def create_model(key, hyper_parameters, selected_features, dataset_path=None, la
       pipeline = Pipeline(pipeline.steps[:-1] + [('estimator', pickled_estimator)])
 
     unique_labels = sorted(y2.unique())
-    if len(unique_labels) == 2:
-        labels = ['No ' + label_column, label_column]
+    
+    # Generate labels based on original classes if mapping exists
+    if label_mapping_info and 'original_labels' in label_mapping_info:
+        original_labels = label_mapping_info['original_labels']
+        if len(original_labels) == 2:
+            labels = ['No ' + label_column, label_column]
+        else:
+            labels = [f'Class {int(cls)}' for cls in original_labels]
     else:
-        labels = [f'Class {int(cls)}' for cls in unique_labels]
+        # Fallback to current logic for backward compatibility
+        if len(unique_labels) == 2:
+            labels = ['No ' + label_column, label_column]
+        else:
+            labels = [f'Class {int(cls)}' for cls in unique_labels]
 
     # Assess the model performance and store the results
     generalization_result = generalize(pipeline, model['features'], pipeline['estimator'], x2, y2, labels, threshold)
+    
+    # Add label mapping information to the results
+    if label_mapping_info:
+        generalization_result['label_mapping'] = label_mapping_info
+    
     with open(output_path + '/pipeline.json', 'w') as statsfile:
         json.dump(generalization_result, statsfile)
 
