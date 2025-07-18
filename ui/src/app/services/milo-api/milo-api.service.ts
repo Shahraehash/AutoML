@@ -180,19 +180,26 @@ export class MiloApiService {
     );
   }
 
-  testModel(data) {
+  testModel(data, modelPath?: string) {
+    const requestData = modelPath ? { ...data, model_path: modelPath } : data;
     return this.request<TestReply>(
       'post',
       `/jobs/${this.currentJobId}/test`,
-      data
+      requestData
     );
   }
 
-  async generalize(data, threshold) {
+  async generalize(data, threshold, modelPath?: string, classIndex?: number) {
+    const requestData = {
+      data,
+      threshold,
+      ...(modelPath && { model_path: modelPath }),
+      ...(classIndex !== undefined && { class_index: classIndex })
+    };
     return await (await this.request<AdditionalGeneralization>(
       'post',
       `/jobs/${this.currentJobId}/generalize`,
-      {data, threshold},
+      requestData,
     )).toPromise();
   }
 

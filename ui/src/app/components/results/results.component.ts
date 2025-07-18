@@ -499,7 +499,9 @@ export class ResultsComponent implements OnInit, OnDestroy {
             features: this.sortedData[index].selected_features,
             featureScores: scores,
             generalization: reply.generalization,
-            modelKey: this.sortedData[index].key
+            modelKey: this.sortedData[index].key,
+            classIndex: this.selectedClass !== 'all' ? this.selectedClass : undefined,
+            isMulticlass: this.isMulticlass()
           }
         });
         await modal.present();

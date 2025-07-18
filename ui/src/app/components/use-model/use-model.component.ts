@@ -28,6 +28,8 @@ export class UseModelComponent implements OnInit {
   @Input() precisionRecall: AdditionalGeneralization['precision_recall'];
   @Input() rocAuc: AdditionalGeneralization['roc_auc'];
   @Input() modelKey: string;
+  @Input() classIndex?: number;
+  @Input() isMulticlass?: boolean;
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
@@ -35,6 +37,29 @@ export class UseModelComponent implements OnInit {
   voteType = 'soft';
   invalidCases;
   fileName;
+
+  // Helper methods for class-specific functionality
+  get isClassSpecificView(): boolean {
+    return this.classIndex !== undefined && this.classIndex !== null;
+  }
+
+  get isMacroAveragedView(): boolean {
+    return this.isMulticlass && !this.isClassSpecificView;
+  }
+
+  get shouldEnableThresholdTuning(): boolean {
+    // Enable for binary models OR class-specific multiclass views
+    return !this.type && (!this.isMulticlass || this.isClassSpecificView);
+  }
+
+  get currentModelPath(): string {
+    if (this.isClassSpecificView) {
+      // Point to specific OvR model with correct naming convention
+      return `ovr_models/${this.modelKey}`;
+    }
+    // Use default main model path
+    return undefined;
+  }
 
   constructor(
     public modalController: ModalController,
@@ -77,7 +102,7 @@ export class UseModelComponent implements OnInit {
       observable = await this.api.testModel({
         data: [this.testForm.get('inputs').value],
         threshold: this.threshold
-      });
+      }, this.currentModelPath);
     }
 
     observable.subscribe(
@@ -155,7 +180,7 @@ export class UseModelComponent implements OnInit {
 
         try {
           const result = await (
-            this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload, this.threshold)
+            this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload, this.threshold, this.currentModelPath, this.classIndex)
           );
           this.generalization = result.generalization;
           this.reliability = result.reliability;
@@ -265,7 +290,7 @@ export class UseModelComponent implements OnInit {
           observable = await this.api.testModel({
             data,
             threshold: this.threshold
-          });
+          }, this.currentModelPath);
         }
 
         observable.pipe(
@@ -319,12 +344,18 @@ export class UseModelComponent implements OnInit {
   }
 
   async tuneModel(event) {
+    if (!this.shouldEnableThresholdTuning) {
+      return;
+    }
+
     const popover = await this.popoverController.create({
       cssClass: 'fit-content',
       component: TuneModelComponent,
       componentProps: {
-        threshold: this.type ? undefined : this.threshold,
-        voteType: this.type === 'ensemble' ? this.voteType : undefined
+        threshold: this.shouldEnableThresholdTuning ? this.threshold : undefined,
+        voteType: this.type === 'ensemble' ? this.voteType : undefined,
+        classIndex: this.isClassSpecificView ? this.classIndex : undefined,
+        isClassSpecific: this.isClassSpecificView
       },
       event
     });
@@ -360,7 +391,7 @@ export class UseModelComponent implements OnInit {
       message: 'Calculating performance...'
     });
     await loading.present();
-    const result = await this.api.generalize({features: this.parsedFeatures}, this.threshold);
+    const result = await this.api.generalize({features: this.parsedFeatures}, this.threshold, this.currentModelPath, this.classIndex);
     this.generalization = result.generalization;
     this.reliability = result.reliability;
     this.precisionRecall = result.precision_recall;

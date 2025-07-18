@@ -39,9 +39,12 @@ def predict(data, path='.', threshold=.5):
     else:
         predicted_original = predicted.tolist()
 
+    # Convert predicted values to integers to use as indices
+    predicted_indices = [int(pred) for pred in predicted]
+
     return {
         'predicted': predicted_original,
-        'probability': [sublist[predicted[index]] for index, sublist in enumerate(probability.tolist())]
+        'probability': [sublist[predicted_indices[index]] for index, sublist in enumerate(probability.tolist())]
     }
 
 def predict_ensemble(total_models, data, path='.', vote_type='soft'):
@@ -89,7 +92,10 @@ def predict_ensemble(total_models, data, path='.', vote_type='soft'):
     else:
         predicted_original = predicted.tolist()
 
+    # Convert predicted values to integers to use as indices
+    predicted_indices = [int(pred) for pred in predicted]
+
     return {
         'predicted': predicted_original,
-        'probability': [sublist[predicted[index]] for index, sublist in enumerate(probabilities.tolist())]
+        'probability': [sublist[predicted_indices[index]] for index, sublist in enumerate(probabilities.tolist())]
     }

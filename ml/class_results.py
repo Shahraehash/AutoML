@@ -6,6 +6,7 @@ import os
 import pickle
 import numpy as np
 import gzip
+from sklearn.pipeline import Pipeline
 from .reliability import reliability
 from .precision import precision_recall
 from .roc import roc
@@ -163,7 +164,8 @@ def generate_ovr_models_and_results(
                 pipeline, features, estimator, scorer, x_train, y_binary
             )
             
-            ovr_model = ovr_candidates[0]['best_estimator']
+            ovr_pipeline_steps = pipeline.steps[:-1] + [('estimator', ovr_candidates[0]['best_estimator'])]
+            ovr_model = Pipeline(ovr_pipeline_steps)
             ovr_best_params = ovr_candidates[0]['best_params']
             total_fits += len(ovr_candidates)
             
@@ -174,7 +176,7 @@ def generate_ovr_models_and_results(
             # Re-optimization mode: Use binary classification path
             # OvR model was trained on binary data, so evaluate it on binary data
             class_metrics = compute_binary_class_results(
-                pipeline, features, ovr_model, 
+                pipeline, features, ovr_candidates[0]['best_estimator'], 
                 x2, y2_binary,           # Binary generalization data
                 x_train, y_binary,       # Binary training data
                 x_test, y_test_binary    # Binary test data

@@ -106,9 +106,9 @@ class MemoryManager:
             # Log warning if approaching thresholds
             status = self.check_memory_status()
             if status == 'warning':
-                print(f"⚠️  WARNING: Memory usage approaching threshold ({self.warning_threshold*100}%)")
+                print(f"WARNING: Memory usage approaching threshold ({self.warning_threshold*100}%)")
             elif status == 'critical':
-                print(f"🚨 CRITICAL: Memory usage at critical level ({self.critical_threshold*100}%)")
+                print(f"CRITICAL: Memory usage at critical level ({self.critical_threshold*100}%)")
     
     def cleanup_sklearn_caches(self):
         """Clear sklearn internal caches and temporary data"""
@@ -177,7 +177,7 @@ class MemoryManager:
                     pass
             
             if cleaned_folders > 0 or cleaned_files > 0:
-                print(f"   Joblib cleanup: Removed {cleaned_folders} folders, {cleaned_files} files")
+                print(f"Joblib cleanup: Removed {cleaned_folders} folders, {cleaned_files} files")
                 
         except Exception as e:
             print(f"Warning: Error during joblib cleanup: {e}")
@@ -222,13 +222,13 @@ class MemoryManager:
         for i in range(3):
             collected = gc.collect()
             if collected > 0:
-                print(f"   Garbage collection pass {i+1}: {collected} objects collected")
+                print(f"Garbage collection pass {i+1}: {collected} objects collected")
         
         # Clear any remaining unreachable objects
         gc.collect()
         
         self.cleanup_count += 1
-        print(f"   Cleanup #{self.cleanup_count} completed")
+        print(f"Cleanup #{self.cleanup_count} completed")
     
     def cleanup_model_iteration(self, **local_vars):
         """
@@ -263,7 +263,7 @@ class MemoryManager:
         memory_freed = memory_before - memory_after
         
         if vars_deleted or collected > 0 or memory_freed > 0.1:
-            print(f"   Cleanup: Deleted {len(vars_deleted)} vars, "
+            print(f"Cleanup: Deleted {len(vars_deleted)} vars, "
                   f"collected {collected} objects, "
                   f"freed {memory_freed:.1f}% memory")
     
@@ -274,7 +274,7 @@ class MemoryManager:
         Returns:
             True if cleanup was successful, False if still critical
         """
-        print("🚨 EMERGENCY CLEANUP: Critical memory threshold exceeded!")
+        print("EMERGENCY CLEANUP: Critical memory threshold exceeded!")
         
         # Perform multiple aggressive cleanups
         for i in range(3):
@@ -283,12 +283,12 @@ class MemoryManager:
             # Check if we're back to safe levels
             status = self.check_memory_status()
             if status != 'critical':
-                print(f"✅ Emergency cleanup successful after {i+1} attempts")
+                print(f"Emergency cleanup successful after {i+1} attempts")
                 return True
             
             time.sleep(0.1)  # Brief pause between attempts
         
-        print("❌ Emergency cleanup failed - memory still critical")
+        print("Emergency cleanup failed - memory still critical")
         return False
     
     def save_model_with_cleanup(self, model: Any, model_path: str, model_key: str):
@@ -308,7 +308,7 @@ class MemoryManager:
             
             # Save model
             dump(model, model_path)
-            print(f'   Saved model: {model_key} -> {os.path.basename(model_path)}')
+            print(f'Saved model: {model_key} -> {os.path.basename(model_path)}')
             
             # Immediate cleanup
             del model

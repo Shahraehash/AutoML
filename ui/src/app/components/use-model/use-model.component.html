@@ -7,7 +7,7 @@
       {{publishName ? 'MILO-ML: Machine Intelligence Learning Optimizer' : type ? 'Selected ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Model' : 'Selected Model'}}
     </ion-title>
     <ion-buttons slot='end' class='ion-padding-end'>
-      <ion-button fill='solid' color='primary' (click)='tuneModel($event)' *ngIf='!publishName'>
+      <ion-button fill='solid' color='primary' (click)='tuneModel($event)' *ngIf='!publishName && shouldEnableThresholdTuning'>
         <ion-icon class='ion-hide-sm-down' name='options' slot='start'></ion-icon><span class='ion-hide-sm-down'>Tune Model</span>
         <ion-icon class='ion-hide-sm-up' name='options' slot='icon-only'></ion-icon>
       </ion-button>
@@ -48,6 +48,18 @@
     <div class='container'>
       <div class='results ion-padding'>
         <div *ngIf='!type'>Current Decision Threshold: {{threshold | number:'1.2-2'}}</div>
+        <div *ngIf='isMacroAveragedView' class='ion-margin-top'>
+          <ion-note color='medium'>
+            <ion-icon name='information-circle' slot='start'></ion-icon>
+            Threshold tuning is not available for macro-averaged multiclass predictions. Select a specific class view to enable threshold tuning.
+          </ion-note>
+        </div>
+        <div *ngIf='isClassSpecificView' class='ion-margin-top'>
+          <ion-note color='primary'>
+            <ion-icon name='analytics' slot='start'></ion-icon>
+            Viewing Class {{classIndex}} vs All Others (One-vs-Rest model)
+          </ion-note>
+        </div>
         <div *ngIf='!result' class='ion-margin-top'>
           <div *ngIf='publishName; else testDetail'>
             Please enter your values and press predict to test the model against your sample data. You may

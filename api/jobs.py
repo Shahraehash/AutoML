@@ -27,6 +27,46 @@ from ml.reliability import additional_reliability
 from ml.class_results import load_class_results, get_available_models_with_class_results, cleanup_class_results
 from worker import queue_training
 
+def resolve_model_path_with_archive(folder, model_path_param):
+    """Resolve model path, extracting from archive if necessary (reuses export_model logic)"""
+    
+    if not model_path_param or not model_path_param.startswith('ovr_models/'):
+        return folder + '/pipeline'
+    
+    # Extract model filename from path
+    model_filename = model_path_param.replace('ovr_models/', '')
+    individual_path = folder + '/models/' + model_path_param
+    
+    # Check if individual file exists first
+    if os.path.exists(individual_path + '.joblib'):
+        return individual_path
+    
+    # Try to extract from archive (reuse export_model logic)
+    archive_path = folder + '/models/ovr_models.tar.gz'
+    if os.path.exists(archive_path):
+        try:
+            # Create temp directory for extracted model
+            temp_dir = tempfile.mkdtemp()
+            temp_model_path = temp_dir + '/' + model_filename
+            
+            with tarfile.open(archive_path, "r:gz") as tar:
+                member_path = f"ovr_models/{model_filename}.joblib"
+                member = tar.getmember(member_path)
+                tar.extract(member, temp_dir)
+                
+                # Move to expected location (without .joblib extension for predict/generalize functions)
+                extracted_file = temp_dir + '/' + member.name
+                os.rename(extracted_file, temp_model_path + '.joblib')
+                
+            return temp_model_path
+            
+        except (KeyError, tarfile.TarError) as e:
+            print(f"Error extracting OvR model {model_filename}: {e}")
+    
+    # Fallback to main model
+    print(f"Warning: OvR model {model_filename} not found, using main model")
+    return folder + '/pipeline'
+
 def get():
     """Get all the jobs for a given user ID"""
 
@@ -336,9 +376,12 @@ def test(jobid):
 
     payload = json.loads(request.data)
 
+    # Dynamic path resolution for OvR models with archive support
+    model_path = resolve_model_path_with_archive(folder, payload.get('model_path'))
+
     reply = predict(
         payload['data'],
-        folder + '/pipeline',
+        model_path,
         payload['threshold']
     )
 
@@ -436,11 +479,22 @@ def generalize(jobid):
         payload['data']['data'] = test_data
         payload['data']['columns'] = test_data.columns
 
+    # Convert features list to dictionary format for preprocess() function
+    if 'features' in payload['data'] and isinstance(payload['data']['features'], list):
+        features_dict = {feature: True for feature in payload['data']['features']}
+        payload['data']['features'] = features_dict
+
+    # Dynamic path resolution for OvR models with archive support
+    model_path = resolve_model_path_with_archive(folder, payload.get('model_path'))
+    
+    # Extract class_index from request payload (unified approach for all model types)
+    class_index = payload.get('class_index')
+
     return jsonify({
-        'generalization': generalize_model(payload['data'], dataset_metadata['label'], folder + '/pipeline', payload['threshold']),
-        'reliability': additional_reliability(payload['data'], dataset_metadata['label'], folder + '/pipeline'),
-        'precision_recall': additional_precision(payload['data'], dataset_metadata['label'], folder + '/pipeline'),
-        'roc_auc': additional_roc(payload['data'], dataset_metadata['label'], folder + '/pipeline')
+        'generalization': generalize_model(payload['data'], dataset_metadata['label'], model_path, payload['threshold'], class_index),
+        'reliability': additional_reliability(payload['data'], dataset_metadata['label'], model_path, class_index),
+        'precision_recall': additional_precision(payload['data'], dataset_metadata['label'], model_path, class_index),
+        'roc_auc': additional_roc(payload['data'], dataset_metadata['label'], model_path, class_index)
     })
 
 def get_class_specific_results(jobid, class_index):
