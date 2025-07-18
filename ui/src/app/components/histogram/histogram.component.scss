@@ -1,6 +1,18 @@
 ::ng-deep {
   .histogram {
     width: 100%;
+
+    // Legend text using global text color
+    .legend text {
+      fill: var(--ion-text-color);
+      font-size: 10px;
+      font-family: inherit;
+    }
+    
+    // Axis text should also use global color for consistency
+    .axis text {
+      fill: var(--ion-text-color);
+    }
   }
 
   .bar.positive rect {
@@ -20,7 +32,7 @@
   .axis path,
   .axis line {
     fill: none;
-    stroke: #000;
+    stroke: var(--ion-text-color);
     shape-rendering: crispEdges;
   }
 }

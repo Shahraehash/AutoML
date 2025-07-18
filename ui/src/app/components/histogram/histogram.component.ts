@@ -30,7 +30,7 @@ export class HistogramComponent implements OnInit, OnChanges {
 
   private initializeSvg() {
     this.svg = d3.select(this.element.nativeElement).select('svg');
-    const margin = { top: 20, right: 20, bottom: 30, left: 20 };
+    const margin = { top: 20, right: 120, bottom: 30, left: 20 };
     const width = 300 - margin.left - margin.right;
     const height = 200 - margin.top - margin.bottom;
     
@@ -43,7 +43,7 @@ export class HistogramComponent implements OnInit, OnChanges {
 
   private drawHistogram() {
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 20 };
+    const margin = { top: 20, right: 120, bottom: 30, left: 20 };
     const width = 300 - margin.left - margin.right;
     const height = 200 - margin.top - margin.bottom;
     
@@ -108,7 +108,7 @@ export class HistogramComponent implements OnInit, OnChanges {
     if (classNames.length > 1) {
       const legend = g.append('g')
         .attr('class', 'legend')
-        .attr('transform', `translate(${width - 80}, 10)`);
+        .attr('transform', `translate(${width + 20}, 10)`);
 
       classNames.forEach((className, index) => {
         const legendRow = legend.append('g')

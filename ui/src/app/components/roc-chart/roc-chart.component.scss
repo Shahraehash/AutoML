@@ -4,7 +4,7 @@
     width: 100%;
 
     .axis {
-      fill: var(--ion-color-dark);
+      fill: var(--ion-text-color);
 
       path,
       line {
@@ -37,19 +37,9 @@
     text {
       text-transform: capitalize;
     }
-  }
-}
 
-@media (prefers-color-scheme: dark) {
-  ::ng-deep {
-    .roc {
-      .axis {
-        fill: var(--ion-color-light);
-      }
-
-      .auc-text {
-        fill: white;
-      }
+    .auc-text {
+      fill: var(--ion-text-color);
     }
   }
 }
