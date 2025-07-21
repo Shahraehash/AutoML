@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Auth, authState } from '@angular/fire/auth';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { parse } from 'papaparse';
 import { Observable, ReplaySubject } from 'rxjs';
@@ -32,6 +32,11 @@ export class UploadComponent implements OnInit, OnDestroy {
   labels = [];
   keys = Object.keys;
   uploadForm: FormGroup;
+  
+  // Class labeling properties
+  uniqueClassValues: any[] = [];
+  classLabels: {[key: string]: string} = {};
+  showClassLabeling = false;
 
   constructor(
     public api: MiloApiService,
@@ -68,12 +73,28 @@ export class UploadComponent implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
+    // Validate class labels if class labeling is shown
+    if (this.showClassLabeling && !this.validateClassLabels()) {
+      const alert = await this.alertController.create({
+        header: 'Missing Class Labels',
+        message: 'Please provide labels for all classes.',
+        buttons: ['OK']
+      });
+      await alert.present();
+      return;
+    }
+
     const loading = await this.loadingController.create({message: 'Uploading dataset...'});
     await loading.present();
     const formData = new FormData();
     formData.append('train', this.uploadForm.get('train').value);
     formData.append('test', this.uploadForm.get('test').value);
     formData.append('label_column', this.uploadForm.get('label_column').value);
+    
+    // Add class labels if they exist
+    if (this.showClassLabeling && Object.keys(this.classLabels).length > 0) {
+      formData.append('class_labels', JSON.stringify(this.classLabels));
+    }
 
     this.api.submitData(formData).then(
       () => {
@@ -130,6 +151,8 @@ export class UploadComponent implements OnInit, OnDestroy {
           if (event.target.name === 'train') {
             this.labels = (reply.data as any[]).reverse();
             this.uploadForm.get('test').reset();
+            // Reset class labeling when new training file is selected
+            this.resetClassLabeling();
             if (new Set(this.labels).size !== this.labels.length) {
               const alert = await this.alertController.create({
                 buttons: ['Dismiss'],
@@ -260,7 +283,141 @@ export class UploadComponent implements OnInit, OnDestroy {
 
   reset() {
     this.element.nativeElement.querySelectorAll('input[type="file"]').forEach(node => node.value = '');
+    
+    // Remove class label form controls before resetting
+    this.resetClassLabeling();
+    
     this.uploadForm.reset();
+  }
+
+  // Reset class labeling state and remove form controls
+  resetClassLabeling() {
+    // Remove existing class label form controls
+    this.uniqueClassValues.forEach(value => {
+      const controlName = `class_label_${value}`;
+      if (this.uploadForm.contains(controlName)) {
+        this.uploadForm.removeControl(controlName);
+      }
+    });
+    
+    this.showClassLabeling = false;
+    this.uniqueClassValues = [];
+    this.classLabels = {};
+  }
+
+  // Parse CSV to extract unique target column values
+  async parseTargetColumnValues(file: File, targetColumn: string): Promise<any[]> {
+    return new Promise((resolve) => {
+      parse(file, {
+        worker: true,
+        header: true,
+        complete: (results) => {
+          const uniqueValues = [...new Set(results.data.map(row => row[targetColumn]))];
+          const cleanedValues = uniqueValues
+            .filter(val => val !== null && val !== undefined && val !== '')
+            .map(val => {
+              // Convert float strings to integers if they represent whole numbers
+              const numVal = parseFloat(val);
+              if (!isNaN(numVal) && numVal % 1 === 0) {
+                return Math.floor(numVal).toString();
+              }
+              return val.toString();
+            });
+          resolve(cleanedValues);
+        }
+      });
+    });
+  }
+
+  // Initialize class label inputs
+  initializeClassLabels(uniqueValues: any[]) {
+    this.uniqueClassValues = uniqueValues.sort();
+    this.classLabels = {};
+    
+    // Remove existing class label form controls
+    this.uniqueClassValues.forEach(value => {
+      const controlName = `class_label_${value}`;
+      if (this.uploadForm.contains(controlName)) {
+        this.uploadForm.removeControl(controlName);
+      }
+    });
+    
+    // Add new form controls for each class
+    this.uniqueClassValues.forEach(value => {
+      const defaultLabel = `Class ${value}`;
+      this.classLabels[value] = defaultLabel;
+      
+      // Add form control with validation
+      const controlName = `class_label_${value}`;
+      const control = new FormControl(defaultLabel, [
+        Validators.required,
+        Validators.minLength(1),
+        this.validClassLabelValidator.bind(this)
+      ]);
+      
+      this.uploadForm.addControl(controlName, control);
+      
+      // Subscribe to form control value changes to update classLabels object
+      control.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(newValue => {
+        if (newValue !== null && newValue !== undefined) {
+          this.classLabels[value] = newValue;
+        }
+      });
+    });
+    
+    this.showClassLabeling = true;
+  }
+
+  // Custom validator for class labels
+  validClassLabelValidator(control: FormControl) {
+    if (!control.value || control.value.trim().length === 0) {
+      return { required: true };
+    }
+    
+    // Check for characters that could cause CSS selector issues
+    const invalidChars = /[<>{}[\]\\\/\'"`;:]/;
+    if (invalidChars.test(control.value)) {
+      return { invalidCharacters: true };
+    }
+    
+    return null;
+  }
+
+  // Validate all classes have labels using form controls
+  validateClassLabels(): boolean {
+    if (!this.showClassLabeling || this.uniqueClassValues.length === 0) {
+      return true; // No class labeling required
+    }
+    
+    return this.uniqueClassValues.every(value => {
+      const controlName = `class_label_${value}`;
+      const control = this.uploadForm.get(controlName);
+      return control && control.valid && control.value && control.value.trim().length > 0;
+    });
+  }
+
+
+  // Called when target column is selected
+  async onTargetColumnChange(targetColumn: string) {
+    if (targetColumn && this.uploadForm.get('train').value) {
+      try {
+        const uniqueValues = await this.parseTargetColumnValues(
+          this.uploadForm.get('train').value, 
+          targetColumn
+        );
+        
+        if (uniqueValues.length > 1) {
+          this.initializeClassLabels(uniqueValues);
+        } else {
+          this.resetClassLabeling();
+        }
+      } catch (error) {
+        console.error('Error parsing target column values:', error);
+        this.resetClassLabeling();
+      }
+    } else {
+      this.resetClassLabeling();
+    }
   }
 
   private async updateView() {

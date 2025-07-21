@@ -134,7 +134,7 @@ def get_available_models_with_class_results(class_results_dir):
 def generate_ovr_models_and_results(
     pipeline, features, main_model, main_result, 
     x_train, y_train, x_test, y_test, x2, y2, labels,
-    estimator, scorer, reoptimize_ovr=False
+    estimator, scorer, reoptimize_ovr=False, custom_labels=None, label_mapping_info=None
 ):
     """Generate OvR models and return both CSV entries and class data for .pkl.gz storage"""
     n_classes = len(np.unique(y_train))
@@ -198,7 +198,7 @@ def generate_ovr_models_and_results(
         
         # Create CSV entry for this OvR model using already computed metrics
         csv_entry = create_ovr_csv_entry(
-            main_result, class_idx, ovr_best_params, class_metrics
+            main_result, class_idx, ovr_best_params, class_metrics, custom_labels, label_mapping_info
         )
         
         csv_entries.append(csv_entry)
@@ -206,7 +206,32 @@ def generate_ovr_models_and_results(
     return csv_entries, all_class_data, ovr_models, total_fits
 
 
-def create_ovr_csv_entry(main_result, class_idx, ovr_best_params, class_metrics):
+def get_class_label(class_index, custom_labels, label_mapping_info=None):
+    """Helper function to get custom class label or fall back to generic label"""
+    if class_index is None:
+        return None
+    
+    # If we have custom labels, we need to map from normalized index back to original label
+    if custom_labels:
+        original_label = class_index  # Default to class_index if no mapping available
+        
+        # If we have label mapping info, use inverse mapping to get original label
+        if label_mapping_info and 'inverse_mapping' in label_mapping_info:
+            original_label = label_mapping_info['inverse_mapping'].get(class_index, class_index)
+        
+        # Look up custom label using original label as key
+        original_label_str = str(original_label)
+        if original_label_str in custom_labels:
+            return custom_labels[original_label_str]
+        
+        # Also try looking up by normalized index for backward compatibility
+        if str(class_index) in custom_labels:
+            return custom_labels[str(class_index)]
+    
+    return f"Class {class_index}"
+
+
+def create_ovr_csv_entry(main_result, class_idx, ovr_best_params, class_metrics, custom_labels=None, label_mapping_info=None):
     """Create a CSV entry for an OvR model using already computed metrics"""
 
     # Create base CSV entry
@@ -214,6 +239,7 @@ def create_ovr_csv_entry(main_result, class_idx, ovr_best_params, class_metrics)
         'key': f"{main_result['key']}_ovr_class_{class_idx}",
         'class_type': 'ovr',
         'class_index': class_idx,
+        'class_label': get_class_label(class_idx, custom_labels, label_mapping_info),
         'scaler': main_result['scaler'],
         'feature_selector': main_result['feature_selector'],
         'algorithm': main_result['algorithm'],

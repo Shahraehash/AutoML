@@ -14,6 +14,7 @@ export class FeatureAnalysisComponent {
   @Input() isInvalid: boolean;
   @Input() name: string;
   @Input() classHistograms: {[key: string]: [number[], number[]]};
+  @Input() classLabelMapping: {[key: string]: string};
 
   constructor() {}
 }

@@ -9,6 +9,7 @@
       [nullCount]='data.null'
       [isInvalid]='data.invalid.includes(label)'
       [classHistograms]='getClassHistograms(label)'
+      [classLabelMapping]='data.histogram?.class_label_mapping'
       [name]='label'
     ></app-feature-analysis>
 
@@ -20,6 +21,7 @@
       [nullCount]='data.null'
       [isInvalid]='data.invalid.includes(feature)'
       [classHistograms]='getClassHistograms(feature)'
+      [classLabelMapping]='data.histogram?.class_label_mapping'
       [name]='feature'
     ></app-feature-analysis>
   </cdk-virtual-scroll-viewport>

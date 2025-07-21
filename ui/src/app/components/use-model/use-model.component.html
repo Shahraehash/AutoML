@@ -57,7 +57,7 @@
         <div *ngIf='isClassSpecificView' class='ion-margin-top'>
           <ion-note color='primary'>
             <ion-icon name='analytics' slot='start'></ion-icon>
-            Viewing Class {{classIndex}} vs All Others (One-vs-Rest model)
+            Viewing {{getCustomClassLabel(classIndex)}} vs All Others (One-vs-Rest model)
           </ion-note>
         </div>
         <div *ngIf='!result' class='ion-margin-top'>
@@ -74,7 +74,7 @@
         </div>
         <div *ngIf='result'>
           <span class='label'>Predicted Outcome</span>:
-          {{result.predicted[0] === 1 ? 'Positive' : result.predicted[0] === 0 ? 'Negative' : 'Equivocal'}} for {{ result.target }}
+          {{getPredictionLabel(result.predicted[0])}} for {{ result.target }}
           <ion-icon class='indicator' size='large' [color]='result.predicted[0] === 1 ? "danger" : result.predicted[0] === 0 ? "success" : "warning"'
             [name]='result.predicted[0] === 1 ? "add-circle" : result.predicted[0] === 0 ? "remove-circle" : "help-circle"'></ion-icon>
           <br><br>

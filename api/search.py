@@ -37,7 +37,7 @@ from ml.refit import refit_model
 from ml.roc import roc
 from ml.summary import print_summary
 from ml.utils import model_key_to_name
-from ml.class_results import save_class_results, generate_ovr_models_and_results
+from ml.class_results import save_class_results, generate_ovr_models_and_results, get_class_label
 from ml.memory_manager import MemoryManager
 
 # Load environment variables
@@ -133,6 +133,8 @@ def save_model_with_memory_management(memory_mgr, model_dict, output_path, model
         memory_mgr.save_model_with_cleanup(model, model_path, key)
 
 
+
+
 def find_best_model(
         train_set=None,
         test_set=None,
@@ -149,6 +151,19 @@ def find_best_model(
     memory_mgr.log_memory_stats("initialization")
 
     start = timer()
+
+    # Load custom class labels from job metadata
+    custom_labels = None
+    metadata_path = output_path + '/metadata.json'
+    if os.path.exists(metadata_path):
+        try:
+            with open(metadata_path, 'r') as metafile:
+                job_metadata = json.load(metafile)
+                custom_labels = job_metadata.get('class_labels', None)
+                if custom_labels:
+                    print(f"Loaded custom class labels: {custom_labels}")
+        except Exception as e:
+            print(f"Warning: Could not load custom class labels: {e}")
 
     # Parse parameters
     ignore_estimator = [x.strip() for x in parameters.get('ignore_estimator', '').split(',')]
@@ -276,6 +291,7 @@ def find_best_model(
                     'key': candidate_key,
                     'class_type': 'multiclass' if n_classes > 2 else 'binary',
                     'class_index': None,
+                    'class_label': get_class_label(None, custom_labels, metadata.get('label_mapping')),
                     'scaler': SCALER_NAMES[scaler],
                     'feature_selector': FEATURE_SELECTOR_NAMES[feature_selector],
                     'algorithm': ESTIMATOR_NAMES[estimator],
@@ -334,7 +350,7 @@ def find_best_model(
                     csv_entries, class_data, new_ovr_models, additional_fits = generate_ovr_models_and_results(
                         pipeline[0], model['features'], candidate['best_estimator'], result,
                         x_train, y_train, x_test, y_test, x2, y2, labels,
-                        estimator, scorer, reoptimize_ovr
+                        estimator, scorer, reoptimize_ovr, custom_labels, metadata.get('label_mapping')
                     )
                     
                     total_fits[estimator] += additional_fits

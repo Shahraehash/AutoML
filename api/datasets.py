@@ -80,18 +80,26 @@ def add():
     train.save(folder + '/train.csv')
     test.save(folder + '/test.csv')
 
+    # Extract class labels if provided
+    class_labels = None
+    if 'class_labels' in request.form:
+        class_labels = json.loads(request.form['class_labels'])
+        
+
     try:
-        process_files(folder, request.form['label_column'])
+        process_files(folder, request.form['label_column'], class_labels)
     except ValueError as reason:
         print(f"Dataset validation failed for user {g.uid}: {reason}")
         rmtree(folder)
         abort(406, jsonify({
-          'reason': reason
+          'reason': str(reason)
         }))
     except Exception as e:
         print(f"Unexpected error processing dataset for user {g.uid}: {e}")
         rmtree(folder)
-        abort(500)
+        abort(500, jsonify({
+          'error': str(e)
+        }))
 
     return jsonify({'id': datasetid})
 
@@ -128,35 +136,48 @@ def describe(datasetid):
     with open(folder + '/metadata.json') as metafile:
         metadata = json.load(metafile)
 
+    # Extract custom class labels if they exist
+    custom_labels = metadata.get('class_labels', None)
+
     return {
-        'analysis': Describe(folder, metadata['label']),
+        'analysis': Describe(folder, metadata['label'], custom_labels),
         'label': metadata['label']
     }
 
-def process_files(folder, label_column):
+def process_files(folder, label_column, class_labels=None):
     """Cleans CSV headers and generates dataset metadata"""
 
     features = clean_csv_headers(folder + '/train.csv', label_column)
     clean_csv_headers(folder + '/test.csv', label_column)
 
-    train = import_csv(folder + '/train.csv', label_column)[0]
-    test = import_csv(folder + '/test.csv', label_column)[0]
+    # Pass custom labels to import_csv for processing and get label mapping info
+    train_data, train_y, train_features, train_counts, train_num_classes, train_label_mapping = import_csv(
+        folder + '/train.csv', label_column, custom_labels=class_labels
+    )
+    test_data, test_y, test_features, test_counts, test_num_classes, test_label_mapping = import_csv(
+        folder + '/test.csv', label_column, custom_labels=class_labels
+    )
 
-    if train.shape[0] < 50:
+    if train_data.shape[0] < 50:
         raise ValueError('training_rows_insufficient')
 
-    if train.shape[0] > 10000:
+    if train_data.shape[0] > 10000:
         raise ValueError('training_rows_excess')
 
-    if train.shape[1] > 2000:
+    if train_data.shape[1] > 2000:
         raise ValueError('training_features_excess')
 
-    if test.shape[0] > 100000:
+    if test_data.shape[0] > 100000:
         raise ValueError('test_rows_excess')
+
+    # Use train label mapping as primary (test should have same classes)
+    label_mapping_info = train_label_mapping or test_label_mapping
 
     metadata = {
         'label': label_column,
-        'features': features
+        'features': features,
+        'class_labels': class_labels,  # Store original custom class labels
+        'label_mapping': label_mapping_info  # Store the complete label mapping info
     }
     with open(folder + '/metadata.json', 'w') as metafile:
         json.dump(metadata, metafile)

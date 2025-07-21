@@ -30,6 +30,7 @@ export class UseModelComponent implements OnInit {
   @Input() modelKey: string;
   @Input() classIndex?: number;
   @Input() isMulticlass?: boolean;
+  @Input() customClassLabels?: {[key: number]: string};
   parsedFeatures: string[];
   testForm: FormGroup;
   result: TestReply;
@@ -59,6 +60,25 @@ export class UseModelComponent implements OnInit {
     }
     // Use default main model path
     return undefined;
+  }
+
+  getCustomClassLabel(classIndex: number): string {
+    if (this.customClassLabels && this.customClassLabels[classIndex]) {
+      return this.customClassLabels[classIndex];
+    }
+    return `Class ${classIndex}`;
+  }
+
+  getPredictionLabel(prediction: number): string {
+    if (this.isMulticlass && this.customClassLabels) {
+      // For multiclass, prediction is the class index
+      return this.getCustomClassLabel(prediction);
+    } else {
+      // For binary classification, use traditional positive/negative/equivocal
+      if (prediction === 1) return 'Positive';
+      if (prediction === 0) return 'Negative';
+      return 'Equivocal';
+    }
   }
 
   constructor(

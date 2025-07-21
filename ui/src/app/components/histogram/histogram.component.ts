@@ -8,12 +8,44 @@ import * as d3 from 'd3';
 })
 export class HistogramComponent implements OnInit, OnChanges {
   @Input() classData: {[key: string]: [number[], number[]]};
+  @Input() classLabelMapping: {[key: string]: string};
   private svg;
   private colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 
   constructor(
     private element: ElementRef
   ) {}
+
+  /**
+   * Sanitizes class names to be valid CSS selectors
+   * Removes/replaces characters that are invalid in CSS class names
+   */
+  private sanitizeClassName(className: string): string {
+    return className
+      .replace(/\s+/g, '-')           // Replace spaces with hyphens
+      .replace(/[^a-zA-Z0-9\-_]/g, '') // Remove invalid characters, keep alphanumeric, hyphens, underscores
+      .replace(/^[0-9]/, 'class-$&')   // Prefix with 'class-' if starts with number
+      .toLowerCase();                  // Convert to lowercase for consistency
+  }
+
+  /**
+   * Gets the display label for a class name
+   * Uses class label mapping if available, otherwise falls back to default naming
+   */
+  private getDisplayLabel(className: string): string {
+    // Use class label mapping if available
+    if (this.classLabelMapping && this.classLabelMapping[className]) {
+      return this.classLabelMapping[className];
+    }
+    
+    // If it's already a custom label, return as is
+    if (!className.startsWith('class_')) {
+      return className;
+    }
+    
+    // Convert class_0, class_1, etc. to "Class 0", "Class 1", etc.
+    return className.replace('class_', 'Class ');
+  }
 
   ngOnInit() {
     this.initializeSvg();
@@ -91,11 +123,12 @@ export class HistogramComponent implements OnInit, OnChanges {
     classNames.forEach((className, classIndex) => {
       const classColor = this.colors[classIndex % this.colors.length];
       const classDataPoints = allClassData.filter(d => d.class === className);
+      const sanitizedClassName = this.sanitizeClassName(className);
       
-      g.selectAll(`.bar-${className}`)
+      g.selectAll(`.bar-${sanitizedClassName}`)
         .data(classDataPoints)
         .enter().append('rect')
-        .attr('class', `bar-${className}`)
+        .attr('class', `bar-${sanitizedClassName}`)
         .attr('x', d => x(d.x) - barWidth / 2 + (classIndex * barWidth / classNames.length))
         .attr('y', d => y(d.y))
         .attr('width', barWidth / classNames.length - 1)
@@ -124,7 +157,7 @@ export class HistogramComponent implements OnInit, OnChanges {
           .attr('x', 15)
           .attr('y', 8)
           .style('font-size', '10px')
-          .text(className.replace('class_', 'Class '));
+          .text(this.getDisplayLabel(className));
       });
     }
   }

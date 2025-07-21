@@ -7,10 +7,10 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 
-def normalize_labels(y):
+def normalize_labels(y, custom_labels=None):
     """
     Normalize class labels to consecutive integers starting from 0.
-    Returns normalized labels and the mapping dictionary.
+    Returns normalized labels and the mapping dictionary including custom labels.
     """
     unique_labels = sorted(y.unique())
     
@@ -18,25 +18,55 @@ def normalize_labels(y):
     expected_labels = list(range(len(unique_labels)))
     if unique_labels == expected_labels:
         # Labels are already normalized
-        return y, None
+        mapping_info = None
+    else:
+        # Create mapping from original labels to consecutive labels
+        # Ensure all keys and values are native Python types for JSON serialization
+        label_mapping = {int(original.item()) if hasattr(original, 'item') else int(original): new 
+                        for new, original in enumerate(unique_labels)}
+        inverse_mapping = {new: int(original.item()) if hasattr(original, 'item') else int(original) 
+                          for original, new in label_mapping.items()}
+        
+        # Transform labels
+        y = y.map(label_mapping)
+        mapping_info = {
+            'label_mapping': label_mapping,
+            'inverse_mapping': inverse_mapping,
+            'original_labels': [int(label.item()) if hasattr(label, 'item') else int(label) for label in unique_labels]
+        }
     
-    # Create mapping from original labels to consecutive labels
-    # Ensure all keys and values are native Python types for JSON serialization
-    label_mapping = {int(original.item()) if hasattr(original, 'item') else int(original): new 
-                    for new, original in enumerate(unique_labels)}
-    inverse_mapping = {new: int(original.item()) if hasattr(original, 'item') else int(original) 
-                      for original, new in label_mapping.items()}
-    
-    # Transform labels
-    y_normalized = y.map(label_mapping)
-    
-    print(f"Normalized class labels: {unique_labels} -> {expected_labels}")
-    
-    return y_normalized, {
-        'label_mapping': label_mapping,
-        'inverse_mapping': inverse_mapping,
-        'original_labels': [int(label.item()) if hasattr(label, 'item') else int(label) for label in unique_labels]
-    }
+    # Add custom labels to mapping info
+    if custom_labels and mapping_info:
+        # Map custom labels to normalized indices
+        custom_label_mapping = {}
+        for original_label_str, custom_label in custom_labels.items():
+            try:
+                # Handle float strings like "0.0" by converting to float first, then int
+                original_int = int(float(original_label_str))
+                if original_int in mapping_info['label_mapping']:
+                    normalized_index = mapping_info['label_mapping'][original_int]
+                    custom_label_mapping[normalized_index] = custom_label
+                else:
+                    print(f"WARNING: Original label {original_int} not found in label mapping {list(mapping_info['label_mapping'].keys())}")
+            except (ValueError, TypeError) as e:
+                print(f"ERROR: Could not process custom label '{original_label_str}': {e}")
+        
+        mapping_info['custom_labels'] = custom_label_mapping
+    elif custom_labels:
+        # Labels were already normalized, create direct mapping
+        # Handle float strings like "0.0" by converting to float first, then int
+        custom_label_mapping = {}
+        for k, v in custom_labels.items():
+            try:
+                int_key = int(float(k))
+                custom_label_mapping[int_key] = v
+            except (ValueError, TypeError) as e:
+                print(f"ERROR: Could not process direct custom label '{k}': {e}")
+        
+        mapping_info = {
+            'custom_labels': custom_label_mapping
+        }
+    return y, mapping_info
 
 def import_data(train_path, test_path, label_column):
     """Import both the training and test data using the passed paths"""
@@ -63,7 +93,7 @@ def import_train(train_path, label_column):
     x, y, feature_names, _, _, label_mapping_info = import_csv(train_path, label_column, True)
     return train_test_split(x, y, test_size=.2, random_state=5, stratify=y) + [feature_names, label_mapping_info]
 
-def import_csv(path, label_column, show_warning=False):
+def import_csv(path, label_column, show_warning=False, custom_labels=None):
     """Import the specificed sheet"""
 
     # Read the CSV to memory and drop rows with empty values
@@ -79,7 +109,7 @@ def import_csv(path, label_column, show_warning=False):
     y = data[label_column]
 
     # Normalize labels to consecutive integers starting from 0
-    y_normalized, label_mapping_info = normalize_labels(y)
+    y_normalized, label_mapping_info = normalize_labels(y, custom_labels)
 
     # Grab the feature names
     feature_names = list(x)

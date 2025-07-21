@@ -41,6 +41,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
   starred: string[];
   selectedClass: string | number = 'all';
   classSpecificData: any = {};
+  customClassLabels: {[key: number]: string} = {};
   columns: {key: string; class?: string, name: string; number?: boolean, hideOnWidth?: number}[] = [
     {
       key: 'algorithm',
@@ -180,6 +181,19 @@ export class ResultsComponent implements OnInit, OnDestroy {
     // Store ALL results (including OvR models) for filtering
     this.originalResults = JSON.parse(JSON.stringify(data.results));
     this.metadata = data.metadata;
+    
+    // Load custom class labels from metadata - prioritize the processed label mapping
+    if (this.metadata.label_mapping && this.metadata.label_mapping.custom_labels) {
+      // Use the processed custom labels that are already mapped to normalized indices
+      this.customClassLabels = this.metadata.label_mapping.custom_labels;
+    } else if (this.metadata.class_labels) {
+      // Fallback to original format for backward compatibility
+      // Convert string keys to numbers for consistent access
+      this.customClassLabels = {};
+      for (const [key, value] of Object.entries(this.metadata.class_labels)) {
+        this.customClassLabels[parseInt(key)] = value;
+      }
+    }
     
     // Show only main models by default (macro-averaged)
     const mainModels = data.results.filter(result => 
@@ -501,7 +515,8 @@ export class ResultsComponent implements OnInit, OnDestroy {
             generalization: reply.generalization,
             modelKey: this.sortedData[index].key,
             classIndex: this.selectedClass !== 'all' ? this.selectedClass : undefined,
-            isMulticlass: this.isMulticlass()
+            isMulticlass: this.isMulticlass(),
+            customClassLabels: this.customClassLabels
           }
         });
         await modal.present();
@@ -549,18 +564,20 @@ export class ResultsComponent implements OnInit, OnDestroy {
           </ion-item>
           ${this.metadata.train_class_counts ? Object.keys(this.metadata.train_class_counts).map(classKey => {
             const classNumber = classKey.replace('class_', '').replace('_count', '');
+            const customLabel = this.getCustomClassLabel(classNumber);
             return `
               <ion-item>
-                <ion-label>Training Class ${classNumber} Cases</ion-label>
+                <ion-label>Training ${customLabel} Cases</ion-label>
                 <ion-note slot='end'>${this.metadata.train_class_counts[classKey]}</ion-note>
               </ion-item>
             `;
           }).join('') : ''}
           ${this.metadata.test_class_counts ? Object.keys(this.metadata.test_class_counts).map(classKey => {
             const classNumber = classKey.replace('class_', '').replace('_count', '');
+            const customLabel = this.getCustomClassLabel(classNumber);
             return `
               <ion-item>
-                <ion-label>Testing (Generalization) Class ${classNumber} Cases</ion-label>
+                <ion-label>Testing (Generalization) ${customLabel} Cases</ion-label>
                 <ion-note slot='end'>${this.metadata.test_class_counts[classKey]}</ion-note>
               </ion-item>
             `;
@@ -586,7 +603,9 @@ export class ResultsComponent implements OnInit, OnDestroy {
           {
             text: 'Export Results',
             handler: () => {
-              this.api.exportCSV(this.selectedClass).then(url => window.open(url, '_self'));
+              // Pass custom class label instead of numeric index
+              const exportParam = this.selectedClass === 'all' ? 'all' : this.getCustomClassLabel(this.selectedClass);
+              this.api.exportCSV(exportParam).then(url => window.open(url, '_self'));
               return false;
             },
             role: 'secondary'
@@ -683,36 +702,64 @@ export class ResultsComponent implements OnInit, OnDestroy {
     // Generate class labels based on number of classes
     const labels = [];
     for (let i = 0; i < numClasses; i++) {
-      labels.push(`Class ${i}`);
+      // Use the same logic as the backend get_class_label function
+      let customLabel = null;
+      
+      // If we have label mapping info with inverse mapping, use it
+      if (this.metadata.label_mapping && this.metadata.label_mapping.inverse_mapping) {
+        const originalLabel = this.metadata.label_mapping.inverse_mapping[i];
+        if (originalLabel !== undefined && this.customClassLabels) {
+          customLabel = this.customClassLabels[originalLabel.toString()];
+        }
+      }
+      
+      // Fallback: try direct lookup by normalized index for backward compatibility
+      if (!customLabel && this.customClassLabels) {
+        customLabel = this.customClassLabels[i] || this.customClassLabels[i.toString()];
+      }
+      
+      // Final fallback to generic label
+      labels.push(customLabel || `Class ${i}`);
     }
     return labels;
   }
 
-  onClassChange() {
-    console.log('onClassChange called, selectedClass:', this.selectedClass);
-    console.log('originalResults length:', this.originalResults?.length);
+  getCustomClassLabel(classNumber: string | number): string {
+    // Convert to number for consistent processing
+    const classIndex = typeof classNumber === 'string' ? parseInt(classNumber) : classNumber;
     
+    // Use the same logic as getClassLabels for consistency
+    let customLabel = null;
+    
+    // If we have label mapping info with inverse mapping, use it
+    if (this.metadata.label_mapping && this.metadata.label_mapping.inverse_mapping) {
+      const originalLabel = this.metadata.label_mapping.inverse_mapping[classIndex];
+      if (originalLabel !== undefined && this.customClassLabels) {
+        customLabel = this.customClassLabels[originalLabel.toString()];
+      }
+    }
+    
+    // Fallback: try direct lookup by normalized index for backward compatibility
+    if (!customLabel && this.customClassLabels) {
+      customLabel = this.customClassLabels[classIndex] || this.customClassLabels[classIndex.toString()];
+    }
+    
+    // Final fallback to generic label
+    return customLabel || `Class ${classNumber}`;
+  }
+
+  onClassChange() {    
     if (this.selectedClass === 'all') {
       // Show main multiclass models (macro-averaged)
       const mainModels = this.originalResults.filter(result => 
         result.class_type === 'multiclass' || result.class_type === 'binary'
       );
-      console.log('Main models found:', mainModels.length);
-      console.log('Sample main model:', mainModels[0]);
       this.updateTableData(mainModels);
     } else {
-      // Show OvR models for specific class
-      console.log('Looking for OvR models with class_type="ovr" and class_index=', this.selectedClass);
-      
       // Debug: show all class_type values
       const classTypes = this.originalResults.map(r => r.class_type);
-      console.log('All class_type values:', [...new Set(classTypes)]);
-      
       // Debug: show all class_index values and their types
       const classIndices = this.originalResults.map(r => r.class_index);
-      console.log('All class_index values:', [...new Set(classIndices)]);
-      console.log('class_index types:', [...new Set(classIndices.map(v => typeof v))]);
-      console.log('selectedClass type:', typeof this.selectedClass);
       
       // Debug: show sample records with class_type and class_index
       const sampleRecords = this.originalResults.slice(0, 5).map(r => ({
@@ -721,12 +768,10 @@ export class ResultsComponent implements OnInit, OnDestroy {
         class_index: r.class_index,
         class_index_type: typeof r.class_index
       }));
-      console.log('Sample records:', sampleRecords);
       
       const classModels = this.originalResults.filter(result => 
         result.class_type === 'ovr' && result.class_index == this.selectedClass
       );
-      console.log('OvR models found for class', this.selectedClass, ':', classModels.length);
       if (classModels.length > 0) {
         console.log('Sample OvR model:', classModels[0]);
       }

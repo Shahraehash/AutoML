@@ -16,11 +16,40 @@
         Select Secondary Testing Data (Generalization)
         <input type='file' name='test' (change)='onFileSelect($event)' [disabled]='!uploadForm.get("train").valid' accept='.csv, text/csv'>
       </label>
-      <ion-select class='target-select' placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column'>
+      <ion-select class='target-select' placeholder='Target Column' interface='popover' [disabled]='!labels.length' formControlName='label_column' (ionChange)='onTargetColumnChange($event.detail.value)'>
         <ion-select-option *ngFor='let label of labels' [value]='label'>{{label}}</ion-select-option>
       </ion-select>
 
-      <ion-button expand='block' class='submit' (click)='onSubmit()' [disabled]='!uploadForm.valid'>
+      <!-- Class Labeling Section -->
+      <div *ngIf='showClassLabeling' class='class-labeling-section ion-margin-top'>
+        <ion-card class='ion-padding'>
+          <ion-card-header>
+            <ion-card-title>Label Your Classes</ion-card-title>
+            <ion-card-subtitle>Provide meaningful names for each class value found in your target column</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item *ngFor='let classValue of uniqueClassValues' class='ion-margin-bottom'>
+              <ion-label position='stacked'>Class Value: <strong>{{classValue}}</strong></ion-label>
+              <ion-input 
+                [formControlName]="'class_label_' + classValue"
+                placeholder='Enter a descriptive label (e.g., "Positive", "Negative", "High Risk")'
+                required>
+              </ion-input>
+              <ion-note 
+                *ngIf="uploadForm.get('class_label_' + classValue)?.errors?.['invalidCharacters']" 
+                color="danger" 
+                slot="helper">
+                Invalid characters detected. Please avoid special characters that could cause display issues.
+              </ion-note>
+            </ion-item>
+            <ion-note color='medium' class='ion-margin-top'>
+              These labels will be used throughout the results and exports instead of numeric class values.
+            </ion-note>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <ion-button expand='block' class='submit' (click)='onSubmit()' [disabled]='!uploadForm.valid || (showClassLabeling && !validateClassLabels())'>
         Next
       </ion-button>
 

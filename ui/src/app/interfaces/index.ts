@@ -34,6 +34,13 @@ export interface MetaData {
     n_classes?: number;
     parameters?: SearchParameters;
     date?: number;
+    class_labels?: {[key: string]: string};
+    label_mapping?: {
+        label_mapping?: {[key: number]: number};
+        inverse_mapping?: {[key: number]: number};
+        original_labels?: number[];
+        custom_labels?: {[key: number]: string};
+    };
 }
 
 export interface GeneralizationResult {
@@ -154,6 +161,7 @@ export interface DataAnalysis {
     summary: {[key: string]: DataAnalysisSummary};
     histogram: {
         by_class: {[key: string]: {[key: string]: [number[], number[]]}};
+        class_label_mapping?: {[key: string]: string};
     };
 }
 

@@ -130,6 +130,19 @@ def add():
 
     metadata['datasetid'] = datasetid
 
+    # Copy custom class labels from dataset metadata to job metadata
+    dataset_folder = 'data/users/' + g.uid + '/datasets/' + datasetid
+    dataset_metadata_path = dataset_folder + '/metadata.json'
+    
+    if os.path.exists(dataset_metadata_path):
+        with open(dataset_metadata_path) as dataset_metafile:
+            dataset_metadata = json.load(dataset_metafile)
+            
+        # Copy custom class labels if they exist - keep in original format
+        if 'class_labels' in dataset_metadata and dataset_metadata['class_labels']:
+            metadata['class_labels'] = dataset_metadata['class_labels']
+            print(f"Copied custom class labels to job {jobid}: {dataset_metadata['class_labels']}")
+
     with open(folder + '/metadata.json', 'w') as metafile:
         json.dump(metadata, metafile)
 
@@ -570,8 +583,11 @@ def export(jobid, class_index=None):
         abort(400)
         return
     
-    # Get class_index from query parameters if not passed as argument
-    if class_index is None:
+    # Get class_label from query parameters if not passed as argument
+    class_label = request.args.get('class_label')
+    
+    # Also check for legacy class_index parameter for backward compatibility
+    if class_label is None and class_index is None:
         class_index = request.args.get('class_index')
     
     try:
@@ -580,14 +596,33 @@ def export(jobid, class_index=None):
         abort(500)
         return
     
-    # Filter by class_index if specified
-    if class_index is not None:
+    # Filter by class_label if specified (preferred method)
+    if class_label is not None:
+        try:
+            # Filter by class_label column
+            if 'class_label' in df.columns:
+                original_count = len(df)
+                df = df[df['class_label'] == class_label]
+                # Create safe filename from class label
+                safe_label = class_label.lower().replace(' ', '_').replace('-', '_')
+                # Remove any non-alphanumeric characters except underscores
+                safe_label = ''.join(c for c in safe_label if c.isalnum() or c == '_')
+                filename = f'{safe_label}_report.csv'
+            else:
+                print("Warning: class_label column not found in report.csv")
+                filename = 'report.csv'
+        except Exception as e:
+            print(f"Error filtering by class_label: {e}")
+            filename = 'report.csv'
+    # Legacy support: Filter by class_index if specified
+    elif class_index is not None:
         try:
             class_index = int(class_index)
             original_count = len(df)
             df = df[df['class_index'] == class_index]
             filename = f'class_{class_index}_report.csv'
         except (ValueError, KeyError) as e:
+            print(f"Error filtering by class_index: {e}")
             filename = 'report.csv'
     else:
         filename = 'report.csv'
