@@ -79,7 +79,7 @@ def _compute_binary_generalization_report(labels, y_test, predictions, probabili
         binary_labels = labels
     
     # Print classification report with proper binary labels
-    print('\t', classification_report(y_test_binary, predictions_binary, target_names=binary_labels).replace('\n', '\n\t'))
+    print('\t', classification_report(y_test_binary, predictions_binary, target_names=binary_labels, zero_division=0).replace('\n', '\n\t'))
     print('\tGeneralization:')
     
     # Calculate metrics using the binary converted data
@@ -153,7 +153,7 @@ def _compute_multiclass_generalization_report(labels, y_test, predictions, proba
             raise ValueError(f"class_index must be an integer between 0 and {n_classes-1}")
     
     # Print classification report
-    print('\t', classification_report(y_test, predictions, target_names=labels).replace('\n', '\n\t'))
+    print('\t', classification_report(y_test, predictions, target_names=labels, zero_division=0).replace('\n', '\n\t'))
     print('\tGeneralization:')
     
     # Overall accuracy
