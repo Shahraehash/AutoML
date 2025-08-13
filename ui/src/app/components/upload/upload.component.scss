@@ -84,6 +84,60 @@ form {
     line-height: 1.4;
     margin-top: 4px;
   }
+
+  // Scrollable container styles
+  .class-labels-container {
+    width: 100%;
+  }
+
+  .class-labels-header {
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: var(--ion-color-primary-tint);
+    border-radius: 8px;
+    border-left: 4px solid var(--ion-color-primary);
+
+    ion-note {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      margin: 0;
+
+      ion-icon {
+        margin-right: 8px;
+        font-size: 1.1em;
+      }
+    }
+  }
+
+  .class-labels-scroll {
+    max-height: 400px; // Maximum height before scrolling kicks in
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px; // Space for scrollbar
+    
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: var(--ion-color-light);
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--ion-color-medium);
+      border-radius: 3px;
+      
+      &:hover {
+        background: var(--ion-color-medium-shade);
+      }
+    }
+
+    // Smooth scrolling
+    scroll-behavior: smooth;
+  }
 }
 
 @media(prefers-color-scheme: dark) {
@@ -91,6 +145,25 @@ form {
     ion-input {
       --background: var(--ion-color-dark);
       --color: var(--ion-color-light);
+    }
+
+    .class-labels-header {
+      background: var(--ion-color-primary-shade);
+      border-left-color: var(--ion-color-primary-tint);
+    }
+
+    .class-labels-scroll {
+      &::-webkit-scrollbar-track {
+        background: var(--ion-color-dark);
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: var(--ion-color-light);
+        
+        &:hover {
+          background: var(--ion-color-light-shade);
+        }
+      }
     }
   }
 }
@@ -125,6 +198,44 @@ form {
     margin: 10px auto;
     max-width: 100%;
     text-align: left;
+  }
+
+  .class-labeling-section {
+    .class-labels-scroll {
+      max-height: 300px; // Reduced height for mobile
+    }
+
+    .class-labels-header {
+      padding: 6px 10px;
+      margin-bottom: 12px;
+
+      ion-note {
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
+
+// Additional responsive breakpoint for very small screens
+@media(max-width:480px) {
+  .class-labeling-section {
+    .class-labels-scroll {
+      max-height: 250px; // Further reduced for small screens
+      padding-right: 2px;
+    }
+
+    .class-labels-header {
+      padding: 4px 8px;
+      
+      ion-note {
+        font-size: 0.75rem;
+        
+        ion-icon {
+          font-size: 1em;
+          margin-right: 6px;
+        }
+      }
+    }
   }
 }
 

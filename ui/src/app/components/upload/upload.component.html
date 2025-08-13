@@ -25,23 +25,28 @@
         <ion-card class='ion-padding'>
           <ion-card-header>
             <ion-card-title>Label Your Classes</ion-card-title>
-            <ion-card-subtitle>Provide meaningful names for each class value found in your target column</ion-card-subtitle>
+            <ion-card-subtitle>Provide meaningful names for all {{uniqueClassValues.length}} found in your target column</ion-card-subtitle>
           </ion-card-header>
           <ion-card-content>
-            <ion-item *ngFor='let classValue of uniqueClassValues' class='ion-margin-bottom'>
-              <ion-label position='stacked'>Class Value: <strong>{{classValue}}</strong></ion-label>
-              <ion-input 
-                [formControlName]="'class_label_' + classValue"
-                placeholder='Enter a descriptive label (e.g., "Positive", "Negative", "High Risk")'
-                required>
-              </ion-input>
-              <ion-note 
-                *ngIf="uploadForm.get('class_label_' + classValue)?.errors?.['invalidCharacters']" 
-                color="danger" 
-                slot="helper">
-                Invalid characters detected. Please avoid special characters that could cause display issues.
-              </ion-note>
-            </ion-item>
+            <!-- Scrollable container for class labels -->
+            <div class='class-labels-container'>
+              <div class='class-labels-scroll'>
+                <ion-item *ngFor='let classValue of uniqueClassValues' class='ion-margin-bottom'>
+                  <ion-label position='stacked'>Class Value: <strong>{{classValue}}</strong></ion-label>
+                  <ion-input 
+                    [formControlName]="'class_label_' + classValue"
+                    placeholder='Enter a descriptive label (e.g., "Positive", "Negative", "High Risk")'
+                    required>
+                  </ion-input>
+                  <ion-note 
+                    *ngIf="uploadForm.get('class_label_' + classValue)?.errors?.['invalidCharacters']" 
+                    color="danger" 
+                    slot="helper">
+                    Invalid characters detected. Please avoid special characters that could cause display issues.
+                  </ion-note>
+                </ion-item>
+              </div>
+            </div>
             <ion-note color='medium' class='ion-margin-top'>
               These labels will be used throughout the results and exports instead of numeric class values.
             </ion-note>
