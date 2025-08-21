@@ -75,17 +75,14 @@
         <div *ngIf='result'>
           <span class='label'>Predicted Outcome</span>:
           {{getPredictionLabel(result.predicted[0])}} for {{ result.target }}
-          <ion-icon class='indicator' size='large' [color]='result.predicted[0] === 1 ? "danger" : result.predicted[0] === 0 ? "success" : "warning"'
-            [name]='result.predicted[0] === 1 ? "add-circle" : result.predicted[0] === 0 ? "remove-circle" : "help-circle"'></ion-icon>
-          <br><br>
           <ng-container *ngIf='result.predicted[0] === 1 || result.predicted[0] === 0'>
+            <br><br>
             <span class='label'>Probability</span>: {{(result.probability[0] * 100) | number}}%
+            <p>
+              The predictions confidence is indicated by the probability above. Higher indicates a stronger
+              confidence in the prediction.
+            </p>
           </ng-container>
-
-          <p>
-            The predictions confidence is indicated by the probability above. Higher indicates a stronger
-            confidence in the prediction.
-          </p>
         </div>
         <ng-container *ngTemplateOutlet='modelStats'></ng-container>
       </div>

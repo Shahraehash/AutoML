@@ -398,7 +398,7 @@ def test(jobid):
         payload['threshold']
     )
 
-    reply['target'] = metadata['label']
+    reply['target'] = f"Class Index {reply['predicted'][0]}"
 
     return jsonify(reply)
 
@@ -441,7 +441,7 @@ def test_tandem(jobid):
     return jsonify({
       'predicted': npv_reply['predicted'].to_list(),
       'probability': npv_reply['probability'].to_list(),
-      'target': metadata['label']
+      'target': f"Class Index {npv_reply['predicted'].iloc[0]}"
     })
 
 def test_ensemble(jobid):
@@ -464,7 +464,7 @@ def test_ensemble(jobid):
 
     reply = predict_ensemble(model_details['total_models'], data, folder, payload['vote_type'])
 
-    reply['target'] = metadata['label']
+    reply['target'] = f"Class Index {reply['predicted'][0]}"
 
     return jsonify(reply)
 
