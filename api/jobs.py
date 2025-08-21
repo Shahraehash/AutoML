@@ -503,11 +503,16 @@ def generalize(jobid):
     # Extract class_index from request payload (unified approach for all model types)
     class_index = payload.get('class_index')
 
+    generalization_result = generalize_model(payload['data'], dataset_metadata['label'], model_path, payload['threshold'], class_index)
+    reliability_result = additional_reliability(payload['data'], dataset_metadata['label'], model_path, class_index)
+    precision_result = additional_precision(payload['data'], dataset_metadata['label'], model_path, class_index)
+    roc_result = additional_roc(payload['data'], dataset_metadata['label'], model_path, class_index)
+
     return jsonify({
-        'generalization': generalize_model(payload['data'], dataset_metadata['label'], model_path, payload['threshold'], class_index),
-        'reliability': additional_reliability(payload['data'], dataset_metadata['label'], model_path, class_index),
-        'precision_recall': additional_precision(payload['data'], dataset_metadata['label'], model_path, class_index),
-        'roc_auc': additional_roc(payload['data'], dataset_metadata['label'], model_path, class_index)
+        'generalization': generalization_result,
+        'reliability': reliability_result,
+        'precision_recall': precision_result,
+        'roc_auc': roc_result
     })
 
 def get_class_specific_results(jobid, class_index):

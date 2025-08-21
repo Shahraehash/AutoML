@@ -197,6 +197,10 @@ export interface RefitGeneralization {
     tp: number;
     fn: number;
     fp: number;
+    // New properties for multiclass OvR handling
+    num_classes?: number;
+    is_multiclass?: boolean;
+    actual_processed_rows?: number;
 }
 
 export interface AdditionalGeneralization {

@@ -202,13 +202,30 @@ export class UseModelComponent implements OnInit {
           const result = await (
             this.publishName ? this.api.generalizePublished(payload, this.publishName) : this.api.generalize(payload, this.threshold, this.currentModelPath, this.classIndex)
           );
+          
           this.generalization = result.generalization;
           this.reliability = result.reliability;
           this.precisionRecall = result.precision_recall;
           this.rocAuc = result.roc_auc;
           
-          this.invalidCases = reply.data.length - (this.generalization.tp + this.generalization.fp + this.generalization.tn + this.generalization.fn);
+          const totalProcessedCases = this.generalization.tp + this.generalization.fp + this.generalization.tn + this.generalization.fn;
+          
+          // Calculate invalid cases correctly for multiclass OvR evaluation
+          let actualProcessedRows: number;
+          
+          if (this.generalization.is_multiclass && this.generalization.num_classes > 2) {
+            // For multiclass OvR, each row is evaluated multiple times (once per class)
+            // Use the actual processed rows from backend, or calculate from confusion matrix
+            actualProcessedRows = this.generalization.actual_processed_rows || 
+                                 Math.round(totalProcessedCases / this.generalization.num_classes);
+          } else {
+            // Binary classification - use confusion matrix total directly
+            actualProcessedRows = totalProcessedCases;
+          }
+          
+          this.invalidCases = reply.data.length - actualProcessedRows;
         } catch (err) {
+          console.error('Generalization error:', err);
           this.showError('Unable to assess model performance. Please ensure the target column is present.');
         }
 

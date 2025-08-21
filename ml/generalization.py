@@ -383,11 +383,16 @@ def generalize_model(payload, label, folder, threshold=0.5, class_index=None):
         dict: Generalization metrics dictionary
     """
     # Load and prepare data
-    data = pd.DataFrame(payload['data'], columns=payload['columns']).apply(pd.to_numeric, errors='coerce').dropna()
+    initial_df = pd.DataFrame(payload['data'], columns=payload['columns'])
+    
+    # Apply numeric conversion and drop NaN rows
+    numeric_df = initial_df.apply(pd.to_numeric, errors='coerce')
+    data = numeric_df.dropna()
     
     if data.empty:
         raise ValueError("No valid data remaining after preprocessing")
     
+    # Extract features and labels
     x = data[payload['features']].to_numpy()
     y = data[label].to_numpy()
     
@@ -414,10 +419,23 @@ def generalize_model(payload, label, folder, threshold=0.5, class_index=None):
     # If model outputs 2 probabilities, treat as binary (either true binary or OvR binary)
     if probabilities.shape[1] == 2:
         # Binary pipeline handles both true binary and OvR binary cases
-        return _compute_binary_generalization_report(labels, y, predictions, probabilities)
+        result = _compute_binary_generalization_report(labels, y, predictions, probabilities)
     else:
         # Multi-class model - respect class_index parameter and threshold for OvR tuning
-        return _compute_multiclass_generalization_report(labels, y, predictions, probabilities, class_index, threshold)
+        result = _compute_multiclass_generalization_report(labels, y, predictions, probabilities, class_index, threshold)
+    
+    # Add metadata for proper frontend calculation
+    unique_classes = sorted(np.unique(y))
+    num_classes = len(unique_classes)
+    is_multiclass = num_classes > 2
+    actual_processed_rows = len(y)
+    
+    # Add the metadata to the result
+    result['num_classes'] = num_classes
+    result['is_multiclass'] = is_multiclass
+    result['actual_processed_rows'] = actual_processed_rows
+    
+    return result
 
 
 def generalize_ensemble(total_models, job_folder, dataset_folder, label):
